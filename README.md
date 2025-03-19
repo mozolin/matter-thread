@@ -15,7 +15,7 @@ OS Version: 10.0.19044 N/A Build 19044
 ! Works without COM-ports sharing under this version of Windows!  
   
   
-I. How to install Linux on Windows with WSL  
+# I. How to install Linux on Windows with WSL  
 https://learn.microsoft.com/en-us/windows/wsl/install  
 Check Ubuntu version:  
 ~~~
@@ -27,10 +27,10 @@ Powershell:
 ubuntu config --default-user root  
 ~~~
   
-II. Ubuntu on Windows App Store  
+# II. Ubuntu on Windows App Store  
 https://apps.microsoft.com/search?query=ubuntu&hl=en-us&gl=US  
   
-III. Install usbipd-win  
+# III. Install usbipd-win  
 https://github.com/dorssel/usbipd-win/releases  
 OR  
 usbipd-win in WSL  
@@ -47,7 +47,7 @@ lsusb
 ~~~
 !!! MAKE A PICTURE AT HOME !!!  
   
-IV. ESP-IDF Prerequisites  
+# IV. ESP-IDF Prerequisites  
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html  
 https://wiki.seeedstudio.com/xiao_idf/  
 To /root/.bashrc add:  
@@ -60,13 +60,13 @@ Than run:
 source ~/.bashrc  
 ~~~
   
-V. ESP-IDF Setup  
+# V. ESP-IDF Setup  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html  
   
-VI. Matter Prerequisites  
+# VI. Matter Prerequisites  
 https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites  
   
-VII. ESP Matter Setup  
+# VII. ESP Matter Setup  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup  
 https://wiki.seeedstudio.com/xiao_esp32_matter_env/  
 To /root/.bashrc add:  
@@ -85,23 +85,23 @@ source ~/.bashrc
 Note:  
 "A complete installation of Ubuntu, ESP-IDF and ESP-Matter takes up about 20 GB of disk space on drive C."  
   
-VIII. Install Visual Studio Code  
+# VIII. Install Visual Studio Code  
 https://code.visualstudio.com/  
   
-IX. Install Remote WSL extension in Visual Studio Code  
+# IX. Install Remote WSL extension in Visual Studio Code  
 https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#install-remote-wsl-extension-in-visual-studio-code  
   
-X. ??? Test Setup (CHIP Tool)  
+# X. ??? Test Setup (CHIP Tool)  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool  
   
-XI. ??? Working with the CHIP Tool  
+# XI. ??? Working with the CHIP Tool  
 https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md  
   
-XII. Matter Shell Reference  
+# XII. Matter Shell Reference  
 https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#device-console  
   
-XIII. How to generate Matter Onboarding Codes (QR Code and Manual Pairing Code)  
+# XIII. How to generate Matter Onboarding Codes (QR Code and Manual Pairing Code)  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32/faq.html#a1-9-how-to-generate-matter-onboarding-codes-qr-code-and-manual-pairing-code  
   
   
