@@ -1,7 +1,6 @@
-
+URL: https://github.com/mozolin/matter-thread  
 
 Powershell:  
-~~~~~~~~~~~  
 >> systeminfo  
 OS Name: Microsoft Windows 10 Pro  
 OS Version: 10.0.19045 N/A Build 19045  
@@ -19,7 +18,6 @@ Check Ubuntu version:
 >> lsb_release -a  
 If asked to add a new user, just do it, but after that it should switch to root.  
 Powershell:  
-~~~~~~~~~~~  
 >> ubuntu config --default-user root  
   
 2) Ubuntu on Windows App Store  
@@ -31,12 +29,10 @@ OR
 3) usbipd-win in WSL  
 https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#usbipd-win-in-wsl  
 Powershell:  
-~~~~~~~~~~~  
 >> usbipd list -u  
 !!! MAKE A PICTURE AT HOME !!!  
   
 Ubuntu:  
-~~~~~~~  
 >> lsusb  
 !!! MAKE A PICTURE AT HOME !!!  
   
