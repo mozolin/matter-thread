@@ -11,7 +11,7 @@ OS Version: 10.0.19045 N/A Build 19045
 systeminfo  
 ~~~
 OS Name: Microsoft Windows 10 Enterprise  
-OS Version: 10.0.19044 N/A Build 19044  
+OS Version: 10.0.19045 N/A Build 19045  
 ! Works without COM-ports sharing under this version of Windows!  
   
   
@@ -65,6 +65,7 @@ https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html
   
 # 6. Matter Prerequisites  
 https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites  
+https://wiki.seeedstudio.com/xiao_esp32_matter_env/
   
 # 7. ESP Matter Setup  
 https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup  
