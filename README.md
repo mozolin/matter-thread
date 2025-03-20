@@ -215,7 +215,7 @@ idf.py =p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
 ~~~
 
 **JOIN THE THREAD NETWORK VIA NETWORKKEY**  
-OpenThread Border Router (see: [“How_to_setup_and_work_with_OpenThread_Border_Router.pdf](How_to_setup_and_work_with_OpenThread_Border_Router.pdf))
+OpenThread Border Router (see: [“OPENTHREAD.md](OPENTHEAD.md))
 ~~~
 dataset active -x
 ~~~
