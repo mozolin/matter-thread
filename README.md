@@ -1,6 +1,6 @@
-URL: [https://github.com/mozolin/matter-thread](https://github.com/mozolin/matter-thread)
+URL: [https://github.com/mozolin/matter-thread](https://github.com/mozolin/matter-thread)  
 # How to setup and work with ESP-IDF and ESP-Matter
-[How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)
+[How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)  
 
 Windows Powershell (with Administrator rights):
 ~~~
@@ -15,8 +15,8 @@ OS Version: 10.0.19045 N/A Build 19045
 **Works without sharing COM-ports in this version of Windows!**
 
 # 1. How to install Ubuntu on Windows with WSL
-Recommended Ubuntu 22.04…
-[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)
+Recommended Ubuntu 22.04…  
+[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)  
 Check Ubuntu version:
 ~~~
 lsb_release -a
@@ -29,12 +29,12 @@ ubuntu2204 config --default-user root   #-- another instance
 ~~~
 
 # 2. Ubuntu on Windows App Store
-[https://apps.microsoft.com/search?query=ubuntu&hl=en-us&gl=US](https://apps.microsoft.com/search?query=ubuntu&hl=en-us&gl=US)
+[https://apps.microsoft.com/search?query=ubuntu&hl=en-us&gl=US](https://apps.microsoft.com/search?query=ubuntu&hl=en-us&gl=US)  
 Map network resource \\\\wsl.localhost\Ubuntu or \\\\wsl\$\Ubuntu on disk U (for instance). So, the project examples can be found in U:\root\esp-matter\examples folder. If we are using another WSL instance, then the path should be something like \\\\wsl\$\Ubuntu-22.04
  
 ![](images/matter/ubuntu_wsl.png)
 # 3. ESP-IDF Prerequisites (Ubuntu only)
-[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html)
+[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html)  
 [https://wiki.seeedstudio.com/xiao_idf/](https://wiki.seeedstudio.com/xiao_idf/)
 ~~~
 sudo apt update
@@ -43,7 +43,7 @@ sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv 
 ~~~
 
 # 4. ESP-IDF Setup (Windows and Ubuntu)
-[https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html)
+[https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html)  
 Windows Powershell (with Administrator rights):
 ~~~
 D:
@@ -74,7 +74,7 @@ source ~/.bashrc
 Now it is possible to run get_idf to set up or refresh the esp-idf environment in any terminal session.
 
 # 5. Matter Prerequisites (Ubuntu only)
-[https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites)
+[https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/BUILDING.md#prerequisites)  
 [https://wiki.seeedstudio.com/xiao_esp32_matter_env/](https://wiki.seeedstudio.com/xiao_esp32_matter_env/)
 
 ~~~
@@ -82,7 +82,7 @@ sudo apt-get install git gcc g++ pkg-config libssl-dev libdbus-1-dev libglib2.0-
 ~~~
 
 # 6. ESP Matter Setup (Ubuntu only)
-[https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup)
+[https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#esp-matter-setup)  
 [https://wiki.seeedstudio.com/xiao_esp32_matter_env/](https://wiki.seeedstudio.com/xiao_esp32_matter_env/)
 ~~~
 cd esp-idf
@@ -115,9 +115,9 @@ Than run:
 ~~~
 source ~/.bashrc
 ~~~
-Now it is possible to run get_matter and set_cache to set up or refresh the esp-matter environment in any terminal session.
-
-Note:
+Now it is possible to run get_matter and set_cache to set up or refresh the esp-matter environment in any terminal session.  
+  
+Note:  
 "A complete installation of Ubuntu, ESP-IDF and ESP-Matter takes up about 20 GB of disk space on drive C."
 
 # 7. Install Visual Studio Code
@@ -127,8 +127,8 @@ Note:
 [https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#install-remote-wsl-extension-in-visual-studio-code](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#install-remote-wsl-extension-in-visual-studio-code)
 
 # 9. Install usbipd-win
-[https://github.com/dorssel/usbipd-win/releases](https://github.com/dorssel/usbipd-win/releases)
-[https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#usbipd-win-in-wsl](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#usbipd-win-in-wsl)
+[https://github.com/dorssel/usbipd-win/releases](https://github.com/dorssel/usbipd-win/releases)  
+[https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#usbipd-win-in-wsl](https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/additionalfeatures/wsl.html#usbipd-win-in-wsl)  
 Windows Powershell:
 ~~~
 usbipd list
@@ -188,9 +188,9 @@ idf.py set-target esp32c6                #-- Set the build target to ESP32-C6
 idf.py menuconfig                        #-- Enter the configuration menu
 ~~~
 
-CONFIG_OPENTHREAD_ENABLED=y
-CONFIG_ENABLE_WIFI_STATION=n
-CONFIG_USE_MINIMAL_MDNS=n
+CONFIG_OPENTHREAD_ENABLED=y  
+CONFIG_ENABLE_WIFI_STATION=n  
+CONFIG_USE_MINIMAL_MDNS=n  
 
  
 ![](images/matter/esp_menuconfig_01.png)
@@ -214,18 +214,18 @@ CONFIG_USE_MINIMAL_MDNS=n
 idf.py =p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
 ~~~
 
-JOIN THE THREAD NETWORK VIA NETWORKKEY
-OpenThread Border Router (see: [“How_to_setup_and_work_with_OpenThread_Border_Router.pdf](How_to_setup_and_work_with_OpenThread_Border_Router.pdf)):
+**JOIN THE THREAD NETWORK VIA NETWORKKEY**  
+OpenThread Border Router (see: [“How_to_setup_and_work_with_OpenThread_Border_Router.pdf](How_to_setup_and_work_with_OpenThread_Border_Router.pdf))
 ~~~
 dataset active -x
 ~~~
-0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8
+0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8  
 Done
 
 ~~~
 networkkey
 ~~~
-00112233445566778899aabbccddeeff
+00112233445566778899aabbccddeeff  
 Done
 
 Thread End Device:
@@ -268,7 +268,7 @@ matter esp ot_cli state
 
 
 # 13. Matter Shell Reference
-[https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html](https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html)
+[https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html](https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html)  
 [https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#device-console](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#device-console)
  
 ![](images/matter/esp_matter_01.png)
@@ -296,5 +296,3 @@ chip-tool payload generate-manualcode --discriminator 3131 --setup-pin-code 2020
 ~~~
  
 ![](images/matter/esp_chiptool_qrcode.png)
-
-
