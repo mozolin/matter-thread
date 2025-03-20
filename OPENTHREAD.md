@@ -6,7 +6,7 @@ URL: [https://github.com/mozolin/matter-thread](https://github.com/mozolin/matte
 [https://openthread.io/guides/border-router/espressif-esp32](https://openthread.io/guides/border-router/espressif-esp32)  
 [https://openthread.io/codelabs/esp-openthread-hardware](https://openthread.io/codelabs/esp-openthread-hardware)  
  
-![](images/otbr/esp-thread-border-router-board.png)
+![](images/otbr/esp-thread-border-router-board.png)  
 Note: Only the USB2 port on the ESP Thread Border Router Board needs to be connected to the host.
 
 ~~~
