@@ -133,8 +133,8 @@ Windows Powershell:
 ~~~
 usbipd list
 usbipd list –u
-usbipd bind --busid 1-3
-usbipd attach --wsl --busid 1-3
+usbipd bind --busid 1-1
+usbipd attach --wsl --busid 1-1
 ~~~
 
  
