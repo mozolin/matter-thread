@@ -6,13 +6,13 @@ Windows Powershell (with Administrator rights):
 ~~~
 systeminfo
 ~~~
-OS Name: Microsoft Windows 10 Pro
-OS Version: 10.0.19045 N/A Build 19045
-**Works successfully in this version of Windows!**
-
-OS Name: Microsoft Windows 10 Enterprise
-OS Version: 10.0.19045 N/A Build 19045
-**Works without sharing COM-ports in this version of Windows!**
+OS Name: Microsoft Windows 10 Pro  
+OS Version: 10.0.19045 N/A Build 19045  
+**Works successfully in this version of Windows!**  
+  
+OS Name: Microsoft Windows 10 Enterprise  
+OS Version: 10.0.19045 N/A Build 19045  
+**Works without sharing COM-ports in this version of Windows!**  
 
 # 1. How to install Ubuntu on Windows with WSL
 Recommended Ubuntu 22.04…  
