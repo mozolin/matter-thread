@@ -1,4 +1,4 @@
-URL: [https://github.com/mozolin/matter-thread](https://github.com/mozolin/matter-thread)  
+[**How to setup and work with OpenThread Border Router**](OPENTHREAD.md)  
 # How to setup and work with ESP-IDF and ESP-Matter
 [How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)  
 
@@ -215,7 +215,7 @@ idf.py =p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
 ~~~
 
 **JOIN THE THREAD NETWORK VIA NETWORKKEY**  
-OpenThread Border Router (see: [OPENTHREAD.md](OPENTHREAD.md))
+OpenThread Border Router (see: [How to setup and work with OpenThread Border Router](OPENTHREAD.md))
 ~~~
 dataset active -x
 ~~~
