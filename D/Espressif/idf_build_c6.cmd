@@ -4,7 +4,7 @@ rem -- The first argument, not empty one, starts monitor mode without flashing f
 set MONITOR_ONLY=%1
 
 set NET_DISK=U:
-set LINUX_PATH=\\wsl$\Ubuntu
+set LINUX_PATH=\\wsl.localhost\Ubuntu-22.04
 set IDF_PATH=/root/esp-idf
 set APP_PATH=/root/esp-matter/examples/light-c6
 
@@ -31,6 +31,9 @@ if %RESPONSE%. == . goto FINISHED
 rem -- Go to :MONITOR_ONLY
 if %RESPONSE% == 1 goto MONITOR_ONLY
 
+get_idf
+get_matter
+set_cache
 
 rem -- Get size info of bootloader.bin
 python %IDF_PATH%/components/partition_table/check_sizes.py --offset 0xc000 bootloader 0x0 %APP_PATH%/build/bootloader/bootloader.bin
