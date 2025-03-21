@@ -211,7 +211,7 @@ CONFIG_USE_MINIMAL_MDNS=n
 ![](images/matter/esp_menuconfig_06.png)
 
 ~~~
-idf.py =p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
+idf.py -p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
 ~~~
 
 **JOIN THE THREAD NETWORK VIA NETWORKKEY**  
