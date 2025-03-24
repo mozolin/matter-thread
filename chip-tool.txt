@@ -1,0 +1,3 @@
+
+Working with the CHIP Tool
+https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html#installation
