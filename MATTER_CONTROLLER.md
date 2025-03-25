@@ -42,7 +42,31 @@ matter esp ot_cli state
 ~~~
 > leader
 
-# 3. Pair and Control
+# 3. Thread End Device (ESP32-C6):
+Source code: [~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
+This example is implemented using the ESP32-C6 development board.  
+![](images/ctrl/ESP32-C6-WROOM-1_06.jpg)
+~~~
+matter esp ot_cli factoryreset
+matter onboardingcodes none
+~~~
+> QRCode:            MT:Y.K90-Q000KA0648G00  
+> QRCodeUrl:         https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AY.K90-Q000KA0648G00  
+> ManualPairingCode: 34970112332  
+
+Check End Device state
+~~~
+matter esp ot_cli state
+~~~
+> router
+
+Pressed BOOT button (LED on the board set to OFF):
+> I (454109) app_driver: Toggle button pressed  
+> I (454109) esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
+> I (454109) esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
+> I (454109) led_driver_ws2812: led set r:0, g:0, b:0  
+
+# 4. Pair and Control
 
 Pairing the Thread end-device  
 *Syntax:* ***matter esp controller pairing code-thread {node_id} {dataset_tlvs} {payload}***  
@@ -142,27 +166,3 @@ matter esp controller pairing unpair 1234
 > I (20907279) chip[DMG]: Received Command Response Data, Endpoint=0 Cluster=0x0000_003E Command=0x0000_0008  
 > I (20907279) chip[CTL]: Remove Current Fabric succeeded.  
 > I (20907279) pairing_command: Succeeded to remove fabric for remote node 0x4d2  
-
-# Thread End Device (ESP32-C6):
-Source code: [~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
-This example is implemented using the ESP32-C6 development board.  
-![](images/ctrl/ESP32-C6-WROOM-1_06.jpg)
-~~~
-matter esp ot_cli factoryreset
-matter onboardingcodes none
-~~~
-> QRCode:            MT:Y.K90-Q000KA0648G00  
-> QRCodeUrl:         https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AY.K90-Q000KA0648G00  
-> ManualPairingCode: 34970112332  
-
-Check End Device state
-~~~
-matter esp ot_cli state
-~~~
-> router
-
-Pressed BOOT button (LED on the board set to OFF):
-> I (454109) app_driver: Toggle button pressed  
-> I (454109) esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
-> I (454109) esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
-> I (454109) led_driver_ws2812: led set r:0, g:0, b:0  
