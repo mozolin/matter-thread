@@ -55,9 +55,9 @@ Pairing the Thread end-device
 matter esp controller pairing code-thread 1234 0e08000000000001000000030000174a0300000f35060004001fffe002088fbedf39fa8516870708fd39593d4bdb6a430510ed823d77790b1f415530bbef3678ddb0030f4f70656e5468726561642d3131363601021166041062a21d4edaa262bb779fc2c9923516490c0402a0f7f8 34970112332
 ~~~
 If the command fails:
-> E (5440899) chip[CTL]: Discovery timed out
-> E (5440899) chip[BLE]: BleConnectionDelegate::CancelConnection is not implemented.
-> E (5440899) chip[-]: Error CHIP:0x0000002D at src/controller/SetUpCodePairer.cpp:687
+> E (5440899) chip[CTL]: Discovery timed out  
+> E (5440899) chip[BLE]: BleConnectionDelegate::CancelConnection is not implemented.  
+> E (5440899) chip[-]: Error CHIP:0x0000002D at src/controller/SetUpCodePairer.cpp:687  
 
 If the command is successfully executed:
 
@@ -72,14 +72,14 @@ Send the command "Turn Off"
 matter esp controller invoke-cmd 1234 1 6 0
 ~~~
 If the command fails:
-> I (6214639) chip[DIS]: Resolving 66291657CE65E808:00000000000004D2 ...
-> I (6214639) chip[DIS]: Lookup started for 66291657CE65E808-00000000000004D2
-> E (6259639) chip[DIS]: OperationalSessionSetup[1:00000000000004D2]: operational discovery failed: 32
+> I (6214639) chip[DIS]: Resolving 66291657CE65E808:00000000000004D2 ...  
+> I (6214639) chip[DIS]: Lookup started for 66291657CE65E808-00000000000004D2  
+> E (6259639) chip[DIS]: OperationalSessionSetup[1:00000000000004D2]: operational discovery failed: 32  
 
 If the command is successfully executed:
-> I (8633409) chip[DIS]: Found an existing secure session to [1:00000000000004D2]!
-> I (8633499) chip[DMG]: Received Command Response Status for Endpoint=1 Cluster=0x0000_0006 Command=0x0000_0002 Status=0x0
-> I (8633509) cluster_command: Send command success
+> I (8633409) chip[DIS]: Found an existing secure session to [1:00000000000004D2]!  
+> I (8633499) chip[DMG]: Received Command Response Status for Endpoint=1 Cluster=0x0000_0006 Command=0x0000_0002 Status=0x0  
+> I (8633509) cluster_command: Send command success  
   
 Send the command "Turn On"
 ~~~
@@ -90,7 +90,7 @@ Send the command "Toggle"
 matter esp controller invoke-cmd 1234 1 6 2
 ~~~
   
-Read OnOff state
+Read OnOff state  
 *Syntax:* ***matter esp controller read-attr {node_id} {endpoint_ids} {cluster_ids} {attr_ids}***
 - {node_id} : NodeId chosen for the end device during pairing
 - {endpoint_ids} : EndPointId (1 for this example)
@@ -116,16 +116,16 @@ matter esp controller pairing unpair 1234
 matter esp ot_cli factoryreset
 matter onboardingcodes none
 ~~~
-> QRCode:            MT:Y.K90-Q000KA0648G00
-> QRCodeUrl:         https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AY.K90-Q000KA0648G00
-> ManualPairingCode: 34970112332
+> QRCode:            MT:Y.K90-Q000KA0648G00  
+> QRCodeUrl:         https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AY.K90-Q000KA0648G00  
+> ManualPairingCode: 34970112332  
 ~~~
 matter esp ot_cli state
 ~~~
 > router
 
 Pressed BOOT button (LED on the board set to OFF):
-> I (454109) app_driver: Toggle button pressed
-> I (454109) esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1
-> I (454109) esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0
-> I (454109) led_driver_ws2812: led set r:0, g:0, b:0
+> I (454109) app_driver: Toggle button pressed  
+> I (454109) esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
+> I (454109) esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
+> I (454109) led_driver_ws2812: led set r:0, g:0, b:0  
