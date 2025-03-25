@@ -58,6 +58,10 @@ Check End Device state
 ~~~
 matter esp ot_cli state
 ~~~
+Less possible
+> child
+
+Most possible
 > router
 
 Pressed BOOT button (LED on the board set to OFF):
