@@ -100,7 +100,7 @@ Control the Thread end-device on the device console (On/Off cluster Toggle comma
 - {cluster_id} : ClusterId (6 for OnOff cluster)
 - {command_id} : CommandId (2 for Toggle command)
   
-Send the command "Turn Off"
+Send the command "Turn Off" (command_id = 0)
 ~~~
 matter esp controller invoke-cmd 1234 1 6 0
 ~~~
@@ -114,11 +114,11 @@ If the command is successfully executed:
 > I (8633499) chip[DMG]: Received Command Response Status for Endpoint=1 Cluster=0x0000_0006 Command=0x0000_0002 Status=0x0  
 > I (8633509) cluster_command: Send command success  
   
-Send the command "Turn On"
+Send the command "Turn On" (command_id = 1)
 ~~~
 matter esp controller invoke-cmd 1234 1 6 1
 ~~~
-Send the command "Toggle"
+Send the command "Toggle" (command_id = 2)
 ~~~
 matter esp controller invoke-cmd 1234 1 6 2
 ~~~
