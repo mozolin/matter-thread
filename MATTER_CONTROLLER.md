@@ -145,7 +145,7 @@ matter esp controller pairing unpair 1234
 
 # Thread End Device (ESP32-C6):
 [Example: ~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
-Using ESP32-C6 Development Board  
+This example is implemented using the ESP32-C6 development board.  
 ![](images/ctrl/ESP32-C6-WROOM-1_06.jpg)
 ~~~
 matter esp ot_cli factoryreset
