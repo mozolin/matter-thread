@@ -86,6 +86,7 @@ If the command is successfully executed:
 > I (7795519) chip[CTL]: Successfully finished commissioning step 'Cleanup'  
 > I (7795529) chip[CTL]: Commissioning complete for node ID 0x00000000000004D2: **success**  
 > I (7795529) pairing_command: Commissioning **success** with node 66291657CE65E808-4D2  
+
 ***Note: Check the Thread Network dataset before attempting to pair with end devices by sending the following command:***
 ~~~
 matter esp ot_cli dataset active -x
