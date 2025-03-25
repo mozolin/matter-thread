@@ -49,8 +49,6 @@ Pairing the Thread end-device
 - {node_id} : randomly chosen value  
 - {dataset_tlvs} : dataset value from request "dataset active -x"  
 - {payload} : matter QR code  
-
-*Example:*
 ~~~
 matter esp controller pairing code-thread 1234 0e08000000000001000000030000144a0300001435060004001fffe002080a9f6e962bfaf9880708fdded0b37370c3f60510b7078e7ab3c4c3624b10968aa9338f2e030f4f70656e5468726561642d613537300102a5700410f88938966f178b3876174a63b8639a220c0402a0f7f8 34970112332
 ~~~
@@ -146,7 +144,8 @@ matter esp controller pairing unpair 1234
 > I (20907279) pairing_command: Succeeded to remove fabric for remote node 0x4d2  
 
 # Thread End Device (ESP32-C6):
-[esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)
+[Example: ~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
+Using ESP32-C6 Development Board  
 ![](images/ctrl/ESP32-C6-WROOM-1_06.jpg)
 ~~~
 matter esp ot_cli factoryreset
