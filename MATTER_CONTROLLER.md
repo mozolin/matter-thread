@@ -60,6 +60,32 @@ If the command fails:
 > E (5440899) chip[-]: Error CHIP:0x0000002D at src/controller/SetUpCodePairer.cpp:687  
 
 If the command is successfully executed:
+> I (7784199) chip[CTL]: Successfully finished commissioning step 'ReadCommissioningInfo'  
+> I (7784299) chip[CTL]: Successfully finished commissioning step 'ArmFailSafe'  
+> I (7784399) chip[CTL]: Successfully finished commissioning step 'ConfigRegulatory'  
+> I (7784399) chip[CTL]: Successfully finished commissioning step 'ConfigureTCAcknowledgments'  
+> I (7784699) chip[CTL]: Successfully finished commissioning step 'SendPAICertificateRequest'  
+> I (7784999) chip[CTL]: Successfully finished commissioning step 'SendDACCertificateRequest'  
+> I (7785299) chip[CTL]: Successfully finished commissioning step 'SendAttestationRequest'  
+> I (7786649) chip[CTL]: Successfully finished commissioning step 'AttestationVerification'  
+> I (7786649) chip[CTL]: Successfully validated 'Attestation Information' command received from the device  
+> I (7786649) chip[CTL]: Successfully finished commissioning step 'AttestationRevocationCheck'  
+> I (7786899) chip[CTL]: Successfully finished commissioning step 'SendOpCertSigningRequest'  
+> I (7787229) chip[CTL]: Successfully finished commissioning step 'ValidateCSR'  
+> I (7787739) chip[CTL]: Successfully finished commissioning step 'GenerateNOCChain'  
+> I (7787999) chip[CTL]: Successfully finished commissioning step 'SendTrustedRootCert'  
+> I (7788349) chip[CTL]: Successfully finished commissioning step 'SendNOC'  
+> I (7788449) chip[CTL]: Successfully finished commissioning step 'ThreadNetworkSetup'  
+> I (7788549) chip[CTL]: Successfully finished commissioning step 'FailsafeBeforeThreadEnable'  
+> I (7790099) chip[CTL]: Successfully finished commissioning step 'ThreadNetworkEnable'  
+> I (7790099) chip[CTL]: Successfully finished commissioning step 'kEvictPreviousCaseSessions'  
+> I (7795379) chip[CTL]: Successfully finished commissioning step 'kFindOperationalForStayActive'  
+> I (7795389) chip[CTL]: Successfully finished commissioning step 'ICDSendStayActive'  
+> I (7795389) chip[CTL]: Successfully finished commissioning step 'kFindOperationalForCommissioningComplete'  
+> I (7795519) chip[CTL]: Successfully finished commissioning step 'SendComplete'  
+> I (7795519) chip[CTL]: Successfully finished commissioning step 'Cleanup'  
+> I (7795529) chip[CTL]: Commissioning complete for node ID 0x00000000000004D2: **success**  
+> I (7795529) pairing_command: Commissioning **success** with node 66291657CE65E808-4D2  
 
 Control the Thread end-device on the device console (On/Off cluster Toggle command)
 *Syntax:* ***matter esp controller invoke-cmd {node_id} {endpoint_id} {cluster_id} {command_id} {command_data>}***  
