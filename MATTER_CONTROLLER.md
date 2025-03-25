@@ -99,6 +99,7 @@ Control the Thread end-device on the device console (On/Off cluster Toggle comma
 - {endpoint_id} : EndPointId (1 for this example)
 - {cluster_id} : ClusterId (6 for OnOff cluster)
 - {command_id} : CommandId (2 for Toggle command)
+  
 Send the command "Turn Off"
 ~~~
 matter esp controller invoke-cmd 1234 1 6 0
