@@ -4,20 +4,20 @@ rem -- The first argument, not empty one, starts monitor mode without flashing f
 set MONITOR_ONLY=%1
 
 set NET_DISK=U:
-set UBUNTU_PATH=\\wsl$\Ubuntu
+set LINUX_PATH=\\wsl$\Ubuntu
 set IDF_PATH=/root/esp-idf
 set APP_PATH=/root/esp-matter/examples/light-h2
 
 set CHIP_TYPE=esp32h2
 set COM_PORT=COM5
 set COM_BAUD=460800
-rem -- if we run "idf.py set-target esp32h2", we will get the value from "sdkconfig": CONFIG_ESPTOOLPY_FLASHFREQ="80m"
+rem -- from "sdkconfig": CONFIG_ESPTOOLPY_FLASHFREQ="48m"
 set FLASH_FREQ=48m
 
 
 echo [30m
 rem -- Map Ubintu path to local disk
-net use %NET_DISK% %UBUNTU_PATH%
+net use %NET_DISK% %LINUX_PATH%
 rem -- Change disk letter
 %NET_DISK%
 echo [0m
@@ -39,7 +39,7 @@ rem -- Get size info of partition-table.bin and light.bin
 python %IDF_PATH%/components/partition_table/check_sizes.py --offset 0xc000 partition --type app %APP_PATH%/build/partition_table/partition-table.bin %APP_PATH%/build/light.bin
 
 rem -- Set environment
-cmake -D IDF_PATH=%IDF_PATH% -D "SERIAL_TOOL=%PRJ_PATH%/.espressif/python_env/idf5.2_py3.10_env/bin/python;;%IDF_PATH%/components/esptool_py/esptool/esptool.py;--chip;%CHIP_TYPE%" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=%APP_PATH%/build  -D ESPBAUD=%COM_BAUD% -D ESPPORT=%COM_PORT% -P %IDF_PATH%/components/esptool_py/run_serial_tool.cmake
+cmake -D IDF_PATH=%IDF_PATH% -D "SERIAL_TOOL=%PRJ_PATH%\.espressif/python_env/idf5.2_py3.10_env/bin/python;;%IDF_PATH%/components/esptool_py/esptool/esptool.py;--chip;%CHIP_TYPE%" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=%APP_PATH%/build  -D ESPBAUD=%COM_BAUD% -D ESPPORT=%COM_PORT% -P %IDF_PATH%/components/esptool_py/run_serial_tool.cmake
 
 rem  -- Go to app build folder and flash firmware
 cd %APP_PATH%/build

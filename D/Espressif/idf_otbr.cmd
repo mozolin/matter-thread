@@ -1,7 +1,7 @@
 @echo off
 
 set APP_DISK=D:
-set APP_PATH=/Espressif/esp-thread-br/examples/basic_thread_border_router
+set APP_PATH=\Espressif\esp-thread-br\examples\basic_thread_border_router
 set COM_PORT=COM3
 
 
