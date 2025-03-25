@@ -29,7 +29,7 @@ Getting the operational dataset TLV-encoded string. The {dataset_tlvs} will be p
 ~~~
 matter esp ot_cli dataset active -x
 ~~~
-> 0e080000000000010000000300000d4a0300001735060004001fffe002086918ac4cec261a970708fd716900bdecc341051061493dd6445a4897f8f07bbcf80022c2030f4f70656e5468726561642d646433340102dd340410abb2f35da1d8108f9278de52b687e99f0c0402a0f7f8
+> 0e08000000000001000000030000144a0300001435060004001fffe002080a9f6e962bfaf9880708fdded0b37370c3f60510b7078e7ab3c4c3624b10968aa9338f2e030f4f70656e5468726561642d613537300102a5700410f88938966f178b3876174a63b8639a220c0402a0f7f8
 
 Starting the Thread network
 ~~~
@@ -52,7 +52,7 @@ Pairing the Thread end-device
 
 *Example:*
 ~~~
-matter esp controller pairing code-thread 1234 0e08000000000001000000030000174a0300000f35060004001fffe002088fbedf39fa8516870708fd39593d4bdb6a430510ed823d77790b1f415530bbef3678ddb0030f4f70656e5468726561642d3131363601021166041062a21d4edaa262bb779fc2c9923516490c0402a0f7f8 34970112332
+matter esp controller pairing code-thread 1234 0e08000000000001000000030000144a0300001435060004001fffe002080a9f6e962bfaf9880708fdded0b37370c3f60510b7078e7ab3c4c3624b10968aa9338f2e030f4f70656e5468726561642d613537300102a5700410f88938966f178b3876174a63b8639a220c0402a0f7f8 34970112332
 ~~~
 If the command fails:
 > E (5440899) chip[CTL]: Discovery timed out  
@@ -86,6 +86,10 @@ If the command is successfully executed:
 > I (7795519) chip[CTL]: Successfully finished commissioning step 'Cleanup'  
 > I (7795529) chip[CTL]: Commissioning complete for node ID 0x00000000000004D2: **success**  
 > I (7795529) pairing_command: Commissioning **success** with node 66291657CE65E808-4D2  
+***Note: Check the Thread Network dataset before attempting to pair with end devices by sending the following command:***
+~~~
+matter esp ot_cli dataset active -x
+~~~
 
 Control the Thread end-device on the device console (On/Off cluster Toggle command)
 *Syntax:* ***matter esp controller invoke-cmd {node_id} {endpoint_id} {cluster_id} {command_id} {command_data>}***  
@@ -148,6 +152,8 @@ matter onboardingcodes none
 > QRCode:            MT:Y.K90-Q000KA0648G00  
 > QRCodeUrl:         https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AY.K90-Q000KA0648G00  
 > ManualPairingCode: 34970112332  
+
+Check End Device state
 ~~~
 matter esp ot_cli state
 ~~~
