@@ -87,10 +87,11 @@ If the command is successfully executed:
 > I (7795529) chip[CTL]: Commissioning complete for node ID 0x00000000000004D2: **success**  
 > I (7795529) pairing_command: Commissioning **success** with node 66291657CE65E808-4D2  
 
-***Note: Check the Thread Network dataset before attempting to pair with end devices by sending the following command:***
+*Note: Be sure to check the value of {dataset_tlvs} before attempting to pair with end devices by sending the following command:*
 ~~~
 matter esp ot_cli dataset active -x
 ~~~
+> 0e08000000000001000000030000144a0300001435060004001fffe002080a9f6e962bfaf9880708fdded0b37370c3f60510b7078e7ab3c4c3624b10968aa9338f2e030f4f70656e5468726561642d613537300102a5700410f88938966f178b3876174a63b8639a220c0402a0f7f8
 
 Control the Thread end-device on the device console (On/Off cluster Toggle command)
 *Syntax:* ***matter esp controller invoke-cmd {node_id} {endpoint_id} {cluster_id} {command_id} {command_data>}***  
