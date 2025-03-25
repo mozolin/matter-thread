@@ -134,6 +134,9 @@ Unpair end device using its {node_id}:
 ~~~  
 matter esp controller pairing unpair 1234  
 ~~~
+> I (20907279) chip[DMG]: Received Command Response Data, Endpoint=0 Cluster=0x0000_003E Command=0x0000_0008  
+> I (20907279) chip[CTL]: Remove Current Fabric succeeded.  
+> I (20907279) pairing_command: Succeeded to remove fabric for remote node 0x4d2  
 
 # Thread End Device (ESP32-C6):
 [esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)
