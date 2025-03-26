@@ -234,14 +234,16 @@ matter esp ot_cli dataset set active 0e08000000000001000000030000154a03000017350
 ~~~
 > Error 7: InvalidArgs  
 
-Why is that? There is a difference between the results of the data set:  
+Why is that? There is a difference between the results of the datasets:  
 Here:  
 > matter esp ot_cli dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8  
 
-Example "Join the OTBR network" (https://openthread.io/codelabs/openthread-border-router):  
+[Example "Join the OTBR network"][https://openthread.io/codelabs/openthread-border-router]:  
 > matter esp ot_cli dataset set active 0e080000000000010000000300001235060004001fffe002083d3818dc1c8db63f0708fda85ce9df1e662005101d81689e4c0a32f3b4aa112994d29692030f4f70656e5468726561642d35326532010252e204103f23f6b8875d4b05541eeb4f9718d2f40c0302a0ff  
 
 The second one is 12 characters shorter!  
+  
+So, we pair the end device using the Thread Router network key.
 ~~~
 matter esp ot_cli dataset networkkey 00112233445566778899aabbccddeeff
 matter esp ot_cli dataset commit active
