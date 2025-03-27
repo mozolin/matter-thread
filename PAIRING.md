@@ -25,7 +25,7 @@ state
 ~~~
 > router
 
-When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get following info:  
+When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get the following info:  
 > t:  0 (CHANNEL), l: 3, v: 0x00001a  
 > t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f  
 > t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'  
@@ -84,7 +84,7 @@ dataset set active 0e080000000000010000000300001235060004001fffe002083d3818dc1c8
 ~~~
 > Done
 
-When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get following info:  
+When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get the following info:  
 > t:  0 (CHANNEL), l: 3, v: 0x000012  
 > t:  1 (PANID), l: 2, v: 0x52e2  
 > t:  2 (EXTPANID), l: 8, v: 0x3d3818dc1c8db63f  
@@ -97,7 +97,7 @@ When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get 
 > t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0  
 
 As we can see, there is no tag named "APPLE_TAG_UNKNOWN" in this example!
-This tag can be also found after parsing of Home Assistant's dataset in its Thread integration. According to the comments inside of code of the "tlv-parser.py" script, this tag can be "seen in a dataset imported through iOS companion app"...  
+This tag can also be found after parsing the Home Assistant dataset in its Thread integration. According to the comments inside the "tlv-parser.py" script code, this tag can be "seen in a dataset imported through iOS companion app"...  
 
 ![](images/ha/HA-ActiveDatasetTLVs.png)
 
