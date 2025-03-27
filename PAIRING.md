@@ -106,7 +106,8 @@ This tag can be also found after parsing of Home Assistant's dataset in its Thre
 
 
 # [Working with the CHIP Tool](https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md#installation)
-Example: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
+Examples: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
+Examples: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool
 # [Working with the CHIP Tool in WSL2](https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi)
 ChipTool not working properly due to missing BLE adapter in WSL
 ~~~
