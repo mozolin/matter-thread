@@ -106,6 +106,7 @@ This tag can also be found after parsing the Home Assistant dataset in its Threa
 
 
 # [Working with the CHIP Tool](https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md#installation)
+Another branch: https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html#installation  
 Examples: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
 Examples: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool
 # [Working with the CHIP Tool in WSL2](https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi)
@@ -155,7 +156,35 @@ commissioner joiner enablea meshcop J01NU5
 
 
 # Thread Border Router
-~/esp-matter/examples/thread_border_router
+Github: https://github.com/espressif/esp-matter/tree/main/examples/thread_border_router  
+  
+OpenThread Radio Co-Processor (RCP):  
+~~~
+cd ~/esp-idf/examples/openthread/ot_rcp
+idf.py set-target esp32h2 build
+~~~
+Thread Border Router:
+~~~
+cd ~/esp-matter/examples/thread_border_router
+idf.py set-target esp32s3 build
+idf.py -p {port} erase-flash flash
+~~~
+  
+  
 
 # Matter ESP32 Thread Border Router Example
-~/esp-matter/connectedhomeip/connectedhomeip/examples/thread-br-app/esp32
+Github: https://github.com/project-chip/connectedhomeip/tree/master/examples/thread-br-app/esp32  
+
+OpenThread Radio Co-Processor (RCP):  
+~~~
+cd ~/esp-idf/examples/openthread/ot_rcp
+idf.py set-target esp32h2
+idf.py build
+~~~
+Thread Border Router:
+~~~
+cd ~/esp-matter/connectedhomeip/connectedhomeip/examples/thread-br-app/esp32
+idf.py set-target esp32s3
+idf.py build
+idf.py -p {port} erase-flash flash monitor
+~~~

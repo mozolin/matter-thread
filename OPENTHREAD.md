@@ -1,6 +1,6 @@
 [**How to setup and work with ESP-IDF and ESP-Matter**](https://github.com/mozolin/matter-thread)  
 # How to setup and work with OpenThread Border Router
-[How_to_setup_and_work_with_OpenThread_Border_Router.pdf](How_to_setup_and_work_with_OpenThread_Border_Router.pdf)  
+[How_to_setup_and_work_with_OpenThread_Border_Router.pdf](docs/How_to_setup_and_work_with_OpenThread_Border_Router.pdf)  
 
 [https://docs.espressif.com/projects/esp-thread-br/en/latest/dev-guide/build_and_run.html](https://docs.espressif.com/projects/esp-thread-br/en/latest/dev-guide/build_and_run.html)  
 [https://openthread.io/guides/border-router/espressif-esp32](https://openthread.io/guides/border-router/espressif-esp32)  
