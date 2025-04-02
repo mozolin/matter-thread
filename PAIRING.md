@@ -296,8 +296,8 @@ OpenThread CLI - Leader:
 ~~~
 router table
 ~~~
-> |&nbsp;ID&nbsp;|&nbsp;RLOC16&nbsp;|&nbsp;Next&nbsp;Hop&nbsp;|&nbsp;Path&nbsp;Cost&nbsp;|&nbsp;LQI&nbsp;In&nbsp;|&nbsp;LQI&nbsp;Out&nbsp;|&nbsp;Age&nbsp;|&nbsp;Extended&nbsp;MAC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|  
+> | ID | RLOC16 | Next Hop | Path Cost | LQI In | LQI Out | Age | Extended MAC     |  
 > +----+--------+----------+-----------+--------+---------+-----+------------------+  
-> |&nbsp;20&nbsp;|&nbsp;0x5000&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;63&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;|&nbsp;&nbsp;&nbsp;0&nbsp;|&nbsp;96da92ea13534f3b&nbsp;|  
-> |&nbsp;22&nbsp;|&nbsp;0x5800&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;63&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;|&nbsp;&nbsp;23&nbsp;|&nbsp;5a4eb647eb6bc66c&nbsp;|  
+> | 20 | 0x5000 |       63 |         0 |      0 |       0 |   0 | 96da92ea13534f3b |  
+> | 22 | 0x5800 |       63 |         0 |      3 |       3 |  23 | 5a4eb647eb6bc66c |  
   
