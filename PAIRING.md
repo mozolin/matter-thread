@@ -110,7 +110,7 @@ Another branch: https://project-chip.github.io/connectedhomeip-doc/development_c
 Examples: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
 Examples: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool
 # [Working with the CHIP Tool in WSL2](https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi)
-ChipTool not working properly due to missing BLE adapter in WSL, but it can be configured for Windows 10-11
+ChipTool not working properly due to missing BLE adapter in WSL
 ~~~
 chip-tool pairing code-thread 1 hex:0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8 34970112332
 ~~~
@@ -197,7 +197,7 @@ The example could also run on a single SoC which supports both Wi-Fi and Thread 
 ~~~
 idf.py menuconfig
 ~~~
-Component config → ESP System Settings → Channel for console output → USB Serial/JTAG Controller
+Component config > ESP System Settings > Channel for console output > USB Serial/JTAG Controller
 
 ![](images/ctrl/esp32c6_otbr_menuconfig_01.png)
 
