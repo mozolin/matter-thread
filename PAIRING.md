@@ -215,6 +215,8 @@ Component config → ESP System Settings → Channel for console output → USB 
 
 ![](images/ctrl/esp32c6_otbr_menuconfig_08.png)
 
+![](images/ctrl/esp32c6_otbr_menuconfig_09.png)
+
 ~~~
 idf.py -p COM3 build flash monitor
 ~~~
