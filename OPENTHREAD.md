@@ -22,7 +22,7 @@ Build the esp-idf/examples/openthread/ot_rcp example. The firmware doesn't need 
 cd /Espressif/esp-idf/examples/openthread/ot_rcp
 idf.py set-target esp32h2
 idf.py build
-cd /Espressif/esp-thread-br\examples\basic_thread_border_router
+cd /Espressif/esp-thread-br/examples/basic_thread_border_router
 idf.py set-target esp32s3
 idf.py menuconfig
 ~~~

@@ -110,7 +110,7 @@ Another branch: https://project-chip.github.io/connectedhomeip-doc/development_c
 Examples: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
 Examples: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool
 # [Working with the CHIP Tool in WSL2](https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi)
-ChipTool not working properly due to missing BLE adapter in WSL
+ChipTool not working properly due to missing BLE adapter in WSL, but it can be configured for Windows 10-11
 ~~~
 chip-tool pairing code-thread 1 hex:0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8 34970112332
 ~~~
@@ -188,3 +188,113 @@ idf.py set-target esp32s3
 idf.py build
 idf.py -p {port} erase-flash flash monitor
 ~~~
+
+
+# OpenThread Border Router Example
+Github: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_br
+
+The example could also run on a single SoC which supports both Wi-Fi and Thread (e.g., ESP32-C6), but since there is only one RF path in ESP32-C6, which means Wi-Fi and Thread can't receive simultaneously, it has a significant impact on performance.
+~~~
+idf.py menuconfig
+~~~
+Component config → ESP System Settings → Channel for console output → USB Serial/JTAG Controller
+
+![](images/ctrl/esp32c6_otbr_menuconfig_01.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_02.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_03.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_04.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_05.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_06.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_07.png)
+
+![](images/ctrl/esp32c6_otbr_menuconfig_08.png)
+
+~~~
+idf.py -p COM3 build flash monitor
+~~~
+> I (499) ot_ext_cli: Start example_connect
+> I (499) example_connect: Connecting to MIKE_REDMI_NOTE_13...
+> ...
+> I (17219) esp_netif_handlers: example_netif_sta ip: **192.168.31.218**, mask: 255.255.255.0, gw: 192.168.31.193
+> I (17219) example_connect: Got IPv4 event: Interface "example_netif_sta" address: 192.168.31.218
+> I (17379) example_connect: Got IPv6 event: Interface "example_netif_sta" address: fe80:0000:0000:0000:424c:caff:fe58:101c, type: ESP_IP6_ADDR_IS_LINK_LOCAL
+...
+> I(17389) OPENTHREAD:[N] Mle-----------: Role disabled -> detached
+...
+> I(51099) OPENTHREAD:[N] Mle-----------: Role detached -> leader
+
+OpenThread command line interface (CLI):
+~~~
+state
+~~~
+> leader
+~~~
+wifi state
+~~~
+> connected
+~~~
+dataset active -x
+~~~
+> 0e080000000000010000000300000f4a0300001135060004001fffe00208dead00beef00cafe0708fd000db800a00000051000112233445566778899aabbccddeeff030e4f70656e5468726561642d455350010212340410104810e2315100afd6bc9215a6bfac530c0402a0f7f8
+
+
+# Simulating a Thread network with OpenThread
+https://openthread.io/codelabs/openthread-simulation-posix/index.html#1
+
+Build a leader node:
+~~~
+git clone --recursive https://github.com/openthread/openthread.git
+cd openthread
+./script/bootstrap
+./script/cmake-build simulation
+./script/cmake-build posix -DOT_DAEMON=ON
+./build/simulation/examples/apps/cli/ot-cli-ftd 1
+~~~
+OpenThread CLI - Leader:
+~~~
+dataset init new
+dataset
+~~~
+> Network Key: e4344ca17d1dca2a33f064992f31f786
+> PAN ID: 0xc169
+~~~
+dataset commit active
+ifconfig up
+thread start
+state
+~~~
+> leader
+
+Build a child node:
+~~~
+./build/simulation/examples/apps/cli/ot-cli-ftd 2
+~~~
+OpenThread CLI - Child:
+~~~
+dataset networkkey e4344ca17d1dca2a33f064992f31f786
+dataset panid 0xc169
+dataset commit active
+ifconfig up
+thread start
+state
+~~~
+> child
+~~~
+state
+~~~
+> router
+
+OpenThread CLI - Leader:
+~~~
+router table
+~~~
+> | ID | RLOC16 | Next Hop | Path Cost | LQI In | LQI Out | Age | Extended MAC     |
+> +----+--------+----------+-----------+--------+---------+-----+------------------+
+> | 20 | 0x5000 |       63 |         0 |      0 |       0 |   0 | 96da92ea13534f3b |
+> | 22 | 0x5800 |       63 |         0 |      3 |       3 |  23 | 5a4eb647eb6bc66c |
