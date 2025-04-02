@@ -103,6 +103,20 @@ cd esp-matter; source ./export.sh; cd ..
 
 export IDF_CCACHE_ENABLE=1
 ~~~
+*During the installation of Esp-Matter ("./install.sh"), compilation may stop due to errors. In case of errors such as:*  
+> ...pw: command not found  
+> ...pop_var_context: hed of shell_variables not a function context"  
+> ...nonja: build stopped: subcommand failed"  
+> ...etc...  
+
+*try running the following commands:*
+~~~
+cd ~/esp-matter/connectedhomeip/connectedhomeip
+git clean -Xdf
+source ./scripts/bootstrap.sh
+~~~
+
+
 To /root/.bashrc add:
 ~~~
 #-- Alias for setting up the ESP-Matter environment
