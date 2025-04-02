@@ -191,8 +191,8 @@ idf.py -p {port} erase-flash flash monitor
 
 
 # OpenThread Border Router Example
-Github: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_br
-
+Github: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_br  
+  
 The example could also run on a single SoC which supports both Wi-Fi and Thread (e.g., ESP32-C6), but since there is only one RF path in ESP32-C6, which means Wi-Fi and Thread can't receive simultaneously, it has a significant impact on performance.
 ~~~
 idf.py menuconfig
@@ -220,17 +220,17 @@ Component config > ESP System Settings > Channel for console output > USB Serial
 ~~~
 idf.py -p COM3 build flash monitor
 ~~~
-> I (499) ot_ext_cli: Start example_connect
-> I (499) example_connect: Connecting to MIKE_REDMI_NOTE_13...
-> ...
-> I (17219) esp_netif_handlers: example_netif_sta ip: **192.168.31.218**, mask: 255.255.255.0, gw: 192.168.31.193
-> I (17219) example_connect: Got IPv4 event: Interface "example_netif_sta" address: 192.168.31.218
-> I (17379) example_connect: Got IPv6 event: Interface "example_netif_sta" address: fe80:0000:0000:0000:424c:caff:fe58:101c, type: ESP_IP6_ADDR_IS_LINK_LOCAL
-...
-> I(17389) OPENTHREAD:[N] Mle-----------: Role disabled -> detached
-...
-> I(51099) OPENTHREAD:[N] Mle-----------: Role detached -> leader
-
+> I (499) ot_ext_cli: Start example_connect  
+> I (499) example_connect: Connecting to MIKE_REDMI_NOTE_13...  
+> ...  
+> I (17219) esp_netif_handlers: example_netif_sta ip: **192.168.31.218**, mask: 255.255.255.0, gw: 192.168.31.193  
+> I (17219) example_connect: Got IPv4 event: Interface "example_netif_sta" address: 192.168.31.218  
+> I (17379) example_connect: Got IPv6 event: Interface "example_netif_sta" address: fe80:0000:0000:0000:424c:caff:fe58:101c, type: ESP_IP6_ADDR_IS_LINK_LOCAL  
+...  
+> I(17389) OPENTHREAD:[N] Mle-----------: Role disabled -> detached  
+...  
+> I(51099) OPENTHREAD:[N] Mle-----------: Role detached -> leader  
+  
 OpenThread command line interface (CLI):
 ~~~
 state
@@ -247,8 +247,8 @@ dataset active -x
 
 
 # Simulating a Thread network with OpenThread
-https://openthread.io/codelabs/openthread-simulation-posix/index.html#1
-
+https://openthread.io/codelabs/openthread-simulation-posix/index.html#1  
+  
 Build a leader node:
 ~~~
 git clone --recursive https://github.com/openthread/openthread.git
@@ -263,8 +263,8 @@ OpenThread CLI - Leader:
 dataset init new
 dataset
 ~~~
-> Network Key: e4344ca17d1dca2a33f064992f31f786
-> PAN ID: 0xc169
+> Network Key: e4344ca17d1dca2a33f064992f31f786  
+> PAN ID: 0xc169  
 ~~~
 dataset commit active
 ifconfig up
@@ -296,7 +296,8 @@ OpenThread CLI - Leader:
 ~~~
 router table
 ~~~
-> | ID | RLOC16 | Next Hop | Path Cost | LQI In | LQI Out | Age | Extended MAC     |
-> +----+--------+----------+-----------+--------+---------+-----+------------------+
-> | 20 | 0x5000 |       63 |         0 |      0 |       0 |   0 | 96da92ea13534f3b |
-> | 22 | 0x5800 |       63 |         0 |      3 |       3 |  23 | 5a4eb647eb6bc66c |
+> | ID | RLOC16 | Next Hop | Path Cost | LQI In | LQI Out | Age | Extended MAC     |  
+> +----+--------+----------+-----------+--------+---------+-----+------------------+  
+> | 20 | 0x5000 |       63 |         0 |      0 |       0 |   0 | 96da92ea13534f3b |  
+> | 22 | 0x5800 |       63 |         0 |      3 |       3 |  23 | 5a4eb647eb6bc66c |  
+  
