@@ -193,11 +193,19 @@ idf.py -p {port} erase-flash flash monitor
 # OpenThread Border Router Example
 Github: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_br  
   
-The example could also run on a single SoC which supports both Wi-Fi and Thread (e.g., ESP32-C6), but since there is only one RF path in ESP32-C6, which means Wi-Fi and Thread can't receive simultaneously, it has a significant impact on performance.
+The example could also run on a single SoC which supports both Wi-Fi and Thread (e.g., ESP32-C6), but since there is only one RF path in ESP32-C6, which means Wi-Fi and Thread can't receive simultaneously, it has a significant impact on performance.  
+Check ESP board configuration:
+~~~
+esptool -p {COM-PORT} flash_id
+~~~
+> esptool.py v4.7.0  
+> Detecting chip type... ESP32-C6  
+> Detected flash size: 8MB  
+  
 ~~~
 idf.py menuconfig
 ~~~
-Component config > ESP System Settings > Channel for console output > USB Serial/JTAG Controller
+
 
 ![](images/ctrl/esp32c6_otbr_menuconfig_01.png)
 
