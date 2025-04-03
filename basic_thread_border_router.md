@@ -42,14 +42,14 @@ chip-tool pairing code-thread 1 hex:0e080000000000010000000300001a4a030000163506
 ~~~
 matter esp ot_cli router table
 ~~~
-![](cmd_01-router_table.png)  
+![](images/otbr/cmd_01-router_table.png)  
 > | ID | RLOC16 | Next Hop | Path Cost | LQ In | LQ Out | Age | Extended MAC     | Link |  
 > +----+--------+----------+-----------+-------+--------+-----+------------------+------+  
 > | 17 | 0x4400 |       63 |         0 |     3 |      3 |  10 | 7a64fd2b41e75415 |    1 |  
 > | 25 | 0x6400 |       63 |         0 |     0 |      0 |   0 | 0000000000000000 |    0 |  
   
-![](otbr_01.jpg)  
-![](otbr_02.jpg)  
+![](images/otbr/otbr_01.jpg)  
+![](images/otbr/otbr_02.jpg)  
 
 
 ## OpenThread Border Router
@@ -71,4 +71,5 @@ EndpointId = 0x1 (1 for this example)
 ClusterId = 0x6 (6 for OnOff cluster)  
 CommandId = 0x2 (2 for Toggle command)  
 Status = 0x00 (0 = SUCCESS)  
-
+  
+![](images/otbr/ESP32-C6_LED-ON.jpg)  
