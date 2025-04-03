@@ -194,11 +194,15 @@ idf.py -p {port} erase-flash flash monitor
 Github: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_br  
   
 The example could also run on a single SoC which supports both Wi-Fi and Thread (e.g., ESP32-C6), but since there is only one RF path in ESP32-C6, which means Wi-Fi and Thread can't receive simultaneously, it has a significant impact on performance.  
+This example is implemented using the ESP32-C6 development board.  
+![](images/ctrl/ESP32-C6-WROOM-1_06.jpg)
+Blink GPIO number: 8  
+  
 Check ESP board configuration:
 ~~~
 esptool -p {COM-PORT} flash_id
 ~~~
-> esptool.py v4.7.0  
+> esptool.py v4.8.1  
 > Detecting chip type... ESP32-C6  
 > Detected flash size: 8MB  
   
@@ -208,21 +212,25 @@ idf.py menuconfig
 
 
 ![](images/ctrl/esp32c6_otbr_menuconfig_01.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_02.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_03.png)
-
+*Indicator of **Leader** Device: 40,0,0 (**red**)*  
+*Indicator of **Router** Device: 0,0,40 (**blue**)*  
+*Indicator of **Child** Device: 0,40,0 (**green**)*  
+*Indicator of **Detached** Device: 20,20,20 (**white**)*  
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_04.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_05.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_06.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_07.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_08.png)
-
+  
 ![](images/ctrl/esp32c6_otbr_menuconfig_09.png)
 
 ~~~
