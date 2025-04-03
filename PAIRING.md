@@ -215,7 +215,7 @@ idf.py menuconfig
   
 ![](images/ctrl/esp32c6_otbr_menuconfig_02.png)
   
-![](images/ctrl/esp32c6_otbr_menuconfig_03.png)
+![](images/ctrl/esp32c6_otbr_menuconfig_03.png)  
 *Indicator of **Leader** Device: 40,0,0 (**red**)*  
 *Indicator of **Router** Device: 0,0,40 (**blue**)*  
 *Indicator of **Child** Device: 0,40,0 (**green**)*  
