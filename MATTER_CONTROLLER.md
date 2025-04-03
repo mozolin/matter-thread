@@ -119,13 +119,13 @@ matter esp ot_cli dataset active -x
 ~~~
 > 0e08000000000001000000030000144a0300001435060004001fffe002080a9f6e962bfaf9880708fdded0b37370c3f60510b7078e7ab3c4c3624b10968aa9338f2e030f4f70656e5468726561642d613537300102a5700410f88938966f178b3876174a63b8639a220c0402a0f7f8
 
-Control the Thread end-device on the device console (On/Off cluster Toggle command)
+Control the Thread end-device on the device console (On/Off cluster Toggle command)  
 *Syntax:* ***matter esp controller invoke-cmd {node_id} {endpoint_id} {cluster_id} {command_id} {command_data>}***  
-- {node_id} : NodeId chosen for the end device during pairing
-- {endpoint_id} : EndPointId (1 for this example)
-- {cluster_id} : ClusterId (6 for OnOff cluster)
-- {command_id} : CommandId (2 for Toggle command)
-  
+- {node_id} : NodeId chosen for the end device during pairing  
+- {endpoint_id} : EndPointId (1 for this example)  
+- {cluster_id} : ClusterId (6 for OnOff cluster)  
+- {command_id} : CommandId (2 for Toggle command)  
+    
 Send the command "Turn Off" (command_id = 0)
 ~~~
 matter esp controller invoke-cmd 1234 1 6 0
