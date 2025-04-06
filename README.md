@@ -21,6 +21,41 @@ Check Ubuntu version:
 ~~~
 lsb_release -a
 ~~~
+> No LSB modules are available.  
+> Distributor ID: Ubuntu  
+> Description: Ubuntu 22.04.5 LTS  
+> Release: 22.04  
+> Codename: jammy  
+~~~
+hostnamectl
+~~~
+>  Static hostname: matter  
+>        Icon name: computer  
+>       Machine ID: 4434801db3c544fcb87aed78381cf1dc  
+>          Boot ID: 1f90601ca4914976b9ee4a2b17b71687  
+> Operating System: Ubuntu 22.04.5 LTS  
+>           Kernel: Linux 5.15.0-1075-raspi  
+>     Architecture: arm64  
+~~~
+cat /etc/*ease
+~~~
+> DISTRIB_ID=Ubuntu  
+> DISTRIB_RELEASE=22.04  
+> DISTRIB_CODENAME=jammy  
+> DISTRIB_DESCRIPTION="Ubuntu 22.04.5 LTS"  
+> PRETTY_NAME="Ubuntu 22.04.5 LTS"  
+> NAME="Ubuntu"  
+> VERSION_ID="22.04"  
+> VERSION="22.04.5 LTS (Jammy Jellyfish)"  
+> VERSION_CODENAME=jammy  
+> ID=ubuntu  
+> ID_LIKE=debian  
+> HOME_URL="https://www.ubuntu.com/"  
+> SUPPORT_URL="https://help.ubuntu.com/"  
+> BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"  
+> PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"  
+> UBUNTU_CODENAME=jammy  
+  
 If asked to add a new user, just do it, but after that we should switch to root.
 Windows Powershell:
 ~~~
