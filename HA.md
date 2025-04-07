@@ -20,6 +20,7 @@ dpkg -i os-agent_1.7.2_linux_aarch64.deb
 ~~~
 sudo BYPASS_OS_CHECK=true dpkg -i --ignore-depends=systemd-resolved ./homeassistant-supervised.deb
 ~~~
+Run Home Assistant: http://localhost:8123/  
 
 ## Install Portainer
 ~~~
