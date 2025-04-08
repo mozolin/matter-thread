@@ -10,5 +10,5 @@ On Linux distributions [running snapd](https://snapcraft.io/docs/installing-snap
 sudo snap install chip-tool
 ~~~
   
-Example: [Basic Thread Border Router](basic_thread_border_router.md)  
+Example: [Basic Thread Border Router](../basic_thread_border_router.md)  
   

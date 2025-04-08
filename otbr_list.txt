@@ -8,7 +8,7 @@
    https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#matter-controller
    https://github.com/espressif/esp-matter/tree/main/examples/controller
    ~/esp-matter/examples/controller
-   > End devices
+   > ESP Thread Border Router
 
 3) "Thread Border Router"
    https://github.com/espressif/esp-matter/tree/main/examples/thread_border_router
@@ -53,3 +53,12 @@
 10) "OpenThread Radio Co-Processor (RCP) Example" (Size Optimization)
     https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_rcp
     > Board with IEEE 802.15.4 module (ESP32-C6, ESP32-H2)
+
+11) OpenThread Command Line Example
+    https://openthread.io/codelabs/esp-openthread-hardware#1
+    https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_cli
+    > End devices
+
+12) Light Example
+    https://github.com/espressif/esp-matter/tree/main/examples/light
+    > End devices

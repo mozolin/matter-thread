@@ -230,108 +230,16 @@ There may be issues with shared access to COM ports in Windows 10 Enterprise. Th
  
 ![](images/matter/usdipd_error_04.png)
 
-# 10. Make an example project (all the settings are made for ESP32-C6 development board, Ubuntu only)
-- Make a copy of /root/esp-matter/examples/light folder to ../light-c6
-- Open this folder in VSCode using a remote WSL or in Ubuntu
-~~~
-cd /root/esp-matter/examples/light-c6    #-- Navigate to the light example directory
-rm -rf build/                            #-- Clean previous build files
-idf.py set-target esp32c6                #-- Set the build target to ESP32-C6
-idf.py menuconfig                        #-- Enter the configuration menu
-~~~
-
-CONFIG_OPENTHREAD_ENABLED=y  
-CONFIG_ENABLE_WIFI_STATION=n  
-CONFIG_USE_MINIMAL_MDNS=n  
-
- 
-![](images/matter/esp_menuconfig_01.png)
-
- 
-![](images/matter/esp_menuconfig_02.png)
-
- 
-![](images/matter/esp_menuconfig_03.png)
-
- 
-![](images/matter/esp_menuconfig_04.png)
-
- 
-![](images/matter/esp_menuconfig_05.png)
-
- 
-![](images/matter/esp_menuconfig_06.png)
-
-~~~
-idf.py -p /tty/ACM0 build flash monitor  #-- Building, flashing and monitoring
-~~~
-
-**JOIN THE THREAD NETWORK VIA NETWORKKEY**  
-OpenThread Border Router (see: [How to setup and work with OpenThread Border Router](OPENTHREAD.md))
-~~~
-dataset active -x
-~~~
-0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8  
-Done
-
-~~~
-networkkey
-~~~
-00112233445566778899aabbccddeeff  
-Done
-
-Thread End Device:
-~~~
-matter esp ot_cli dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8
-~~~
-> Error 7: InvalidArgs  
-
-Why is that? There is a difference between the results of the datasets:  
-Here:  
-> matter esp ot_cli dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8  
-
-[Example "Join the OTBR network"](https://openthread.io/codelabs/openthread-border-router):  
-> matter esp ot_cli dataset set active 0e080000000000010000000300001235060004001fffe002083d3818dc1c8db63f0708fda85ce9df1e662005101d81689e4c0a32f3b4aa112994d29692030f4f70656e5468726561642d35326532010252e204103f23f6b8875d4b05541eeb4f9718d2f40c0302a0ff  
-
-The second one is 12 characters shorter!  
-  
-So, we pair the end device using the Thread Router network key.
-~~~
-matter esp ot_cli dataset networkkey 00112233445566778899aabbccddeeff
-matter esp ot_cli dataset commit active
-matter esp ot_cli ifconfig up
-matter esp ot_cli thread start
-matter esp ot_cli state
-~~~
-
- 
-![](images/matter/esp_join_openthread_01.png)
-
- 
-![](images/matter/esp_join_openthread_02.png)
-
- 
-![](images/matter/esp_join_openthread_03.png)
-
- 
-![](images/matter/esp_join_openthread_04.png)
-
- 
-![](images/matter/esp_join_openthread_05.png)
-
- 
-![](images/matter/matter_esp_ot_cli.png)
-
-# 11. ??? Test Setup (CHIP Tool)
+# 10. ??? Test Setup (CHIP Tool)
 [https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool](https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool)
 
 
-# 12. ??? Working with the CHIP Tool
+# 11. ??? Working with the CHIP Tool
 [https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md](https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md)  
 [https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html](https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html)  
 
 
-# 13. Matter Shell Reference
+# 12. Matter Shell Reference
 [https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html](https://project-chip.github.io/connectedhomeip-doc/examples/chef/README_SHELL.html)  
 [https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#device-console](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html#device-console)
  
@@ -346,7 +254,7 @@ matter esp ot_cli state
  
 ![](images/matter/esp_matter_03.png)
 
-# 14. How to generate Matter Onboarding Codes (QR Code and Manual Pairing Code)
+# 13. How to generate Matter Onboarding Codes (QR Code and Manual Pairing Code)
 [https://docs.espressif.com/projects/esp-matter/en/latest/esp32/faq.html#a1-9-how-to-generate-matter-onboarding-codes-qr-code-and-manual-pairing-code](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/faq.html#a1-9-how-to-generate-matter-onboarding-codes-qr-code-and-manual-pairing-code)
 ~~~
 #-- Generate the QR Code
