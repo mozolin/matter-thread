@@ -1,0 +1,15 @@
+# Matter Manufacturing Partitions Generator Utility
+Github: https://github.com/espressif/esp-matter-tools/tree/main/mfg_tool  
+Espressif: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/production.html#the-esp-matter-mfg-tool-example  
+
+~~~
+python3 -m pip install esp-matter-mfg-tool
+~~~
+Apps from "connectedhomeip/connectedhomeip/examples" folder.  
+Example: ~/esp-matter/connectedhomeip/connectedhomeip/examples/lighting-app/esp32  
+~~~
+cd ~/esp-matter/connectedhomeip/connectedhomeip/examples/lighting-app/esp32
+idf.py menuconfig
+~~~
+
+See: https://github.com/espressif/connectedhomeip/tree/9b8fffe0bb4e7ba7aac319f5905070a3476db7cb/examples/lighting-app/esp32  
