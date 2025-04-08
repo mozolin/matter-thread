@@ -2,6 +2,9 @@
 # How to setup and work with ESP-IDF and ESP-Matter
 [How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](docs/How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)  
 
+Test QR code for Matter devices:  
+![](images/matter/matter_qrcode_20202021_3840.png)  
+  
 Windows Powershell (with Administrator rights):
 ~~~
 systeminfo
