@@ -45,6 +45,8 @@ dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208d
 
 When the role becomes *leader*, we can use the border router dataset:
 > OPENTHREAD:[N] Mle-----------: Role detached -> leader
+
+![](../images/ot_cli/esp-idf-ot_cli-h2_leader.jpg)  
 ~~~
 dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8
 ~~~
