@@ -1,9 +1,7 @@
 
 # Example: OpenThread Border Router + End Device + ChipTool
 ~/esp-thread-br/examples/basic_thread_border_router : OpenThread Border Router  
-~/esp-matter/examples/light-c6 : End Device  
   
-
 ## End Device
 ~~~
 matter esp factoryreset

@@ -1,0 +1,23 @@
+{
+	"error":	0,
+	"result":	[{
+			"id":	1,
+			"nn":	"OpenThread-5b91",
+			"ep":	"3dd5846a27dd139f",
+			"pi":	"0x5b91",
+			"ha":	"3e8a175887dbb4e7",
+			"ch":	26,
+			"ri":	-29,
+			"li":	9
+		}, {
+			"id":	2,
+			"nn":	"OpenThread-5b91",
+			"ep":	"3dd5846a27dd139f",
+			"pi":	"0x5b91",
+			"ha":	"1e1b2055963191b3",
+			"ch":	26,
+			"ri":	-50,
+			"li":	9
+		}],
+	"message":	"Networks: Success"
+}
