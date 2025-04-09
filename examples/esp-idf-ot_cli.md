@@ -27,6 +27,11 @@ idf.py menuconfig                            #-- Enter the configuration menu
 ![](../images/ot_cli/esp_menuconfig_02.jpg)  
   
 ![](../images/ot_cli/esp_menuconfig_03.jpg)  
+*Indicator of **Leader** Device: 40,0,0 (**red**)*  
+*Indicator of **Router** Device: 0,0,40 (**blue**)*  
+*Indicator of **Child** Device: 0,40,0 (**green**)*  
+*Indicator of **Detached** Device: 20,20,20 (**white**)*  
+
   
 ![](../images/ot_cli/esp_menuconfig_04.jpg)  
 
