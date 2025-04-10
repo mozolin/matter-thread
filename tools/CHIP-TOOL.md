@@ -12,3 +12,6 @@ sudo snap install chip-tool
   
 Example: [Basic Thread Border Router](../basic_thread_border_router.md)  
   
+Building Android App:  
+https://github.com/project-chip/connectedhomeip/blob/master/docs/platforms/android/android_building.md  
+  

@@ -9,8 +9,8 @@ networkkey
 >2debdf98de4f42f38b8fc0cb18336c94
 
 All end devices (ESP boards with IEEE 802.15.4 modules) have joined the first formed BR network.  
-Example: ~/esp-matter/examples/light-c6 (one ESP32-C6 chip used)  
-(original folder *light* was copied to *light-c6*)  
+Example: https://github.com/espressif/esp-matter/tree/main/examples/light  
+(one ESP32-C6 chip used, original folder *light* was copied to *light-c6*)  
 ~~~
 matter esp ot_cli dataset networkkey 2debdf98de4f42f38b8fc0cb18336c94
 matter esp ot_cli dataset commit active
@@ -18,8 +18,8 @@ matter esp ot_cli ifconfig up
 matter esp ot_cli thread start
 matter esp ot_cli state
 ~~~
-Example: ~/esp-idf/examples/openthread/ot_cli-h2 (two ESP32-H2 chips used)  
-(original folder *ot_cli* was copied to *ot_cli-h2*)  
+Example: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_cli  
+(two ESP32-H2 chips used, original folder *ot_cli* was copied to *ot_cli-h2*)  
 ~~~
 dataset networkkey 2debdf98de4f42f38b8fc0cb18336c94
 dataset commit active

@@ -11,5 +11,8 @@ Example: ~/esp-matter/connectedhomeip/connectedhomeip/examples/lighting-app/esp3
 cd ~/esp-matter/connectedhomeip/connectedhomeip/examples/lighting-app/esp32
 idf.py menuconfig
 ~~~
-
 See: https://github.com/espressif/connectedhomeip/tree/9b8fffe0bb4e7ba7aac319f5905070a3476db7cb/examples/lighting-app/esp32  
+https://github.com/espressif/connectedhomeip/blob/9b8fffe0bb4e7ba7aac319f5905070a3476db7cb/docs/platforms/esp32/build_app_and_commission.md  
+
+[Component config → CHIP Device Layer → Commissioning options → Use ESP32 Factory Data Provider]
+[Component config → CHIP Device Layer → Commissioning options → Use ESP32 Device Instance Info Provider]
