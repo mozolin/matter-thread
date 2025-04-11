@@ -80,3 +80,83 @@ Instances:
 2025/04/09 17:30:08 &{{_matter._tcp.local _services._dns-sd._udp local _services._dns-sd._udp.local. _matter._tcp.local._services._dns-sd._udp.local. _services._dns-sd._udp.local.}  0 [] 4500 [] []}
 2025/04/09 17:30:08 &{{_home-assistant._tcp.local _services._dns-sd._udp local _services._dns-sd._udp.local. _home-assistant._tcp.local._services._dns-sd._udp.local. _services._dns-sd._udp.local.}  0 [] 4500 [] []}
 ~~~
+
+Get active dataset
+~~~
+dataset active -x
+~~~
+> 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8  
+
+
+0e08
+~~~
+14: 0000000000010000
+~~~
+0003
+~~~
+0: 00001a
+~~~
+4a03
+~~~
+74: 000016
+~~~
+3506
+~~~
+53: 0004001fffe0
+~~~
+0208
+~~~
+2: 3dd5846a27dd139f
+~~~
+0708
+~~~
+7: fdec29c2f04b4b23
+~~~
+0510
+~~~
+5: 45005945ef9dbed88082d208673dad0f
+~~~
+030f
+~~~
+3: 4f70656e5468726561642d35623931 (OpenThread-5b91)
+~~~
+0102
+~~~
+1: 5b91
+~~~
+0410
+~~~
+4: 9855950ef75071da53e996c50694576a
+~~~
+0c04
+~~~
+12: 02a0f7f8  
+~~~
+
+
+
+
+O p e n T h r e a d - 5 b 9 1
+4f70656e5468726561642d35623931
+  
+Parsing result using tlv-parser.py
+~~~
+t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000
+t:  0 (CHANNEL), l: 3, v: 0x00001a
+t: 74 (APPLE_TAG_UNKNOWN), l: 3, v: 0x000016
+t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0
+t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f
+t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfdec29c2f04b4b23
+t:  5 (NETWORKKEY), l: 16, v: 0x45005945ef9dbed88082d208673dad0f
+t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'
+t:  1 (PANID), l: 2, v: 0x5b91
+t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
+t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
+~~~
+
+remove "4a03000016"
+
+
+New one:
+> 0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
+0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8

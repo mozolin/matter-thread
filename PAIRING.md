@@ -7,7 +7,6 @@ dataset active -x
 ~~~
 > 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
 
-The length of the dataset string id 222 chars.  
 It surely works with an example of [End Device](https://openthread.io/codelabs/esp-openthread-hardware#4) from the same manual.  
 ~~~
 dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
@@ -25,38 +24,8 @@ state
 ~~~
 > router
 
-When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get the following info:  
-> t:  0 (CHANNEL), l: 3, v: 0x00001a  
-> t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f  
-> t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'  
-> t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a  
-> t:  5 (NETWORKKEY), l: 16, v: 0x45005945ef9dbed88082d208673dad0f  
-> t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfdec29c2f04b4b23  
-> t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8  
-> t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000  
-> t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0  
-> ***t: 74 (APPLE_TAG_UNKNOWN), l: 3, v: 0x000016***  
-
-But it does not work with an example of [End Device](https://github.com/espressif/esp-matter/tree/main/examples/light)
-~~~
-matter esp ot_cli dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
-
-TMP> matter esp ot_cli factoryreset
-TMP> matter esp ot_cli dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
-~~~
-> Error 7: InvalidArgs
-
-This example needs having the dataset length 12 chars shorter, the length of the dataset string must be 210 chars.
-~~~
-matter esp ot_cli dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a
-~~~
-> I(6396760) OPENTHREAD:[I] Settings------: Saved ActiveDataset
-> I(6396760) OPENTHREAD:[I] DatasetManager: Active dataset set
-> I(6396760) OPENTHREAD:[I] Notifier------: StateChanged (0x100fc110) [MLAddr KeySeqCntr Channel PanId NetName ExtPanId NetworkKey PSKc ActDset]
-> I(6396770) OPENTHREAD:[I] AnnounceSender: StartingChannel:26
-
-This run unsuccessful, but without any errors.  
-So, we pair the End Device using the Thread Router network key.  
+But it does not work with an example of [End Device](examples/esp-matter-light.md)
+So, we can pair the End Device using the Thread Router network key.  
 Get the network key from the Border Router:
 ~~~
 networkkey
@@ -83,21 +52,6 @@ sudo ot-ctl dataset active -x
 dataset set active 0e080000000000010000000300001235060004001fffe002083d3818dc1c8db63f0708fda85ce9df1e662005101d81689e4c0a32f3b4aa112994d29692030f4f70656e5468726561642d35326532010252e204103f23f6b8875d4b05541eeb4f9718d2f40c0302a0ff
 ~~~
 > Done
-
-When we parse this dataset using [tlv-parser.py](D/utils/tlv-parser) we can get the following info:  
-> t:  0 (CHANNEL), l: 3, v: 0x000012  
-> t:  1 (PANID), l: 2, v: 0x52e2  
-> t:  2 (EXTPANID), l: 8, v: 0x3d3818dc1c8db63f  
-> t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-52e2'  
-> t:  4 (PSKC), l: 16, v: 0x3f23f6b8875d4b05541eeb4f9718d2f4  
-> t:  5 (NETWORKKEY), l: 16, v: 0x1d81689e4c0a32f3b4aa112994d29692  
-> t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfda85ce9df1e6620  
-> t: 12 (SECURITYPOLICY), l: 3, v: 0x02a0ff  
-> t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000  
-> t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0  
-
-As we can see, there is no tag named "APPLE_TAG_UNKNOWN" in this example!
-This tag can also be found after parsing the Home Assistant dataset in its Thread integration. According to the comments inside the "tlv-parser.py" script code, this tag can be "seen in a dataset imported through iOS companion app"...  
 
 ![](images/ha/HA-ActiveDatasetTLVs.png)
 

@@ -1,6 +1,6 @@
 # Matter Manufacturing Partitions Generator Utility
 Github: https://github.com/espressif/esp-matter-tools/tree/main/mfg_tool  
-Espressif: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/production.html#the-esp-matter-mfg-tool-example  
+Espressif: https://docs.espressif.com/projects/esp-matter/en/latest/esp32/production.html#the-esp-matter-mfg-tool-example  
 
 ~~~
 python3 -m pip install esp-matter-mfg-tool

@@ -1,0 +1,27 @@
+{
+ "ActiveTimestamp": {
+  "Seconds": 1,
+  "Ticks": 0,
+  "Authoritative": false
+ },
+ "NetworkKey": "45005945ef9dbed88082d208673dad0f",
+ "NetworkName": "OpenThread-5b91",
+ "ExtPanId": "3dd5846a27dd139f",
+ "MeshLocalPrefix": "fdec:29c2:f04b:4b23::/64",
+ "PanId": 23441,
+ "Channel": 26,
+ "PSKc": "9855950ef75071da53e996c50694576a",
+ "SecurityPolicy": {
+  "RotationTime": 672,
+  "ObtainNetworkKey": true,
+  "NativeCommissioning": true,
+  "Routers": true,
+  "ExternalCommissioning": true,
+  "CommercialCommissioning": false,
+  "AutonomousEnrollment": false,
+  "NetworkKeyProvisioning": false,
+  "TobleLink": true,
+  "NonCcmRouters": false
+ },
+ "ChannelMask": 134215680
+}

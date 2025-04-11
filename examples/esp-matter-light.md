@@ -63,13 +63,43 @@ matter config
 > PinCode:         020202021  
 > Discriminator:   f00 (3840) 
     
-There is a problem joining it to the Thread Network using the border router **dataset**:
+There is a problem joining it to the Thread Network using the border router dataset:
 ~~~
-matter esp ot_cli dataset set active 0e08000000000001000000030000154a0300001735060004001fffe00208def5e21b6165cc560708fde61aeab4004131051000112233445566778899aabbccddeeff030f4f70656e5468726561642d32326339010222c90410a5e0c5822c1e723956af6b1ee43f084e0c0402a0f7f8
+matter esp ot_cli dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
+
+TMP> matter esp ot_cli factoryreset
+TMP> matter esp ot_cli dataset set active 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
 ~~~
 > Error 7: InvalidArgs  
+  
+The dataset string is 222 characters long.  
+When we parse this dataset with [tlv-parser.py](D/utils/tlv-parser), we can get the following info:  
+> t:  0 (CHANNEL), l: 3, v: 0x00001a  
+> t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f  
+> t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'  
+> t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a  
+> t:  5 (NETWORKKEY), l: 16, v: 0x45005945ef9dbed88082d208673dad0f  
+> t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfdec29c2f04b4b23  
+> t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8  
+> t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000  
+> t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0  
+> ***t: 74 (APPLE_TAG_UNKNOWN), l: 3, v: 0x000016***  
 
-Anyway, we can use **networkkey** to join end device to Thread Network:
+Here we can see the companion app tag "74 (APPLE_TAG_UNKNOWN)". This tag can also be found after parsing the Home Assistant dataset in its Thread integration. According to the comments inside the "tlv-parser.py" script code, this tag can be "seen in a dataset imported through iOS/Android companion app"...  
+  
+If we run this parser script with the "use_app_tags=0" parameter (don't use companion app tags), we can get a new dataset:  
+> 0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
+
+The new dataset string is 212 characters long, the tag "74 (APPLE_TAG_UNKNOWN)" has been removed.  
+
+~~~
+matter esp ot_cli dataset set active 0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
+~~~
+> Done
+
+This run was successful!  
+
+Anyway, we can use networkkey to join the end device to the Thread Network:
 ~~~
 matter esp ot_cli dataset networkkey 00112233445566778899aabbccddeeff
 matter esp ot_cli dataset commit active
