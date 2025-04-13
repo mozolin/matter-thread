@@ -12,9 +12,9 @@ sudo apt install apparmor jq wget curl udisks2 libglib2.0-bin network-manager db
 
 curl -fsSL get.docker.com | sh
 
-wget https://github.com/home-assistant/os-agent/releases/download/1.6.0/os-agent_1.6.0_linux_x86_64.deb
+wget https://github.com/home-assistant/os-agent/releases/download/1.7.2/os-agent_1.7.2_linux_x86_64.deb
 
-sudo dpkg -i os-agent_1.6.0_linux_x86_64.deb
+sudo dpkg -i os-agent_1.7.2_linux_x86_64.deb
 ~~~
 
 Check an installation:
@@ -22,11 +22,13 @@ Check an installation:
 gdbus introspect --system --dest io.hass.os --object-path /io/hass/os
 ~~~
 
-Get and install HA Supervised
+Get and install HA Supervised  
+  
+- get "homeassistant-supervised.deb" from https://github.com/home-assistant/supervised-installer/releases/, but ver 1.8.0
 ~~~
-wget https://github.com/home-assistant/supervised-installer/releases/latest/download/homeassistant-supervised.deb
+sudo apt install grub2-common
 
-sudo BYPASS_OS_CHECK=true dpkg -i ./homeassistant-supervised.deb
+sudo BYPASS_OS_CHECK=true dpkg -i --ignore-depends=systemd-resolved ./homeassistant-supervised.deb
 
 sudo reboot
 ~~~

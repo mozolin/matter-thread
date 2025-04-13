@@ -2,10 +2,13 @@
 https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/home_assistant.html  
 
 ## Installation (Ubuntu Desktop 22.04 on Raspberry Pi 4B+)
-- RaspberryPi 4B+ flash with Ubuntu 22.04.5 LTS Desktop
+- PC with Ubuntu 22.04.5 LTS Desktop
 - Prerequisites
 ~~~
-apt install apparmor bluez cifs-utils curl dbus jq libglib2.0-bin lsb-release network-manager nfs-common systemd-journal-remote udisks2 wget -y
+sudo apt update
+sudo apt upgrade -y
+
+sudo apt install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus lsb-release systemd-journal-remote binutils nfs-common rpcbind cifs-utils -y
 ~~~
 *The "systemd-resolved" should be removed from the default list - there is no package like this*
 ~~~
@@ -82,8 +85,57 @@ alias set_cache='echo $green; echo -e "Enable Ccache to speed up IDF compilation
 #-- Alias for setting up all necessary environments
 alias set_env='set savePath=$PWD; get_idf; get_matter; get_chip; set_cache; cd $savePath'
 ~~~
+Launch ESP environment:
+~~~
+set_env
+~~~
 
 # Install ESP Thread BR
 ~~~
 git clone --recursive https://github.com/espressif/esp-thread-br.git
 ~~~
+
+
+# Install ChipTool
+~~~
+sudo apt update
+sudo apt install snapd
+sudo snap install chip-tool
+~~~
+
+# Install Samba (Ubuntu Desktop 22.04)
+~~~
+sudo apt install samba -y
+whereis samba
+~~~
+Put into /etc/samba/smb.conf:  
+> [esp]  
+>    comment = ESP-IDF Samba  
+>    path = /home/pi  
+>    public = yes  
+>    writable = yes  
+>    read only = no  
+>    guest ok = yes  
+>    create mask = 0775  
+>    directory mask = 0775  
+>    force create mode = 0775  
+>    force directory mode = 0775  
+  
+~~~
+sudo service smbd restart
+sudo ufw allow samba
+~~~
+Add user as a Samba user
+~~~
+sudo smbpasswd -a pi
+~~~
+*Enter password:* **raspberry**  
+*Re-enter password:* **raspberry**  
+  
+Autostart:  
+~~~
+sudo systemctl enable smbd
+~~~
+
+On Windows, open up File Manager and edit the file path to:  
+> \\\{ip-address}\esp
