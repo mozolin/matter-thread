@@ -10,3 +10,4 @@
   
 - [HA-Ubuntu22Desktop_RP4](HA-Ubuntu22Desktop_RP4.md)  
   
+- [samba](samba.md)  
