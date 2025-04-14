@@ -1,7 +1,7 @@
 # Install Home Assistant
 
-- On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_PC.md)  
-- On [PC](HA-Ubuntu22Desktop_RP4.md)  
+- On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
+- On [PC](HA-Ubuntu22Desktop_PC.md)  
 
 # Install Portainer
 DO NOT INSTALL PORTAINER! THERE WILL BE PROBLEMS WITH SUPERVISED HOME ASSISTANT!  
