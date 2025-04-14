@@ -15,12 +15,13 @@ router table
 > | 17 | 0x4400 |       63 |         0 |     0 |      0 |   0 | 7a64fd2b41e75415 |    0 |  
 > | 38 | 0x9800 |        7 |         1 |     3 |      3 |   0 | 1e1b2055963191b3 |    1 |  
   
-If, for example, the IP address of the Thread Border web interface is 192.168.31.157, we can use its REST API to get some information.  
-~~~
-http:/192.168.31.157/diagnostics
-~~~
-[diagnostics.json](esp-thread-br-web-gui/diagnostics.json)  
-~~~
-http:/192.168.31.157/available_network
-~~~
-[available_network.json](esp-thread-br-web-gui/available_network.json)  
+If, for example, the IP address of the Thread Border web interface is 192.168.31.157, we can use its REST API to get some useful information.  
+
+- [available_network.json](esp-thread-br-web-gui/available_network.json)  
+  http:/192.168.31.157/available_network
+- [diagnostics.json](esp-thread-br-web-gui/diagnostics.json)  
+  http:/192.168.31.157/diagnostics
+- [node-dataset-active.json](esp-thread-br-web-gui/node-dataset-active.json)  
+  http:/192.168.31.157/node/dataset/active
+- [topology.json](esp-thread-br-web-gui/topology.json)  
+  http:/192.168.31.157/topology
