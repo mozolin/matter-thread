@@ -33,7 +33,7 @@ idf.py -p /tty/ACM0 build flash monitor
 ~~~
 
 ## Join the Thread Network via NetworkKey or DataSet
-**OpenThread Border Router** (see: [How to setup and work with OpenThread Border Router](../OPENTHREAD.md))
+**OpenThread Border Router** (see: [How to setup and work with OpenThread Border Router](esp-basic_thread_border_router.md))
 ~~~
 dataset active -x
 ~~~
@@ -86,6 +86,7 @@ When we parse this dataset with [tlv-parser.py](D/utils/tlv-parser), we can get 
 > ***t: 74 (APPLE_TAG_UNKNOWN), l: 3, v: 0x000016***  
 
 Here we can see the companion app tag "74 (APPLE_TAG_UNKNOWN)". This tag can also be found after parsing the Home Assistant dataset in its Thread integration. According to the comments inside the "tlv-parser.py" script code, this tag can be "seen in a dataset imported through iOS/Android companion app"...  
+![](../images/ha/HA-ActiveDatasetTLVs.png)  
   
 If we run this parser script with the "use_app_tags=0" parameter (don't use companion app tags), we can get a new dataset:  
 > 0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8

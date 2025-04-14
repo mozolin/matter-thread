@@ -1,6 +1,0 @@
-
-- Режим мостовых сетей устарел. Сведения о поддерживаемых режимах сетей см. на странице https:://aka.ms/wslnetworking
-- VmSwitch "" не найден. Доступные параметры: Error code: CreateInstance/CreateVm/ConfigureNetworking/WSL_E_VMSWITCH_NOT_FOUND
-- Не удалось настроить сеть (networkingMode Bridged), возврат к networkingMode None.
-
-=> удалить .wslconfig, созданный по ссылке https://docs.espressif.com/projects/esp-matter/en/latest/esp32c3/using_chip_tool.html

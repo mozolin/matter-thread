@@ -10,6 +10,19 @@ On Linux distributions [running snapd](https://snapcraft.io/docs/installing-snap
 sudo snap install chip-tool
 ~~~
   
+# [Working with the CHIP Tool](https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md#installation)
+Another branch: https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html#installation  
+Examples: https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi
+Examples: https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool
+# [Working with the CHIP Tool in WSL2](https://docs.silabs.com/matter/2.2.2/matter-wifi-getting-started-example/chip-tool-wifi)
+ChipTool not working properly due to missing BLE adapter in WSL
+~~~
+chip-tool pairing code-thread 1 hex:0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8 34970112332
+~~~
+> [DL] Disabling CHIPoBLE service due to error: BLE adapter unavailable
+> [CTL] Commissioning discovery over BLE failed: BLE adapter unavailable
+
+
 Example: [Basic Thread Border Router](../basic_thread_border_router.md)  
   
 Building Android App:  

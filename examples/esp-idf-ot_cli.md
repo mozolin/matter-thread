@@ -1,6 +1,6 @@
 # Make an example project (all the settings are made for ESP32-H2 development board)
 
-OpenThread Border Router (see: [How to setup and work with OpenThread Border Router](../OPENTHREAD.md))
+OpenThread Border Router (see: [How to setup and work with OpenThread Border Router](esp-basic_thread_border_router.md))
 ~~~
 dataset active -x
 ~~~

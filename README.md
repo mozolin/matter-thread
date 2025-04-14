@@ -1,4 +1,3 @@
-[**How to setup and work with OpenThread Border Router**](OPENTHREAD.md)  
 # How to setup and work with ESP-IDF and ESP-Matter
 [How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](docs/How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)  
 
@@ -230,11 +229,11 @@ There may be issues with shared access to COM ports in Windows 10 Enterprise. Th
  
 ![](images/matter/usdipd_error_04.png)
 
-# 10. ??? Test Setup (CHIP Tool)
+# 10. Test Setup (CHIP Tool)
 [https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool](https://docs.espressif.com/projects/esp-matter/en/latest/esp32c6/developing.html#test-setup-chip-tool)
 
 
-# 11. ??? Working with the CHIP Tool
+# 11. Working with the CHIP Tool
 [https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md](https://github.com/project-chip/connectedhomeip/blob/master/docs/development_controllers/chip-tool/chip_tool_guide.md)  
 [https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html](https://project-chip.github.io/connectedhomeip-doc/development_controllers/chip-tool/chip_tool_guide.html)  
 
