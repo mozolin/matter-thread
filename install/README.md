@@ -2,13 +2,18 @@
 
 - [All-In-One](All-In-One.md)  
   - Install Home Assistant
+  - Install NetTools
+  - Install HardInfo
   - Install Portainer
   - Install ESP-IDF
   - Install ESP-MATTER
   - Install ESP Thread BR
   - Install ChipTool
   - Install Samba
-  - Install Wake-on-LAN  
+  - Install SSH
+  - Install Wake-on-LAN
+  - Remote shutdown Ubuntu
+
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   
 - [HA-matter](HA-matter.md)  

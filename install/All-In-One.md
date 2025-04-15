@@ -3,6 +3,21 @@
 - On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
 
+
+# Install NetTools
+NetTools includes some useful network applications suck as *arp, dnsdomainname, domainname, hostname, ifconfig, nameif, netstat, nisdomainname, plipconfig, rarp, route, slattach, ypdomainname*
+~~~
+sudo apt install net-tools
+~~~
+
+
+# Install HardInfo
+HardInfo is an application that contains information about a computer system
+~~~
+sudo apt install hardinfo
+~~~
+
+
 # Install Portainer
 DO NOT INSTALL PORTAINER! THERE WILL BE PROBLEMS WITH SUPERVISED HOME ASSISTANT!  
 
@@ -80,6 +95,26 @@ sudo snap install chip-tool
 See [here](samba.md)
 
 
+# Install SSH
+~~~
+sudo apt install ssh
+
+sudo ufw allow 22/tcp
+
+sudo service sshd restart
+~~~
+Install SSHPASS (no password required to log in):
+~~~
+sudo apt-get install sshpass
+~~~
+Check the settings
+~~~
+ssh pi@192.168.31.77 -p 22
+
+sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22
+~~~
+
+
 # Install Wake-on-LAN
 ~~~
 sudo apt install ethtool
@@ -125,30 +160,32 @@ We can also use apps to send a magic packet:
 ![](../images/ha/wol_app_02.jpg)  
   
   
-
-# Shutdown Ubuntu
+# Remote shutdown Ubuntu
 Create a file shutdown.txt:  
 ~~~
-shutdown -h now  
+shutdown -h now
 ~~~
 Run a Windows script:  
 ~~~
 putty.exe -m shutdown.txt -ssh -P {port} -l {user} -pw {password} {ipaddress}
 ~~~
-- {port} : SSH port
-- {user} : user login
-- {password} : user password
-- {ipaddress} : server IP address
+- *{port}* : SSH port
+- *{user}* : user login
+- *{password}* : user password
+- *{ipaddress}* : server IP address
 
-Install SSHPASS:
-~~~
-sudo apt-get install sshpass
-~~~
-Set automatic password input:
-~~~
-sshpass -p "{password}" ssh {user}@{ipaddress}
-~~~
-The shutdown command may be as follows:
+The shutdown command may be as follows (password required):
 ~~~
 ssh {user}@{ipaddress} -p {port} poweroff
 ~~~
+
+Or as follows (no password required to log in):
+~~~
+sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22 poweroff
+
+sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22 shutdown -h now
+~~~
+- *raspberry* : user password
+- *pi* : user login
+- *192.168.31.77* : server IP address
+- *22* : SSH port
