@@ -1,4 +1,4 @@
-# Install Samba (Ubuntu Desktop 22.04 on Raspberry Pi 4B+)
+# Install Samba (Ubuntu Desktop 22.04)
 ~~~
 sudo apt install samba -y
 whereis samba
@@ -33,4 +33,4 @@ sudo systemctl enable smbd
 ~~~
 
 On Windows, open up File Manager and edit the file path to:  
-> \\\ip-address\esp
+> \\\\{ip-address}\esp

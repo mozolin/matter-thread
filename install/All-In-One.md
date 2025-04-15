@@ -76,39 +76,79 @@ sudo apt install snapd
 sudo snap install chip-tool
 ~~~
 
-# Install Samba (Ubuntu Desktop 22.04)
-~~~
-sudo apt install samba -y
-whereis samba
-~~~
-Put into /etc/samba/smb.conf:  
-> [esp]  
->    comment = ESP-IDF Samba  
->    path = /home/pi  
->    public = yes  
->    writable = yes  
->    read only = no  
->    guest ok = yes  
->    create mask = 0775  
->    directory mask = 0775  
->    force create mode = 0775  
->    force directory mode = 0775  
-  
-~~~
-sudo service smbd restart
-sudo ufw allow samba
-~~~
-Add user as a Samba user
-~~~
-sudo smbpasswd -a pi
-~~~
-*Enter password:* **raspberry**  
-*Re-enter password:* **raspberry**  
-  
-Autostart:  
-~~~
-sudo systemctl enable smbd
-~~~
+# Install Samba
+See [here](samba.md)
 
-On Windows, open up File Manager and edit the file path to:  
-> \\\\{ip-address}\esp
+
+# Install Wake-on-LAN
+~~~
+sudo apt install ethtool
+ifconfig
+~~~
+> **enp1s0**: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500  
+>         inet 192.168.31.198  netmask 255.255.255.0  broadcast 192.168.31.255  
+>         inet6 fe80::6986:d3e8:5cb6:9780  prefixlen 64  scopeid 0x20<link>  
+>         ether **68:1d:ef:46:7c:45**  txqueuelen 1000  (Ethernet)  
+  
+~~~
+sudo ethtool enp1s0 | grep "Wake-on"
+~~~
+> Supports Wake-on: pumbg  
+> Wake-on: d (disabled)  
+  
+~~~
+sudo ethtool --change enp1s0 wol g
+sudo ethtool enp1s0 | grep "Wake-on"
+~~~
+> Supports Wake-on: pumbg  
+> Wake-on: **g** (Wake on MagicPacket)  
+  
+~~~
+nmcli con show
+~~~
+> NAME               UUID                                  TYPE      DEVICE  
+> **Supervisor enp1s0**  be397120-9171-304c-817e-e084eb50825b  ethernet  enp1s0  
+> Supervisor wlp2s0  ef23d080-c905-405a-98b3-1e85de873c84  wifi      wlp2s0  
+  
+~~~
+sudo nmcli c modify "Supervisor enp1s0" 802-3-ethernet.wake-on-lan magic
+nmcli c show "Supervisor enp1s0" | grep 802-3-eth
+~~~
+> 802-3-ethernet.wake-on-lan:             magic  
+  
+Wake up by sending a magic packet to the MAC ***68:1d:ef:46:7c:45***  
+![](../images/ha/wol.png)  
+
+We can also use apps to send a magic packet:
+![](../images/ha/wol_app_01.jpg)  
+  
+![](../images/ha/wol_app_02.jpg)  
+  
+  
+
+# Shutdown Ubuntu
+Create a file shutdown.txt:  
+~~~
+shutdown -h now  
+~~~
+Run a Windows script:  
+~~~
+putty.exe -m shutdown.txt -ssh -P {port} -l {user} -pw {password} {ipaddress}
+~~~
+- {port} : SSH port
+- {user} : user login
+- {password} : user password
+- {ipaddress} : server IP address
+
+Install SSHPASS:
+~~~
+sudo apt-get install sshpass
+~~~
+Set automatic password input:
+~~~
+sshpass -p "{password}" ssh {user}@{ipaddress}
+~~~
+The shutdown command may be as follows:
+~~~
+ssh {user}@{ipaddress} -p {port} poweroff
+~~~
