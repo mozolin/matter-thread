@@ -63,6 +63,7 @@ def createLine(newLine, tag, _len, val):
 def main():
   args = sys.argv[1:]
   data = binascii.a2b_hex(args[0])
+  #print(data)
   
   removedTags = 0
   
