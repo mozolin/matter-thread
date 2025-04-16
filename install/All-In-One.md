@@ -228,3 +228,5 @@ script.irbis_shutdown:
 ~~~
 entity_id: script.irbis_shutdown
 ~~~
+![](../images/ha/ha_remote_shutdown.png)  
+  
