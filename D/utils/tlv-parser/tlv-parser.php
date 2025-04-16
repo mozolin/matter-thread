@@ -58,7 +58,7 @@ if($sVal === 'false' || $sVal === '0') {
 	$useAppTags = false;
 }
 
-$removedTags = 0;
+$removedTags = [];
 $newLine = "";
 
 $pos = 0;
@@ -72,7 +72,7 @@ while($pos < strlen($data)) {
 
   #-- remove this tag
   if(!$useAppTags && $tag > 57) {
-    $removedTags++;
+    $removedTags[] = $tag;
   }
   
   if($useAppTags || (!$useAppTags && $tag <= 57)) {
@@ -91,21 +91,26 @@ while($pos < strlen($data)) {
   }
 }
 
-print("\n-----------------------------------------------------------------\n")
-print("was(" + str(len(args[0])) + "):" + args[0])
-print("new(" + str(len(newLine)) + "):" + newLine)
+echo "\n-----------------------------------------------------------------\n";
+echo "was(".strlen($argv[1])."):".$argv[1]."\n";
+echo "new(".strlen($newLine)."):".$newLine."\n";
 
-if removedTags > 0:
-  print("\nTag(s) removed: %i" % removedTags)
+if(count($removedTags) > 0) {
+  echo "\nTag(s) removed: ".count($removedTags).":\n";
+  foreach($removedTags as $tag) {
+  	echo "- ".$MESHCOP_TLV_TYPE[$tag]." ({$tag})\n";
+  }
+}
 
-if useAppTags and (newLine == args[0]):
-  print("\nOK!")
+if($useAppTags && $newLine === $argv[1]) {
+  echo "\nOK!";
+}
 
 
 function createLine($newLine, $tag, $len, $val)
 {
-	$newLine .= dechex($tag);
-  $newLine .= dechex($len);
+	$newLine .= str_pad(dechex($tag), 2, '0', STR_PAD_LEFT);
+  $newLine .= str_pad(dechex($len), 2, '0', STR_PAD_LEFT);
   $newLine .= $val;
   
   return $newLine;
