@@ -12,7 +12,8 @@
   - Install Samba
   - Install SSH
   - Install Wake-on-LAN
-  - Remote shutdown Ubuntu
+  - Remote shutdown Ubuntu (Windows, Linux)
+  - Remote shutdown Ubuntu (Home Assistant)
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   

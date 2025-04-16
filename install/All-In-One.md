@@ -160,7 +160,7 @@ We can also use apps to send a magic packet:
 ![](../images/ha/wol_app_02.jpg)  
   
   
-# Remote shutdown Ubuntu
+# Remote shutdown Ubuntu (Windows, Linux)
 Create a file shutdown.txt:  
 ~~~
 shutdown -h now
@@ -190,7 +190,7 @@ sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22 shutdown -h now
 - *192.168.31.77* : server IP address
 - *22* : SSH port
 
-# Remote shutdown Ubuntu from Home Assistant
+# Remote shutdown Ubuntu (Home Assistant)
 We would like to access the Ubuntu computer with IP=192.168.31.198 and shut it down as user "mike" using Home Assistant SSH terminal.
 1) SSH terminal protection mode = Off  
 2) Enter to docker bash  
