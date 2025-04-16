@@ -16,8 +16,9 @@ HardInfo is an application that contains information about a computer system
 ~~~
 sudo apt install hardinfo
 ~~~
-
-
+![](../images/system/app_hardinfo.png)  
+  
+  
 # Install Portainer
 DO NOT INSTALL PORTAINER! THERE WILL BE PROBLEMS WITH SUPERVISED HOME ASSISTANT!  
 
@@ -85,11 +86,15 @@ git clone --recursive https://github.com/espressif/esp-thread-br.git
 
 
 # Install ChipTool
+This tool is used to commission and control Matter End devices
 ~~~
 sudo apt update
 sudo apt install snapd
 sudo snap install chip-tool
 ~~~
+Otherwise, we can use an application like "NXP Matter Tools" which is based on ChipTool commands  
+![](../images/system/app_nxp_matter_tools.jpg)  
+  
 
 # Install Samba
 See [here](samba.md)
@@ -155,9 +160,9 @@ Wake up by sending a magic packet to the MAC ***68:1d:ef:46:7c:45***
 ![](../images/ha/wol.png)  
 
 We can also use apps to send a magic packet:
-![](../images/ha/wol_app_01.jpg)  
+![](../images/system/app_wol_01.jpg)  
   
-![](../images/ha/wol_app_02.jpg)  
+![](../images/system/app_wol_02.jpg)  
   
   
 # Remote shutdown Ubuntu (Windows, Linux)
