@@ -12,7 +12,7 @@ t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0
 t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f
 t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfdec29c2f04b4b23
 t:  5 (NETWORKKEY), l: 16, v: 0x45005945ef9dbed88082d208673dad0f
-t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'
+t:  3 (NETWORKNAME), l: 15, v: 'OpenThread-5b91'
 t:  1 (PANID), l: 2, v: 0x5b91
 t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
 t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
@@ -32,7 +32,7 @@ t: 53 (CHANNELMASK), l: 6, v: 0x0004001fffe0
 t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f
 t:  7 (MESHLOCALPREFIX), l: 8, v: 0xfdec29c2f04b4b23
 t:  5 (NETWORKKEY), l: 16, v: 0x45005945ef9dbed88082d208673dad0f
-t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'
+t:  3 (NETWORKNAME), l: 15, v: 'OpenThread-5b91'
 t:  1 (PANID), l: 2, v: 0x5b91
 t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
 t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
