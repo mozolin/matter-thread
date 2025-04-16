@@ -189,3 +189,42 @@ sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22 shutdown -h now
 - *pi* : user login
 - *192.168.31.77* : server IP address
 - *22* : SSH port
+
+# Remote shutdown Ubuntu from Home Assistant
+We would like to access the Ubuntu computer with IP=192.168.31.198 and shut it down as user "mike" using Home Assistant SSH terminal.
+1) SSH terminal protection mode = Off  
+2) Enter to docker bash  
+~~~
+docker exec -it homeassistant bash
+~~~
+3) Generate SSH key  
+~~~
+ssh-keygen -t rsa
+~~~
+- save in /**config**/.ssh/id_rsa
+- no passphrase!
+
+4) Copy SSH Keys to server  
+~~~
+ssh-copy-id -i /config/.ssh/id_rsa mike@192.168.31.198
+~~~
+5) shell_commands.yaml (send command to remote computer via SSH)
+~~~
+irbis_shutdown: ssh -i /config/.ssh/id_rsa mike@192.168.31.198 sudo shutdown -h now
+~~~
+6) scripts.yaml (run command as a service)
+~~~
+irbis_shutdown:
+  sequence:
+    - service: shell_command.irbis_shutdown
+~~~
+7) customizations.yaml (add a suitable name and icon)
+~~~
+script.irbis_shutdown:
+  friendly_name: 'Irbis: Shutdown (.198)'
+  icon: mdi:ethernet
+~~~
+8) lovelace.yaml (display script link)
+~~~
+entity_id: script.irbis_shutdown
+~~~
