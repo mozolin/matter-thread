@@ -73,7 +73,7 @@ TMP> matter esp ot_cli dataset set active 0e080000000000010000000300001a4a030000
 > Error 7: InvalidArgs  
   
 The dataset string is 222 characters long.  
-When we parse this dataset with [tlv-parser.py](D/utils/tlv-parser), we can get the following info:  
+When we parse this dataset with [tlv-parser](D/utils/tlv-parser), we can get the following info:  
 > t:  0 (CHANNEL), l: 3, v: 0x00001a  
 > t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f  
 > t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'  
@@ -98,7 +98,7 @@ matter esp ot_cli dataset set active 0e080000000000010000000300001a35060004001ff
 ~~~
 > Done
 
-This run was successful!  
+This run was successful with a new dataset!  
 
 Anyway, we can use networkkey to join the end device to the Thread Network:
 ~~~
