@@ -1,8 +1,11 @@
 
 # 3. Thread End Device (ESP32-C6 development board, Ubuntu only):
 Source code: [~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
-This example is implemented using the ESP32-C6 development board.  
+This example is implemented using the Nano ESP32-C6 development board.  
 ![](../images/ctrl/ESP32-C6-WROOM-1_06.jpg)  
+This can also be implemented using the XIAO ESP32-C6 development board.  
+![](../images/ctrl/seeedxiao-esp32c6_07.png)  
+*Note: This example is specifically configured for the Nano ESP32-C6, which uses GPIO8 to control the onboard LED, so there will be no LED indicator for the XIAO ESP32-C6 (GPIO15 - onboard yellow LED).*  
   
 - Make a copy of /root/esp-matter/examples/light folder to ../light-c6
 - Open this folder in VSCode using a remote WSL or in Ubuntu
