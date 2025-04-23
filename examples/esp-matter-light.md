@@ -6,6 +6,19 @@ This example is implemented using the Nano ESP32-C6 development board.
 This can also be implemented using the XIAO ESP32-C6 development board.  
 ![](../images/ctrl/seeedxiao-esp32c6_07.png)  
 *Note: This example is specifically configured for the Nano ESP32-C6, which uses GPIO8 to control the onboard LED, so there will be no LED indicator for the XIAO ESP32-C6 (GPIO15 - onboard yellow LED).*  
+*In any case, we can see any events for this development board in the terminal. For example, when clicking on the BOOT button:*  
+> app_driver: Toggle button pressed  
+> esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
+> esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
+> led_driver_ws2812: led set **r:0, g:0, b:0**  
+> app_driver: Toggle button pressed  
+> esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
+> esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
+> led_driver_ws2812: led set **r:63, g:51, b:40**  
+
+According to this manual,  
+https://docs.espressif.com/projects/esptool/en/latest/esp32c6/advanced-topics/boot-mode-selection.html  
+we can use the BOOT button on both development boards to *toggle* (single click) and *factory reset* (long click/hold for 5 seconds). The same functionality is available on *GPIO9* shorted to GND.  
   
 - Make a copy of /root/esp-matter/examples/light folder to ../light-c6
 - Open this folder in VSCode using a remote WSL or in Ubuntu
