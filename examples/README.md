@@ -75,5 +75,13 @@
    
 ## 13) ESP ZeroCode
    https://zerocode.espressif.com/
+   https://developer.espressif.com/blog/whats-new-with-esp-zerocode/  
    Hardware: End devices  
    See descriptions and/or examples [here](esp-zerocode.md)  
+
+## 14) ESP Launchpad Examples
+   RainMaker examples: https://espressif.github.io/esp-launchpad/  
+   Matter examples: https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-matter/launchpad.toml  
+   Hardware: End devices  
+   See descriptions and/or examples [here](esp-launchpad.md)  
+   
