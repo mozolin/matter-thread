@@ -3,5 +3,5 @@
 [ESP ZeroCode](https://zerocode.espressif.com/)  
 
 ESP ZeroCode is the fastest way to launch matter-enabled products.  
-![]()  
+![](esp-zerocode/esp-zerocode.jpg)  
 Example: [esp-zerocode](esp-zerocode/XJBUMXDMVPVMNNHO9AQMEY/ESP%20ZeroCode_XJBUMXDMVPVMNNHO9AQMEY_test)
