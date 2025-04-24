@@ -56,7 +56,9 @@ ipaddr
 > fdec:29c2:f04b:4b23:6d20:a1a9:cfcc:367b  
 > fe80:0:0:0:f4f7:117a:6cbc:2cf1  
 
-Get list of Matter devices (ServiceType = _matter._tcp)  
+
+## Get list of Matter devices (ServiceType _matter._tcp)  
+
 ~~~
 > sudo avahi-browse _matter._tcp
 
@@ -81,65 +83,15 @@ Instances:
 2025/04/09 17:30:08 &{{_home-assistant._tcp.local _services._dns-sd._udp local _services._dns-sd._udp.local. _home-assistant._tcp.local._services._dns-sd._udp.local. _services._dns-sd._udp.local.}  0 [] 4500 [] []}
 ~~~
 
-Get active dataset
+
+## Parse active dataset
+Get active dataset in the OTRB console:
 ~~~
 dataset active -x
 ~~~
 > 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8  
-
-
-0e08
-~~~
-14: 0000000000010000
-~~~
-0003
-~~~
-0: 00001a
-~~~
-4a03
-~~~
-74: 000016
-~~~
-3506
-~~~
-53: 0004001fffe0
-~~~
-0208
-~~~
-2: 3dd5846a27dd139f
-~~~
-0708
-~~~
-7: fdec29c2f04b4b23
-~~~
-0510
-~~~
-5: 45005945ef9dbed88082d208673dad0f
-~~~
-030f
-~~~
-3: 4f70656e5468726561642d35623931 (OpenThread-5b91)
-~~~
-0102
-~~~
-1: 5b91
-~~~
-0410
-~~~
-4: 9855950ef75071da53e996c50694576a
-~~~
-0c04
-~~~
-12: 02a0f7f8  
-~~~
-
-
-
-
-O p e n T h r e a d - 5 b 9 1
-4f70656e5468726561642d35623931
   
-Parsing result using tlv-parser.py
+Parse this dataset with [tlv-parser](../D/utils/tlv-parser)  
 ~~~
 t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000
 t:  0 (CHANNEL), l: 3, v: 0x00001a
@@ -154,9 +106,16 @@ t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
 t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
 ~~~
 
-remove "4a03000016"
+## ServiceType _meshcop._udp
 
+> sudo avahi-browse -r -t _meshcop._udp
+> sudo avahi-browse -t -p -r _meshcop._udp  
+> sudo avahi-browse -t -p -r _meshcop._udp | grep -a "=;hassio"  
+~~~
++;hassio;IPv4;esp-ot-br;_meshcop._udp;local
++;wlx14dae9b0ae18;IPv6;esp-ot-br;_meshcop._udp;local
++;wlx14dae9b0ae18;IPv4;esp-ot-br;_meshcop._udp;local
+~~~
 
-New one:
-> 0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
-0e080000000000010000000300001a35060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8
+DOCS: https://openthread.io/guides/border-router/mdns-discovery
+(to find the correct column names for the _meshcop._udp service)
