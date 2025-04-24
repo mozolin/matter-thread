@@ -89,7 +89,7 @@ TMP> matter esp ot_cli dataset set active 0e080000000000010000000300001a4a030000
 > Error 7: InvalidArgs  
   
 The dataset string is 222 characters long.  
-When we parse this dataset with [tlv-parser](D/utils/tlv-parser), we can get the following info:  
+When we parse this dataset with [../tlv-parser](D/utils/tlv-parser), we can get the following info:  
 > t:  0 (CHANNEL), l: 3, v: 0x00001a  
 > t:  2 (EXTPANID), l: 8, v: 0x3dd5846a27dd139f  
 > t:  3 (NETWORKNAME), l: 15, v: b'OpenThread-5b91'  
