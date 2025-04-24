@@ -2,7 +2,9 @@
 
 - [Windows links to launch Powershell terminals](C)
 
-- [Windows Powershell scripts and BAT files](D)
+- [Windows Powershell scripts and utils](D)
+  - ***setup-payload*** (Python scripts to generate and parse Manual Pairing Code and QR Code)
+  - ***tlv-parser*** (Python/PHP scripts to parse and assembly of dataset)
 
 - [Some DOCX and PDF documents](docs)
 

@@ -3,10 +3,9 @@
 Source code: [~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
 This example is implemented using the Nano ESP32-C6 development board.  
 ![](../images/ctrl/ESP32-C6-WROOM-1_06.jpg)  
-This can also be implemented using the XIAO ESP32-C6 development board.  
-![](../images/ctrl/seeedxiao-esp32c6_07.png)  
-*Note: This example is specifically configured for the Nano ESP32-C6, which uses GPIO8 to control the onboard LED, so there will be no LED indicator for the XIAO ESP32-C6 (GPIO15 - onboard yellow LED).*  
-*In any case, we can see any events for this development board in the terminal. For example, when clicking on the BOOT button:*  
+This can also be implemented using the ESP32-H2 Super Mini development board.  
+![](../images/ctrl/esp32h2_supermini.jpg)  
+*We can see any events for these development boards in the terminal. For example, when clicking on the BOOT button:*  
 > app_driver: Toggle button pressed  
 > esp_matter_attribute: R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1  
 > esp_matter_attribute: W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0  
@@ -20,7 +19,7 @@ According to this manual,
 https://docs.espressif.com/projects/esptool/en/latest/esp32c6/advanced-topics/boot-mode-selection.html  
 we can use the BOOT button on both development boards to *toggle* (single click) and *factory reset* (long click/hold for 5 seconds). The same functionality is available on *GPIO9* shorted to GND.  
   
-- Make a copy of /root/esp-matter/examples/light folder to ../light-c6
+- Make a copy of /root/esp-matter/examples/light folder to ../light-c6 (or ../light-h2 for the ESP32-H2)
 - Open this folder in VSCode using a remote WSL or in Ubuntu
 
 Navigate to the light example directory, Clean previous build files, Set the build target to ESP32-C6 and Enter the configuration menu
@@ -28,6 +27,7 @@ Navigate to the light example directory, Clean previous build files, Set the bui
 cd /root/esp-matter/examples/light-c6
 rm -rf build/
 idf.py set-target esp32c6
+#idf.py set-target esp32h2
 idf.py menuconfig
 ~~~
 
