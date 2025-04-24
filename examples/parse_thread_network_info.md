@@ -1,7 +1,7 @@
 
 # Parse Thread Network info
 
-Get list of routers from Thread BR CLI 
+## Get list of routers from Thread BR CLI 
 ~~~
 > router table
 
@@ -11,6 +11,7 @@ Get list of routers from Thread BR CLI
 | 12 | 0x3000 |        2 |         1 |     3 |      3 |   6 | f6f7117a6cbc2cf1 |    1 |
 | 17 | 0x4400 |       63 |         0 |     0 |      0 |   0 | 7a64fd2b41e75415 |    0 |
 ~~~
+More details about RLOC16 can be found [here](../tools/rloc16.md)
 
 ## OTBR (RLOC16 = 0x4400, ExtMAC = 7a64fd2b41e75415)
 hex: 0x4400, dec: 17408, bin: 0100010000000000  
@@ -99,7 +100,7 @@ DOCS: https://openthread.io/guides/border-router/mdns-discovery
 (to find the correct column names for the _meshcop._udp service)
 
 
-## Parse active dataset
+## Parse and assembly active dataset
 Get active dataset in the OTRB console:
 ~~~
 dataset active -x
