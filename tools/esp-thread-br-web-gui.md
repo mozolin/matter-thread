@@ -43,7 +43,7 @@ t:   4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
 t:  12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
 ~~~
 
-## Form
+## Forming
 Set parameters:
 > Network Name=OpenThread-5b91  
 > PANID=0x5b91  
