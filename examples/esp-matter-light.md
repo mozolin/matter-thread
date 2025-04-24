@@ -2,7 +2,7 @@
 # 3. Thread End Device (ESP32-C6 development board, Ubuntu only):
 Source code: [~/esp-matter/examples/light](https://github.com/espressif/esp-matter/tree/main/examples/light)  
 This example is implemented using the Nano ESP32-C6 development board.  
-![](../images/ctrl/ESP32-C6-WROOM-1_06.jpg)  
+![](../images/ctrl/nanoESP32-C6_v1.0.jpg)  
 This can also be implemented using the ESP32-H2 Super Mini development board.  
 ![](../images/ctrl/esp32h2_supermini.jpg)  
 *We can see any events for these development boards in the terminal. For example, when clicking on the BOOT button:*  
