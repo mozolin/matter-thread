@@ -57,7 +57,7 @@ ipaddr
 > fe80:0:0:0:f4f7:117a:6cbc:2cf1  
 
 
-## Get list of Matter devices (ServiceType _matter._tcp)  
+## Get list of Matter devices (_matter._tcp service)  
 
 ~~~
 > sudo avahi-browse _matter._tcp
@@ -84,6 +84,21 @@ Instances:
 ~~~
 
 
+## Get information about the _meshcop._udp service
+
+> sudo avahi-browse -r -t _meshcop._udp
+> sudo avahi-browse -t -p -r _meshcop._udp  
+> sudo avahi-browse -t -p -r _meshcop._udp | grep -a "=;hassio"  
+~~~
++;hassio;IPv4;esp-ot-br;_meshcop._udp;local
++;wlx14dae9b0ae18;IPv6;esp-ot-br;_meshcop._udp;local
++;wlx14dae9b0ae18;IPv4;esp-ot-br;_meshcop._udp;local
+~~~
+
+DOCS: https://openthread.io/guides/border-router/mdns-discovery
+(to find the correct column names for the _meshcop._udp service)
+
+
 ## Parse active dataset
 Get active dataset in the OTRB console:
 ~~~
@@ -106,16 +121,5 @@ t:  4 (PSKC), l: 16, v: 0x9855950ef75071da53e996c50694576a
 t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
 ~~~
 
-## ServiceType _meshcop._udp
-
-> sudo avahi-browse -r -t _meshcop._udp
-> sudo avahi-browse -t -p -r _meshcop._udp  
-> sudo avahi-browse -t -p -r _meshcop._udp | grep -a "=;hassio"  
-~~~
-+;hassio;IPv4;esp-ot-br;_meshcop._udp;local
-+;wlx14dae9b0ae18;IPv6;esp-ot-br;_meshcop._udp;local
-+;wlx14dae9b0ae18;IPv4;esp-ot-br;_meshcop._udp;local
-~~~
-
-DOCS: https://openthread.io/guides/border-router/mdns-discovery
-(to find the correct column names for the _meshcop._udp service)
+## Generate and parse Matter pairing codes
+Generate and parse Matter pairing codes with [setup-payload](../D/utils/setup-payload)  
