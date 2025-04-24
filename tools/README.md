@@ -1,10 +1,10 @@
 # Tools
 
-- [CHIP-TOOL](CHIP-TOOL.md)  
+- [Working with the CHIP Tool](CHIP-TOOL.md)  
   
-- [esp-matter-mfg-tool](esp-matter-mfg-tool.md)  
+- [Matter Manufacturing Partitions Generator Utility](esp-matter-mfg-tool.md)  
   
-- [esp-thread-br-web-gui](esp-thread-br-web-gui.md)  
+- [ESP Thread BR WEB-GUI + Form Thread Network](esp-thread-br-web-gui.md)  
   
-- [rloc16](rloc16.md)  
+- [RLOC16](rloc16.md)  
   
