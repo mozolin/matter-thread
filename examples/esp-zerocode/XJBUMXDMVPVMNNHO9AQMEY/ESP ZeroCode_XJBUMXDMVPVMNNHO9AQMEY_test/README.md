@@ -14,7 +14,7 @@ Scan the below QR Code from any of the Matter supported phone apps (details belo
 
 > Note: Use the QR Code in the device's respective folder if you are flashing multiple devices yourself.
 
-<img src="https://esp-ezc-launchpad-246098634217-prod.s3.us-east-1.amazonaws.com/companies/YJDLIBRGJCKIYBP322ZOR7/products/XJBUMXDMVPVMNNHO9AQMEY/559755586_1734098199/1/qr_code.png" alt="qr_code" width="30%" />
+![](Devices/1/qr_code.png)
 
 ## Device Setup
 
