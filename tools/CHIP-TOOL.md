@@ -47,11 +47,11 @@ pairing code-thread 0x7283 hex:<operationalDataset> 34970112332
 pairing code-wifi 0x7283 <ssid> <passphrase> MT:Y.K9042C00KA0648G00
 pairing code-thread 0x7283 hex:<operationalDataset> MT:Y.K9042C00KA0648G00
 ~~~
-> *0x7283* is the randomly chosen node_id  
-> *20202021* is the setup_passcode  
-> *3840* is the discriminator  
-> *34970112332* is the pairing code  
-> *MT:Y.K9042C00KA0648G00* is the QR code  
+> ***0x7283*** is the randomly chosen node_id  
+> ***20202021*** is the setup_passcode  
+> ***3840*** is the discriminator  
+> ***34970112332*** is the pairing code  
+> ***MT:Y.K9042C00KA0648G00*** is the QR code  
 
 - to control the attributes
 ~~~
