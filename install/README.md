@@ -2,9 +2,11 @@
 
 - [All-In-One](All-In-One.md)  
   - Install Home Assistant
+  - Install PHP + Apache2
   - Install NetTools
   - Install HardInfo
   - Install Portainer
+  - Install Avahi utilities
   - Install ESP-IDF
   - Install ESP-MATTER
   - Install ESP Thread BR

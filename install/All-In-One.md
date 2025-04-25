@@ -4,6 +4,41 @@
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
 
 
+# Install PHP + Apache2
+~~~
+sudo apt install php libapache2-mod-php
+sudo apt install php-cli
+sudo apt install php-cgi
+sudo apt install php-mysql
+sudo apt install php-{extension-name}
+~~~
+Restart Apache2 service
+~~~
+sudo systemctl restart apache2.service
+~~~
+Check PHP version
+~~~
+php -v
+~~~
+> PHP 8.1.2-1ubuntu2.21 (cli) (built: Mar 24 2025 19:04:23) (NTS)  
+> Copyright (c) The PHP Group  
+> Zend Engine v4.1.2, Copyright (c) Zend Technologies with Zend OPcache v8.1.2-1ubuntu2.21, Copyright (c), by Zend Technologies  
+
+Choose PHP instance
+~~~
+sudo update-alternatives --config php
+
+There are 2 choices for the alternative php (providing /usr/bin/php).
+  Selection    Path                  Priority   Status
+------------------------------------------------------------
+  0            /usr/bin/php.default   100       auto mode
+  1            /usr/bin/php.default   100       manual mode
+* 2            /usr/bin/php8.1        81        manual mode
+Press <enter> to keep the current choice[*], or type selection number:
+~~~  
+Configuration file can be found here: */etc/php/8.1/apache2/php.ini*
+
+
 # Install NetTools
 NetTools includes some useful network applications suck as *arp, dnsdomainname, domainname, hostname, ifconfig, nameif, netstat, nisdomainname, plipconfig, rarp, route, slattach, ypdomainname*
 ~~~
@@ -21,6 +56,15 @@ sudo apt install hardinfo
   
 # Install Portainer
 DO NOT INSTALL PORTAINER! THERE WILL BE PROBLEMS WITH SUPERVISED HOME ASSISTANT!  
+
+
+# Install Avahi utilities
+~~~
+sudo apt-get install -y avahi-daemon avahi-utils
+sudo service avahi-daemon
+~~~
+> Usage: /etc/init.d/avahi-daemon {start|stop|restart|force-reload|reload|status}  
+
 
 # Install ESP-IDF
 ~~~

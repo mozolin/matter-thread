@@ -87,17 +87,22 @@ Instances:
 
 ## Get information about the _meshcop._udp service
 
-> sudo avahi-browse -r -t _meshcop._udp
+> sudo avahi-browse -r -t _meshcop._udp  
 > sudo avahi-browse -t -p -r _meshcop._udp  
 > sudo avahi-browse -t -p -r _meshcop._udp | grep -a "=;hassio"  
 ~~~
-+;hassio;IPv4;esp-ot-br;_meshcop._udp;local
-+;wlx14dae9b0ae18;IPv6;esp-ot-br;_meshcop._udp;local
-+;wlx14dae9b0ae18;IPv4;esp-ot-br;_meshcop._udp;local
+=;
+hassio;             | interface
+IPv4;               | protocol
+esp-ot-br;          | instancename
+_meshcop._udp;      | service
+local;              | domain
+esp-ot-br.local;    | hostname
+192.168.31.157;     | address
+49154;              | port
+{see below}         | txt
+"dn=DefaultDomain" "tv=1.4.0" "nn=OpenThread-5b91" "mn=BorderRouter" "vn=OpenThread" "rv=1"...
 ~~~
-
-DOCS: https://openthread.io/guides/border-router/mdns-discovery
-(to find the correct column names for the _meshcop._udp service)
 
 
 ## Parse and assembly active dataset
@@ -107,7 +112,7 @@ dataset active -x
 ~~~
 > 0e080000000000010000000300001a4a0300001635060004001fffe002083dd5846a27dd139f0708fdec29c2f04b4b23051045005945ef9dbed88082d208673dad0f030f4f70656e5468726561642d3562393101025b9104109855950ef75071da53e996c50694576a0c0402a0f7f8  
   
-Parse this dataset with [tlv-parser](../D/utils/tlv-parser)  
+Parse this dataset with [tlv-parser](../tools/tlv-parser)  
 ~~~
 t: 14 (ACTIVETIMESTAMP), l: 8, v: 0x0000000000010000
 t:  0 (CHANNEL), l: 3, v: 0x00001a
@@ -123,4 +128,4 @@ t: 12 (SECURITYPOLICY), l: 4, v: 0x02a0f7f8
 ~~~
 
 ## Generate and parse Matter pairing codes
-Generate and parse Matter pairing codes with [setup-payload](../D/utils/setup-payload)  
+Generate and parse Matter pairing codes with [setup-payload](../tools/setup-payload)  
