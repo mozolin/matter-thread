@@ -1,5 +1,7 @@
 # Tools
 
+- [ESP Flash Download Tool](flash_download_tool)  
+  
 - [Python scripts to generate and parse Manual Pairing Code and QR Code](setup-payload)  
   
 - [Python/PHP scripts to parse and assembly of dataset](tlv-parser)  

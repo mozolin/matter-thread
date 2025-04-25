@@ -10,16 +10,28 @@
 - ESP32-C6-WROOM-1
   
 Downloaded project files: [esp-zerocode](esp-zerocode/XJBUMXDMVPVMNNHO9AQMEY/ESP%20ZeroCode_XJBUMXDMVPVMNNHO9AQMEY_test)  
+
+**- Flash the firmware by using EspTool**
+~~~
+esptool.py erase_flash
+esptool.py write_flash 0x0 common_binaries/all_products_merged.bin
+esptool.py write_flash 0xD000 devices/1/esp_secure_cert.bin 0x1F2000 devices/1/fctry.bin
+~~~
+
+**- Flash the firmware  by using ESP Flash Download Tool (Windows)**  
+![](esp-zerocode/flash-download-tool_01.png)  
   
+![](esp-zerocode/flash-download-tool_02.png)  
+
+We then tried to connect the end device to the Thread/Wi-Fi network...  
   
 ### 1. CHIP-TOOL
-Then we tried to connect the end device to OTBR with chip-tool  
 ~~~
 chip-tool pairing code-wifi 1234 {wifi-ssid} {wifi-psw} 32683111304
 
 chip-tool pairing code-thread 1234 hex:0e0800... 32683111304
 ~~~
-Same errors occurred for both commands...  
+The same errors occurred for both commands...  
 
 **Linux console**  
 > [CTL] Verifying attestation  

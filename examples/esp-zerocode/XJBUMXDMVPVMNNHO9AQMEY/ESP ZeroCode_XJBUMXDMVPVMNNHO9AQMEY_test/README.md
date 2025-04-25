@@ -271,7 +271,7 @@ Your device is now ready. You can go to the [Setup Code](#setup-code) section to
 ### Pre-requisites
 
 Install the `Flash Download Tool`
-* <a href="https://www.espressif.com/sites/default/files/tools/flash_download_tool_3.9.5.zip" target="_blank">Download</a> the tool
+* <a href="https://dl.espressif.com/public/flash_download_tool.zip" target="_blank">Download</a> the tool
 * Extract (unzip) the files and refer the pdf `doc/`
 * Run the `flash_download_tool`
 * Select your chip and proceed
