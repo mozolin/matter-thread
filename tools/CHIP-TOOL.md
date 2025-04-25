@@ -28,3 +28,36 @@ Example: [Basic Thread Border Router](../basic_thread_border_router.md)
 Building Android App:  
 https://github.com/project-chip/connectedhomeip/blob/master/docs/platforms/android/android_building.md  
   
+**Some useful commands**  
+- interactive mode
+~~~
+chip-tool interactive start
+~~~
+after that we can use short commands like
+~~~
+onoff toggle 0x7283 0x1
+~~~
+
+- pairing
+~~~
+pairing ble-wifi 0x7283 <ssid> <passphrase> 20202021 3840
+pairing ble-thread 0x7283 hex:<operationalDataset> 20202021 3840
+pairing code-wifi 0x7283 <ssid> <passphrase> 34970112332
+pairing code-thread 0x7283 hex:<operationalDataset> 34970112332
+pairing code-wifi 0x7283 <ssid> <passphrase> MT:Y.K9042C00KA0648G00
+pairing code-thread 0x7283 hex:<operationalDataset> MT:Y.K9042C00KA0648G00
+~~~
+> *0x7283* is the randomly chosen node_id  
+> *20202021* is the setup_passcode  
+> *3840* is the discriminator  
+> *34970112332* is the pairing code  
+> *MT:Y.K9042C00KA0648G00* is the QR code  
+
+- to control the attributes
+~~~
+onoff toggle 0x7283 0x1
+onoff on 0x7283 0x1
+levelcontrol move-to-level 10 0 0 0 0x7283 0x1
+levelcontrol move-to-level 100 0 0 0 0x7283 0x1
+colorcontrol move-to-color-temperature 0 10 0 0 0x7283 0x1
+~~~
