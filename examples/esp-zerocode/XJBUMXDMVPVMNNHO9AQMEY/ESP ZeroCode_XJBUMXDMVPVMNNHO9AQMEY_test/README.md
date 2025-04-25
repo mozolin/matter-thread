@@ -14,7 +14,7 @@ Scan the below QR Code from any of the Matter supported phone apps (details belo
 
 > Note: Use the QR Code in the device's respective folder if you are flashing multiple devices yourself.
 
-![qr_code](Devices/1/qr_code.png)
+<img src="https://esp-ezc-launchpad-246098634217-prod.s3.us-east-1.amazonaws.com/companies/YJDLIBRGJCKIYBP322ZOR7/products/XJBUMXDMVPVMNNHO9AQMEY/559755586_1734098199/1/qr_code.png" alt="qr_code" width="30%" />
 
 ## Device Setup
 
@@ -147,21 +147,17 @@ Here's how you can get started with using this device with any of your favourite
 
 ### Product
 
-The device has 1 Socket.
+The device has 1 Light.
 
-1. Socket: On/Off
+1. Light: Temperature and Color
     * Default power state is on.
     * Power state on bootup is same as previous state.
 
 ### Device Drivers
 
-The device has 1 LED, 1 Button and 1 Relay.
+The device has 1 LED.
 
-1. Button: GPIO
-    * gpio_num: 9
-2. Relay: GPIO
-    * gpio_num: 4
-3. LED: WS2812
+1. LED: WS2812
     * ctrl_io: 8
 
 ## Device Functionality
@@ -185,7 +181,7 @@ The device has the following indicators:
 
 #### Identification
 
-* **Identification start**: LED blinks continuously, about 0 seconds per cycle, with red color.
+* **Identification start**: LED blinks continuously, about 0.5 seconds per cycle, with red color.
 * **Identification stop**: LED shows the default state of the device and stops any ongoing patterns.
 * **Identification blink**: LED blinks for 1 second, about 1 second per cycle, with white color.
 * **Identification breathe**: LED shows a breathing pattern for 15 seconds, about 1 second per cycle, with white color.
@@ -198,7 +194,8 @@ The device has the following indicators:
 
 To reset the device to factory settings:
 
-* Press and hold the input button for about 5000 milliseconds. Then release the button to factory reset the device.
+* Power off the device. Wait for 2 seconds. Power on the device. Wait for 2 seconds.
+* Do this power cycle 3 times.
 * The device will then reboot and enter setup mode.
 
 ### Test Mode
@@ -215,11 +212,21 @@ For device manufacturers, the firmware offers a test mode that can be used for t
     * ssid: test_ble_mac
     * panid: 0x198F
     * mac: 3434343434343434
-* **Socket 1**: All sockets turn on and off, 3 times.
+* **Light 1**: The light cycles through different colors.
     * trigger: Default (Wi-Fi or Thread depending on the hardware)
-    * ssid: test_socket_1
+    * ssid: test_light_1
     * panid: 0x198F
-    * mac: ABABABABABABABAB
+    * mac: 5656565656565656
+* **Light 2**: The light cycles through different colors.
+    * trigger: Default (Wi-Fi or Thread depending on the hardware)
+    * ssid: test_light_2
+    * panid: 0x198F
+    * mac: 7878787878787878
+* **Light 3**: The light cycles through different colors.
+    * trigger: Default (Wi-Fi or Thread depending on the hardware)
+    * ssid: test_light_3
+    * panid: 0x198F
+    * mac: 9090909090909090
 
 <details>
 <summary>Firmware from zip</summary>
