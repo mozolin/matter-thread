@@ -13,11 +13,12 @@ Downloaded project files: [esp-zerocode](esp-zerocode/XJBUMXDMVPVMNNHO9AQMEY/ESP
 
 **- Flash the firmware by using EspTool**
 ~~~
-esptool.py erase_flash
-esptool.py write_flash 0x0 common_binaries/all_products_merged.bin
-esptool.py write_flash 0xD000 devices/1/esp_secure_cert.bin 0x1F2000 devices/1/fctry.bin
+esptool.py -p {com-port} erase_flash
+esptool.py -p {com-port} write_flash 0x0 common_binaries/all_products_merged.bin
+esptool.py -p {com-port} write_flash 0xD000 devices/1/esp_secure_cert.bin 0x1F2000 devices/1/fctry.bin
 ~~~
-
+> ***{com-port}*** is the COM-port (for example, */dev/ttyACM0* - for Ubuntu, *COM3* - for Windows)  
+  
 **- Flash the firmware  by using ESP Flash Download Tool (Windows)**  
 ![](esp-zerocode/flash-download-tool_01.png)  
   
