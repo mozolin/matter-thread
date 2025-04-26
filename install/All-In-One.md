@@ -250,16 +250,16 @@ docker exec -it homeassistant bash
 ~~~
 ssh-keygen -t rsa
 ~~~
-- save in /**config**/.ssh/id_rsa
+- save in /**root**/.ssh/id_rsa
 - no passphrase!
 
 4) Copy SSH Keys to server  
 ~~~
-ssh-copy-id -i /config/.ssh/id_rsa mike@192.168.31.198
+ssh-copy-id -i /root/.ssh/id_rsa mike@192.168.31.198
 ~~~
 5) shell_commands.yaml (send command to remote computer via SSH)
 ~~~
-irbis_shutdown: ssh -i /config/.ssh/id_rsa mike@192.168.31.198 sudo shutdown -h now
+irbis_shutdown: ssh -i /root/.ssh/id_rsa mike@192.168.31.198 sudo shutdown -h now
 ~~~
 6) scripts.yaml (run command as a service)
 ~~~
