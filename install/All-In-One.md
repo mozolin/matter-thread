@@ -2,6 +2,7 @@
 
 - On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
+- [Some settings](HA-Settings.md)  
 
 
 # Install PHP + Apache2
