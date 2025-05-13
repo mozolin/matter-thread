@@ -1,22 +1,22 @@
 # Installations
 
 - [All-In-One](All-In-One.md)  
-  - Install Home Assistant
-  - Install PHP + Apache2
-  - Install NetTools
-  - Install HardInfo
-  - Install Portainer
-  - Install Avahi utilities
-  - Install ESP-IDF
-  - Install ESP-MATTER
-  - Install ESP Thread BR
-  - Install ChipTool
-  - Install Samba
-  - Install SSH
-  - Install Wake-on-LAN
-  - Remote shutdown Ubuntu (Windows, Linux)
-  - Remote shutdown Ubuntu (Home Assistant)
-  - Set port access
+  - 1. Install Home Assistant
+  - 2. Install PHP + Apache2
+  - 3. Install NetTools
+  - 4. Install HardInfo
+  - 5. Install Portainer
+  - 6. Install Avahi utilities
+  - 7. Install ESP-IDF
+  - 8. Install ESP-MATTER
+  - 9. Install ESP Thread BR
+  - 10. Install ChipTool
+  - 11. Install Samba
+  - 12. Install SSH
+  - 13. Install Wake-on-LAN
+  - 14. Remote shutdown Ubuntu (Windows, Linux)
+  - 15. Remote shutdown Ubuntu (Home Assistant)
+  - 16. Set port access
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   

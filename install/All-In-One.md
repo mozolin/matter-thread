@@ -1,11 +1,11 @@
-# Install Home Assistant
+# 1. Install Home Assistant
 
 - On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
 - [Some settings](HA-Settings.md)  
 
 
-# Install PHP + Apache2
+# 2, Install PHP + Apache2
 ~~~
 sudo apt install php libapache2-mod-php
 sudo apt install php-cli
@@ -40,14 +40,14 @@ Press <enter> to keep the current choice[*], or type selection number:
 Configuration file can be found here: */etc/php/8.1/apache2/php.ini*
 
 
-# Install NetTools
+# 3. Install NetTools
 NetTools includes some useful network applications suck as *arp, dnsdomainname, domainname, hostname, ifconfig, nameif, netstat, nisdomainname, plipconfig, rarp, route, slattach, ypdomainname*
 ~~~
 sudo apt install net-tools
 ~~~
 
 
-# Install HardInfo
+# 4. Install HardInfo
 HardInfo is an application that contains information about a computer system
 ~~~
 sudo apt install hardinfo
@@ -55,11 +55,11 @@ sudo apt install hardinfo
 ![](../images/system/app_hardinfo.png)  
   
   
-# Install Portainer
+# 5. Install Portainer
 DO NOT INSTALL PORTAINER! THERE WILL BE PROBLEMS WITH SUPERVISED HOME ASSISTANT!  
 
 
-# Install Avahi utilities
+# 6. Install Avahi utilities
 ~~~
 sudo apt-get install -y avahi-daemon avahi-utils
 sudo service avahi-daemon
@@ -67,7 +67,7 @@ sudo service avahi-daemon
 > Usage: /etc/init.d/avahi-daemon {start|stop|restart|force-reload|reload|status}  
 
 
-# Install ESP-IDF
+# 7. Install ESP-IDF
 ~~~
 sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
 
@@ -77,7 +77,7 @@ cd esp-idf
 source ./export.sh
 ~~~
 
-# Install ESP-MATTER
+# 8. Install ESP-MATTER
 ~~~
 sudo apt-get install git gcc g++ pkg-config libssl-dev libdbus-1-dev libglib2.0-dev libavahi-client-dev ninja-build python3-venv python3-dev python3-pip unzip libgirepository1.0-dev libcairo2-dev libreadline-dev default-jre
 sudo apt-get install libsdl2-dev
@@ -124,13 +124,13 @@ Launch ESP environment:
 set_env
 ~~~
 
-# Install ESP Thread BR
+# 9. Install ESP Thread BR
 ~~~
 git clone --recursive https://github.com/espressif/esp-thread-br.git
 ~~~
 
 
-# Install ChipTool
+# 10. Install ChipTool
 This tool is used to commission and control Matter End devices
 ~~~
 sudo apt update
@@ -141,11 +141,11 @@ Otherwise, we can use an application like "NXP Matter Tools" which is based on C
 ![](../images/system/app_nxp_matter_tools.jpg)  
   
 
-# Install Samba
+# 11. Install Samba
 See [here](samba.md)
 
 
-# Install SSH
+# 12. Install SSH
 ~~~
 sudo apt install ssh
 
@@ -165,7 +165,7 @@ sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22
 ~~~
 
 
-# Install Wake-on-LAN
+# 13. Install Wake-on-LAN
 ~~~
 sudo apt install ethtool
 ifconfig
@@ -210,7 +210,7 @@ We can also use apps to send a magic packet:
 ![](../images/system/app_wol_02.jpg)  
   
   
-# Remote shutdown Ubuntu (Windows, Linux)
+# 14. Remote shutdown Ubuntu (Windows, Linux)
 Create a file shutdown.txt:  
 ~~~
 shutdown -h now
@@ -240,7 +240,7 @@ sshpass -p raspberry sudo ssh pi@192.168.31.77 -p 22 shutdown -h now
 - *192.168.31.77* : server IP address
 - *22* : SSH port
 
-# Remote shutdown Ubuntu (Home Assistant)
+# 15. Remote shutdown Ubuntu (Home Assistant)
 We would like to access the Ubuntu computer with IP=192.168.31.198 and shut it down as user "mike" using Home Assistant SSH terminal.
 1) SSH terminal protection mode = Off  
 2) Enter to docker bash  
@@ -281,7 +281,7 @@ entity_id: script.irbis_shutdown
 ![](../images/ha/ha_remote_shutdown.png)  
   
 
-# Set port access
+# 16. Set port access
 ### This means: the port used for flashing ESP32 controllers.
 We should add our user account to the "dialout" group since group members already have "rw" permissions:
 ~~~
