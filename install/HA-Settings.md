@@ -1,4 +1,5 @@
 # Some settings for Home Assistant
+### (as an example)
 
 In Terminal:
 ~~~
