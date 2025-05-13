@@ -5,7 +5,7 @@
 - [Some settings](HA-Settings.md)  
 
 
-# 2, Install PHP + Apache2
+# 2. Install PHP + Apache2
 ~~~
 sudo apt install php libapache2-mod-php
 sudo apt install php-cli
