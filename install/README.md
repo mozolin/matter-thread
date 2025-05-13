@@ -16,6 +16,7 @@
   - Install Wake-on-LAN
   - Remote shutdown Ubuntu (Windows, Linux)
   - Remote shutdown Ubuntu (Home Assistant)
+  - Set port access
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   

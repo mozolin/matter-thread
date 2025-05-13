@@ -280,3 +280,16 @@ entity_id: script.irbis_shutdown
 ~~~
 ![](../images/ha/ha_remote_shutdown.png)  
   
+
+# Set port access
+### This means: the port used for flashing ESP32 controllers.
+We should add our user account to the "dialout" group since group members already have "rw" permissions:
+~~~
+sudo usermod -aG dialout $USER
+~~~
+This needs to be done for each user we want to grant access to.  
+  
+Or we should set permissions for all users when the device is detected.  
+~~~
+sudo chmod a+rw /dev/ttyACM0
+~~~
