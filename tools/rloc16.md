@@ -6,4 +6,3 @@ Here's how the RLOC16 is calculated for the upper-left node (Router ID = 1 and C
 ![](../images/rloc16/03-ot-primer-rloc_2x.png)  
   
 ![](../images/rloc16/04-ot-primer-rloc-topology-address_2x.png)  
-  
