@@ -3,7 +3,7 @@
 - On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
 - [Some settings](HA-Settings.md)  
-
+- [Create a Home Assistant configuration using a smartphone hotspot](HA-MobileHotspot.md)
 
 # 2. Install PHP + Apache2
 ~~~
