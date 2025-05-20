@@ -1,0 +1,455 @@
+esptool.js
+Serial port WebSerial VendorID 0x303a ProductID 0x1001
+Connecting...
+Detecting chip type... ESP32-C6
+Chip is ESP32-C6 (revision 0)
+Features: Wi-Fi 6,BT 5,IEEE802.15.4
+Crystal is 40MHz
+MAC: 40:4c:ca:49:74:e0
+Uploading stub...
+Running stub...
+Stub running...
+Changing baudrate to 921600
+Changed
+Manufacturer: 0
+Device: 00
+Detected flash size: undefined
+Warning: Image file at 0x0 doesn't look like an image file, so not changing any flash settings.
+Compressed 1813200 bytes to 1039415...
+Writing at 0x0... (1%)
+Writing at 0x214aa... (3%)
+Writing at 0x2eaa4... (4%)
+Writing at 0x3c352... (6%)
+Writing at 0x48150... (7%)
+Writing at 0x50be5... (9%)
+Writing at 0x55694... (10%)
+Writing at 0x5c90f... (12%)
+Writing at 0x63d8b... (14%)
+Writing at 0x6a9b3... (15%)
+Writing at 0x719cc... (17%)
+Writing at 0x7745a... (18%)
+Writing at 0x7f235... (20%)
+Writing at 0x8543e... (21%)
+Writing at 0x8b4f5... (23%)
+Writing at 0x9154e... (25%)
+Writing at 0x978bc... (26%)
+Writing at 0x9d74e... (28%)
+Writing at 0xa3e89... (29%)
+Writing at 0xa9cdb... (31%)
+Writing at 0xb1550... (32%)
+Writing at 0xb79af... (34%)
+Writing at 0xbd524... (35%)
+Writing at 0xc3cd2... (37%)
+Writing at 0xc9b22... (39%)
+Writing at 0xcf66f... (40%)
+Writing at 0xd5827... (42%)
+Writing at 0xdbe68... (43%)
+Writing at 0xe2396... (45%)
+Writing at 0xe8601... (46%)
+Writing at 0xee5fa... (48%)
+Writing at 0xf4a1b... (50%)
+Writing at 0xfaa04... (51%)
+Writing at 0x100d1b... (53%)
+Writing at 0x106fe6... (54%)
+Writing at 0x10d2d2... (56%)
+Writing at 0x11320c... (57%)
+Writing at 0x1196d2... (59%)
+Writing at 0x11fb2d... (60%)
+Writing at 0x126542... (62%)
+Writing at 0x12c885... (64%)
+Writing at 0x132d65... (65%)
+Writing at 0x138c54... (67%)
+Writing at 0x13ec3c... (68%)
+Writing at 0x1449c3... (70%)
+Writing at 0x14b269... (71%)
+Writing at 0x150b51... (73%)
+Writing at 0x156c38... (75%)
+Writing at 0x15c9af... (76%)
+Writing at 0x162ad7... (78%)
+Writing at 0x168c87... (79%)
+Writing at 0x16eda5... (81%)
+Writing at 0x175126... (82%)
+Writing at 0x17af7f... (84%)
+Writing at 0x180fbd... (85%)
+Writing at 0x1867aa... (87%)
+Writing at 0x18c330... (89%)
+Writing at 0x19213e... (90%)
+Writing at 0x197cf6... (92%)
+Writing at 0x19e432... (93%)
+Writing at 0x1a410b... (95%)
+Writing at 0x1aa56d... (96%)
+Writing at 0x1b01eb... (98%)
+Writing at 0x1b5f03... (100%)
+Wrote 1813200 bytes (1039415 compressed) at 0x0 in 11.83 seconds.
+Leaving...
+ESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x15 (USB_UART_HPSYS),boot:0xc (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40800832
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875720,leESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x15 (USB_UART_HPSYS),boot:0xc (SPI_FAST_FLASH_BOOT)
+Saved PC:0x400294ae
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875720,len:0x18ec
+load:0x4086c410,len:0xe60
+load:0x4086e610,len:0x2f28
+entry 0x4086c41a
+I (23) boot: ESP-IDF c9763f6 2nd stage bootloader
+I (23) boot: compile time Apr 11 2025 09:19:56
+I (24) boot: chip revision: v0.0
+I (26) boot: efuse block revision: v0.1
+I (30) boot.esp32c6: SPI Speed      : 80MHz
+I (35) boot.esp32c6: SPI Mode       : DIO
+I (40) boot.esp32c6: SPI Flash Size : 4MB
+I (44) boot: Enabling RNG early entropy source...
+I (50) boot: Partition Table:
+I (53) boot: ## Label            Usage          Type ST Offset   Length
+I (61) boot:  0 esp_secure_cert  unknown          3f 06 0000d000 00002000
+I (68) boot:  1 nvs              WiFi data        01 02 00010000 0000c000
+I (76) boot:  2 nvs_keys         NVS keys         01 04 0001c000 00001000
+I (83) boot:  3 otadata          OTA data         01 00 0001d000 00002000
+I (91) boot:  4 phy_init         RF data          01 01 0001f000 00001000
+I (98) boot:  5 ota_0            OTA app          00 10 00020000 001e0000
+I (106) boot:  6 ota_1            OTA app          00 11 00200000 001e0000
+I (113) boot:  7 fctry            WiFi data        01 02 003e0000 00006000
+I (121) boot: End of partition table
+I (125) boot: No factory image, trying OTA 0
+I (130) esp_image: segment 0: paddr=00020020 vaddr=42140020 size=3fa24h (260644) map
+I (188) esp_image: segment 1: paddr=0005fa4c vaddr=40800000 size=005cch (  1484) load
+I (190) esp_image: segment 2: paddr=00060020 vaddr=42000020 size=13aaech (1288940) map
+I (440) esp_image: segment 3: paddr=0019ab14 vaddr=408005cc size=1bed8h (114392) load
+I (465) esp_image: segment 4: paddr=001b69f4 vaddr=4081c4b0 size=040ach ( 16556) load
+I (469) esp_image: segment 5: paddr=001baaa8 vaddr=50000000 size=00004h (     4) load
+I (477) boot: Loaded app from partition at offset 0x20000
+I (507) boot: Set actual ota_seq=1 in otadata[0]
+I (508) boot: Disabling RNG early entropy source...
+I (518) cpu_start: Unicore app
+W (527) clk: esp_perip_clk_init() has not been implemented yet
+I (534) cpu_start: Pro cpu start user code
+I (534) cpu_start: cpu freq: 160000000 Hz
+I (534) cpu_start: Application information:
+I (537) cpu_start: Project name:     light
+I (541) cpu_start: App version:      1.0
+I (546) cpu_start: Compile time:     Apr 11 2025 09:19:50
+I (552) cpu_start: ELF file SHA256:  a99c820c5...
+I (557) cpu_start: ESP-IDF:          c9763f6
+I (562) cpu_start: Min chip rev:     v0.0
+I (567) cpu_start: Max chip rev:     v0.99 
+I (572) cpu_start: Chip rev:         v0.0
+I (577) heap_init: Initializing. RAM available for dynamic allocation:
+I (584) heap_init: At 408339A0 len 00048C70 (291 KiB): RAM
+I (590) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+I (596) heap_init: At 50000004 len 00003FE4 (15 KiB): RTCRAM
+I (603) spi_flash: detected chip: generic
+I (607) spi_flash: flash io: dio
+W (611) spi_flash: Detected size(16384k) larger than the size in the binary image header(4096k). Using the size in the binary image header.
+W (625) rmt(legacy): legacy driver is deprecated, please migrate to `driver/rmt_tx.h` and/or `driver/rmt_rx.h`
+I (636) sleep: Configure to isolate all GPIO pins in sleep state
+I (642) sleep: Enable automatic switching of GPIO sleep configuration
+I (649) coexist: coex firmware version: 27d8387
+I (654) coexist: coexist rom version 5b8dcfa
+I (659) main_task: Started on CPU0
+I (659) main_task: Calling app_main()
+I (669) led_driver_ws2812: Initializing light driver
+I (679) button: IoT Button Version: 3.5.0
+I (679) gpio: GPIO[9]| InputEn: 1| OutputEn: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 
+I (689) app_main: Light created with endpoint_id 1
+I (689) pp: pp rom version: 5b8dcfa
+I (689) net80211: net80211 rom version: 5b8dcfa
+I (709) wifi:wifi driver task: 4083ff58, prio:23, stack:6656, core=0
+I (719) wifi:wifi firmware version: 82f54d2
+I (719) wifi:wifi certification version: v7.0
+I (719) wifi:config NVS flash: enabled
+I (719) wifi:config nano formating: disabled
+I (719) wifi:mac_version:HAL_MAC_ESP32AX_761,ut_version:N
+I (729) wifi:Init data frame dynamic rx buffer num: 32
+I (729) wifi:Init static rx mgmt buffer num: 5
+I (739) wifi:Init management short buffer num: 32
+I (739) wifi:Init dynamic tx buffer num: 32
+I (739) wifi:Init static tx FG buffer num: 2
+I (749) wifi:Init static rx buffer size: 1700
+I (749) wifi:Init static rx buffer num: 10
+I (759) wifi:Init dynamic rx buffer num: 32
+I (759) wifi_init: rx ba win: 6
+I (759) wifi_init: tcpip mbox: 32
+I (769) wifi_init: udp mbox: 6
+I (769) wifi_init: tcp mbox: 6
+I (769) wifi_init: tcp tx win: 5760
+I (779) wifi_init: tcp rx win: 5760
+I (779) wifi_init: tcp mss: 1440
+I (789) wifi_init: WiFi IRAM OP enabled
+I (789) wifi_init: WiFi RX IRAM OP enabled
+I (809) chip[DL]: NVS set: chip-counters/reboot-count = 1 (0x1)
+I (809) chip[DL]: NVS set: chip-config/unique-id = "92C641B9E7A266E6"
+I (809) chip[DL]: Real time clock set to 946684800 (0100/00/01 00:00:00 UTC)
+I (819) BLE_INIT: Using main XTAL as clock source
+I (829) BLE_INIT: ble controller commit:[7491a85]
+I (829) BLE_INIT: Bluetooth MAC: 40:4c:ca:49:74:e2
+I (829) phy_init: phy_version 310,dde1ba9,Jun  4 2024,16:38:11
+W (839) phy_init: failed to load RF calibration data (0x1102), falling back to full calibration
+W (889) phy_init: saving new calibration data because of checksum failure, mode(2)
+I (899) phy: libbtbb version: 04952fd, Jun  4 2024, 16:38:26
+I (909) NimBLE: GAP procedure initiated: stop advertising.
+
+I (909) NimBLE: Failed to restore IRKs from store; status=8
+
+I (909) CHIP[DL]: BLE host-controller synced
+I (1419) chip[DL]: Starting ESP WiFi layer
+W (1419) wifi:ACK_TAB0   :0x   90a0b, QAM16:0x9 (24Mbps), QPSK:0xa (12Mbps), BPSK:0xb (6Mbps)
+W (1419) wifi:CTS_TAB0   :0x   90a0b, QAM16:0x9 (24Mbps), QPSK:0xa (12Mbps), BPSK:0xb (6Mbps)
+W (1429) wifi:(agc)0x600a7128:0xd21b79f0, min.avgNF:0xce->0xd2(dB), RCalCount:0x1b6, min.RRssi:0x9f0(-97.00)
+W (1439) wifi:(TB)WDEV_PWR_TB_MCS0:19
+W (1439) wifi:(TB)WDEV_PWR_TB_MCS1:19
+W (1439) wifi:(TB)WDEV_PWR_TB_MCS2:19
+W (1449) wifi:(TB)WDEV_PWR_TB_MCS3:19
+W (1449) wifi:(TB)WDEV_PWR_TB_MCS4:19
+W (1449) wifi:(TB)WDEV_PWR_TB_MCS5:19
+W (1459) wifi:(TB)WDEV_PWR_TB_MCS6:18
+W (1459) wifi:(TB)WDEV_PWR_TB_MCS7:18
+W (1459) wifi:(TB)WDEV_PWR_TB_MCS8:17
+W (1469) wifi:(TB)WDEV_PWR_TB_MCS9:15
+W (1469) wifi:(TB)WDEV_PWR_TB_MCS10:15
+W (1469) wifi:(TB)WDEV_PWR_TB_MCS11:15
+I (1479) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+
+I (1479) wifi:mode : sta (40:4c:ca:49:74:e0)
+I (1489) wifi:enable tsf
+I (1489) chip[DL]: Posting ESPSystemEvent: Wifi Event with eventId : 43
+W (1499) wifi:Haven't to connect to a suitable AP now!
+I (1499) chip[DL]: Done driving station state, nothing else to do...
+W (1509) wifi:Haven't to connect to a suitable AP now!
+I (1509) chip[DL]: Posting ESPSystemEvent: Wifi Event with eventId : 2
+I (1519) chip[DL]: Done driving station state, nothing else to do...
+I (1529) chip[SVR]: Initializing subscription resumption storage...
+I (1539) chip[SVR]: Server initializing...
+I (1539) chip[TS]: Last Known Good Time: [unknown]
+I (1539) chip[TS]: Setting Last Known Good Time to firmware build time 2023-10-14T01:16:48
+I (1549) chip[DMG]: AccessControl: initializing
+I (1559) chip[DMG]: Examples::AccessControlDelegate::Init
+I (1559) chip[DMG]: AccessControl: setting
+I (1569) chip[DMG]: DefaultAclStorage: initializing
+I (1569) chip[DMG]: DefaultAclStorage: 0 entries loaded
+I (1579) chip[SVR]: WARNING: mTestEventTriggerDelegate is null
+I (1589) chip[ZCL]: Using ZAP configuration...
+I (1589) esp_matter_cluster: Cluster plugin init common callback
+I (1599) chip[DMG]: AccessControlCluster: initializing
+I (1609) chip[ZCL]: WRITE ERR: ep 0 clus 0x0000_0030 attr 0x0000_0000 not supported
+I (1609) chip[ZCL]: Initiating Admin Commissioning cluster.
+I (1619) chip[DIS]: Updating services using commissioning mode 1
+I (1629) chip[DIS]: CHIP minimal mDNS started advertising.
+I (1629) chip[DIS]: Advertise commission parameter vendorID=65521 productID=32768 discriminator=3840/15 cm=1 cp=0
+I (1639) chip[DIS]: CHIP minimal mDNS configured as 'Commissionable node device'; instance name: 21FBA102AB73B90C.
+I (1649) chip[DIS]: mDNS service published: _matterc._udp
+I (1659) chip[IN]: CASE Server enabling CASE session setups
+I (1669) chip[SVR]: Joining Multicast groups
+I (1669) chip[SVR]: Server Listening...
+I (1679) esp_matter_core: Dynamic endpoint 0 added
+I (1679) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000003's Attribute 0x00000001 is 1 **********
+I (1689) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000004's Attribute 0x00000000 is 128 **********
+I (1699) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000004's Attribute 0x0000FFFC is 1 **********
+I (1719) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x0000FFFC is 1 **********
+I (1729) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00004003 is null **********
+I (1739) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1 **********
+I (1749) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1 **********
+I (1759) chip[ZCL]: Endpoint 1 On/off already set to new value
+I (1769) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x00000002 is 1 **********
+I (1779) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x00000003 is 254 **********
+I (1789) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x0000FFFC is 3 **********
+I (1799) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x00000000 is 64 **********
+I (1819) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x00004000 is 64 **********
+I (1829) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000008's Attribute 0x00000000 is 64 **********
+I (1839) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000300's Attribute 0x00004010 is null **********
+I (1849) esp_matter_core: Dynamic endpoint 1 added
+I (1859) chip[DL]: WIFI_EVENT_STA_START
+W (1859) wifi:Haven't to connect to a suitable AP now!
+I (1869) chip[DL]: Done driving station state, nothing else to do...
+I (1869) chip[DL]: Configuring CHIPoBLE advertising (interval 25 ms, connectable)
+I (1879) NimBLE: GAP procedure initiated: advertise; 
+I (1889) NimBLE: disc_mode=2
+I (1889) NimBLE:  adv_channel_map=0 own_addr_type=1 adv_filter_policy=0 adv_itvl_min=40 adv_itvl_max=40
+I (1899) NimBLE: 
+
+I (1909) chip[DL]: CHIPoBLE advertising started
+I (1909) app_main: Commissioning window opened
+I (1919) esp_matter_core: Cannot find minimum unused endpoint_id, try to find in the previous namespace
+I (1919) esp_matter_core: Failed to open node namespace
+I (1929) led_driver_ws2812: led set r:0, g:0, b:0
+I (1939) led_driver_ws2812: led set r:0, g:0, b:0
+I (1939) led_driver_ws2812: led set r:63, g:51, b:40
+> I (2459) main_task: Returned from app_main()
+I (18789) chip[DL]: BLE GAP connection established (con 0)
+I (18799) chip[DL]: CHIPoBLE advertising stopped
+I (19529) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (19529) chip[BLE]: local and remote recv window sizes = 5
+I (19539) chip[BLE]: selected BTP version 4
+I (19539) chip[BLE]: using BTP fragment sizes rx 244 / tx 244.
+I (19649) chip[DL]: Write request/command received for CHIPoBLE TX CCCD characteristic (con 0 ) indicate = 1
+I (19649) chip[DL]: CHIPoBLE subscribe received
+I (19649) NimBLE: GATT procedure initiated: indicate; 
+I (19659) NimBLE: att_handle=18
+
+I (19749) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (19749) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (19759) chip[EM]: >>> [E:19401r S:0 M:147246109] (U) Msg RX from 0:0D607928D15E3E69 [0000] to 0000000000000000 --- Type 0000:20 (SecureChannel:PBKDFParamRequest) (B:98)
+I (19779) chip[EM]: <<< [E:19401r S:0 M:57700028] (U) Msg TX from 0000000000000000 to 0:0D607928D15E3E69 [0000] [BLE] --- Type 0000:21 (SecureChannel:PBKDFParamResponse) (B:154)
+I (19789) NimBLE: GATT procedure initiated: indicate; 
+I (19799) NimBLE: att_handle=18
+
+I (19799) chip[SVR]: Commissioning session establishment step started
+I (19889) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (19889) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (19909) chip[EM]: >>> [E:19401r S:0 M:147246110] (U) Msg RX from 0:0D607928D15E3E69 [0000] to 0000000000000000 --- Type 0000:22 (SecureChannel:PASE_Pake1) (B:92)
+I (19979) chip[EM]: <<< [E:19401r S:0 M:57700029] (U) Msg TX from 0000000000000000 to 0:0D607928D15E3E69 [0000] [BLE] --- Type 0000:23 (SecureChannel:PASE_Pake2) (B:127)
+I (19989) NimBLE: GATT procedure initiated: indicate; 
+I (19989) NimBLE: att_handle=18
+
+I (20089) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20089) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20099) chip[EM]: >>> [E:19401r S:0 M:147246111] (U) Msg RX from 0:0D607928D15E3E69 [0000] to 0000000000000000 --- Type 0000:24 (SecureChannel:PASE_Pake3) (B:59)
+I (20119) chip[EM]: <<< [E:19401r S:0 M:57700030] (U) Msg TX from 0000000000000000 to 0:0D607928D15E3E69 [0000] [BLE] --- Type 0000:40 (SecureChannel:StatusReport) (B:30)
+I (20129) NimBLE: GATT procedure initiated: indicate; 
+I (20139) NimBLE: att_handle=18
+
+I (20139) chip[SC]: SecureSession[0x40823970, LSID:2706]: State change 'kEstablishing' --> 'kActive'
+I (20149) chip[SVR]: Commissioning completed session establishment step
+I (20159) chip[DIS]: Updating services using commissioning mode 0
+I (20159) chip[DIS]: CHIP minimal mDNS started advertising.
+I (20179) chip[SVR]: Device completed Rendezvous process
+I (20179) app_main: Commissioning session started
+I (20189) app_main: Commissioning window closed
+I (20229) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20239) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20249) chip[EM]: >>> [E:19402r S:2706 M:17199034] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (20259) chip[EM]: <<< [E:19402r S:2706 M:81931866] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:86)
+I (20279) NimBLE: GATT procedure initiated: indicate; 
+I (20279) NimBLE: att_handle=18
+
+I (20379) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20379) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20399) chip[EM]: >>> [E:19403r S:2706 M:17199035] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:52)
+I (20409) chip[EM]: <<< [E:19403r S:2706 M:81931867] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:67)
+I (20419) NimBLE: GATT procedure initiated: indicate; 
+I (20419) NimBLE: att_handle=18
+
+I (20529) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20529) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20539) chip[EM]: >>> [E:19404r S:2706 M:17199036] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (20559) chip[EM]: <<< [E:19404r S:2706 M:81931868] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:67)
+I (20569) NimBLE: GATT procedure initiated: indicate; 
+I (20569) NimBLE: att_handle=18
+
+I (20669) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20719) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20729) chip[EM]: >>> [E:19405r S:2706 M:17199037] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (20739) chip[EM]: <<< [E:19405r S:2706 M:81931869] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:67)
+I (20749) NimBLE: GATT procedure initiated: indicate; 
+I (20759) NimBLE: att_handle=18
+
+I (20819) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20819) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20829) chip[EM]: >>> [E:19406r S:2706 M:17199038] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (20849) chip[EM]: <<< [E:19406r S:2706 M:81931870] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:66)
+I (20859) NimBLE: GATT procedure initiated: indicate; 
+I (20859) NimBLE: att_handle=18
+
+I (20969) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (20969) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (20979) chip[EM]: >>> [E:19407r S:2706 M:17199039] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (20999) chip[EM]: <<< [E:19407r S:2706 M:81931871] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:66)
+I (21009) NimBLE: GATT procedure initiated: indicate; 
+I (21009) NimBLE: att_handle=18
+
+I (21109) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (21109) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (21129) chip[EM]: >>> [E:19408r S:2706 M:17199040] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (21139) chip[EM]: <<< [E:19408r S:2706 M:81931872] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:66)
+I (21149) NimBLE: GATT procedure initiated: indicate; 
+I (21149) NimBLE: att_handle=18
+
+I (21259) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (23739) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (24329) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (24329) chip[EM]: >>> [E:19409r S:2706 M:17199041] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:08 (IM:InvokeCommandRequest) (B:62)
+I (24349) esp_matter_command: Received command 0x00000002 for endpoint 0x0000's cluster 0x0000003E
+I (24359) chip[ZCL]: OpCreds: Certificate Chain request received for DAC
+I (24369) chip[EM]: <<< [E:19409r S:2706 M:81931873] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:09 (IM:InvokeCommandResponse) (B:557)
+I (24379) NimBLE: GATT procedure initiated: indicate; 
+I (24379) NimBLE: att_handle=18
+
+I (24479) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (24479) NimBLE: GATT procedure initiated: indicate; 
+I (24489) NimBLE: att_handle=18
+
+I (24569) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (24569) NimBLE: GATT procedure initiated: indicate; 
+I (24589) NimBLE: att_handle=18
+
+I (24669) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (24669) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (24689) chip[EM]: >>> [E:19410r S:2706 M:17199042] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:51)
+I (24699) chip[EM]: <<< [E:19410r S:2706 M:81931874] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:86)
+I (24709) NimBLE: GATT procedure initiated: indicate; 
+I (24709) NimBLE: att_handle=18
+
+I (24819) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (24819) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (24829) chip[EM]: >>> [E:19411r S:2706 M:17199043] (S) Msg RX from 0:FFFFFFFB00000000 [0000] to 0000000000000000 --- Type 0001:02 (IM:ReadRequest) (B:52)
+I (24849) chip[EM]: <<< [E:19411r S:2706 M:81931875] (S) Msg TX from 0000000000000000 to 0:FFFFFFFB00000000 [0000] [BLE] --- Type 0001:05 (IM:ReportData) (B:67)
+I (24859) NimBLE: GATT procedure initiated: indicate; 
+I (24859) NimBLE: att_handle=18
+
+I (24959) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (25379) app_driver: Toggle button pressed
+I (25379) esp_matter_attribute: ********** R : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 1 **********
+I (25399) esp_matter_attribute: ********** W : Endpoint 0x0001's Cluster 0x00000006's Attribute 0x00000000 is 0 **********
+I (25409) led_driver_ws2812: led set r:0, g:0, b:0
+I (27449) CHIP[DL]: Write request received for CHIPoBLE RX characteristic con 0 16
+I (29949) NimBLE: GATT procedure initiated: indicate; 
+I (29949) NimBLE: att_handle=18
+
+I (30029) chip[DL]: Confirm received for CHIPoBLE TX characteristic indication (con 0) status= 14 
+I (33539) chip[DL]: Write request/command received for CHIPoBLE TX CCCD characteristic (con 0 ) indicate = 0
+I (33539) chip[DL]: CHIPoBLE unsubscribe received
+I (33549) chip[DL]: BLE GAP connection terminated (con 0 reason 0x213)
+I (33539) chip[BLE]: Releasing end point's BLE connection back to application.
+I (33569) chip[DL]: Closing BLE GATT connection (con 0)
+E (33579) chip[DL]: ble_gap_terminate() failed: Error CHIP:0x00000048
+I (33579) esp_matter_core: BLE Disconnected
+I (80179) chip[FS]: Fail-safe timer expired
+E (80179) chip[SVR]: Failsafe timer expired
+I (80179) chip[SC]: SecureSession[0x40823970, LSID:2706]: State change 'kActive' --> 'kPendingEviction'
+E (80189) chip[SVR]: Commissioning failed (attempt 1): 32
+I (80199) chip[DIS]: Updating services using commissioning mode 1
+I (80199) chip[DIS]: CHIP minimal mDNS started advertising.
+I (80209) chip[DIS]: Advertise commission parameter vendorID=65521 productID=32768 discriminator=3840/15 cm=1 cp=0
+I (80219) chip[DIS]: CHIP minimal mDNS configured as 'Commissionable node device'; instance name: 21FBA102AB73B90C.
+I (80229) chip[DIS]: mDNS service published: _matterc._udp
+E (80239) chip[ZCL]: OpCreds: Got FailSafeTimerExpired
+E (80239) chip[ZCL]: OpCreds: Proceeding to FailSafeCleanup on fail-safe expiry!
+I (80249) chip[TS]: Pending Last Known Good Time: 2023-10-14T01:16:48
+I (80259) chip[TS]: Previous Last Known Good Time: 2023-10-14T01:16:48
+I (80259) chip[TS]: Reverted Last Known Good Time to previous value
+I (80269) esp_matter_attribute: ********** R : Endpoint 0x0000's Cluster 0x00000030's Attribute 0x00000000 is 0 **********
+I (80279) app_main: Commissioning failed, fail safe timer expired
+I (80299) chip[FS]: Fail-safe cleanly disarmed
+I (80299) chip[DL]: Configuring CHIPoBLE advertising (interval 25 ms, connectable)
+I (80309) NimBLE: GAP procedure initiated: advertise; 
+I (80309) NimBLE: disc_mode=2
+I (80309) NimBLE:  adv_channel_map=0 own_addr_type=1 adv_filter_policy=0 adv_itvl_min=40 adv_itvl_max=40
+I (80319) NimBLE: 
+
+I (80329) chip[DL]: CHIPoBLE advertising started
+I (80329) app_main: Commissioning window opened
+I (110199) chip[DL]: bleAdv Timeout : Start slow advertisement
+I (110199) chip[DL]: Configuring CHIPoBLE advertising (interval 500 ms, connectable)
+I (110209) chip[DL]: Device already advertising, stop active advertisement and restart
+I (110209) NimBLE: GAP procedure initiated: stop advertising.
+
+I (110219) NimBLE: GAP procedure initiated: advertise; 
+I (110229) NimBLE: disc_mode=2
+I (110239) NimBLE:  adv_channel_map=0 own_addr_type=1 adv_filter_policy=0 adv_itvl_min=800 adv_itvl_max=800
+I (110249) NimBLE:

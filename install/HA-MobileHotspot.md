@@ -80,7 +80,7 @@ http://192.168.0.200/index.html
   - Press "Join" button, fill the "Network Key" with *1450a03ab4223e9cf9907f0f548c1145* and press "Submit"
   
 There is both OTBR in the same Thread network now.  
-![](HA-MobileHotspot_01.png)
+![](HA-MobileHotspot/HA-MobileHotspot_01.png)
 
 ### 7) Pairing end devices
 **Attempt #1**  
