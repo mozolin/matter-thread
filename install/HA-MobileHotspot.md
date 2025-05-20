@@ -78,4 +78,17 @@ http://192.168.0.200/index.html
 - Available Thread Networks:
   - Press "SCAN" button
   - Press "Join" button, fill the "Network Key" with *1450a03ab4223e9cf9907f0f548c1145* and press "Submit"
-There is both OTBR in the same Thread network now.
+  
+There is both OTBR in the same Thread network now.  
+![](HA-MobileHotspot_01.png)
+
+### 7) Pairing end devices
+**Attempt #1**  
+The end device is created from the "esp-matter light" example using ESP32-H2 as a target.  
+When trying to add a new Matter device to Home Assistant:  
+- Smartphone Doogee S88Pro: "Matter is currently unavailable"
+- Tablet Dexp H21, after reading the QR code of a new end device: "No Wi-Fi connection"
+- Redmi Note 13 Pro smartphone, the pairing process was interrupted at the stage "Failed to generate device credentials. An error occurred while generating device credentials"
+  
+**Attempt #2**  
+The end device is created from the "Espressif Launchpad" example using ESP32-H2 as a target.  

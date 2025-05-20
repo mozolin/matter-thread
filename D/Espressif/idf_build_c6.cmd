@@ -24,8 +24,11 @@ echo [0m
 
 if %MONITOR_ONLY%. NEQ . goto MONITOR_ONLY
 
-@echo.
-set /p RESPONSE=Monitor only? (1/0): 
+echo Port: %COM_PORT%
+echo Choose: [92m1 - Monitor Only[0m
+echo         [91m0 - Flash + Monitor[0m
+echo         [93mEnter - Skip + Exit[0m
+set /p RESPONSE= 
 rem -- Pressed <ENTER>
 if %RESPONSE%. == . goto FINISHED
 rem -- Go to :MONITOR_ONLY
@@ -42,14 +45,14 @@ cmake -D IDF_PATH=%IDF_PATH% -D "SERIAL_TOOL=%PRJ_PATH%\.espressif/python_env/id
 
 rem  -- Go to app build folder and flash firmware
 cd %APP_PATH%/build
-echo [96mStart firmware flashing...[0m
+echo [91mStart firmware flashing...[0m
 esptool --chip %CHIP_TYPE% -p %COM_PORT% -b %COM_BAUD% --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq %FLASH_FREQ% --flash_size 4MB 0x0 bootloader/bootloader.bin 0x20000 light.bin 0xc000 partition_table/partition-table.bin 0x1d000 ota_data_initial.bin
 
 :MONITOR_ONLY
 
 rem  -- Go to app folder and start monitor
 cd %APP_PATH%
-echo [96mStart monitoring...[0m
+echo [92mStart monitoring...[0m
 idf.py -p %COM_PORT% monitor
 
 :FINISHED
