@@ -1,32 +1,34 @@
-# Create a Home Assistant configuration using a smartphone hotspot
+# Create a Home Assistant configuration using an office network
 
 ### Used (IP address + Device):
 - 192.168.0.1     TP-Link Router TL-WR841N
 - 192.168.0.100   Raspberry Pi 4B+ with Ubuntu 22.04
-- 192.168.0.101   Redmi Note 13 Pro (smartphone with Wi-Fi hotspot for internet access)
+- 192.168.0.101   Redmi Note 13 Pro (smartphone)
 - 192.168.0.102   Dexp H21 (tablet)
 - 192.168.0.103   Doogee S88Pro (smartphone)
+- 192.168.0.104   Mi Max2 (smartphone)
 - 192.168.0.200   Espressif OpenThread Border Router
 - 192.168.0.201   SMLight SLZB-06 (WiFi connection)
 - 192.168.0.202   SMLight SLZB-06 (Ethernet connection)
 
 SSID for TP-Link router: MIKE_OFFICE  
-SSID for mobile hotspot: MIKE_REDMI_NOTE_13  
   
 
 ### 1) To do a hard reset of SLZB-06 device
 For this, turn on the device with the button pressed, when the LEDs start to flash, release the button.
 
-### 2) Set "Mode" to "Matter-over-thread" for SLZB-06
+### 2) Configure Wi-Fi and "Matter-over-thread" mode for SLZB-06
+- Reset SLZB-06 by pressing and holding "Reset" button for 5 seconds
 - Open: http://192.168.0.202/ (Ethernet connection)
 - Mode -> Connection mode -> Wi-Fi connection
 - Network -> Wi-Fi Setup -> Scan for Wi-Fi networks
 - Choose: SSID = MIKE_OFFICE, Password: ###### -> Save
-- Dashboard -> Wi-Fi status -> IP Address = 192.168.85.42 (this IP address is given as an example)
-- Open: http://192.168.85.42/ (Wi-Fi connection with internet access)
+- Dashboard -> Wi-Fi status -> IP Address = 192.168.0.201
+- Open: http://192.168.0.201/ (Wi-Fi connection with internet access)
 - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread -> Save
 - Mode -> Connection mode -> Ethernet connection -> Save
 - Open: http://192.168.0.202/ (Ethernet connection)
+
 
 ### 3) in Home Assistant (integration)
 - Settings -> Devices & Services -> Add integration
@@ -50,6 +52,7 @@ network_device: 192.168.0.202:6638
 ~~~
 Here:
 - "device" - any unused port
+
 
 ### 5) in Home Assistant
 - Settings -> Devices & Services -> Thread -> CONFIGURE -> icon "Thread network information"
@@ -80,15 +83,23 @@ http://192.168.0.200/index.html
   - Press "Join" button, fill the "Network Key" with *1450a03ab4223e9cf9907f0f548c1145* and press "Submit"
   
 There is both OTBR in the same Thread network now.  
-![](HA-MobileHotspot/HA-MobileHotspot_01.png)
+![](HA-Office/HA-Office_01.png)
+
 
 ### 7) Pairing end devices
 **Attempt #1**  
 The end device is created from the "esp-matter light" example using ESP32-H2 as a target.  
 When trying to add a new Matter device to Home Assistant:  
-- Smartphone Doogee S88Pro: "Matter is currently unavailable"
-- Tablet Dexp H21, after reading the QR code of a new end device: "No Wi-Fi connection"
+- Doogee S88Pro smartphone: "Matter is currently unavailable"
+- Dexp H21 tablet, after reading the QR code of a new end device: "No Wi-Fi connection"
 - Redmi Note 13 Pro smartphone, the pairing process was interrupted at the stage "Failed to generate device credentials. An error occurred while generating device credentials"
   
 **Attempt #2**  
 The end device is created from the "Espressif Launchpad" example using ESP32-H2 as a target.  
+- Redmi Note 13 Pro smartphone, the pairing process was successful => end device was added to:
+  - the Thread network as router (can be seen at http://192.168.0.200/index.html)
+  - the Matter-over-Thread device (can be seen in Home Assistant "Matter Server" add-on)
+  
+![](HA-Office/HA-Office_Matter_info.png)  
+
+![](HA-Office/HA-Office_Matter_server.png)  
