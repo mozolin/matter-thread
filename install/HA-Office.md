@@ -18,7 +18,6 @@ SSID for TP-Link router: MIKE_OFFICE
 For this, turn on the device with the button pressed, when the LEDs start to flash, release the button.
 
 ### 2) Configure Wi-Fi and "Matter-over-thread" mode for SLZB-06
-- Reset SLZB-06 by pressing and holding "Reset" button for 5 seconds
 - Open: http://192.168.0.202/ (Ethernet connection)
 - Mode -> Connection mode -> Wi-Fi connection
 - Network -> Wi-Fi Setup -> Scan for Wi-Fi networks
