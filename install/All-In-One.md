@@ -5,6 +5,7 @@
 - [Some settings](HA-Settings.md)  
 - [Create a Home Assistant configuration using an office network](HA-Office.md)
 
+
 # 2. Install PHP + Apache2
 ~~~
 sudo apt install php libapache2-mod-php
