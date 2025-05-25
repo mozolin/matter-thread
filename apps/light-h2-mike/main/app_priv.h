@@ -42,6 +42,10 @@ typedef void *app_driver_handle_t;
 #if MIKE_GPIO_SETTINGS
   #define GPIO_OUTPUT_VALUE_1 13
   #define GPIO_BUTTON_VALUE_1 9
+
+  #define GPIO_OUTPUT_VALUE_2 8
+  #define GPIO_BUTTON_VALUE_2 10
+
   //-- init GPIO as OUTPUT
   esp_err_t app_driver_gpio_init(int GPIO);
 #endif
@@ -63,6 +67,8 @@ app_driver_handle_t app_driver_light_init();
  * @return NULL in case of failure.
  */
 app_driver_handle_t app_driver_button_init();
+//app_driver_handle_t app_driver_button_init_2();
+
 
 /** Driver Update
  *
@@ -77,8 +83,7 @@ app_driver_handle_t app_driver_button_init();
  * @return ESP_OK on success.
  * @return error in case of failure.
  */
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
-                                      uint32_t attribute_id, esp_matter_attr_val_t *val);
+esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 
 /** Set defaults for light driver
  *
@@ -89,7 +94,7 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
  * @return ESP_OK on success.
  * @return error in case of failure.
  */
-esp_err_t app_driver_light_set_defaults(uint16_t endpoint_id);
+//esp_err_t app_driver_light_set_defaults(uint16_t endpoint_id);
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \

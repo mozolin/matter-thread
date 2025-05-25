@@ -48,9 +48,9 @@ project(light)
 
 # WARNING: This is just an example for using key for decrypting the encrypted OTA image
 # Please do not use it as is.
-if(CONFIG_ENABLE_ENCRYPTED_OTA)
-    target_add_binary_data(light.elf "esp_image_encryption_key.pem" TEXT)
-endif()
+#if(CONFIG_ENABLE_ENCRYPTED_OTA)
+#    target_add_binary_data(light.elf "esp_image_encryption_key.pem" TEXT)
+#endif()
 
 if(CONFIG_IDF_TARGET_ESP32C2)
     include(relinker)

@@ -1,0 +1,19 @@
+
+Quectel_Matter_Product
+~~~~~~~~~~~~~~~~~~~~~~
+Clusters on Endpoint 1
+Device Type(s): On/Off Plug-in Unit
+Identify        ClusterId 3 (0x003)
+Groups          ClusterId 4 (0x004)
+>> OnOff           ClusterId 6 (0x006)
+Descriptor      ClusterId 29 (0x001d)
+
+
+TEST_PRODUCT
+~~~~~~~~~~~~
+Clusters on Endpoint 2
+Device Type(s): On/Off Light Switch
+Identify        ClusterId 3 (0x003)
+Groups          ClusterId 4 (0x004)
+Descriptor      ClusterId 29 (0x001d)
+>> Binding         ClusterId 30 (0x001e)
