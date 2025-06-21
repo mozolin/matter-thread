@@ -27,15 +27,15 @@ idf.py set-target esp32s3
 idf.py menuconfig
 ~~~
 
-**1) Using Wi-Fi:**
+**1) Using Wi-Fi:**  
 ![](../images/otbr/esp_otbr_menuconfig_01.png)
 
-**2) Using Ethernet (with Sub-Ethernet board):**
+**2) Using Ethernet (with Sub-Ethernet board):**  
 ![](../images/otbr/esp-thread-border-router-sub-ethernet.png)  
   
 ![](../images/otbr/esp_otbr_menuconfig_02.png)  
   
-**Common settings:**
+**Common settings:**  
 ![](../images/otbr/esp_otbr_menuconfig_03.png)  
  
 ![](../images/otbr/esp_otbr_menuconfig_04.png)  
