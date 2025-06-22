@@ -11,7 +11,7 @@ Note: Only the USB2 port on the ESP Thread Border Router Board needs to be conne
 
 ~~~
 D:
-cd /Espressif/esp-idf
+cd ~/esp-idf
 ./export.bat
 cd ..
 git clone --recursive https://github.com/espressif/esp-thread-br.git
@@ -19,10 +19,10 @@ git clone --recursive https://github.com/espressif/esp-thread-br.git
 
 Build the esp-idf/examples/openthread/ot_rcp example. The firmware doesn't need to be explicitly flashed to a device. It will be included in the Border Router firmware and flashed to the ESP32-H2 chip upon first boot (or the RCP firmware changed).
 ~~~
-cd /Espressif/esp-idf/examples/openthread/ot_rcp
+cd ~/esp-idf/examples/openthread/ot_rcp
 idf.py set-target esp32h2
 idf.py build
-cd /Espressif/esp-thread-br/examples/basic_thread_border_router
+cd ~/esp-thread-br/examples/basic_thread_border_router
 idf.py set-target esp32s3
 idf.py menuconfig
 ~~~
