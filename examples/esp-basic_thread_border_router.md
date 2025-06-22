@@ -153,11 +153,11 @@ matter esp ot_cli router table
 ![](../images/otbr/otbr_02.jpg)  
 
 
-## OpenThread Border Router
-Now we can toggle RGB-LED on the ESP32-C6 development board
+## ChipTool
+Now we can toggle RGB-LED on the ESP32-C6 development board  
 *Syntax:* ***chip-tool {cluster_id} {command_id} {node_id} {endpoint_id}***  
-- {cluster_id} : ClusterId ("onoff" for this example)
-- {command_id} : CommandId ("toggle" for this example)
+- {cluster_id} : ClusterId ("onoff" for this example)  
+- {command_id} : CommandId ("toggle" for this example)  
 - {node_id} : NodeId chosen for the end device during pairing  
 - {endpoint_id} : EndPointId (1 for this example)  
 ~~~
@@ -172,5 +172,6 @@ EndpointId = 0x1 (1 for this example)
 ClusterId = 0x6 (6 for OnOff cluster)  
 CommandId = 0x2 (2 for Toggle command)  
 Status = 0x00 (0 = SUCCESS)  
-  
+
+## End Device  
 ![](../images/otbr/ESP32-C6_LED-ON.jpg)  
