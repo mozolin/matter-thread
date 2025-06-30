@@ -1,7 +1,7 @@
 # Mike's On/Off example
 
 This example demonstrates the creation of a Multiple On-Off Plugin Unit, where multiple endpoints are mapped to GPIO pins.  
-Adopted for SuperMini ESP32-H2:  
+Adapted for SuperMini ESP32-H2:  
 ![](esp32h2_03.jpg)  
 
 ## Plugin Manager Configuration
