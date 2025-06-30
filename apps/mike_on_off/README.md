@@ -7,7 +7,7 @@ Adapted for SuperMini ESP32-H2:
 ## Plugin Manager Configuration
 To update the existing CONFIG_GPIO_PLUG values, set their value in sdkconfig.defaults.esp32h2.
 
-The following table defines the default GPIO pin numbers for the ESP32-H2 device.
+The following table defines the available GPIO pin numbers for the ESP32-H2 device.
 ~~~
 ------------------
 | IO Func | GPIO |
