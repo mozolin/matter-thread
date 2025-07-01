@@ -1,10 +1,12 @@
 # Mike's On/Off example
 
-This example demonstrates the creation of a Multiple On-Off Plugin Unit, where multiple endpoints are mapped to GPIO pins.  
+This example demonstrates how to control 8 relays on 8 GPIOs of an ESP32-H2 device via Matter over Thread, using Espressif's SDK for Matter.  
+For this purpose, I use the Home Assistant add-on "Matter Server" and the "Matter" service.  
+  
 Adapted for SuperMini ESP32-H2:  
-![](esp32h2_03.jpg)  
+![](esp32h2.jpg)  
 
-## Plugin Manager Configuration
+## Project Configuration
 To update the existing CONFIG_GPIO_PLUG values, set their value in sdkconfig.defaults.esp32h2.
 
 The following table defines the available GPIO pin numbers for the ESP32-H2 device.
@@ -32,6 +34,12 @@ The following table defines the available GPIO pin numbers for the ESP32-H2 devi
 | Plug 16 |  27  |
 ------------------
 ~~~
+  
+Set the target to the ESP32-H2 device:
+~~~
+idf.py set-target esp32h2
+~~~
+
 See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html) for more information about building and flashing the firmware.
 
 ## 1. Additional Environment Setup
