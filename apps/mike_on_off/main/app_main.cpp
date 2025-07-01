@@ -330,14 +330,23 @@ extern "C" void app_main()
   led_indicator_handle_t led_handle = configure_indicator();
   
   while(1) {
-    ESP_LOGW(TAG_INDICATOR, "\n\n*** Start blinking LED indicator\n");
+    //ESP_LOGW(TAG_INDICATOR, "\n************************************\n*   Start blinking LED indicator   *\n************************************");
+
+    ESP_LOGW(TAG_INDICATOR, "************************************");
+    ESP_LOGW(TAG_INDICATOR, "*                                  *");
+    ESP_LOGW(TAG_INDICATOR, "*   Start blinking LED indicator   *");
+    ESP_LOGW(TAG_INDICATOR, "*                                  *");
+    ESP_LOGW(TAG_INDICATOR, "************************************");
+
     for(int i = 0; i < BLINK_MAX; i++) {
       led_indicator_start(led_handle, i);
       ESP_LOGI(TAG_INDICATOR, "start blink: %d", i);
-      vTaskDelay(4000 / portTICK_PERIOD_MS);
+      //vTaskDelay(4000 / portTICK_PERIOD_MS);
+      vTaskDelay(pdMS_TO_TICKS(4000));
       led_indicator_stop(led_handle, i);
       ESP_LOGI(TAG_INDICATOR, "stop blink: %d", i);
-      vTaskDelay(1000 / portTICK_PERIOD_MS);
+      //vTaskDelay(1000 / portTICK_PERIOD_MS);
+      vTaskDelay(pdMS_TO_TICKS(1000));
     }
   }
 

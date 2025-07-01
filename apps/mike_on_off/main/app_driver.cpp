@@ -172,15 +172,24 @@ void reboot_button_task(void *pvParameter)
       //-- Reset button released
       if(button_pressed) {
         //ESP_LOGI("RebootButton", "Button released");
-
         uint32_t pressed_duration = esp_log_timestamp() - button_pressed_time;
         
         if(pressed_duration >= FACTORY_RESET_HOLD_TIME_MS) {
-          ESP_LOGE("RebootButton", "\nFactory reset triggered\n");
+          ESP_LOGE("Reset Button", "*******************************");
+          ESP_LOGE("Reset Button", "*                             *");
+          ESP_LOGE("Reset Button", "*   Factory reset triggered   *");
+          ESP_LOGE("Reset Button", "*                             *");
+          ESP_LOGE("Reset Button", "*******************************");
+          vTaskDelay(pdMS_TO_TICKS(5000));
           esp_matter::factory_reset();
           esp_restart();
         } else if (pressed_duration >= REBOOT_HOLD_TIME_MS) {
-          ESP_LOGW("RebootButton", "\nReboot triggered\n");
+          ESP_LOGW("Reset Button", "************************");
+          ESP_LOGW("Reset Button", "*                      *");
+          ESP_LOGW("Reset Button", "*   Reboot triggered   *");
+          ESP_LOGW("Reset Button", "*                      *");
+          ESP_LOGW("Reset Button", "************************");
+          vTaskDelay(pdMS_TO_TICKS(5000));
           esp_restart();
         }
 
