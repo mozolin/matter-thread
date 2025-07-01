@@ -7,7 +7,7 @@ Adapted for SuperMini ESP32-H2:
 ![](esp32h2.jpg)  
 
 ## Project Configuration
-To update the existing CONFIG_GPIO_PLUG values, set their value in sdkconfig.defaults.esp32h2.
+To update the existing *CONFIG_GPIO_PLUG* values, set their value in **sdkconfig.defaults.esp32h2**.
 
 The following table defines the available GPIO pin numbers for the ESP32-H2 device.
 ~~~
@@ -35,17 +35,31 @@ The following table defines the available GPIO pin numbers for the ESP32-H2 devi
 ------------------
 ~~~
   
-Set the target to the ESP32-H2 device:
+### Set the target to the ESP32-H2 device
 ~~~
 idf.py set-target esp32h2
 ~~~
 
-See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html) for more information about building and flashing the firmware.
+See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html) for more information about building and flashing the firmware.  
+  
+### Reset Button settings
+- GPIO = **9**
+- Time to reboot = **3** seconds
+- Time to factory reset = **10** seconds
 
-## 1. Additional Environment Setup
+~~~
+app_priv.h:
 
-No additional setup is required.
-
-## 2. Post Commissioning Setup
-
-No additional setup is required.
+/********************
+ *                  *
+ *   RESET BUTTON   *
+ *                  *
+ ********************/
+#include "esp_matter_core.h"
+#define REBOOT_BUTTON_GPIO 9
+//-- Hold for 3 seconds to reboot
+#define REBOOT_HOLD_TIME_MS 3000
+//-- Hold for 10 seconds to factory reset
+#define FACTORY_RESET_HOLD_TIME_MS 10000
+extern void reboot_button_task(void *pvParameter);
+~~~

@@ -52,7 +52,7 @@ app_driver_handle_t app_driver_button_init(gpio_num_t * reset_gpio);
  ********************/
 #include "esp_matter_core.h"
 #define REBOOT_BUTTON_GPIO 9
-//-- Hold for 10 seconds to reboot
+//-- Hold for 3 seconds to reboot
 #define REBOOT_HOLD_TIME_MS 3000
 //-- Hold for 10 seconds to factory reset
 #define FACTORY_RESET_HOLD_TIME_MS 10000
