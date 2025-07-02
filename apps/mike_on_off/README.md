@@ -42,7 +42,7 @@ idf.py set-target esp32h2
 
 See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html) for more information about building and flashing the firmware.  
   
-### Reset Button settings
+### Reboot Button settings
 - GPIO = **9**
 - Time to reboot = **3** seconds
 - Time to factory reset = **10** seconds
@@ -50,16 +50,11 @@ See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/de
 ~~~
 app_priv.h:
 
-/********************
- *                  *
- *   RESET BUTTON   *
- *                  *
- ********************/
-#include "esp_matter_core.h"
 #define REBOOT_BUTTON_GPIO 9
 //-- Hold for 3 seconds to reboot
 #define REBOOT_HOLD_TIME_MS 3000
 //-- Hold for 10 seconds to factory reset
 #define FACTORY_RESET_HOLD_TIME_MS 10000
-extern void reboot_button_task(void *pvParameter);
 ~~~
+
+![](esp32h2_8relays.jpg)  
