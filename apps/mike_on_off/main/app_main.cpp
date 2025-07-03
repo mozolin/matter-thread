@@ -143,6 +143,13 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
 {
   esp_err_t err = ESP_OK;
 
+  ESP_LOGI("Reset Button", "************************");
+  ESP_LOGI("Reset Button", "*                      *");
+  ESP_LOGI("Reset Button", "*   %d|%d|%d|%d   *", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)val);
+  ESP_LOGI("Reset Button", "*                      *");
+  ESP_LOGI("Reset Button", "************************");
+  vTaskDelay(pdMS_TO_TICKS(5000));
+
   if(type == PRE_UPDATE) {
     //-- Driver update
     app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
@@ -220,7 +227,13 @@ extern "C" void app_main()
   esp_err_t err = ESP_OK;
 
   //-- Initialize the ESP NVS layer
-  nvs_flash_init();
+  //nvs_flash_init();
+  err = nvs_flash_init();
+  if(err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    err = nvs_flash_init();
+  }
+  ESP_ERROR_CHECK(err);
 
   //-- Create a Matter node and add the mandatory Root Node device type on endpoint 0
   node::config_t node_config;
@@ -293,12 +306,6 @@ extern "C" void app_main()
     CREATE_PLUG(node, 16)
 	#endif
 
-  //-- Initialize factory reset button
-  app_driver_handle_t button_handle = app_driver_button_init(&reset_gpio);
-  if(button_handle) {
-    app_reset_button_register(button_handle);
-  }
-
   //-- Set OpenThread platform config
   esp_openthread_platform_config_t config = {
     .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
@@ -321,6 +328,28 @@ extern "C" void app_main()
     esp_matter::console::init();
 	#endif
 
+	/*
+	relay_set_on_off(5, 0);
+	vTaskDelay(pdMS_TO_TICKS(1000));
+
+	bool s1 = load_relay_state(1);
+	bool s2 = load_relay_state(2);
+	bool s3 = load_relay_state(3);
+	bool s4 = load_relay_state(4);
+	bool s5 = load_relay_state(5);
+	bool s6 = load_relay_state(6);
+	bool s7 = load_relay_state(7);
+	bool s8 = load_relay_state(8);
+
+
+	gpio_num_t pin = get_gpio(5);
+  ESP_LOGW(TAG_INDICATOR, "***********************");
+  ESP_LOGW(TAG_INDICATOR, "*                     *");
+  ESP_LOGW(TAG_INDICATOR, "*   GPIO: %d, NVS: %d   *", (int)pin, load_relay_state(5));
+  ESP_LOGW(TAG_INDICATOR, "*   %d|%d|%d|%d|%d|%d|%d|%d   *", s1, s2, s3, s4, s5, s6, s7, s8);
+  ESP_LOGW(TAG_INDICATOR, "*                     *");
+  ESP_LOGW(TAG_INDICATOR, "***********************");
+  */
 
   /*********************
    *                   *
