@@ -22,12 +22,12 @@
     plug##plug_id.GPIO_PIN_VALUE = (gpio_num_t) CONFIG_GPIO_PLUG_##plug_id; \
     create_plug(&plug##plug_id, node);
 
-static const char *TAG = "app_main";
-
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
+
+static const char *TAG = "App";
 
 constexpr auto k_timeout_seconds = 300;
 uint16_t configure_plugs = 0;
@@ -143,15 +143,38 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
 {
   esp_err_t err = ESP_OK;
 
-  ESP_LOGI("Reset Button", "************************");
-  ESP_LOGI("Reset Button", "*                      *");
-  ESP_LOGI("Reset Button", "*   %d|%d|%d|%d   *", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)val);
-  ESP_LOGI("Reset Button", "*                      *");
-  ESP_LOGI("Reset Button", "************************");
-  vTaskDelay(pdMS_TO_TICKS(5000));
+  if(type == PRE_UPDATE) {
+		ESP_LOGW(TAG, "~~~ PRE_UPDATE ~~~");
+		ESP_LOGW(TAG, "~~~ PRE_UPDATE ~~~");
+		ESP_LOGW(TAG, "~~~ PRE_UPDATE ~~~");
+  }
+  if(type == POST_UPDATE) {
+  	ESP_LOGW(TAG, "~~~ POST_UPDATE ~~~");
+  	ESP_LOGW(TAG, "~~~ POST_UPDATE ~~~");
+  	ESP_LOGW(TAG, "~~~ POST_UPDATE ~~~");
+  }
+  if(type == READ) {
+  	ESP_LOGW(TAG, "~~~ READ ~~~");
+  	ESP_LOGW(TAG, "~~~ READ ~~~");
+  	ESP_LOGW(TAG, "~~~ READ ~~~");
+  }
+  if(type == WRITE) {
+  	ESP_LOGW(TAG, "~~~ WRITE ~~~");
+  	ESP_LOGW(TAG, "~~~ WRITE ~~~");
+  	ESP_LOGW(TAG, "~~~ WRITE ~~~");
+  }
 
   if(type == PRE_UPDATE) {
     //-- Driver update
+    
+    bool state = val->val.b;
+    ESP_LOGW(TAG, "*******************************");
+    ESP_LOGW(TAG, "");
+    ESP_LOGW(TAG, "App_Attribute_Update_CB:%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+    ESP_LOGW(TAG, "");
+    ESP_LOGW(TAG, "*******************************");
+    //vTaskDelay(pdMS_TO_TICKS(5000));
+    
     app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
     err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
   }
@@ -219,6 +242,50 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   return err;
 }
 
+/*
+#include <app/clusters/on-off-server/on-off-server.h>
+#include <app/AttributeAccessInterface.h>
+#include <app/CommandHandler.h>
+class OnOffAttributeHandler : public chip::app::AttributeAccessInterface {
+public:
+    OnOffAttributeHandler() : 
+        AttributeAccessInterface(chip::Optional<chip::EndpointId>(0), 
+                              chip::app::Clusters::OnOff::Id) {}
+
+    CHIP_ERROR Read(const chip::app::ConcreteReadAttributePath& path,
+                  chip::app::AttributeValueEncoder& encoder) override {
+        return CHIP_NO_ERROR; // Используем стандартное поведение
+    }
+
+    CHIP_ERROR Write(const chip::app::ConcreteDataAttributePath& path,
+                   chip::app::AttributeValueDecoder& decoder) override {
+        if (path.mAttributeId == chip::app::Clusters::OnOff::Attributes::OnOff::Id) {
+            bool newState;
+            CHIP_ERROR err = decoder.Decode(newState);
+            if (err == CHIP_NO_ERROR) {
+                ESP_LOGI("OnOff", "Endpoint %d state changed to %d", 
+                        path.mEndpointId, newState);
+                
+                // Обновляем физическое реле
+                app_driver_set_on_off(path.mEndpointId, newState);
+                
+                // Выключаем другие реле при включении текущего
+                if (newState) {
+                    turn_off_other_relays(path.mEndpointId);
+                }
+            }
+            return err;
+        }
+        return CHIP_NO_ERROR;
+    }
+};
+
+void RegisterAttributeHandler() {
+    static OnOffAttributeHandler handler;
+    chip::app::RegisterAttributeAccessOverride(&handler);
+}
+*/
+
 extern "C" void app_main()
 {
   //-- Start reboot button task
@@ -226,8 +293,7 @@ extern "C" void app_main()
 
   esp_err_t err = ESP_OK;
 
-  //-- Initialize the ESP NVS layer
-  //nvs_flash_init();
+  //-- Initialize the ESP NVS (Non-Volatile Storage) layer
   err = nvs_flash_init();
   if(err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
     ESP_ERROR_CHECK(nvs_flash_erase());
@@ -328,39 +394,24 @@ extern "C" void app_main()
     esp_matter::console::init();
 	#endif
 
-	/*
-	relay_set_on_off(5, 0);
-	vTaskDelay(pdMS_TO_TICKS(1000));
+  //-- Register callbacks for each endpoint
+  //for(const auto &relay : relays) {
+  //  RegisterOnOffCallback(relay.endpoint);
+  //}
+  
+  //RegisterAttributeHandler();
 
-	bool s1 = load_relay_state(1);
-	bool s2 = load_relay_state(2);
-	bool s3 = load_relay_state(3);
-	bool s4 = load_relay_state(4);
-	bool s5 = load_relay_state(5);
-	bool s6 = load_relay_state(6);
-	bool s7 = load_relay_state(7);
-	bool s8 = load_relay_state(8);
-
-
-	gpio_num_t pin = get_gpio(5);
-  ESP_LOGW(TAG_INDICATOR, "***********************");
-  ESP_LOGW(TAG_INDICATOR, "*                     *");
-  ESP_LOGW(TAG_INDICATOR, "*   GPIO: %d, NVS: %d   *", (int)pin, load_relay_state(5));
-  ESP_LOGW(TAG_INDICATOR, "*   %d|%d|%d|%d|%d|%d|%d|%d   *", s1, s2, s3, s4, s5, s6, s7, s8);
-  ESP_LOGW(TAG_INDICATOR, "*                     *");
-  ESP_LOGW(TAG_INDICATOR, "***********************");
-  */
 
   /*********************
    *                   *
    *   LED INDICATOR   *
    *                   *
    *********************/
+  /*
+  !!! CLOSED !!!
   led_indicator_handle_t led_handle = configure_indicator();
   
   while(1) {
-    //ESP_LOGW(TAG_INDICATOR, "\n************************************\n*   Start blinking LED indicator   *\n************************************");
-
     ESP_LOGW(TAG_INDICATOR, "************************************");
     ESP_LOGW(TAG_INDICATOR, "*                                  *");
     ESP_LOGW(TAG_INDICATOR, "*   Start blinking LED indicator   *");
@@ -370,13 +421,13 @@ extern "C" void app_main()
     for(int i = 0; i < BLINK_MAX; i++) {
       led_indicator_start(led_handle, i);
       ESP_LOGI(TAG_INDICATOR, "start blink: %d", i);
-      //vTaskDelay(4000 / portTICK_PERIOD_MS);
       vTaskDelay(pdMS_TO_TICKS(4000));
+      
       led_indicator_stop(led_handle, i);
       ESP_LOGI(TAG_INDICATOR, "stop blink: %d", i);
-      //vTaskDelay(1000 / portTICK_PERIOD_MS);
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
   }
+  */
 
 }

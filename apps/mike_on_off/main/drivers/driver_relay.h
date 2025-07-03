@@ -2,19 +2,31 @@
 #pragma once
 
 #include <esp_err.h>
+#include "driver/gpio.h"
+#include <vector>
 /**************
  *            *
  *   RELAYS   *
  *            *
  **************/
-//-- Функция для выключения ВСЕХ реле, кроме указанного
+// Configuration for each relay (endpoint + GPIO pin)
+struct RelayConfig {
+  uint8_t endpoint;
+  gpio_num_t gpio_pin;
+};
+
+extern bool OnOffAttributeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t *value, uint16_t *readLength);
+
+extern void RegisterOnOffCallback(chip::EndpointId endpoint);
+
+extern const std::vector<RelayConfig> relays;
+
 extern void turn_off_other_relays(uint8_t excluded_endpoint);
 
-//-- Управление реле (с взаимным отключением)
-extern void relay_set_on_off(uint8_t endpoint, bool state);
+extern void relay_init(void);
 
-//-- Функция для сохранения состояния реле в NVS
+extern esp_err_t relay_set_on_off(uint8_t endpoint, bool state);
+
 extern esp_err_t save_relay_state(uint8_t endpoint, bool state);
 
-//-- Функция для загрузки состояния реле из NVS
 extern bool load_relay_state(uint8_t endpoint);

@@ -1,25 +1,23 @@
 
+//#include <esp_log.h>
+#include <app-common/zap-generated/ids/Clusters.h>
+#include <app-common/zap-generated/ids/Attributes.h>
+#include <app/util/attribute-storage.h>
+#include <app/clusters/on-off-server/on-off-server.h>
+
 #include "driver_relay.h"
+#include <app_priv.h>
+
 #include "driver/gpio.h"
 #include <vector>
 
 #include "nvs_flash.h"
 #include "nvs.h"
 
+static const char *TAG_RELAY = "Driver Relay";
 
-/**************
- *            *
- *   RELAYS   *
- *            *
- **************/
-// Конфигурация реле (пины и эндпоинты)
-struct RelayConfig {
-  uint8_t endpoint;
-  gpio_num_t gpio_pin;
-};
-
-// Список всех реле (можно расширить)
-static const std::vector<RelayConfig> relays = {
+// List of all relays (expandable)
+/*static */const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_0},
 	{2, GPIO_NUM_1},
 	{3, GPIO_NUM_2},
@@ -30,33 +28,57 @@ static const std::vector<RelayConfig> relays = {
 	{8, GPIO_NUM_12},
 };
 
-// Функция для выключения ВСЕХ реле, кроме указанного
+// Turn off ALL relays except the specified one
 void turn_off_other_relays(uint8_t excluded_endpoint)
 {
   for(const auto &relay : relays) {
     if(relay.endpoint != excluded_endpoint) {
-      bool state = !load_relay_state(relay.endpoint);
-      gpio_set_level(relay.gpio_pin, state);  // Физически выключаем
-      save_relay_state(relay.endpoint, state);  // Сохраняем в NVS
+      ESP_LOGE("TURN OFF", "GPIO: %d set to 0", (int)relay.gpio_pin);
+      app_driver_update_gpio_value(relay.gpio_pin, 0);
+      save_relay_state(relay.endpoint, false);
+      //OnOffServer::Instance().setOnOffValue(relay.endpoint, false);
     }
   }
 }
 
-// Управление реле (с взаимным отключением)
-void relay_set_on_off(uint8_t endpoint, bool state)
+// Initialize relay GPIOs and restore saved states
+void relay_init()
 {
   for(const auto &relay : relays) {
+    bool state = load_relay_state(relay.endpoint);
+    gpio_set_level(relay.gpio_pin, state ? 1 : 0);
+    //OnOffServer::Instance().setOnOffValue(relay.endpoint, state);
+  }
+}
+
+//-- Set relay state (with auto-turn-off for others)
+esp_err_t relay_set_on_off(uint8_t endpoint, bool state)
+{
+  esp_err_t err = ESP_OK;
+
+  for(const auto &relay : relays) {
+    
+    ESP_LOGE("TURN OFF", "EP = %d", (int)relay.endpoint);
+    
     if(relay.endpoint == endpoint) {
-      gpio_set_level(relay.gpio_pin, state ? 1 : 0);
+      //-- If turning ON, ensure other relays are OFF
+      if(state) {
+        ESP_LOGE("TURN OFF", "*******************************");
+        turn_off_other_relays(endpoint);
+        ESP_LOGE("TURN OFF", "*******************************");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+      }
+
+      //-- update GPIO value
+      err = app_driver_update_gpio_value(relay.gpio_pin, state ? 1 : 0);
       save_relay_state(endpoint, state);
 
-      // Если включаем реле - выключаем все остальные
-      //if(state) {
-        turn_off_other_relays(endpoint);
-      //}
+      ESP_LOGE("TURN OFF", "state = %d", (int)state);
+
       break;
     }
   }
+  return err;
 }
 
 
@@ -65,7 +87,7 @@ void relay_set_on_off(uint8_t endpoint, bool state)
  *   NVS SAVE/LOAD   *
  *                   *
  *********************/
-//-- Функция для сохранения состояния реле в NVS
+//-- Save the state of a relay to NVS (Non-Volatile Storage)
 esp_err_t save_relay_state(uint8_t endpoint, bool state)
 {
   nvs_handle_t handle;
@@ -79,7 +101,7 @@ esp_err_t save_relay_state(uint8_t endpoint, bool state)
   return err;
 }
 
-//-- Функция для загрузки состояния реле из NVS
+//-- Load the saved state of a relay from NVS
 bool load_relay_state(uint8_t endpoint)
 {
   nvs_handle_t handle;

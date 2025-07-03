@@ -23,8 +23,6 @@ void reboot_button_task(void *pvParameter)
   };
   gpio_config(&io_conf);
 
-  bool state = false;
-
   while(1) {
     //-- Reset button pressed
     if(gpio_get_level((gpio_num_t)REBOOT_BUTTON_GPIO) == 0) {
@@ -32,24 +30,6 @@ void reboot_button_task(void *pvParameter)
         button_pressed_time = esp_log_timestamp();
         button_pressed = true;
         //ESP_LOGI("RebootButton", "Button pressed");
-
-        state = !state;
-
-        relay_set_on_off(5, state);
-				vTaskDelay(pdMS_TO_TICKS(5000));
-	      
-				bool s1 = load_relay_state(1);
-				bool s2 = load_relay_state(2);
-				bool s3 = load_relay_state(3);
-				bool s4 = load_relay_state(4);
-				bool s5 = load_relay_state(5);
-				bool s6 = load_relay_state(6);
-				bool s7 = load_relay_state(7);
-				bool s8 = load_relay_state(8);
-	      
-	      ESP_LOGW("Reset Button", "ENDPNT: 1|2|3|4|5|6|7|8");
-        ESP_LOGW("Reset Button", "STATES: %d|%d|%d|%d|%d|%d|%d|%d", s1, s2, s3, s4, s5, s6, s7, s8);
-
       }
     } else {
       //-- Reset button released
