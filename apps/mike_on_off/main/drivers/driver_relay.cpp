@@ -14,6 +14,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+
 static const char *TAG_RELAY = "Driver Relay";
 
 // List of all relays (expandable)
@@ -36,7 +37,7 @@ void turn_off_other_relays(uint8_t excluded_endpoint)
       ESP_LOGE("TURN OFF", "GPIO: %d set to 0", (int)relay.gpio_pin);
       app_driver_update_gpio_value(relay.gpio_pin, 0);
       save_relay_state(relay.endpoint, false);
-      //OnOffServer::Instance().setOnOffValue(relay.endpoint, false);
+      OnOffServer::Instance().setOnOffValue(relay.endpoint, 0, false);
     }
   }
 }

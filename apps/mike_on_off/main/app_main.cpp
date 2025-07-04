@@ -17,6 +17,17 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+/*
+#if CONFIG_SUBSCRIBE_TO_ON_OFF_SERVER_AFTER_BINDING
+	#include <app/util/binding-table.h>
+	#include <esp_matter_client.h>
+	#include <app/AttributePathParams.h>
+	#include <app/ConcreteAttributePath.h>
+	#include <lib/core/TLVReader.h>
+	#include <app/server/Server.h>
+#endif
+*/
+
 #define CREATE_PLUG(node, plug_id) \
     struct gpio_plug plug##plug_id; \
     plug##plug_id.GPIO_PIN_VALUE = (gpio_num_t) CONFIG_GPIO_PLUG_##plug_id; \
@@ -33,6 +44,12 @@ constexpr auto k_timeout_seconds = 300;
 uint16_t configure_plugs = 0;
 plugin_endpoint plugin_unit_list[CONFIG_NUM_VIRTUAL_PLUGS];
 static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
+
+/*
+#if CONFIG_SUBSCRIBE_TO_ON_OFF_SERVER_AFTER_BINDING
+	static bool do_subscribe = true;
+#endif
+*/
 
 
 /*********************
@@ -85,11 +102,49 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
     ESP_LOGI(TAG, "Commissioning window opened");
     break;
-
+/*
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
     ESP_LOGI(TAG, "Commissioning window closed");
     break;
 
+    case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster: {
+        ESP_LOGW(TAG, "*****************************");
+        ESP_LOGW(TAG, "*                           *");
+        ESP_LOGW(TAG, "*   Binding entry changed   *");
+        ESP_LOGW(TAG, "*                           *");
+        ESP_LOGW(TAG, "*****************************");
+#if CONFIG_SUBSCRIBE_TO_ON_OFF_SERVER_AFTER_BINDING
+        if(do_subscribe) {
+            for (const auto & binding : chip::BindingTable::GetInstance())
+            {
+                ESP_LOGI(
+                    TAG,
+                    "Read cached binding type=%d fabrixIndex=%d nodeId=0x" ChipLogFormatX64
+                    " groupId=%d local endpoint=%d remote endpoint=%d cluster=" ChipLogFormatMEI,
+                    binding.type, binding.fabricIndex, ChipLogValueX64(binding.nodeId), binding.groupId, binding.local,
+                    binding.remote, ChipLogValueMEI(binding.clusterId.value_or(0)));
+                if (binding.type == MATTER_UNICAST_BINDING && event->BindingsChanged.fabricIndex == binding.fabricIndex)
+                {
+                    ESP_LOGI(
+                        TAG,
+                        "Matched accessingFabricIndex with nodeId=0x" ChipLogFormatX64,
+                        ChipLogValueX64(binding.nodeId));
+
+                    uint32_t attribute_id = chip::app::Clusters::OnOff::Attributes::OnOff::Id;
+                    client::request_handle_t req_handle;
+                    req_handle.type = esp_matter::client::SUBSCRIBE_ATTR;
+                    req_handle.attribute_path = {binding.remote, binding.clusterId.value(), attribute_id};
+                    auto &server = chip::Server::GetInstance();
+                    client::connect(server.GetCASESessionManager(), binding.fabricIndex, binding.nodeId, &req_handle);
+                    break;
+                }
+            }
+            do_subscribe = false;
+        }
+#endif
+    }
+    break;
+*/
   case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
     ESP_LOGI(TAG, "Fabric removed successfully");
     if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
@@ -242,49 +297,86 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   return err;
 }
 
-/*
+
+
 #include <app/clusters/on-off-server/on-off-server.h>
+#include <protocols/interaction_model/StatusCode.h>
+bool get_plug_state(uint8_t endpoint) {
+    bool current_state;
+    chip::Protocols::InteractionModel::Status status = 
+        OnOffServer::Instance().getOnOffValue(endpoint, &current_state);
+    
+    if (status == chip::Protocols::InteractionModel::Status::Success) {
+        ESP_LOGI("Plug", "Endpoint %d state: %s", 
+                endpoint, current_state ? "ON" : "OFF");
+        return current_state;
+    }
+    
+    ESP_LOGE("Plug", "Failed to read endpoint %d", endpoint);
+    return false;
+}
+
+/*
 #include <app/AttributeAccessInterface.h>
-#include <app/CommandHandler.h>
-class OnOffAttributeHandler : public chip::app::AttributeAccessInterface {
-public:
-    OnOffAttributeHandler() : 
-        AttributeAccessInterface(chip::Optional<chip::EndpointId>(0), 
-                              chip::app::Clusters::OnOff::Id) {}
-
-    CHIP_ERROR Read(const chip::app::ConcreteReadAttributePath& path,
-                  chip::app::AttributeValueEncoder& encoder) override {
-        return CHIP_NO_ERROR; // Используем стандартное поведение
-    }
-
-    CHIP_ERROR Write(const chip::app::ConcreteDataAttributePath& path,
-                   chip::app::AttributeValueDecoder& decoder) override {
-        if (path.mAttributeId == chip::app::Clusters::OnOff::Attributes::OnOff::Id) {
-            bool newState;
-            CHIP_ERROR err = decoder.Decode(newState);
-            if (err == CHIP_NO_ERROR) {
-                ESP_LOGI("OnOff", "Endpoint %d state changed to %d", 
-                        path.mEndpointId, newState);
-                
-                // Обновляем физическое реле
-                app_driver_set_on_off(path.mEndpointId, newState);
-                
-                // Выключаем другие реле при включении текущего
-                if (newState) {
-                    turn_off_other_relays(path.mEndpointId);
-                }
-            }
-            return err;
-        }
-        return CHIP_NO_ERROR;
-    }
-};
-
-void RegisterAttributeHandler() {
-    static OnOffAttributeHandler handler;
-    chip::app::RegisterAttributeAccessOverride(&handler);
+bool read_plug_attribute(uint8_t endpoint) {
+    bool state = false;
+    chip::app::ConcreteAttributePath path(
+        endpoint,
+        chip::app::Clusters::OnOff::Id,
+        chip::app::Clusters::OnOff::Attributes::OnOff::Id
+    );
+    
+    // Для ESP-Matter 2024 используйте:
+    chip::app::InteractionModelEngine::GetInstance()->GetAttributeCache()->Get(path, state);
+    return state;
 }
 */
+
+#include <app/server/Server.h>
+void check_plugs() {
+    bool plug1, plug2;
+    
+    // Способ 1 (предпочтительный)
+    OnOffServer::Instance().getOnOffValue(1, &plug1);
+    OnOffServer::Instance().getOnOffValue(2, &plug2);
+    
+    ESP_LOGI("Main", "Plug states: %d, %d", plug1, plug2);
+    
+    // Способ 2 (альтернативный)
+    //ESP_LOGI("Main", "Plug1 cached: %d", read_plug_attribute(1));
+}
+
+#include <app/clusters/on-off-server/on-off-server.h>
+// Получение состояния с обработкой ошибок
+bool get_plug_state2(uint8_t endpoint) {
+    bool current_state;
+    auto status = OnOffServer::Instance().getOnOffValue(endpoint, &current_state);
+    
+    if (status == chip::Protocols::InteractionModel::Status::Success) {
+        ESP_LOGI("Plug", "Endpoint %d: %s", 
+               endpoint, current_state ? "ON" : "OFF");
+        return current_state;
+    }
+    
+    ESP_LOGE("Plug", "Error reading endpoint %d (status %d)", 
+           endpoint, static_cast<int>(status));
+    return false;
+}
+
+/*
+#include <zzz-generated/CHIPClusters.h>
+bool read_plug_state_zap(uint8_t endpoint) {
+    chip::Controller::OnOffCluster cluster;
+    cluster.Associate(endpoint); // Ассоциируем с endpoint
+    
+    bool state;
+    if (cluster.ReadAttributeOnOff(&state) == CHIP_NO_ERROR) {
+        return state;
+    }
+    return false;
+}
+*/
+
 
 extern "C" void app_main()
 {
@@ -300,6 +392,12 @@ extern "C" void app_main()
     err = nvs_flash_init();
   }
   ESP_ERROR_CHECK(err);
+
+  /* Initialize driver */
+  //app_driver_handle_t switch_handle = app_driver_switch_init();
+  //app_reset_button_register(switch_handle);
+
+  //init_matter();
 
   //-- Create a Matter node and add the mandatory Root Node device type on endpoint 0
   node::config_t node_config;
@@ -394,13 +492,23 @@ extern "C" void app_main()
     esp_matter::console::init();
 	#endif
 
-  //-- Register callbacks for each endpoint
-  //for(const auto &relay : relays) {
-  //  RegisterOnOffCallback(relay.endpoint);
-  //}
   
-  //RegisterAttributeHandler();
+  //chip::Server::GetInstance().Init();
+  //check_plugs();
 
+  
+  //get_plug_state(1);
+  //check_plugs();
+  //get_plug_state2(1);
+
+  /*
+  ESP_LOGW(TAG_INDICATOR, "*******************");
+  ESP_LOGW(TAG_INDICATOR, "*                 *");
+  ESP_LOGW(TAG_INDICATOR, "*   endpoint: %d   *", 1);
+  ESP_LOGW(TAG_INDICATOR, "*   state: %d      *", state1);
+  ESP_LOGW(TAG_INDICATOR, "*                 *");
+  ESP_LOGW(TAG_INDICATOR, "*******************");
+  */
 
   /*********************
    *                   *

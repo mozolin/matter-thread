@@ -15,9 +15,9 @@ struct RelayConfig {
   gpio_num_t gpio_pin;
 };
 
-extern bool OnOffAttributeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t *value, uint16_t *readLength);
+//extern bool OnOffAttributeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t *value, uint16_t *readLength);
 
-extern void RegisterOnOffCallback(chip::EndpointId endpoint);
+//extern void RegisterOnOffCallback(chip::EndpointId endpoint);
 
 extern const std::vector<RelayConfig> relays;
 

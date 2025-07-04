@@ -4,6 +4,20 @@
 #include "driver_led_indicator.h"
 #include "driver_relay.h"
 
+//-- Plugs
+#define CONFIG_NUM_VIRTUAL_PLUGS     8
+#define CONFIG_GPIO_PLUG_1           0
+#define CONFIG_GPIO_PLUG_2           1
+#define CONFIG_GPIO_PLUG_3           2
+#define CONFIG_GPIO_PLUG_4           3
+//-- ??? GPIO4 does not work as output - why so ???
+#define CONFIG_GPIO_PLUG_5           5
+#define CONFIG_GPIO_PLUG_6           10
+#define CONFIG_GPIO_PLUG_7           11
+#define CONFIG_GPIO_PLUG_8           12
+
+//#define CONFIG_SUBSCRIBE_TO_ON_OFF_SERVER_AFTER_BINDING true
+
 //-- Default attribute values used during initialization
 struct gpio_plug {
   gpio_num_t GPIO_PIN_VALUE;

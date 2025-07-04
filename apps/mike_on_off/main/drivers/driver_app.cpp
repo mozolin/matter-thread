@@ -6,6 +6,8 @@ using namespace chip::app::Clusters;
 
 static const char *TAG_PLUG = "Driver App";
 
+
+
 esp_err_t app_driver_update_gpio_value(gpio_num_t pin, bool value)
 {
   esp_err_t err = ESP_OK;
@@ -25,6 +27,8 @@ esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug)
   esp_err_t err = ESP_OK;
 
   gpio_reset_pin(plug->GPIO_PIN_VALUE);
+
+  //client::set_request_callback(app_driver_client_callback, app_driver_client_group_invoke_command_callback, NULL);
 
   err = gpio_set_direction(plug->GPIO_PIN_VALUE, GPIO_MODE_OUTPUT);
   if(err != ESP_OK) {
