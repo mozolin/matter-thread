@@ -59,6 +59,8 @@ app_priv.h:
 
 ![](esp32h2_8relays.jpg)  
   
+![](esp32h2_8relays_back.jpg)  
+  
 ## Testing using OpenThread Border Router + ChipTool
 
 ### Get active dataset (OTBR CLI)
