@@ -15,10 +15,6 @@ struct RelayConfig {
   gpio_num_t gpio_pin;
 };
 
-//extern bool OnOffAttributeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t *value, uint16_t *readLength);
-
-//extern void RegisterOnOffCallback(chip::EndpointId endpoint);
-
 extern const std::vector<RelayConfig> relays;
 
 extern void turn_off_other_relays(uint8_t excluded_endpoint);
@@ -27,6 +23,10 @@ extern void relay_init(void);
 
 extern esp_err_t relay_set_on_off(uint8_t endpoint, bool state);
 
-extern esp_err_t save_relay_state(uint8_t endpoint, bool state);
+extern esp_err_t nvs_save_state(uint8_t endpoint, bool state);
 
-extern bool load_relay_state(uint8_t endpoint);
+extern bool nvs_load_state(uint8_t endpoint);
+
+extern esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool state, bool matter_update);
+
+extern bool get_plug_state(uint8_t endpoint);

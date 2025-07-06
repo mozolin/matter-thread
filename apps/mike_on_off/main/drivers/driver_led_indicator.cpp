@@ -53,8 +53,8 @@ const blink_step_t triple_green_blink[] = {
 const blink_step_t blue_long_blink[] = {
   //-- Set color to blue by R:0 G:0 B:255
   {LED_BLINK_RGB, SET_RGB(0, 0, 128), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 300},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 300},
+  {LED_BLINK_HOLD, LED_STATE_ON, 200},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 200},
   {LED_BLINK_LOOP, 0, 0},
 };
 
