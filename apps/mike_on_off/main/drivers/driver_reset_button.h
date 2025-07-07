@@ -1,11 +1,13 @@
 #pragma once
 
+#include "esp_matter_core.h"
+#include <app_priv.h>
+
 /********************
  *                  *
  *   RESET BUTTON   *
  *                  *
  ********************/
-#include "esp_matter_core.h"
 #define REBOOT_BUTTON_GPIO 9
 //-- Hold for 3 seconds to reboot
 #define REBOOT_HOLD_TIME_MS 3000

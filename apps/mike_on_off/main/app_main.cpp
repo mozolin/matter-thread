@@ -18,10 +18,19 @@
 #include <app/server/Server.h>
 
 
+#define CREATE_ALL_PLUGS(node) \
+  for(const auto &relay : relays) { \
+    struct gpio_plug plug; \
+  	plug.GPIO_PIN_VALUE = (gpio_num_t)relay.gpio_pin; \
+  	create_plug(&plug, node); \
+  }
+    
+/*
 #define CREATE_PLUG(node, plug_id) \
     struct gpio_plug plug##plug_id; \
     plug##plug_id.GPIO_PIN_VALUE = (gpio_num_t) CONFIG_GPIO_PLUG_##plug_id; \
     create_plug(&plug##plug_id, node);
+*/
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -288,6 +297,7 @@ extern "C" void app_main()
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG, "~~~ Failed to create Matter node"));
 
+  /*
 	#ifdef CONFIG_GPIO_PLUG_1
     CREATE_PLUG(node, 1)
 	#endif
@@ -351,6 +361,9 @@ extern "C" void app_main()
 	#ifdef CONFIG_GPIO_PLUG_16
     CREATE_PLUG(node, 16)
 	#endif
+	*/
+	
+	CREATE_ALL_PLUGS(node);
 
   //-- Set OpenThread platform config
   esp_openthread_platform_config_t config = {
@@ -381,9 +394,6 @@ extern "C" void app_main()
    *********************/
   led_handle = configure_indicator();
 
-  //uint8_t idx = get_led_indicator_blink_idx(BLINK_LONG_BLUE, 2000, 0);
-  //ESP_LOGE(TAG, "~~~ ###!!!@@@ FOUND: %d", idx);
-  
   
   /*
   !!! CLOSED !!!

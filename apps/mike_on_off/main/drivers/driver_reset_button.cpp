@@ -46,7 +46,7 @@ void reboot_button_task(void *pvParameter)
           vTaskDelay(pdMS_TO_TICKS(5000));
           esp_matter::factory_reset();
           esp_restart();
-        } else if (pressed_duration >= REBOOT_HOLD_TIME_MS) {
+        } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
           ESP_LOGW("Reset Button", "************************");
           ESP_LOGW("Reset Button", "*                      *");
           ESP_LOGW("Reset Button", "*   Reboot triggered   *");
@@ -55,7 +55,6 @@ void reboot_button_task(void *pvParameter)
           vTaskDelay(pdMS_TO_TICKS(5000));
           esp_restart();
         }
-
       }
       button_pressed = false;
     }

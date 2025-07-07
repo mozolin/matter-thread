@@ -14,6 +14,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+/*
 //-- List of all relays (expandable)
 const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_3},
@@ -25,6 +26,7 @@ const std::vector<RelayConfig> relays = {
 	{7, GPIO_NUM_11},
 	{8, GPIO_NUM_10},
 };
+*/
 
 //-- Turn off ALL relays except the specified one
 void turn_off_other_relays(uint8_t excluded_endpoint)
@@ -121,21 +123,59 @@ esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool
   	OnOffServer::Instance().setOnOffValue(endpoint_id, 0, state);
 	}
 
-	get_plug_state(endpoint_id);
+	get_plug_state(endpoint_id, true);
 	
 	return err;
 }
 
-bool get_plug_state(uint8_t endpoint)
+bool get_plug_state(uint8_t endpoint, bool logs)
 {
   bool current_state;
   auto status = OnOffServer::Instance().getOnOffValue(endpoint, &current_state);
-  
   if(status == chip::Protocols::InteractionModel::Status::Success) {
-    ESP_LOGW(TAG, "~~~ Endpoint %d: %s", endpoint, current_state ? "ON" : "OFF");
+    if(logs) {
+    	ESP_LOGW(TAG, "~~~ Endpoint %d: %s", endpoint, current_state ? "ON" : "OFF");
+    }
     return current_state;
   }
-  
-  ESP_LOGE(TAG, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
+  if(logs) {
+  	ESP_LOGE(TAG, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
+  }
   return false;
+}
+
+void print_plugs_state()
+{
+  bool state;
+  char str_ep[sizeof(int) * 8 + 1], str_gpio[sizeof(int) * 8 + 1];
+  
+  ESP_LOGW("", "");
+  ESP_LOGW("", "-------------------------");
+  ESP_LOGW("", "|   EP | GPIO |  State  |");
+  ESP_LOGW("", "-------------------------");
+	for(const auto &relay : relays) {
+    //state = get_plug_state(relay.endpoint, false);
+    //state = gpio_get_level(relay.gpio_pin);
+    //state = nvs_load_state(relay.endpoint);
+
+    int ep = relay.endpoint;
+    int gpio = relay.gpio_pin;
+    
+  	OnOffServer::Instance().getOnOffValue(ep, &state);
+    
+    if(ep < 10) {
+    	sprintf(str_ep, " %d", ep);
+    } else {
+    	sprintf(str_ep, "%d", ep);
+    }
+    if(gpio < 10) {
+    	sprintf(str_gpio, " %d", gpio);
+    } else {
+    	sprintf(str_gpio, "%d", gpio);
+    }
+    
+    ESP_LOGW("", "|   %s |  %s  |   %s   |", str_ep, str_gpio, state ? "ON " : "OFF");
+  }
+  ESP_LOGW("", "-------------------------");
+  ESP_LOGW("", "");
 }

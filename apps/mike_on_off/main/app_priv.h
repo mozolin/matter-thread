@@ -6,6 +6,7 @@
 
 //-- Plugs
 #define CONFIG_NUM_VIRTUAL_PLUGS     8
+/*
 #define CONFIG_GPIO_PLUG_1           3
 #define CONFIG_GPIO_PLUG_2           5
 #define CONFIG_GPIO_PLUG_3           2
@@ -15,8 +16,21 @@
 #define CONFIG_GPIO_PLUG_6           12
 #define CONFIG_GPIO_PLUG_7           11
 #define CONFIG_GPIO_PLUG_8           10
+*/
 
-static const char *TAG = "Mike App";
+//-- List of all relays (expandable)
+const std::vector<RelayConfig> relays = {
+  {1, GPIO_NUM_3},
+	{2, GPIO_NUM_5},
+	{3, GPIO_NUM_2},
+	{4, GPIO_NUM_1},
+	{5, GPIO_NUM_0},
+	{6, GPIO_NUM_12},
+	{7, GPIO_NUM_11},
+	{8, GPIO_NUM_10},
+};
+
+static const char *TAG = "Mike's App";
 
 //-- Default attribute values used during initialization
 struct gpio_plug {

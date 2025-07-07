@@ -15,7 +15,7 @@ struct RelayConfig {
   gpio_num_t gpio_pin;
 };
 
-extern const std::vector<RelayConfig> relays;
+//extern const std::vector<RelayConfig> relays;
 
 extern void turn_off_other_relays(uint8_t excluded_endpoint);
 
@@ -29,4 +29,6 @@ extern bool nvs_load_state(uint8_t endpoint);
 
 extern esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool state, bool matter_update);
 
-extern bool get_plug_state(uint8_t endpoint);
+extern bool get_plug_state(uint8_t endpoint, bool logs);
+
+extern void print_plugs_state(void);

@@ -1,14 +1,14 @@
 # Mike's On/Off example
 
+**Example: Multiple ESP-Matter forks with on/off, latching and mutual exclusion (only one can be on at a time) using ESP-IDF 5.4 and Supermini ESP32-H2 board.**  
+  
 This example demonstrates how to control 8 relays on 8 GPIOs of an ESP32-H2 device via Matter over Thread, using Espressif's SDK for Matter.  
-For this purpose, I use the Home Assistant add-on "Matter Server" and the "Matter" service.  
+For this purpose, we use the Home Assistant add-on "Matter Server" and the "Matter" service.  
   
 Adapted for SuperMini ESP32-H2:  
 ![](esp32h2.jpg)  
 
 ## Project Configuration
-To update the existing *CONFIG_GPIO_PLUG* values, set their value in **sdkconfig.defaults.esp32h2**.
-
 The following table defines the available GPIO pin numbers for the ESP32-H2 device.
 ~~~
 ------------------
@@ -59,7 +59,26 @@ app_priv.h:
 
 ![](esp32h2_8relays.jpg)  
   
+The back side of this board  
 ![](esp32h2_8relays_back.jpg)  
+  
+According to this circuit, the GPIO table will be as follows:  
+~~~
+------------------
+| IO Func | GPIO |
+|---------|-------
+| Reset   |   9  |
+|         |      |
+| Plug 1  |   3  |
+| Plug 2  |   5  |
+| Plug 3  |   2  |
+| Plug 4  |   1  |
+| Plug 5  |   0  |
+| Plug 6  |  12  |
+| Plug 7  |  11  |
+| Plug 8  |  10  |
+------------------
+~~~
   
 ## Testing using OpenThread Border Router + ChipTool
 

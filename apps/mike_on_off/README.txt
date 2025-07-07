@@ -33,6 +33,8 @@ EndDevice
 
 "matter esp attribute set <endpoint_id> <cluster_id> <attribute_id> <value>"
 > matter esp attribute set 0x1 0x6 0x0 1
+> matter esp attribute set 0x5 0x6 0x0 1
+
 > matter esp attribute get 0x1 0x6 0x0
 
 > matter esp onoff read on-off 1
