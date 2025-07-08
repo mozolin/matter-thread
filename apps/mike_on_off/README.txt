@@ -38,3 +38,34 @@ EndDevice
 > matter esp attribute get 0x1 0x6 0x0
 
 > matter esp onoff read on-off 1
+
+
+-----------------------------------------------
+- Commissioning window opened
+- Commissioning session started
+- Commissioning window opened
+- Fabric is updated
+- Fabric is committed
+- Fabric is committed
+- Commissioning complete
+- Commissioning window closed
+- BLE deinitialized and memory reclaimed
+
+
+RLOC16
+
+
+0xd400
+012345 6 789012345
+ROUTER   CHILD
+110101 0 000000000
+
+
+1234
+
+
+
+RLOC16:
+D400 -> 110101(53) 0 000000000 - OTBR
+4000 -> 010000(16) 0 000000000 - ESP32H2 (chip-tool)
+3000 -> 001100(12) 0 000000000 - ESP32H2 (dataset)

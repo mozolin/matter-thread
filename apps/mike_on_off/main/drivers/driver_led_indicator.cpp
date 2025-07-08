@@ -49,12 +49,32 @@ const blink_step_t triple_green_blink[] = {
   {LED_BLINK_STOP, 0, 0},
 };
 
-//-- Blinking long in blue
-const blink_step_t blue_long_blink[] = {
-  //-- Set color to blue by R:0 G:0 B:255
-  {LED_BLINK_RGB, SET_RGB(0, 0, 128), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 200},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 200},
+//-- Blinking once in blue
+const blink_step_t blue_once_blink[] = {
+  //-- Set color to blue by R:0 G:0 B:128
+  {LED_BLINK_RGB, SET_RGB(0, 0, 32), 0},
+  {LED_BLINK_HOLD, LED_STATE_ON, 100},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 100},
+  {LED_BLINK_LOOP, 0, 0},
+};
+
+
+//-- Blinking once in red
+const blink_step_t red_once_blink[] = {
+  //-- Set color to red by R:128 G:0 B:0
+  {LED_BLINK_RGB, SET_RGB(32, 0, 0), 0},
+  {LED_BLINK_HOLD, LED_STATE_ON, 100},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 100},
+  {LED_BLINK_LOOP, 0, 0},
+};
+
+
+//-- Blinking once in green
+const blink_step_t green_once_blink[] = {
+  //-- Set color to green by R:0 G:128 B:0
+  {LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+  {LED_BLINK_HOLD, LED_STATE_ON, 100},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 100},
   {LED_BLINK_LOOP, 0, 0},
 };
 

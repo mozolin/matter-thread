@@ -14,7 +14,7 @@
 More details about RLOC16 can be found [here](../tools/rloc16.md)
 
 ## OTBR (RLOC16 = 0x4400, ExtMAC = 7a64fd2b41e75415)
-hex: 0x4400, dec: 17408, bin: 0100010000000000  
+hex: 0x4400, dec: 17408, bin: "010001 0 000000000"  
 RouterId: 010001 = 17 (0x11), ChildId: 000000000 = 0  
 ~~~
 ipaddr
@@ -34,7 +34,7 @@ ipaddr
 
 ## End Device OT_CLI (RLOC16 = 0x0800, ExtMAC = ee87506bb564af15)
 Example: https://github.com/espressif/esp-idf/tree/master/examples/openthread/ot_cli  
-hex: 0x0800, dec: 2048, bin: 0000100000000000  
+hex: 0x0800, dec: 2048, bin: "000010 0 000000000"  
 RouterId: 000010 = 2 (0x02), ChildId: 000000000 = 0  
 ~~~
 ipaddr
@@ -43,11 +43,14 @@ ipaddr
 > fd8a:fd34:7273:1:3353:21d2:e7ae:bd73  
 > fdec:29c2:f04b:4b23:2c3e:e917:3b28:ddf  
 > fe80:0:0:0:ec87:506b:b564:af15  
+- mesh-loc-pref = fdec:29c2:f04b:4b23
+- iid = 0:ff:fe00
+- rloc16 = 800
 
 
 ## End Device MATTER-LIGHT (RLOC16 = 0x3000, ExtMAC = f6f7117a6cbc2cf1)
 Example: https://github.com/espressif/esp-matter/tree/main/examples/light  
-hex: 0x3000, dec: 12288, bin: 0011000000000000  
+hex: 0x3000, dec: 12288, bin: "001100 0 000000000"  
 RouterId: 001100 = 12 (0x0c), ChildId: 000000000 = 0  
 ~~~
 ipaddr
@@ -56,12 +59,16 @@ ipaddr
 > fd8a:fd34:7273:1:7507:5977:7c50:7851  
 > fdec:29c2:f04b:4b23:6d20:a1a9:cfcc:367b  
 > fe80:0:0:0:f4f7:117a:6cbc:2cf1  
+- mesh-loc-pref = fdec:29c2:f04b:4b23
+- iid = 0:ff:fe00
+- rloc16 = 3000
 
 
 ## Get list of Matter devices (_matter._tcp service)  
 
 ~~~
 > sudo avahi-browse _matter._tcp
+> sudo avahi-browse _matter._tcp | grep -a "+ hassio" #-- hassio only
 
 + hassio  IPv4  663D59C323043403-0000000000000001  _matter._tcp  local
 + hassio  IPv4  64AEABD33B7DC79F-00000000000004D2  _matter._tcp  local

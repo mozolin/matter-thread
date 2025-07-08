@@ -25,13 +25,6 @@
   	create_plug(&plug, node); \
   }
     
-/*
-#define CREATE_PLUG(node, plug_id) \
-    struct gpio_plug plug##plug_id; \
-    plug##plug_id.GPIO_PIN_VALUE = (gpio_num_t) CONFIG_GPIO_PLUG_##plug_id; \
-    create_plug(&plug##plug_id, node);
-*/
-
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
@@ -54,7 +47,9 @@ blink_step_t const *led_mode[] = {
   [BLINK_ON_ORANGE] = orange_on,
   [BLINK_DOUBLE_RED] = double_red_blink,
   [BLINK_TRIPLE_GREEN] = triple_green_blink,
-  [BLINK_LONG_BLUE] = blue_long_blink,
+  [BLINK_ONCE_BLUE] = blue_once_blink,
+  [BLINK_ONCE_RED] = red_once_blink,
+  [BLINK_ONCE_GREEN] = green_once_blink,
   [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
   [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
   [BLINK_BLUE_BREATH] = breath_blue_blink,
@@ -101,38 +96,47 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   switch (event->Type) {
   case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
     ESP_LOGW(TAG, "~~~ Interface IP Address changed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
     ESP_LOGW(TAG, "~~~ Commissioning complete");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-    ESP_LOGW(TAG, "~~~ Commissioning failed, fail safe timer expired");
+    ESP_LOGE(TAG, "~~~ Commissioning failed, fail safe timer expired");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
     ESP_LOGW(TAG, "~~~ Commissioning session started");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
     ESP_LOGW(TAG, "~~~ Commissioning session stopped");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
     ESP_LOGW(TAG, "~~~ Commissioning window opened");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
     ESP_LOGW(TAG, "~~~ Commissioning window closed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster:
     ESP_LOGW(TAG, "~~~ Binding entry changed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
     ESP_LOGW(TAG, "~~~ Fabric removed successfully");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
       chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
       constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -142,6 +146,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
         CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
         if(err != CHIP_NO_ERROR) {
           ESP_LOGE(TAG, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
         }
       }
     }
@@ -150,18 +155,22 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 
   case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
     ESP_LOGW(TAG, "~~~ Fabric will be removed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
     ESP_LOGW(TAG, "~~~ Fabric is updated");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
     ESP_LOGW(TAG, "~~~ Fabric is committed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
     ESP_LOGW(TAG, "~~~ BLE deinitialized and memory reclaimed");
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
     break;
 
   default:
@@ -174,6 +183,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
   ESP_LOGW(TAG, "~~~ Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
   return ESP_OK;
 }
 
@@ -191,11 +201,12 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
         app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
         err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
         if(err == ESP_OK) {
-        	ESP_LOGW(TAG, "~~~ Attribute updated: %d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+        	ESP_LOGW(TAG, "~~~ Updated: endpoint:%d|cluster:%d|attribute:%d|state:%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
         	//-- Blink...
-        	get_led_indicator_blink_idx(BLINK_LONG_BLUE, 300, 0);
+        	get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 150, 0);
         } else {
         	ESP_LOGE(TAG, "~~~ Failed to update attribute :%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+        	get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
         }
   		}
 			break;
@@ -220,17 +231,20 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!node) {
     ESP_LOGE(TAG, "~~~ Matter node cannot be NULL");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_ERR_INVALID_ARG;
   }
 
   if(!plug) {
     ESP_LOGE(TAG, "~~~ Plug cannot be NULL");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_ERR_INVALID_ARG;
   }
 
   //-- Check if plug's IO pin is already used by reset button
   if((reset_gpio != gpio_num_t::GPIO_NUM_NC) && (reset_gpio == plug->GPIO_PIN_VALUE)) {
     ESP_LOGE(TAG, "~~~ Reset button already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -238,6 +252,7 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   for(int i = 0; i < configure_plugs; i++) {
     if(plugin_unit_list[i].plug == plug->GPIO_PIN_VALUE) {
       ESP_LOGE(TAG, "~~~ Plug already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
       return ESP_ERR_INVALID_STATE;
     }
   }
@@ -248,6 +263,7 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!endpoint) {
     ESP_LOGE(TAG, "~~~ Matter endpoint creation failed");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_FAIL;
   }
 
@@ -256,6 +272,7 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(err != ESP_OK) {
     ESP_LOGE(TAG, "~~~ Failed to initialize plug");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
   }
 
   //-- Check for maximum plugs that can be configured.
@@ -264,12 +281,14 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
     plugin_unit_list[configure_plugs].endpoint_id = endpoint::get_id(endpoint);
     configure_plugs++;
   } else {
-    ESP_LOGE(TAG, "~~~ Maximum plugs configuration limit exceeded!!!");
+    ESP_LOGE(TAG, "~~~ Maximum plugs configuration limit exceeded!");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_FAIL;
   }
 
   uint16_t plug_endpoint_id = endpoint::get_id(endpoint);
   ESP_LOGW(TAG, "~~~ Plug created with endpoint_id %d", plug_endpoint_id);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
   return err;
 }
 
@@ -279,6 +298,9 @@ extern "C" void app_main()
 {
   //-- Start reboot button task
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, 5, NULL);
+  //-- Init LED indicator
+  led_handle = configure_indicator();
+
 
   esp_err_t err = ESP_OK;
 
@@ -297,72 +319,6 @@ extern "C" void app_main()
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG, "~~~ Failed to create Matter node"));
 
-  /*
-	#ifdef CONFIG_GPIO_PLUG_1
-    CREATE_PLUG(node, 1)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_2
-    CREATE_PLUG(node, 2)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_3
-    CREATE_PLUG(node, 3)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_4
-    CREATE_PLUG(node, 4)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_5
-    CREATE_PLUG(node, 5)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_6
-    CREATE_PLUG(node, 6)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_7
-    CREATE_PLUG(node, 7)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_8
-    CREATE_PLUG(node, 8)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_9
-    CREATE_PLUG(node, 9)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_10
-    CREATE_PLUG(node, 10)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_11
-    CREATE_PLUG(node, 11)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_12
-    CREATE_PLUG(node, 12)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_13
-    CREATE_PLUG(node, 13)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_14
-    CREATE_PLUG(node, 14)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_15
-    CREATE_PLUG(node, 15)
-	#endif
-
-	#ifdef CONFIG_GPIO_PLUG_16
-    CREATE_PLUG(node, 16)
-	#endif
-	*/
-	
 	CREATE_ALL_PLUGS(node);
 
   //-- Set OpenThread platform config
@@ -386,13 +342,6 @@ extern "C" void app_main()
 		#endif
     esp_matter::console::init();
 	#endif
-
-  /*********************
-   *                   *
-   *   LED INDICATOR   *
-   *                   *
-   *********************/
-  led_handle = configure_indicator();
 
   
   /*

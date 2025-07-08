@@ -11,9 +11,11 @@ esp_err_t app_driver_update_gpio_value(gpio_num_t pin, bool value)
   err = gpio_set_level(pin, value);
   if(err != ESP_OK) {
     ESP_LOGE(TAG, "~~~ Failed to set GPIO level");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_FAIL;
   } else {
     ESP_LOGW(TAG, "~~~ GPIO pin : %d set to %d", pin, value);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
   }
   return err;
 }
@@ -29,12 +31,14 @@ esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug)
   err = gpio_set_direction(plug->GPIO_PIN_VALUE, GPIO_MODE_OUTPUT);
   if(err != ESP_OK) {
     ESP_LOGE(TAG, "~~~ Unable to set GPIO OUTPUT mode");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
     return ESP_FAIL;
   }
 
   err = gpio_set_level(plug->GPIO_PIN_VALUE, 0);
   if(err != ESP_OK) {
     ESP_LOGE(TAG, "~~~ Unable to set GPIO level");
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
   }
   return err;
 }
@@ -63,6 +67,7 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
         err = relay_set_on_off(endpoint_id, state);
       } else {
         ESP_LOGE(TAG, "~~~ GPIO pin mapping for endpoint_id: %d not found", endpoint_id);
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
         return ESP_FAIL;
       }
     }

@@ -6,18 +6,6 @@
 
 //-- Plugs
 #define CONFIG_NUM_VIRTUAL_PLUGS     8
-/*
-#define CONFIG_GPIO_PLUG_1           3
-#define CONFIG_GPIO_PLUG_2           5
-#define CONFIG_GPIO_PLUG_3           2
-#define CONFIG_GPIO_PLUG_4           1
-//-- ??? GPIO4 does not work as output - why so ???
-#define CONFIG_GPIO_PLUG_5           0
-#define CONFIG_GPIO_PLUG_6           12
-#define CONFIG_GPIO_PLUG_7           11
-#define CONFIG_GPIO_PLUG_8           10
-*/
-
 //-- List of all relays (expandable)
 const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_3},
@@ -71,3 +59,4 @@ extern gpio_num_t get_gpio(uint16_t endpoint_id);
 
 extern esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 
+extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
