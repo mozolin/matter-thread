@@ -84,7 +84,7 @@ According to this circuit, the GPIO table will be as follows:
 ~~~
   
 
-## 1. Testing using OpenThread Border Router + ChipTool
+## 1. Testing using OpenThread Border Router + CLI
 
 ### Get active dataset and network key (OTBR CLI)
 ~~~
@@ -120,10 +120,15 @@ matter esp ot_cli dataset set active 0e080000000000010000000300000f35060004001ff
 In any case we can use networkkey.  
 ~~~
 matter esp ot_cli dataset networkkey 1450a03ab4223e9cf9907f0f548c1145
+~~~
+
+Common commands:
+~~~
 matter esp ot_cli dataset commit active
 matter esp ot_cli ifconfig up
 matter esp ot_cli thread start
 ~~~
+
 
 ### Send toggle command (ESP32-H2 CLI)
 *Syntax:* ***matter esp attribute set {endpoint_id} {cluster_id} {attribute_id} {value}***  
