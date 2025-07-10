@@ -6,7 +6,7 @@
 
 //-- Plugs
 #define CONFIG_NUM_VIRTUAL_PLUGS     8
-//-- List of all relays (expandable)
+//-- List of all relays
 const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_3},
 	{2, GPIO_NUM_5},
@@ -18,7 +18,11 @@ const std::vector<RelayConfig> relays = {
 	{8, GPIO_NUM_10},
 };
 
+#define LIVE_BLINK_TIME_MS 1500
+
 static const char *TAG = "Mike's App";
+
+extern uint8_t is_indicator_blinked;
 
 //-- Default attribute values used during initialization
 struct gpio_plug {

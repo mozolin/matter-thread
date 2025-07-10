@@ -30,12 +30,14 @@ using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
+
 constexpr auto k_timeout_seconds = 300;
 uint16_t configure_plugs = 0;
 plugin_endpoint plugin_unit_list[CONFIG_NUM_VIRTUAL_PLUGS];
 static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
 
 led_indicator_handle_t led_handle;
+uint8_t is_indicator_blinked = 0;
 
 /*********************
  *                   *
@@ -47,9 +49,10 @@ blink_step_t const *led_mode[] = {
   [BLINK_ON_ORANGE] = orange_on,
   [BLINK_DOUBLE_RED] = double_red_blink,
   [BLINK_TRIPLE_GREEN] = triple_green_blink,
-  [BLINK_ONCE_BLUE] = blue_once_blink,
   [BLINK_ONCE_RED] = red_once_blink,
   [BLINK_ONCE_GREEN] = green_once_blink,
+  [BLINK_ONCE_BLUE] = blue_once_blink,
+  [BLINK_ONCE_LIVE] = live_once_blink,
   [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
   [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
   [BLINK_BLUE_BREATH] = breath_blue_blink,
@@ -75,12 +78,14 @@ uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int sto
 
   		if(start_delay > 0) {
   			led_indicator_start(led_handle, idx);
-      	vTaskDelay(pdMS_TO_TICKS(start_delay));
-
-      	//led_indicator_set_on_off(led_handle, true);
+      	//vTaskDelay(pdMS_TO_TICKS(start_delay));
+      	vTaskDelay(start_delay / portTICK_PERIOD_MS);
 
 		  	led_indicator_stop(led_handle, idx);
-      	//vTaskDelay(pdMS_TO_TICKS(stop_delay));
+		  	if(stop_delay > 0) {
+      		//vTaskDelay(pdMS_TO_TICKS(stop_delay));
+      		vTaskDelay(stop_delay / portTICK_PERIOD_MS);
+      	}
       }
 
   		break;
@@ -90,53 +95,102 @@ uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int sto
   return idx;
 }
 
+void init_indicator_task(void *pvParameter)
+{
+  
+  uint32_t live_blink_time = 0;
+  
+  while(1) {
+    //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
+    uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
+    if(blinked_duration >= LIVE_BLINK_TIME_MS) {
+    	get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
+    	live_blink_time = esp_log_timestamp();
+    }
+    
+    /*
+    //-- 123 => RGB
+    switch(is_indicator_blinked) {
+    	case 1:
+    		get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+ 	   		//ESP_LOGE(TAG, "~~~ RED blicked!");
+    		is_indicator_blinked = 0;
+    		break;
+    	case 2:
+    		get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+ 	   		//ESP_LOGE(TAG, "~~~ GREEN blicked!");
+    		is_indicator_blinked = 0;
+    		break;
+    	case 3:
+    		get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
+ 	   		//ESP_LOGE(TAG, "~~~ BLUE blicked!");
+    		is_indicator_blinked = 0;
+    		break;
+    	default:
+    		is_indicator_blinked = 0;
+    		break;
+    }
+    */
+
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+}
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
   switch (event->Type) {
   case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
     ESP_LOGW(TAG, "~~~ Interface IP Address changed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
     ESP_LOGW(TAG, "~~~ Commissioning complete");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
     ESP_LOGE(TAG, "~~~ Commissioning failed, fail safe timer expired");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
     ESP_LOGW(TAG, "~~~ Commissioning session started");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
     ESP_LOGW(TAG, "~~~ Commissioning session stopped");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
     ESP_LOGW(TAG, "~~~ Commissioning window opened");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
     ESP_LOGW(TAG, "~~~ Commissioning window closed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster:
     ESP_LOGW(TAG, "~~~ Binding entry changed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
     ESP_LOGW(TAG, "~~~ Fabric removed successfully");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
       chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
       constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -146,7 +200,8 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
         CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
         if(err != CHIP_NO_ERROR) {
           ESP_LOGE(TAG, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
-          get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+          //is_indicator_blinked = 1;
         }
       }
     }
@@ -155,22 +210,26 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 
   case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
     ESP_LOGW(TAG, "~~~ Fabric will be removed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
     ESP_LOGW(TAG, "~~~ Fabric is updated");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
     ESP_LOGW(TAG, "~~~ Fabric is committed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
     ESP_LOGW(TAG, "~~~ BLE deinitialized and memory reclaimed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+    //is_indicator_blinked = 2;
     break;
 
   default:
@@ -183,7 +242,8 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
   ESP_LOGW(TAG, "~~~ Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
-  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+  //is_indicator_blinked = 2;
   return ESP_OK;
 }
 
@@ -203,10 +263,12 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
         if(err == ESP_OK) {
         	ESP_LOGW(TAG, "~~~ Updated: endpoint:%d|cluster:%d|attribute:%d|state:%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
         	//-- Blink...
-        	get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 150, 0);
+        	get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
+        	//is_indicator_blinked = 3;
         } else {
         	ESP_LOGE(TAG, "~~~ Failed to update attribute :%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
-        	get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+        	get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+        	//is_indicator_blinked = 1;
         }
   		}
 			break;
@@ -231,20 +293,23 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!node) {
     ESP_LOGE(TAG, "~~~ Matter node cannot be NULL");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     return ESP_ERR_INVALID_ARG;
   }
 
   if(!plug) {
     ESP_LOGE(TAG, "~~~ Plug cannot be NULL");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     return ESP_ERR_INVALID_ARG;
   }
 
   //-- Check if plug's IO pin is already used by reset button
   if((reset_gpio != gpio_num_t::GPIO_NUM_NC) && (reset_gpio == plug->GPIO_PIN_VALUE)) {
     ESP_LOGE(TAG, "~~~ Reset button already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -252,7 +317,8 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   for(int i = 0; i < configure_plugs; i++) {
     if(plugin_unit_list[i].plug == plug->GPIO_PIN_VALUE) {
       ESP_LOGE(TAG, "~~~ Plug already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      //is_indicator_blinked = 1;
       return ESP_ERR_INVALID_STATE;
     }
   }
@@ -263,7 +329,8 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!endpoint) {
     ESP_LOGE(TAG, "~~~ Matter endpoint creation failed");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     return ESP_FAIL;
   }
 
@@ -272,7 +339,8 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(err != ESP_OK) {
     ESP_LOGE(TAG, "~~~ Failed to initialize plug");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
   }
 
   //-- Check for maximum plugs that can be configured.
@@ -282,13 +350,15 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
     configure_plugs++;
   } else {
     ESP_LOGE(TAG, "~~~ Maximum plugs configuration limit exceeded!");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 150, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    //is_indicator_blinked = 1;
     return ESP_FAIL;
   }
 
   uint16_t plug_endpoint_id = endpoint::get_id(endpoint);
   ESP_LOGW(TAG, "~~~ Plug created with endpoint_id %d", plug_endpoint_id);
-  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 150, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+  //is_indicator_blinked = 2;
   return err;
 }
 
@@ -300,6 +370,7 @@ extern "C" void app_main()
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, 5, NULL);
   //-- Init LED indicator
   led_handle = configure_indicator();
+  //xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
 
 
   esp_err_t err = ESP_OK;
