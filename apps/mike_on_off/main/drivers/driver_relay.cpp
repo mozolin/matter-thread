@@ -71,6 +71,11 @@ esp_err_t relay_set_on_off(uint8_t endpoint, bool state)
       break;
     }
   }
+
+  if(err == ESP_OK) {
+  	show_plug_status(endpoint, state);
+  }
+
   return err;
 }
 
@@ -134,12 +139,12 @@ bool get_plug_state(uint8_t endpoint, bool logs)
   auto status = OnOffServer::Instance().getOnOffValue(endpoint, &current_state);
   if(status == chip::Protocols::InteractionModel::Status::Success) {
     if(logs) {
-    	ESP_LOGW(TAG, "~~~ Endpoint %d: %s", endpoint, current_state ? "ON" : "OFF");
+    	ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s", endpoint, current_state ? "ON" : "OFF");
     }
     return current_state;
   }
   if(logs) {
-  	ESP_LOGE(TAG, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
+  	ESP_LOGE(TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
   }
   return false;
 }
@@ -178,4 +183,25 @@ void print_plugs_state()
   }
   ESP_LOGW("", "-------------------------");
   ESP_LOGW("", "");
+}
+
+void show_plug_status(uint8_t plug_num, bool state)
+{
+	//-- if not initialized
+	if(!ssd1306_initialized) {
+		ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: SSD1306 is not initialized!");
+		return;
+	}
+
+	//-- if wrong plug number
+	if(plug_num > CONFIG_NUM_VIRTUAL_PLUGS) {
+		ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: Wrong plug number (%d)!", plug_num);
+		return;
+	}
+	
+	char buf[32];
+  snprintf(buf, sizeof(buf), "Plug %d: %s", plug_num, state ? "ON" : "OFF");
+  
+  //-- Строки 0 и 2 для двух розеток
+  ssd1306_display_text(&ssd1306dev, (plug_num-1)*2, buf, strlen(buf), false);
 }

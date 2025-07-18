@@ -32,3 +32,5 @@ extern esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pi
 extern bool get_plug_state(uint8_t endpoint, bool logs);
 
 extern void print_plugs_state(void);
+
+extern void show_plug_status(uint8_t plug_num, bool state);
