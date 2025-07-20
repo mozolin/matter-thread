@@ -38,10 +38,12 @@ static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
 
 led_indicator_handle_t led_handle;
 
-//-- SSD1306 device instance
-SSD1306_t ssd1306dev;
-//-- Is SSD1306 initialized?
-bool ssd1306_initialized = false;
+#if USE_SSD1306_DRIVER
+	//-- SSD1306 device instance
+	SSD1306_t ssd1306dev;
+	//-- Is SSD1306 initialized?
+	bool ssd1306_initialized = false;
+#endif
 
 
 /*********************
@@ -331,17 +333,18 @@ extern "C" void app_main()
   led_handle = configure_indicator();
   //xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
   
-  //-- Init LCD SSD1306
-  err = ssd1306_init();
-  if(err != ESP_OK) {
-  	ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
-  	get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
-  } else {
-  	ssd1306_initialized = true;
-  }
+  #if USE_SSD1306_DRIVER
+	  //-- Init LCD SSD1306
+  	err = ssd1306_init();
+	  if(err != ESP_OK) {
+	  	ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+	  	get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+	  } else {
+	  	ssd1306_initialized = true;
+	  }
+  #endif
 
-  show_plug_status(1, false);
-
+  
   //-- Initialize the ESP NVS (Non-Volatile Storage) layer
   err = nvs_flash_init();
   if(err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {

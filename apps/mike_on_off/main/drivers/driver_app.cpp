@@ -8,7 +8,11 @@ esp_err_t app_driver_update_gpio_value(gpio_num_t pin, bool value)
 {
   esp_err_t err = ESP_OK;
 
-  err = gpio_set_level(pin, value);
+  #if RELAY_INVERSE_LEVEL
+  	err = gpio_set_level(pin, !value);
+  #else
+		err = gpio_set_level(pin, value);
+  #endif
   if(err != ESP_OK) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to set GPIO level");
     get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
@@ -35,7 +39,11 @@ esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug)
     return ESP_FAIL;
   }
 
-  err = gpio_set_level(plug->GPIO_PIN_VALUE, 0);
+  #if RELAY_INVERSE_LEVEL
+  	err = gpio_set_level(plug->GPIO_PIN_VALUE, 1);
+  #else
+    err = gpio_set_level(plug->GPIO_PIN_VALUE, 0);
+  #endif
   if(err != ESP_OK) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Unable to set GPIO level");
     get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);

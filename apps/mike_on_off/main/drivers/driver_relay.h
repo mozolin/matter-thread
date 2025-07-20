@@ -33,4 +33,6 @@ extern bool get_plug_state(uint8_t endpoint, bool logs);
 
 extern void print_plugs_state(void);
 
-extern void show_plug_status(uint8_t plug_num, bool state);
+#if USE_SSD1306_DRIVER
+	extern void show_plug_status(uint8_t plug_num, bool state);
+#endif

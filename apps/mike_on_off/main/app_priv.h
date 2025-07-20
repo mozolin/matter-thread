@@ -1,16 +1,26 @@
 #pragma once
 
-#include "driver_reset_button.h"
+/************************************************
+ *                                              *
+ *   GPIOs USED (relays):  0,1,2,3,5,10,11,12   *
+ *   GPIOs USED (ssd1306): 13,14                *
+ *                                              *
+ ************************************************/
+
+#define TAG_MIKE_APP              "Mike's App"
+#define CONFIG_NUM_VIRTUAL_PLUGS   8
+#define RELAY_INVERSE_LEVEL        true
+#define USE_SSD1306_DRIVER         false
+#define LIVE_BLINK_TIME_MS         1500
+
+
 #include "driver_led_indicator.h"
 #include "driver_relay.h"
-#include "driver_ssd1306.h"
+#include "driver_reset_button.h"
 
-#include "ssd1306.h"
 
-//-- Plugs
-#define CONFIG_NUM_VIRTUAL_PLUGS     8
+//-- Plugs (Relays)
 //-- List of all relays
-//-- GPIOs USED: 0,1,2,3,5,10,11,12
 const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_3},
 	{2, GPIO_NUM_5},
@@ -22,20 +32,18 @@ const std::vector<RelayConfig> relays = {
 	{8, GPIO_NUM_10},
 };
 
+#if USE_SSD1306_DRIVER
+	#include "driver_ssd1306.h"
+	#include "ssd1306.h"
+	
+	//-- SSD1306
+	#define CONFIG_SCL_GPIO 14
+	#define CONFIG_SDA_GPIO 13
+	#define CONFIG_RESET_GPIO -1
+	extern bool ssd1306_initialized;
+	extern SSD1306_t ssd1306dev;
+#endif
 
-//-- SSD1306
-#define CONFIG_SCL_GPIO 13
-#define CONFIG_SDA_GPIO 14
-#define CONFIG_RESET_GPIO -1
-
-
-
-#define LIVE_BLINK_TIME_MS 1500
-
-#define TAG_MIKE_APP "Mike's App"
-
-extern bool ssd1306_initialized;
-extern SSD1306_t ssd1306dev;
 
 //-- Default attribute values used during initialization
 struct gpio_plug {

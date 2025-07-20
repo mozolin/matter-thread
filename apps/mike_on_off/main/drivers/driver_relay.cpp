@@ -5,8 +5,8 @@
 #include <app/util/attribute-storage.h>
 #include <app/clusters/on-off-server/on-off-server.h>
 
-#include "driver_relay.h"
 #include <app_priv.h>
+#include "driver_relay.h"
 
 #include "driver/gpio.h"
 #include <vector>
@@ -14,19 +14,6 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
-/*
-//-- List of all relays (expandable)
-const std::vector<RelayConfig> relays = {
-  {1, GPIO_NUM_3},
-	{2, GPIO_NUM_5},
-	{3, GPIO_NUM_2},
-	{4, GPIO_NUM_1},
-	{5, GPIO_NUM_0},
-	{6, GPIO_NUM_12},
-	{7, GPIO_NUM_11},
-	{8, GPIO_NUM_10},
-};
-*/
 
 //-- Turn off ALL relays except the specified one
 void turn_off_other_relays(uint8_t excluded_endpoint)
@@ -35,6 +22,10 @@ void turn_off_other_relays(uint8_t excluded_endpoint)
     if(relay.endpoint != excluded_endpoint) {
       bool matter_update = true;
       app_driver_sync_update(relay.endpoint, relay.gpio_pin, false, matter_update);
+      #if USE_SSD1306_DRIVER
+	      //-- SSD1306: show plug status
+  	    show_plug_status(relay.endpoint, false);
+      #endif
     }
   }
 }
@@ -44,10 +35,18 @@ void relay_init()
 {
   for(const auto &relay : relays) {
     bool state = nvs_load_state(relay.endpoint);
-    gpio_set_level(relay.gpio_pin, state ? 1 : 0);
+    #if RELAY_INVERSE_LEVEL
+    	gpio_set_level(relay.gpio_pin, state ? 0 : 1);
+    #else
+      gpio_set_level(relay.gpio_pin, state ? 1 : 0);
+    #endif
     //OnOffServer::Instance().setOnOffValue(relay.endpoint, state);
     //bool matter_update = false;
     //app_driver_sync_update(relay.endpoint, relay.gpio_pin, state, matter_update);
+    #if USE_SSD1306_DRIVER
+	    //-- SSD1306: show plug status
+  		show_plug_status(relay.endpoint, state);
+  	#endif
   }
 }
 
@@ -73,7 +72,10 @@ esp_err_t relay_set_on_off(uint8_t endpoint, bool state)
   }
 
   if(err == ESP_OK) {
-  	show_plug_status(endpoint, state);
+  	#if USE_SSD1306_DRIVER
+	  	//-- SSD1306: show plug status
+  		show_plug_status(endpoint, state);
+  	#endif
   }
 
   return err;
@@ -185,23 +187,25 @@ void print_plugs_state()
   ESP_LOGW("", "");
 }
 
-void show_plug_status(uint8_t plug_num, bool state)
-{
-	//-- if not initialized
-	if(!ssd1306_initialized) {
-		ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: SSD1306 is not initialized!");
-		return;
+#if USE_SSD1306_DRIVER
+	void show_plug_status(uint8_t plug_num, bool state)
+	{
+		//-- if not initialized
+		if(!ssd1306_initialized) {
+			ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: SSD1306 is not initialized!");
+			return;
+		}
+	  
+		//-- if wrong plug number
+		if(plug_num > CONFIG_NUM_VIRTUAL_PLUGS) {
+			ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: Wrong plug number (%d)!", plug_num);
+			return;
+		}
+		
+		char buf[32];
+    snprintf(buf, sizeof(buf), "Plug %d: %s", plug_num, state ? "ON " : "OFF");
+    
+    //-- Строки 0 и 2 для двух розеток
+    ssd1306_display_text(&ssd1306dev, (plug_num-1)*1, buf, strlen(buf), false);
 	}
-
-	//-- if wrong plug number
-	if(plug_num > CONFIG_NUM_VIRTUAL_PLUGS) {
-		ESP_LOGW(TAG_MIKE_APP, "~~~ Unable to show plug status: Wrong plug number (%d)!", plug_num);
-		return;
-	}
-	
-	char buf[32];
-  snprintf(buf, sizeof(buf), "Plug %d: %s", plug_num, state ? "ON" : "OFF");
-  
-  //-- Строки 0 и 2 для двух розеток
-  ssd1306_display_text(&ssd1306dev, (plug_num-1)*2, buf, strlen(buf), false);
-}
+#endif

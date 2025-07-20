@@ -259,6 +259,60 @@ ssd1306_display_text_x3(SSD1306_t * dev, int page, const char * text, int text_l
 	}
 }
 
+void ssd1306_display_text_x2(SSD1306_t * dev, int page, const char * text, int text_len, bool invert)
+{
+	if (page >= dev->_pages) return;
+	int _text_len = text_len;
+	//-- maximum 8 chars per line
+	if (_text_len > 8) _text_len = 8;
+
+	int seg = 0;
+
+	for (int nn = 0; nn < _text_len; nn++) {
+
+		uint8_t const * const in_columns = font8x8_basic_tr[(uint8_t)text[nn]];
+
+		// make the character 3x as high
+		out_column_t out_columns[8];
+		memset(out_columns, 0, sizeof(out_columns));
+
+		for (int xx = 0; xx < 8; xx++) { // for each column (x-direction)
+
+			uint32_t in_bitmask = 0b1;
+			uint32_t out_bitmask = 0b111;
+
+			for (int yy = 0; yy < 8; yy++) { // for pixel (y-direction)
+				if (in_columns[xx] & in_bitmask) {
+					out_columns[xx].u32 |= out_bitmask;
+				}
+				in_bitmask <<= 1;
+				out_bitmask <<= 2;
+			}
+		}
+
+		// render character in 8 column high pieces, making them 3x as wide
+		for (int yy = 0; yy < 2; yy++)	{ // for each group of 8 pixels high (y-direction)
+
+			uint8_t image[16];
+			for (int xx = 0; xx < 8; xx++) { // for each column (x-direction)
+				image[xx*2+0] = 
+				image[xx*2+1] = 
+				image[xx*2+2] = out_columns[xx].u8[yy];
+			}
+			if (invert) ssd1306_invert(image, 24);
+			if (dev->_flip) ssd1306_flip(image, 24);
+			if (dev->_address == SPI_ADDRESS) {
+				spi_display_image(dev, page+yy, seg, image, 16);
+			} else {
+				i2c_display_image(dev, page+yy, seg, image, 16);
+			}
+			memcpy(&dev->_page[page+yy]._segs[seg], image, 16);
+		}
+		seg = seg + 16;
+	}
+}
+
+
 void ssd1306_clear_screen(SSD1306_t * dev, bool invert)
 {
 	char space[16];

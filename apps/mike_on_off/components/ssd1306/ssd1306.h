@@ -137,6 +137,7 @@ void ssd1306_display_text(SSD1306_t * dev, int page, const char * text, int text
 void ssd1306_display_text_box1(SSD1306_t * dev, int page, int seg, const char * text, int box_width, int text_len, bool invert, int delay);
 void ssd1306_display_text_box2(SSD1306_t * dev, int page, int seg, const char * text, int box_width, int text_len, bool invert, int delay);
 void ssd1306_display_text_x3(SSD1306_t * dev, int page, const char * text, int text_len, bool invert);
+void ssd1306_display_text_x2(SSD1306_t * dev, int page, const char * text, int text_len, bool invert);
 void ssd1306_clear_screen(SSD1306_t * dev, bool invert);
 void ssd1306_clear_line(SSD1306_t * dev, int page, bool invert);
 void ssd1306_contrast(SSD1306_t * dev, int contrast);
