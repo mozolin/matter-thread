@@ -62,6 +62,8 @@ app_priv.h:
 
 ![](esp32h2_8relays.jpg)  
   
+![](esp32h2_8relays_wires.jpg)  
+  
 The back side of this board  
 ![](esp32h2_8relays_back.jpg)  
   
