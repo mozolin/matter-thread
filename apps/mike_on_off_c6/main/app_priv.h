@@ -38,7 +38,7 @@ const std::vector<RelayConfig> relays = {
 	
 	//-- SSD1306
 	#define CONFIG_SCL_GPIO 13
-	#define CONFIG_SDA_GPIO 14
+	#define CONFIG_SDA_GPIO 15
 	#define CONFIG_RESET_GPIO -1
 	extern bool ssd1306_initialized;
 	extern SSD1306_t ssd1306dev;
