@@ -84,6 +84,8 @@
 		ssd1306_display_text(&ssd1306dev, 0, "     MATTER     ", 16, false);
 		ssd1306_display_text(&ssd1306dev, 1, "   OVER THREAD  ", 16, false);
 
+		//ssd1306_display_text_x2(&ssd1306dev, 0, " THREAD ", 8, true);
+
 		/*
 		ssd1306_clear_screen(&ssd1306dev, false);
 

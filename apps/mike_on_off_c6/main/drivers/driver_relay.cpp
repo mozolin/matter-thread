@@ -130,20 +130,20 @@ esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool
   	OnOffServer::Instance().setOnOffValue(endpoint_id, 0, state);
 	}
 
-	get_plug_state(endpoint_id, true);
+	get_plug_state(endpoint_id, state, true);
 	
 	return err;
 }
 
-bool get_plug_state(uint8_t endpoint, bool logs)
+bool get_plug_state(uint8_t endpoint, bool state, bool logs)
 {
-  bool current_state;
-  auto status = OnOffServer::Instance().getOnOffValue(endpoint, &current_state);
+  bool matter_state;
+  auto status = OnOffServer::Instance().getOnOffValue(endpoint, &matter_state);
   if(status == chip::Protocols::InteractionModel::Status::Success) {
     if(logs) {
-    	ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s", endpoint, current_state ? "ON" : "OFF");
+    	ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s|%s", endpoint, matter_state ? "ON" : "OFF", state ? "ON" : "OFF");
     }
-    return current_state;
+    return matter_state;
   }
   if(logs) {
   	ESP_LOGE(TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));

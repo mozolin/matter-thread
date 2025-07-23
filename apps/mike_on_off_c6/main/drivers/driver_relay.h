@@ -27,6 +27,6 @@ extern bool nvs_load_state(uint8_t endpoint);
 
 extern esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool state, bool matter_update);
 
-extern bool get_plug_state(uint8_t endpoint, bool logs);
+extern bool get_plug_state(uint8_t endpoint, bool state, bool logs);
 
 extern void print_plugs_state(void);

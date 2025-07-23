@@ -42,6 +42,7 @@ After TLV-PARSER:
 > matter esp attribute set 0x8 0x6 0x0 1
 
 > matter esp attribute get 0x1 0x6 0x0
+> matter esp attribute get 0x6 0x6 0x0
 
 > matter esp onoff read on-off 1
 

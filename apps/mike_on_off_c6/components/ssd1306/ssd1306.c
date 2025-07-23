@@ -272,7 +272,7 @@ void ssd1306_display_text_x2(SSD1306_t * dev, int page, const char * text, int t
 
 		uint8_t const * const in_columns = font8x8_basic_tr[(uint8_t)text[nn]];
 
-		// make the character 3x as high
+		//-- make the character 2x as high
 		out_column_t out_columns[8];
 		memset(out_columns, 0, sizeof(out_columns));
 
@@ -299,8 +299,8 @@ void ssd1306_display_text_x2(SSD1306_t * dev, int page, const char * text, int t
 				image[xx*2+1] = 
 				image[xx*2+2] = out_columns[xx].u8[yy];
 			}
-			if (invert) ssd1306_invert(image, 24);
-			if (dev->_flip) ssd1306_flip(image, 24);
+			if (invert) ssd1306_invert(image, 16);
+			if (dev->_flip) ssd1306_flip(image, 16);
 			if (dev->_address == SPI_ADDRESS) {
 				spi_display_image(dev, page+yy, seg, image, 16);
 			} else {
