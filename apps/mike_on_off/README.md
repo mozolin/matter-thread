@@ -62,10 +62,6 @@ app_priv.h:
 
 ![](esp32h2_8relays.jpg)  
   
-![](esp32h2_8relays_wires.jpg)  
-  
-![](ssd1306.jpg)  
-  
 The back side of this board  
 ![](esp32h2_8relays_back.jpg)  
   
@@ -234,5 +230,10 @@ chip-tool onoff read on-off 1234 1
 0xd400 -> 110101(***53***) 0 000000000 - OTBR  
 0x4000 -> 010000(***16***) 0 000000000 - ESP32H2 (chip-tool)  
 0x3000 -> 001100(***12***) 0 000000000 - ESP32H2 (dataset)  
-
+  
+![](esp32h2_8relays_wires_01.jpg)  
+  
+![](esp32h2_8relays_wires_02.jpg)  
+  
+![](ssd1306.jpg)  
   
