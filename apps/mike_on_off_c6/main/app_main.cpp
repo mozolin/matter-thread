@@ -389,4 +389,18 @@ extern "C" void app_main()
     esp_matter::console::init();
 	#endif
 
+	//-- Start init indicator task
+  xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
+
+  #if USE_SSD1306_DRIVER
+  	//-- Start show temperature task
+  	xTaskCreate(show_temperature_task, "show_temperature_task", 2048, NULL, 7, NULL);
+  #endif
+
+  #if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2
+	  //-- ADC initialization
+	  if(!init_internal_voltage()) {
+	    ESP_LOGE(TAG_MIKE_APP, "Failed to init power monitor!");
+	  }
+  #endif
 }

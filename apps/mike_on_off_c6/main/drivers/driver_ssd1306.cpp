@@ -81,8 +81,18 @@
 	  
 		ssd1306_clear_screen(&ssd1306dev, false);
 		ssd1306_contrast(&ssd1306dev, 0xff);
-		ssd1306_display_text(&ssd1306dev, 0, "     MATTER     ", 16, false);
-		ssd1306_display_text(&ssd1306dev, 1, "   OVER THREAD  ", 16, false);
+		ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
+
+		/*
+		float temp = read_internal_temperature();
+    //float voltage = read_vcc_voltage();
+    //float voltage = 0.0;
+
+    char buf[32];
+    //snprintf(buf, sizeof(buf), "Temp: %.1fC, V: %.2fV", temp, voltage);
+    snprintf(buf, sizeof(buf), "     %.1fC", temp);
+    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
+    */
 
 		//ssd1306_display_text_x2(&ssd1306dev, 0, " THREAD ", 8, true);
 
@@ -286,5 +296,35 @@
 			ssd1306_invert(image, 8);
 		}
 		ssd1306_display_image(&ssd1306dev, top+1, left+8, image, 8);
+	}
+
+	void show_temperature_task(void *pvParameter)
+	{
+		char buf[32];
+		int i = 0;
+		
+		while(1) {
+    	i++;
+    	if(i > 10) {
+    		
+    		float temp = read_internal_temperature();
+    		float volt = 0;
+
+    		#if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2
+				  volt = read_internal_voltage();
+        #endif
+
+        if(volt > 0) {
+          snprintf(buf, sizeof(buf), " %.1fC / %.2fV", temp, volt);
+        } else {
+    			snprintf(buf, sizeof(buf), "     %.1fC", temp);
+    		}
+    		
+    		ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
+    		
+    		i = 0;
+    	}
+    	vTaskDelay(pdMS_TO_TICKS(1000));
+		}
 	}
 #endif

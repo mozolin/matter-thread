@@ -14,10 +14,11 @@
 #define LIVE_BLINK_TIME_MS         1500
 
 
+#include "driver_chip.h"
 #include "driver_led_indicator.h"
 #include "driver_relay.h"
 #include "driver_reset_button.h"
-
+#include "driver_ssd1306.h"
 
 //-- Plugs (Relays)
 //-- List of all relays

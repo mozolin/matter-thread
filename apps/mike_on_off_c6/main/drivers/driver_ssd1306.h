@@ -7,5 +7,6 @@
 extern esp_err_t ssd1306_init(void);
 extern void show_plug_status(uint8_t plug_num, bool state);
 extern void show_square(int idx, bool state);
+void show_temperature_task(void *pvParameter);
 
 #endif
