@@ -22,6 +22,8 @@ rem -- Change disk letter
 %NET_DISK%
 echo [0m
 
+cls
+
 if %MONITOR_ONLY%. NEQ . goto MONITOR_ONLY
 
 echo Port: %COM_PORT%

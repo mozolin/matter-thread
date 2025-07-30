@@ -4,12 +4,12 @@ rem -- The first argument, not empty one, starts monitor mode without flashing f
 set MONITOR_ONLY=%1
 
 set NET_DISK=U:
-set LINUX_PATH=\\wsl$\Ubuntu
+set LINUX_PATH=\\wsl.localhost\Ubuntu-22.04
 set IDF_PATH=/root/esp-idf
 set APP_PATH=/root/esp-matter/examples/light-h2
 
 set CHIP_TYPE=esp32h2
-set COM_PORT=COM5
+set COM_PORT=COM4
 set COM_BAUD=460800
 rem -- from "sdkconfig": CONFIG_ESPTOOLPY_FLASHFREQ="48m"
 set FLASH_FREQ=48m
@@ -25,8 +25,8 @@ echo [0m
 if %MONITOR_ONLY%. NEQ . goto MONITOR_ONLY
 
 echo Port: %COM_PORT%
-echo Choose: [92m1 - Monitor Only[0m
-echo         [91m0 - Flash + Monitor[0m
+echo Choose: [92m1 - Monitor Only
+echo         [91m0 - Flash + Monitor
 echo         [93mEnter - Skip + Exit[0m
 set /p RESPONSE= 
 rem -- Pressed <ENTER>
