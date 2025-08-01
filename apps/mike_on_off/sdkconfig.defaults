@@ -38,3 +38,6 @@ CONFIG_MBEDTLS_HKDF_C=y
 # unique local addresses for fabrics(MAX_FABRIC), a link local address(1)
 CONFIG_LWIP_IPV6_NUM_ADDRESSES=6
 
+# Time synchronization
+CONFIG_OPENTHREAD_TIME_SYNC=y
+CONFIG_ENABLE_SNTP_TIME_SYNC=y

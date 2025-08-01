@@ -3,29 +3,26 @@
 
 #include <app_priv.h>
 
-#include "driver/temperature_sensor.h"
+#if USE_INTERNAL_TEMPERATURE
+	#include "driver/temperature_sensor.h"
 
-//-- Getting chip temperature
-float read_internal_temperature()
-{
-  temperature_sensor_handle_t temp_handle = NULL;
-  temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(20, 50);
-  ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &temp_handle));
-  
-  // Enable temperature sensor
-  ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
-  // Get converted sensor data
-  float tsens_out;
-  ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
-  
-  // Disable the temperature sensor if it is not needed and save the power
-  ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
-  
-  ESP_ERROR_CHECK(temperature_sensor_uninstall(temp_handle));
-
-  return tsens_out;
-}
-
+	//-- Getting chip temperature
+	float read_internal_temperature()
+	{
+    temperature_sensor_handle_t temp_handle = NULL;
+    temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(20, 50);
+    ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &temp_handle));
+    // Enable temperature sensor
+    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+    // Get converted sensor data
+    float tsens_out;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+    // Disable the temperature sensor if it is not needed and save the power
+    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+    ESP_ERROR_CHECK(temperature_sensor_uninstall(temp_handle));
+    return tsens_out;
+	}
+#endif
 
 #if USE_INTERNAL_VOLTAGE
   #include "driver_chip.h"
@@ -58,10 +55,10 @@ float read_internal_temperature()
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle, adc_channel, &chan_config));
     
     //-- Calibration initializing 
-    #if CONFIG_IDF_TARGET_ESP32C6
+    #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
       /*
       if(!adc_cali_check_scheme(ADC_CALI_SCHEME_VER_CURVE_FITTING)) {
-        ESP_LOGE(TAG_MIKE_APP, "Curve fitting scheme not supported");
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Curve fitting scheme not supported");
         return false;
       }
       */
@@ -72,15 +69,15 @@ float read_internal_temperature()
         .bitwidth = ADC_BITWIDTH_DEFAULT,
       };
       if(adc_cali_create_scheme_curve_fitting(&cali_config_curve, &cali_handle) != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Failed to create calibration scheme");
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create calibration scheme");
         return false;
       }
     #endif
     
-    #if CONFIG_IDF_TARGET_ESP32H2
+    #if ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
       /*
       if(!adc_cali_check_scheme(ADC_CALI_SCHEME_VER_LINE_FITTING)) {
-        ESP_LOGE(TAG_MIKE_APP, "Line fitting scheme not supported");
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Line fitting scheme not supported");
         return false;
       }
       */
@@ -90,13 +87,13 @@ float read_internal_temperature()
         .bitwidth = ADC_BITWIDTH_DEFAULT,
       };
       if(adc_cali_create_scheme_line_fitting(&cali_config_line, &cali_handle) != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Failed to create calibration scheme");
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create calibration scheme");
         return false;
       }
     #endif
     
     adc_initialized = true;
-    ESP_LOGW(TAG_MIKE_APP, "ADC initialized on channel %d", adc_channel);
+    ESP_LOGW(TAG_MIKE_APP, "~~~ ADC initialized on channel %d", adc_channel);
     return true;
   }
 
@@ -112,10 +109,10 @@ float read_internal_temperature()
     
     int voltage_mv;
     if(adc_cali_raw_to_voltage(cali_handle, raw_value, &voltage_mv) != ESP_OK) {
-      ESP_LOGE(TAG_MIKE_APP, "Failed to convert ADC value");
+      ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to convert ADC value");
       return 0.0f;
     } else {
-      ESP_LOGW(TAG_MIKE_APP, "Channel %d, ADC value converted to %d", adc_channel, voltage_mv);
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Channel %d, ADC value converted to %d mV", adc_channel, voltage_mv);
     }
     
     return voltage_mv / 1000.0f;
@@ -125,11 +122,11 @@ float read_internal_temperature()
   void deinit_internal_voltage()
   {
     if(cali_handle) {
-      #if CONFIG_IDF_TARGET_ESP32C6
+      #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
         adc_cali_delete_scheme_curve_fitting(cali_handle);
       #endif
 
-      #if CONFIG_IDF_TARGET_ESP32H2
+      #if ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
         adc_cali_delete_scheme_line_fitting(cali_handle);
       #endif
     }

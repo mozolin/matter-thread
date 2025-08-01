@@ -25,6 +25,27 @@ If, for example, the IP address of the Thread Border web interface is 192.168.31
   http:/192.168.31.157/node/dataset/active
 - [topology.json](esp-thread-br-web-gui/topology.json)  
   http:/192.168.31.157/topology
+ 
+### The Thread REST APIs
+- /diagnostics
+- /node
+- /node/rloc
+- /node/rloc16
+- /node/ext-address
+- /node/state
+- /node/network-name
+- /node/leader-data
+- /node/num-of-router
+- /node/ext-panid
+- /node/ba-id
+- /node/dataset/active
+- /node/dataset/pending
+### Web GUI REST APIs
+- /avaiable_network
+- /get_properties
+- /node_information
+- /topology
+
 
 # Form Thread Network
 

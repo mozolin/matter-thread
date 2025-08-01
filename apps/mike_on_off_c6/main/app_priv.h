@@ -12,6 +12,8 @@
 #define RELAY_INVERSE_LEVEL        true
 #define USE_SSD1306_DRIVER         true
 #define LIVE_BLINK_TIME_MS         1500
+#define USE_INTERNAL_VOLTAGE       true
+#define USE_TIME_DRIVER            true
 
 
 #include "driver_chip.h"
@@ -19,30 +21,31 @@
 #include "driver_relay.h"
 #include "driver_reset_button.h"
 #include "driver_ssd1306.h"
+#include "driver_time.h"
 
 //-- Plugs (Relays)
 //-- List of all relays
 const std::vector<RelayConfig> relays = {
   {1, GPIO_NUM_3},
-	{2, GPIO_NUM_5},
-	{3, GPIO_NUM_2},
-	{4, GPIO_NUM_1},
-	{5, GPIO_NUM_0},
-	{6, GPIO_NUM_12},
-	{7, GPIO_NUM_11},
-	{8, GPIO_NUM_10},
+  {2, GPIO_NUM_5},
+  {3, GPIO_NUM_2},
+  {4, GPIO_NUM_1},
+  {5, GPIO_NUM_0},
+  {6, GPIO_NUM_12},
+  {7, GPIO_NUM_11},
+  {8, GPIO_NUM_10},
 };
 
 #if USE_SSD1306_DRIVER
-	#include "driver_ssd1306.h"
-	#include "ssd1306.h"
-	
-	//-- SSD1306
-	#define CONFIG_SCL_GPIO 13
-	#define CONFIG_SDA_GPIO 15
-	#define CONFIG_RESET_GPIO -1
-	extern bool ssd1306_initialized;
-	extern SSD1306_t ssd1306dev;
+  #include "driver_ssd1306.h"
+  #include "ssd1306.h"
+  
+  //-- SSD1306
+  #define CONFIG_SCL_GPIO 13
+  #define CONFIG_SDA_GPIO 15
+  #define CONFIG_RESET_GPIO -1
+  extern bool ssd1306_initialized;
+  extern SSD1306_t ssd1306dev;
 #endif
 
 

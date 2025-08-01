@@ -145,7 +145,7 @@ const blink_step_t color_rgb_ring_blink[] = {
 
 led_indicator_handle_t configure_indicator(void)
 {
-	//-- LED strip general initialization, according to your led board design
+  //-- LED strip general initialization, according to your led board design
   led_strip_config_t strip_config = {
     .strip_gpio_num = LED_BLINK_GPIO,
     .max_leds = LED_NUMBERS,
@@ -162,7 +162,7 @@ led_indicator_handle_t configure_indicator(void)
     .resolution_hz = LED_RMT_RES_HZ,
     .mem_block_symbols = 0,
     {
-    	.with_dma = false,
+      .with_dma = false,
     },
   };
   
@@ -184,4 +184,21 @@ led_indicator_handle_t configure_indicator(void)
   assert(led_handle != NULL);
 
   return led_handle;
+}
+
+void init_indicator_task(void *pvParameter)
+{
+  
+  uint32_t live_blink_time = 0;
+  
+  while(1) {
+    //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
+    uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
+    if(blinked_duration >= LIVE_BLINK_TIME_MS) {
+      get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
+      live_blink_time = esp_log_timestamp();
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
 }

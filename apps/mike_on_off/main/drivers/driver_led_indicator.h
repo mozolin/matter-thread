@@ -68,4 +68,4 @@ extern const blink_step_t color_rgb_ring_blink[];
 
 extern blink_step_t const *led_mode[];
 
-//extern void init_indicator_task(void *pvParameter);
+extern void init_indicator_task(void *pvParameter);

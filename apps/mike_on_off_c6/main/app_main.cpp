@@ -21,8 +21,8 @@
 #define CREATE_ALL_PLUGS(node) \
   for(const auto &relay : relays) { \
     struct gpio_plug plug; \
-  	plug.GPIO_PIN_VALUE = (gpio_num_t)relay.gpio_pin; \
-  	create_plug(&plug, node); \
+    plug.GPIO_PIN_VALUE = (gpio_num_t)relay.gpio_pin; \
+    create_plug(&plug, node); \
   }
     
 using namespace esp_matter;
@@ -39,10 +39,10 @@ static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
 led_indicator_handle_t led_handle;
 
 #if USE_SSD1306_DRIVER
-	//-- SSD1306 device instance
-	SSD1306_t ssd1306dev;
-	//-- Is SSD1306 initialized?
-	bool ssd1306_initialized = false;
+  //-- SSD1306 device instance
+  SSD1306_t ssd1306dev;
+  //-- Is SSD1306 initialized?
+  bool ssd1306_initialized = false;
 #endif
 
 
@@ -73,35 +73,36 @@ blink_step_t const *led_mode[] = {
 
 uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
 {
-	uint8_t idx = 255;
-	
-	int size = sizeof(led_mode)/sizeof(led_mode[0]);
+  uint8_t idx = 255;
+  
+  int size = sizeof(led_mode)/sizeof(led_mode[0]);
 
-	auto item = led_mode[blink_type];
+  auto item = led_mode[blink_type];
   for(int i=0; i<size; i++) {
-  	if(led_mode[i] == item) {
-  		//ESP_LOGW(TAG_MIKE_APP, "~~~ ###!!!@@@ FOUND: %d", i);
-  		idx = i;
+    if(led_mode[i] == item) {
+      //ESP_LOGW(TAG_MIKE_APP, "~~~ ###!!!@@@ FOUND: %d", i);
+      idx = i;
 
-  		if(start_delay > 0) {
-  			led_indicator_start(led_handle, idx);
-      	//vTaskDelay(pdMS_TO_TICKS(start_delay));
-      	vTaskDelay(start_delay / portTICK_PERIOD_MS);
+      if(start_delay > 0) {
+        led_indicator_start(led_handle, idx);
+        //vTaskDelay(pdMS_TO_TICKS(start_delay));
+        vTaskDelay(start_delay / portTICK_PERIOD_MS);
 
-		  	led_indicator_stop(led_handle, idx);
-		  	if(stop_delay > 0) {
-      		//vTaskDelay(pdMS_TO_TICKS(stop_delay));
-      		vTaskDelay(stop_delay / portTICK_PERIOD_MS);
-      	}
+        led_indicator_stop(led_handle, idx);
+        if(stop_delay > 0) {
+          //vTaskDelay(pdMS_TO_TICKS(stop_delay));
+          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
+        }
       }
 
-  		break;
-  	}
+      break;
+    }
   }
 
   return idx;
 }
 
+/*
 void init_indicator_task(void *pvParameter)
 {
   
@@ -111,13 +112,14 @@ void init_indicator_task(void *pvParameter)
     //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
     uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
     if(blinked_duration >= LIVE_BLINK_TIME_MS) {
-    	get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
-    	live_blink_time = esp_log_timestamp();
+      get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
+      live_blink_time = esp_log_timestamp();
     }
 
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
+*/
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -223,30 +225,30 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   esp_err_t err = ESP_OK;
 
   switch(type) {
-  	case PRE_UPDATE: {
-  	  	//-- Driver update
+    case PRE_UPDATE: {
+        //-- Driver update
         bool state = val->val.b;
         app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
         err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
         if(err == ESP_OK) {
-        	ESP_LOGW(TAG_MIKE_APP, "~~~ Updated: endpoint:%d|cluster:%d|attribute:%d|state:%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
-        	//-- Blink...
-        	get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
+          ESP_LOGW(TAG_MIKE_APP, "~~~ Updated: endpoint:%d|cluster:%d|attribute:%d|state:%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+          //-- Blink...
+          get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
         } else {
-        	ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to update attribute :%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
-        	get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+          ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to update attribute :%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
         }
-  		}
-			break;
+      }
+      break;
   
-  	case POST_UPDATE:
-  		break;
+    case POST_UPDATE:
+      break;
   
-  	case READ:
-  		break;
+    case READ:
+      break;
   
-  	case WRITE:
-  		break;
+    case WRITE:
+      break;
   }
   
   return err;
@@ -331,17 +333,17 @@ extern "C" void app_main()
   
   //-- Init LED indicator
   led_handle = configure_indicator();
-  //xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
   
   #if USE_SSD1306_DRIVER
-	  //-- Init LCD SSD1306
-  	err = ssd1306_init();
-	  if(err != ESP_OK) {
-	  	ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
-	  	get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
-	  } else {
-	  	ssd1306_initialized = true;
-	  }
+    //-- Init LCD SSD1306
+    err = ssd1306_init();
+    if(err != ESP_OK) {
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    } else {
+      ssd1306_initialized = true;
+    }
+    ssd1306_show_title();
   #endif
 
   //-- Initialize the ESP NVS (Non-Volatile Storage) layer
@@ -350,12 +352,12 @@ extern "C" void app_main()
     //ESP_ERROR_CHECK(nvs_flash_erase());
     err = nvs_flash_erase();
     if(err == ESP_OK) {
-    	err = nvs_flash_init();
+      err = nvs_flash_init();
     }
   }
   //ESP_ERROR_CHECK(err);
   if(err == ESP_OK) {
-  	relay_init();
+    relay_init();
   }
 
   //-- Create a Matter node and add the mandatory Root Node device type on endpoint 0
@@ -365,7 +367,7 @@ extern "C" void app_main()
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create Matter node"));
 
-	CREATE_ALL_PLUGS(node);
+  CREATE_ALL_PLUGS(node);
 
   //-- Set OpenThread platform config
   esp_openthread_platform_config_t config = {
@@ -379,28 +381,35 @@ extern "C" void app_main()
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to start Matter, err:%d", err));
 
-	#if CONFIG_ENABLE_CHIP_SHELL
+  #if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();
     esp_matter::console::wifi_register_commands();
     esp_matter::console::factoryreset_register_commands();
-		#if CONFIG_OPENTHREAD_CLI
-    	esp_matter::console::otcli_register_commands();
-		#endif
+    #if CONFIG_OPENTHREAD_CLI
+      esp_matter::console::otcli_register_commands();
+    #endif
     esp_matter::console::init();
-	#endif
+  #endif
 
-	//-- Start init indicator task
+  //-- Start init indicator task
   xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
 
+  #if USE_TIME_DRIVER
+     //-- Initialization of time
+     sntp_initialize_time();
+     chip_initialize_time();
+  #endif
+  
   #if USE_SSD1306_DRIVER
-  	//-- Start show temperature task
-  	xTaskCreate(show_temperature_task, "show_temperature_task", 2048, NULL, 7, NULL);
+    //-- Refresh display task
+    xTaskCreate(ssd1306_refresh_display_task, "ssd1306_refresh_display_task", 2048, NULL, 7, NULL);
   #endif
 
-  #if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2
-	  //-- ADC initialization
-	  if(!init_internal_voltage()) {
-	    ESP_LOGE(TAG_MIKE_APP, "Failed to init power monitor!");
-	  }
+  #if USE_INTERNAL_VOLTAGE && (CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2)
+    //-- ADC initialization
+    if(!init_internal_voltage()) {
+      ESP_LOGE(TAG_MIKE_APP, "Failed to init power monitor!");
+    }
   #endif
+
 }

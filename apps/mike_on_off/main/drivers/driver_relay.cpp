@@ -1,8 +1,11 @@
 
 //#include <esp_log.h>
+/*
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app/util/attribute-storage.h>
+
+*/
 #include <app/clusters/on-off-server/on-off-server.h>
 
 #include <app_priv.h>
@@ -23,8 +26,8 @@ void turn_off_other_relays(uint8_t excluded_endpoint)
       bool matter_update = true;
       app_driver_sync_update(relay.endpoint, relay.gpio_pin, false, matter_update);
       #if USE_SSD1306_DRIVER
-	      //-- SSD1306: show plug status
-  	    show_plug_status(relay.endpoint, false);
+        //-- SSD1306: show plug status
+        ssd1306_show_plug_status(relay.endpoint, false);
       #endif
     }
   }
@@ -36,7 +39,7 @@ void relay_init()
   for(const auto &relay : relays) {
     bool state = nvs_load_state(relay.endpoint);
     #if RELAY_INVERSE_LEVEL
-    	gpio_set_level(relay.gpio_pin, state ? 0 : 1);
+      gpio_set_level(relay.gpio_pin, state ? 0 : 1);
     #else
       gpio_set_level(relay.gpio_pin, state ? 1 : 0);
     #endif
@@ -44,9 +47,9 @@ void relay_init()
     //bool matter_update = false;
     //app_driver_sync_update(relay.endpoint, relay.gpio_pin, state, matter_update);
     #if USE_SSD1306_DRIVER
-	    //-- SSD1306: show plug status
-  		show_plug_status(relay.endpoint, state);
-  	#endif
+      //-- SSD1306: show plug status
+      ssd1306_show_plug_status(relay.endpoint, state);
+    #endif
   }
 }
 
@@ -72,10 +75,10 @@ esp_err_t relay_set_on_off(uint8_t endpoint, bool state)
   }
 
   if(err == ESP_OK) {
-  	#if USE_SSD1306_DRIVER
-	  	//-- SSD1306: show plug status
-  		show_plug_status(endpoint, state);
-  	#endif
+    #if USE_SSD1306_DRIVER
+      //-- SSD1306: show plug status
+      ssd1306_show_plug_status(endpoint, state);
+    #endif
   }
 
   return err;
@@ -118,21 +121,21 @@ bool nvs_load_state(uint8_t endpoint)
 
 esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool state, bool matter_update)
 {
-	esp_err_t err = ESP_OK;
+  esp_err_t err = ESP_OK;
 
-	//-- Update the physical GPIO
-	err = app_driver_update_gpio_value(gpio_pin, state ? 1 : 0);
-	//-- Save the state to NVS
+  //-- Update the physical GPIO
+  err = app_driver_update_gpio_value(gpio_pin, state ? 1 : 0);
+  //-- Save the state to NVS
   nvs_save_state(endpoint_id, state);
   
   //-- Updating state via Matter
   if(matter_update) {
-  	OnOffServer::Instance().setOnOffValue(endpoint_id, 0, state);
-	}
+    OnOffServer::Instance().setOnOffValue(endpoint_id, 0, state);
+  }
 
-	get_plug_state(endpoint_id, state, true);
-	
-	return err;
+  get_plug_state(endpoint_id, state, true);
+  
+  return err;
 }
 
 bool get_plug_state(uint8_t endpoint, bool state, bool logs)
@@ -141,12 +144,12 @@ bool get_plug_state(uint8_t endpoint, bool state, bool logs)
   auto status = OnOffServer::Instance().getOnOffValue(endpoint, &matter_state);
   if(status == chip::Protocols::InteractionModel::Status::Success) {
     if(logs) {
-    	ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s|%s", endpoint, matter_state ? "ON" : "OFF", state ? "ON" : "OFF");
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s|%s", endpoint, matter_state ? "ON" : "OFF", state ? "ON" : "OFF");
     }
     return matter_state;
   }
   if(logs) {
-  	ESP_LOGE(TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
+    ESP_LOGE(TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
   }
   return false;
 }
@@ -160,7 +163,7 @@ void print_plugs_state()
   ESP_LOGW("", "-------------------------");
   ESP_LOGW("", "|   EP | GPIO |  State  |");
   ESP_LOGW("", "-------------------------");
-	for(const auto &relay : relays) {
+  for(const auto &relay : relays) {
     //state = get_plug_state(relay.endpoint, false);
     //state = gpio_get_level(relay.gpio_pin);
     //state = nvs_load_state(relay.endpoint);
@@ -168,17 +171,17 @@ void print_plugs_state()
     int ep = relay.endpoint;
     int gpio = relay.gpio_pin;
     
-  	OnOffServer::Instance().getOnOffValue(ep, &state);
+    OnOffServer::Instance().getOnOffValue(ep, &state);
     
     if(ep < 10) {
-    	sprintf(str_ep, " %d", ep);
+      sprintf(str_ep, " %d", ep);
     } else {
-    	sprintf(str_ep, "%d", ep);
+      sprintf(str_ep, "%d", ep);
     }
     if(gpio < 10) {
-    	sprintf(str_gpio, " %d", gpio);
+      sprintf(str_gpio, " %d", gpio);
     } else {
-    	sprintf(str_gpio, "%d", gpio);
+      sprintf(str_gpio, "%d", gpio);
     }
     
     ESP_LOGW("", "|   %s |  %s  |   %s   |", str_ep, str_gpio, state ? "ON " : "OFF");

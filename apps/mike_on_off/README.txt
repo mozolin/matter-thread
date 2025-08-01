@@ -29,7 +29,7 @@ After TLV-PARSER:
 | Success!
 
 
-> matter esp ot_cli dataset networkkey ef368a6f80e47d821f3a8d70b17a0ef5
+> matter esp ot_cli dataset networkkey 00112233445566778899aabbccddeeff
 > matter esp ot_cli dataset commit active
 > matter esp ot_cli ifconfig up
 > matter esp ot_cli thread start
@@ -76,3 +76,11 @@ RLOC16:
 D400 -> 110101(53) 0 000000000 - OTBR
 4000 -> 010000(16) 0 000000000 - ESP32H2 (chip-tool)
 3000 -> 001100(12) 0 000000000 - ESP32H2 (dataset)
+
+
+APIs (from OTBR)
+~~~~~~~~~~~~~~~~
+> curl http://192.168.152.157/topology
+> curl http://192.168.152.157/available_network
+> curl http://192.168.152.157/node/dataset/active
+
