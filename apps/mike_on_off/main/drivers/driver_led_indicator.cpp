@@ -186,6 +186,7 @@ led_indicator_handle_t configure_indicator(void)
   return led_handle;
 }
 
+#if LIVE_BLINK_TIME_MS > 0
 void init_indicator_task(void *pvParameter)
 {
   
@@ -202,3 +203,4 @@ void init_indicator_task(void *pvParameter)
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
+#endif

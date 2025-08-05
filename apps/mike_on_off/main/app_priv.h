@@ -11,10 +11,11 @@
 #define CONFIG_NUM_VIRTUAL_PLUGS   8
 #define RELAY_INVERSE_LEVEL        true
 #define USE_SSD1306_DRIVER         true
-#define LIVE_BLINK_TIME_MS         1500
+#define LIVE_BLINK_TIME_MS         0
 #define USE_INTERNAL_TEMPERATURE   true
 #define USE_INTERNAL_VOLTAGE       false
 #define USE_TIME_DRIVER            false
+#define USE_THREAD_DRIVER          true
 #define USE_THREAD_DRIVER          true
 
 

@@ -114,25 +114,6 @@ uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int sto
   return idx;
 }
 
-/*
-void init_indicator_task(void *pvParameter)
-{
-  
-  uint32_t live_blink_time = 0;
-  
-  while(1) {
-    //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
-    uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
-    if(blinked_duration >= LIVE_BLINK_TIME_MS) {
-      get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
-      live_blink_time = esp_log_timestamp();
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(10));
-  }
-}
-*/
-
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
   switch (event->Type) {
@@ -407,8 +388,10 @@ extern "C" void app_main()
     esp_matter::console::init();
   #endif
 
-  //-- Start init indicator task
-  xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
+  #if LIVE_BLINK_TIME_MS > 0
+	  //-- Start init indicator task
+  	xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
+  #endif
 
   #if USE_TIME_DRIVER
      //-- Initialization of time

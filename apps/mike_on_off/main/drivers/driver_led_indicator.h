@@ -68,4 +68,6 @@ extern const blink_step_t color_rgb_ring_blink[];
 
 extern blink_step_t const *led_mode[];
 
-extern void init_indicator_task(void *pvParameter);
+#if LIVE_BLINK_TIME_MS > 0
+	extern void init_indicator_task(void *pvParameter);
+#endif
