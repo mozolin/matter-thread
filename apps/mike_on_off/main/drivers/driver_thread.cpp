@@ -8,6 +8,8 @@
 	#include <openthread/network_time.h>
 	#include <openthread/platform/time.h>
 
+	#include <cmath>
+
 	static otInstance* sThreadInstance = NULL;
 
 	// Инициализация Thread
@@ -42,6 +44,59 @@
     }
 	}
 
+	char* ot_get_thread_uptime(char* str)
+	{
+		size_t max_size = OT_UPTIME_STRING_SIZE;
+		char buf[max_size];
+		uint64_t uptime = 0;
+
+		if(!otInstanceIsInitialized(sThreadInstance)) {
+    	//-- returns an empty string
+    	strncpy(str, "", max_size);
+    	return str;
+    }
+
+    //-- as an interger value
+    uptime = otInstanceGetUptime(sThreadInstance);
+
+    //-- as a string value
+    otInstanceGetUptimeAsString(sThreadInstance, buf, sizeof(buf));
+
+    ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Uptime: %llu (%s)", uptime, buf);
+    strncpy(str, buf, max_size);
+
+    return str;
+	}
+
+	char* ot_get_thread_short_uptime(char* str)
+	{
+		size_t max_size = OT_UPTIME_STRING_SIZE;
+		char buf[max_size];
+		uint64_t uptime = 0;
+
+		if(!otInstanceIsInitialized(sThreadInstance)) {
+    	//-- returns an empty string
+    	strncpy(str, "", max_size);
+    	return str;
+    }
+
+    //-- as an interger value
+    uptime = otInstanceGetUptime(sThreadInstance);
+
+    //-- parse uptime value
+    int total = (uptime - (uptime % 1000)) / 1000;
+    int hhh = std::floor(total / 3600);
+		int mmm = std::floor((total / 60) % 60);
+		int sss = total % 60;
+
+		snprintf(buf, sizeof(buf), "%02d:%02d:%02d", hhh, mmm, sss);
+
+    ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Uptime: %llu (%s)", uptime, buf);
+    strncpy(str, buf, max_size);
+
+    return str;
+	}
+	
 	bool ot_get_current_thread_time(struct tm* timeinfo)
 	{
     if(!otInstanceIsInitialized(sThreadInstance)) {

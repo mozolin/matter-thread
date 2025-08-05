@@ -374,22 +374,37 @@
 
     uint8_t x_pos = 0;
     char buf[32], buf2[32];
-    float temp = 0, volt = 0;
+    float temp = 0;
+    #if USE_INTERNAL_VOLTAGE
+    	float volt = 0;
+    #endif
+    //char* uptime_buf;
+    char* short_uptime_buf;
     
     while(1) {
 
       #if USE_INTERNAL_TEMPERATURE
         temp = (float)read_internal_temperature();
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Internal temperature is %.0f°C", temp);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
+      #endif
+
+      #if USE_THREAD_DRIVER
+        char bufUP[OT_UPTIME_STRING_SIZE];
+        //-- long uptime
+        //uptime_buf = ot_get_thread_uptime(bufUP);
+        //-- short uptime
+        short_uptime_buf = ot_get_thread_short_uptime(bufUP);
+        //-- indent: 2 spaces before value
+        //snprintf(buf, sizeof(buf), "  %s", short_uptime_buf);
+        //ssd1306_display_text(&ssd1306dev, 0, buf, 16, false);
       #endif
       
-      #if USE_TIME_DRIVER
+      #if USE_TIME_DRIVER && USE_THREAD_DRIVER
         time_t now;
         time(&now);
         struct tm timeinfo;
 
         ESP_LOGW(TAG_MIKE_APP, "~~~ Time Now - 2: %d", (int)now);
-
 
         if(ot_get_current_thread_time(&timeinfo)) {
           ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Time is synchronized!");
@@ -423,16 +438,28 @@
         x_pos = (strlen(buf) - 2) * 8;
       }
       
-      if(volt > 0) {
-      	//-- voltage
-      	if(temp > 0) {
-        	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
-	        //-- temperature + voltage
+      #if USE_INTERNAL_VOLTAGE
+        if(volt > 0) {
+        	//-- voltage
+        	if(temp > 0) {
+          	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
+	          //-- temperature + voltage
+	          strcat(buf, buf2);
+        	} else {
+        		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
+        	}
+        }
+      #endif
+      
+      #if USE_THREAD_DRIVER
+        if(temp > 0) {
+        	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
+	        //-- temperature + uptime
 	        strcat(buf, buf2);
       	} else {
-      		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
+      		snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
       	}
-      }
+      #endif
       ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
 
       if(temp > 0) {

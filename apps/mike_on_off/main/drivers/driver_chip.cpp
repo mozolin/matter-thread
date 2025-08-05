@@ -103,16 +103,68 @@
     if(!adc_initialized) {
       return 0.0f;
     }
+
+    esp_err_t err = ESP_OK;
     
     int raw_value;
-    ESP_ERROR_CHECK(adc_oneshot_read(adc_handle, adc_channel, &raw_value));
-    
+    uint8_t n = 0;
+    adc_channel_t ch = adc_channel;
     int voltage_mv;
-    if(adc_cali_raw_to_voltage(cali_handle, raw_value, &voltage_mv) != ESP_OK) {
-      ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to convert ADC value");
-      return 0.0f;
+
+    for(const auto &relay : relays) {
+    	n = (uint8_t)(relay.endpoint - 1);
+    	//ESP_LOGW(TAG_MIKE_APP, "~~~ EP: %d", n);
+    	//-- all channels
+    	switch(n) {
+    		case 0:
+    			ch = ADC_CHANNEL_0;
+    			break;
+    		case 1:
+    			ch = ADC_CHANNEL_1;
+    			break;
+    		case 2:
+    			ch = ADC_CHANNEL_2;
+    			break;
+    		case 3:
+    			ch = ADC_CHANNEL_3;
+    			break;
+    		case 4:
+    			ch = ADC_CHANNEL_4;
+    			break;
+    		case 5:
+    			ch = ADC_CHANNEL_5;
+    			break;
+    		case 6:
+    			ch = ADC_CHANNEL_6;
+    			break;
+    		case 7:
+    			ch = ADC_CHANNEL_7;
+    			break;
+    	}
+    	err = adc_oneshot_read(adc_handle, ch, &raw_value);
+    	if(err != ESP_OK) {
+    	  ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to read ADC OneShot (Ch #%d)", n);
+    	} else {
+    		//ESP_ERROR_CHECK(adc_oneshot_read(adc_handle, ch, &raw_value));
+        if(adc_cali_raw_to_voltage(cali_handle, raw_value, &voltage_mv) != ESP_OK) {
+          ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to convert ADC value");
+        } else {
+          ESP_LOGW(TAG_MIKE_APP, "~~~ Channel %d, ADC value converted to %d mV", n, voltage_mv);
+        }
+      }
+    }
+
+    //-- selected channel
+    err = adc_oneshot_read(adc_handle, adc_channel, &raw_value);
+    if(err != ESP_OK) {
+    	ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to read ADC OneShot (Ch #%d)", (int)adc_channel);
     } else {
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Channel %d, ADC value converted to %d mV", adc_channel, voltage_mv);
+      if(adc_cali_raw_to_voltage(cali_handle, raw_value, &voltage_mv) != ESP_OK) {
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to convert ADC value");
+        return 0.0f;
+      } else {
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Channel %d, ADC value converted to %d mV", adc_channel, voltage_mv);
+      }
     }
     
     return voltage_mv / 1000.0f;

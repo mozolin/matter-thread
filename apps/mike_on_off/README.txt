@@ -37,7 +37,7 @@ After TLV-PARSER:
 > matter esp ot_cli router table
 
 "matter esp attribute set <endpoint_id> <cluster_id> <attribute_id> <value>"
-> matter esp attribute set 0x5 0x6 0x0 1
+> matter esp attribute set 0x2 0x6 0x0 1
 > matter esp attribute set 0x6 0x6 0x0 1
 > matter esp attribute set 0x8 0x6 0x0 1
 

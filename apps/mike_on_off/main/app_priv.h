@@ -13,8 +13,8 @@
 #define USE_SSD1306_DRIVER         true
 #define LIVE_BLINK_TIME_MS         1500
 #define USE_INTERNAL_TEMPERATURE   true
-#define USE_INTERNAL_VOLTAGE       true
-#define USE_TIME_DRIVER            true
+#define USE_INTERNAL_VOLTAGE       false
+#define USE_TIME_DRIVER            false
 #define USE_THREAD_DRIVER          true
 
 
