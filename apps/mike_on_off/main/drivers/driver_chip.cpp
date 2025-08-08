@@ -2,6 +2,7 @@
 //-- ESP32-C6: https://docs.espressif.com/projects/esp-idf/en/v5.4/esp32c6/api-reference/peripherals/temp_sensor.html
 
 #include <app_priv.h>
+#include <cmath>
 
 #if USE_INTERNAL_TEMPERATURE
 	#include "driver/temperature_sensor.h"
@@ -187,3 +188,36 @@
     }
   }
 #endif
+
+char* get_system_clock_uptime(char* str)
+{
+	size_t max_size = 16;
+	char buf[max_size];
+	uint64_t chip_uptime = 0, esp_uptime = 0;
+
+  chip_uptime = chip::System::SystemClock().GetMonotonicMilliseconds64().count();
+
+  //uint32_t esp_uptime = (uint32_t)(esp_timer_get_time() / 1000000);
+  esp_uptime = esp_timer_get_time() / 1000;
+  esp_matter_attr_val_t uptime_val = {
+    .type = ESP_MATTER_VAL_TYPE_UINT32,
+    .val = {
+      .u32 = (uint32_t)esp_uptime
+    }
+  };
+  //-- update uptime for Matter
+  update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, uptime_val);
+
+  //-- parse uptime value
+  int total = (esp_uptime - (esp_uptime % 1000)) / 1000;
+  int hhh = std::floor(total / 3600);
+	int mmm = std::floor((total / 60) % 60);
+	int sss = total % 60;
+
+	snprintf(buf, sizeof(buf), "%02d:%02d:%02d", hhh, mmm, sss);
+
+  ESP_LOGW(TAG_MIKE_APP, "~~~ Uptime: %s, SystemClock Uptime: %llu, ESP Uptime: %llu", buf, chip_uptime, esp_uptime);
+  strncpy(str, buf, max_size);
+
+  return str;
+}
