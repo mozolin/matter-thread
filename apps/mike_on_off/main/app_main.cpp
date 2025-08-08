@@ -116,88 +116,88 @@ uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int sto
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
-  switch (event->Type) {
-  case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Interface IP Address changed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning complete");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-    ESP_LOGE(TAG_MIKE_APP, "~~~ Commissioning failed, fail safe timer expired");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session started");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session stopped");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window opened");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window closed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Binding entry changed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric removed successfully");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
-      chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
-      constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
-      if(!commissionMgr.IsCommissioningWindowOpen()) {
-        //-- After removing last fabric, this example does not remove the Wi-Fi credentials
-        //-- and still has IP connectivity so, only advertising on DNS-SD.
-        CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
-        if(err != CHIP_NO_ERROR) {
-          ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
-          get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+  switch(event->Type) {
+    case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Interface IP Address changed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning complete");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
+      ESP_LOGE(TAG_MIKE_APP, "~~~ Commissioning failed, fail safe timer expired");
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session started");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session stopped");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window opened");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window closed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Binding entry changed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric removed successfully");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
+        chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+        constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
+        if(!commissionMgr.IsCommissioningWindowOpen()) {
+          //-- After removing last fabric, this example does not remove the Wi-Fi credentials
+          //-- and still has IP connectivity so, only advertising on DNS-SD.
+          CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
+          if(err != CHIP_NO_ERROR) {
+            ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+            get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+          }
         }
       }
+      break;
     }
-    break;
-  }
-
-  case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric will be removed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is updated");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is committed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-    ESP_LOGW(TAG_MIKE_APP, "~~~ BLE deinitialized and memory reclaimed");
-    get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
-    break;
-
-  default:
-    break;
+    
+    case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric will be removed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is updated");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is committed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ BLE deinitialized and memory reclaimed");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      break;
+    
+    default:
+      break;
   }
 }
 
@@ -210,11 +210,43 @@ static esp_err_t app_identification_cb(identification::callback_type_t type, uin
   return ESP_OK;
 }
 
+//-- Callback for reading custom attributes
+esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
+{
+  ESP_LOGW(TAG_MIKE_APP, "~~~ read_custom_attribute_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+ 
+  if(type == attribute::READ) {
+    if(cluster_id == CLUSTER_ID_CHIP_TEMP && attribute_id == 0x0000) {
+      //-- Reading chip temperature
+      float temp = (float)read_internal_temperature();
+      if(temp > 0) {
+      	//-- Temperature at 0.01°C
+      	val->val.i16 = (int16_t)(temp * 100);
+        val->type = ESP_MATTER_VAL_TYPE_INT16;
+        ESP_LOGW(TAG_MIKE_APP, "~~~ READ TEMPERATURE: %.0f°C", temp);
+      } else {
+        ESP_LOGE(TAG_MIKE_APP, "TEMPERATURE FAILED!");
+        return ESP_FAIL;
+      }
+    } else if (cluster_id == CLUSTER_ID_UPTIME && attribute_id == 0x0000) {
+      //-- Reading uptime in seconds
+      uint32_t uptime = (uint32_t)(esp_timer_get_time() / 1000000);
+      val->val.u32 = uptime;
+      val->type = ESP_MATTER_VAL_TYPE_UINT32;
+      ESP_LOGW(TAG_MIKE_APP, "~~~ READ UPTIME: %lu", uptime);
+    }
+  }
+  return ESP_OK;
+}
+
+
 //-- This callback is called for every attribute update. The callback implementation shall
 //-- handle the desired attributes and return an appropriate error code. If the attribute
 //-- is not of your interest, please do not return an error code and strictly return ESP_OK.
 static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
 {
+  ESP_LOGE(TAG_MIKE_APP, "~~~ app_attribute_update_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+  
   esp_err_t err = ESP_OK;
 
   switch(type) {
@@ -238,9 +270,13 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
       break;
   
     case READ:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ app_attribute_update_cb()::READ");
+      //-- Callback for reading custom attributes
+      read_custom_attribute_cb(type, endpoint_id, cluster_id, attribute_id, val, priv_data);
       break;
   
     case WRITE:
+    	ESP_LOGW(TAG_MIKE_APP, "~~~ app_attribute_update_cb()::WRITE");
       break;
   }
   
@@ -378,6 +414,21 @@ extern "C" void app_main()
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to start Matter, err:%d", err));
 
+	#if ADD_CUSTOM_CLUSTERS
+  	//-- Temperature cluster
+  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
+  		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Temperature cluster created successfully");
+  	} else {
+  		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Temperature cluster");
+  	}
+  	//-- Uptime cluster
+  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
+  		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Uptime cluster created successfully");
+  	} else {
+  		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Uptime cluster");
+  	}
+  #endif
+
   #if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();
     esp_matter::console::wifi_register_commands();
@@ -387,6 +438,16 @@ extern "C" void app_main()
     #endif
     esp_matter::console::init();
   #endif
+
+  if(node) {
+  	//-- Device structure log
+  	ESP_LOGW(TAG_EMPTY, "");
+	  ESP_LOGW(TAG_EMPTY, "##############################################");
+	  log_device_structure(node);
+	  ESP_LOGW(TAG_EMPTY, "##############################################");
+	  ESP_LOGW(TAG_EMPTY, "");
+	}
+
 
   #if LIVE_BLINK_TIME_MS > 0
 	  //-- Start init indicator task
@@ -401,7 +462,7 @@ extern "C" void app_main()
      show_time();
   #endif
 
-  #if USE_THREAD_DRIVER
+  #if USE_OPENTHREAD_DRIVER
      //-- Initialization of Thread
      ot_init_thread_time_sync();
   #endif

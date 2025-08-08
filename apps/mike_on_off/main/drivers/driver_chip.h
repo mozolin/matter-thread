@@ -14,3 +14,5 @@
   extern float read_internal_voltage();
   extern void deinit_internal_voltage();
 #endif
+
+extern char* get_system_clock_uptime(char* str);

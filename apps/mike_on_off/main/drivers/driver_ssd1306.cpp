@@ -385,10 +385,20 @@
 
       #if USE_INTERNAL_TEMPERATURE
         temp = (float)read_internal_temperature();
+
+        esp_matter_attr_val_t temp_val = {
+          .type = ESP_MATTER_VAL_TYPE_INT16,
+          .val = {
+            .i16 = (int16_t)(temp * 100) // 0.01°C
+          }
+        };
+        update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, temp_val);
+
         ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
       #endif
 
-      #if USE_THREAD_DRIVER
+      /*
+      #if USE_OPENTHREAD_DRIVER
         char bufUP[OT_UPTIME_STRING_SIZE];
         //-- long uptime
         //uptime_buf = ot_get_thread_uptime(bufUP);
@@ -398,8 +408,12 @@
         //snprintf(buf, sizeof(buf), "  %s", short_uptime_buf);
         //ssd1306_display_text(&ssd1306dev, 0, buf, 16, false);
       #endif
+      */
+
+      char bufUP[16];
+      short_uptime_buf = get_system_clock_uptime(bufUP);
       
-      #if USE_TIME_DRIVER && USE_THREAD_DRIVER
+      #if USE_TIME_DRIVER && USE_OPENTHREAD_DRIVER
         time_t now;
         time(&now);
         struct tm timeinfo;
@@ -451,15 +465,13 @@
         }
       #endif
       
-      #if USE_THREAD_DRIVER
-        if(temp > 0) {
-        	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-	        //-- temperature + uptime
-	        strcat(buf, buf2);
-      	} else {
-      		snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-      	}
-      #endif
+      if(temp > 0) {
+      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
+	      //-- temperature + uptime
+	      strcat(buf, buf2);
+      } else {
+      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
+      }
       ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
 
       if(temp > 0) {

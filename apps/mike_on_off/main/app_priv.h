@@ -8,6 +8,7 @@
  ************************************************/
 
 #define TAG_MIKE_APP              "Mike's App"
+#define TAG_EMPTY                  ""
 #define CONFIG_NUM_VIRTUAL_PLUGS   8
 #define RELAY_INVERSE_LEVEL        true
 #define USE_SSD1306_DRIVER         true
@@ -15,8 +16,24 @@
 #define USE_INTERNAL_TEMPERATURE   true
 #define USE_INTERNAL_VOLTAGE       false
 #define USE_TIME_DRIVER            false
-#define USE_THREAD_DRIVER          true
-#define USE_THREAD_DRIVER          true
+#define USE_OPENTHREAD_DRIVER      false
+#define ADD_CUSTOM_CLUSTERS        true
+
+
+#if ADD_CUSTOM_CLUSTERS
+	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//-- !!                                                           !!
+	//-- !! For custom clusters, use ID from the manufacturer's range !!
+	//-- !!            (can be in 0xFC00-0xFFFE)                      !!
+	//-- !!                                                           !!
+	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//-- Cluster for chip temperature
+	#define CLUSTER_ID_CHIP_TEMP     0xFC00
+	//-- Cluster for uptime
+	#define CLUSTER_ID_UPTIME        0xFC01
+	//-- Custom endpoint for chip temperature & uptime
+	#define CUSTOM_ENDPOINT_ID       1
+#endif
 
 
 #include "driver_chip.h"
@@ -26,6 +43,11 @@
 #include "driver_ssd1306.h"
 #include "driver_thread.h"
 #include "driver_time.h"
+
+#if ADD_CUSTOM_CLUSTERS
+	#include "plugin_custom_cluster.h"
+#endif
+#include "plugin_device_structure.h"
 
 //-- Plugs (Relays)
 //-- List of all relays

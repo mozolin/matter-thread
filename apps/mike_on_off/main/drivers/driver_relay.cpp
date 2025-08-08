@@ -1,11 +1,4 @@
 
-//#include <esp_log.h>
-/*
-#include <app-common/zap-generated/ids/Clusters.h>
-#include <app-common/zap-generated/ids/Attributes.h>
-#include <app/util/attribute-storage.h>
-
-*/
 #include <app/clusters/on-off-server/on-off-server.h>
 
 #include <app_priv.h>

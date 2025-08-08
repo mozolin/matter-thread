@@ -1,7 +1,7 @@
 
 #include "driver_thread.h"
 
-#if USE_THREAD_DRIVER
+#if USE_OPENTHREAD_DRIVER
 
 	#include <time.h>
 	#include <openthread/instance.h>
