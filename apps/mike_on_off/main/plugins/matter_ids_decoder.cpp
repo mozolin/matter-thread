@@ -1,4 +1,7 @@
 // matter_ids_decoder.cpp
+#include <map>
+#include <string>
+
 #include "matter_ids_decoder.h"
 
 const std::map<uint32_t, std::string> CLUSTER_NAMES = {

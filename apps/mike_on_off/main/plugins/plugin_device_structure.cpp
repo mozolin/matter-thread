@@ -29,13 +29,83 @@ std::string get_cluster_name(uint32_t cluster_id)
   return "Unknown";
 }
 
-std::string get_attribute_name(uint32_t attribute_id)
+std::string get_attribute_name(uint32_t cluster_id, uint32_t attribute_id)
 {
-  auto it = ATTRIBUTE_NAMES.find(attribute_id);
-  if (it != ATTRIBUTE_NAMES.end()) {
-      return it->second;
+  std::string str = "Unknown";
+
+  // Общие атрибуты
+  switch(attribute_id) {
+  	case 0x0000:
+  		str = "AttributeList";
+  		break;
+  	case 0x0001:
+  		str = "FeatureMap";
+  		break;
+  	case 0x0002:
+  		str = "ClusterRevision";
+  		break;
+  	case 0xFFFD:
+  		str = "ClusterRevision";
+  		break;
   }
-  return "Unknown";
+
+  switch(cluster_id) {
+    // Атрибуты Identify кластера
+    case 0x0003:
+    	switch(attribute_id) {
+    		case 0x0000:
+    			return "IdentifyTime";
+    	}
+    	break;
+    // Атрибуты On/Off кластера
+    case 0x0006:
+    	switch(attribute_id) {
+    		case 0x0000:
+    			return "OnOff";
+    	}
+    	break;
+    // Атрибуты кастомного 0xFC00 кластера
+    case 0xFC00:
+    	switch(attribute_id) {
+    		case 0x0000:
+    			return "TemperatureValue";
+    	}
+    	break;
+    // Атрибуты кастомного 0xFC01 кластера
+    case 0xFC01:
+    	switch(attribute_id) {
+    		case 0x0000:
+    			return "UptimeSeconds";
+    	}
+    	break;
+  }
+  /*
+  for(map<string,map<string,string> >::const_iterator ptr=ATTRIBUTE_NAMES.begin();ptr!=ATTRIBUTE_NAMES.end(); ptr++) {
+    //cout << ptr->first << "\n";
+    for( map<string,string>::const_iterator eptr=ptr->second.begin();eptr!=ptr->second.end(); eptr++){
+    	//cout << eptr->first << " " << eptr->second << endl;
+    	return eptr->second;
+    }
+	}
+	*/
+  
+  /*
+  auto cl = ATTRIBUTE_NAMES.find(cluster_id);
+  if (cl != ATTRIBUTE_NAMES.end()) {
+  	auto it = cl->second.find(attribute_id);
+  	if (it != cl->second.end()) {
+      return it->second;
+  	}
+  }
+  */
+
+  /*
+  auto it = ATTRIBUTE_NAMES.find(attribute_id);
+  if(it != ATTRIBUTE_NAMES.end()) {
+    return it->second;
+  }
+  */
+  return str;
 }
 
 std::string get_attribute_flags_string(uint16_t flags)
@@ -50,11 +120,10 @@ std::string get_attribute_flags_string(uint16_t flags)
     uint16_t flag;
     char symbol;
   } flag_map[] = {
-    //{ATTRIBUTE_FLAG_READABLE,   'R'},
-    {ATTRIBUTE_FLAG_WRITABLE,   'W'},
-    {ATTRIBUTE_FLAG_NULLABLE,   'N'}/*,
-    {ATTRIBUTE_FLAG_REPORTABLE, 'P'}
-    */
+    {ATTRIBUTE_FLAG_NONE,       'N'},
+    {MATTER_ATTRIBUTE_FLAG_WRITABLE, 'W'},
+    {MATTER_ATTRIBUTE_FLAG_NONVOLATILE, 'V'},
+    {ATTRIBUTE_FLAG_NULLABLE,   'U'}
   };
   
   for(const auto &item : flag_map) {
@@ -101,6 +170,12 @@ std::string get_attribute_value(esp_matter_attr_val_t val)
 	
 	if(type == "INT16") {
 		snprintf(buf, sizeof(buf), "%d", val.val.i16);
+		str.assign(buf);
+	} else if(type == "UINT16") {
+		snprintf(buf, sizeof(buf), "%d", val.val.u16);
+		str.assign(buf);
+	} else if(type == "INT32") {
+		snprintf(buf, sizeof(buf), "%lu", val.val.i32);
 		str.assign(buf);
 	} else if(type == "UINT32") {
 		snprintf(buf, sizeof(buf), "%lu", val.val.u32);
@@ -166,52 +241,59 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
     if(!endpoint) {
     	continue;
     }
-    if(endpoint_id != CUSTOM_ENDPOINT_ID) {
-    	continue;
-    }
+    
+    #if SHOW_CUSTOM_ENDPOINT_ID_ONLY
+    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
+    	if(endpoint_id != CUSTOM_ENDPOINT_ID) {
+    		continue;
+    	}
+    #endif
 
     std::string indent(level * 2, ' ');
     ESP_LOGE(TAG_EMPTY, "# %sEndpoint 0x%04" PRIX16, indent.c_str(), endpoint_id);
 
-    cluster_t *cluster = cluster::get_first(endpoint);
-    while(cluster) {
-      uint32_t cluster_id = cluster::get_id(cluster);
-      std::string cluster_name = get_cluster_name(cluster_id);
+    #if SHOW_DEVICE_LOG_CLUSTERS
+      cluster_t *cluster = cluster::get_first(endpoint);
+      while(cluster) {
+        uint32_t cluster_id = cluster::get_id(cluster);
+        std::string cluster_name = get_cluster_name(cluster_id);
+        
+        ESP_LOGW(TAG_EMPTY, "# %s  Cluster 0x%08" PRIX32 " (%s)", 
+                indent.c_str(), cluster_id, cluster_name.c_str());
       
-      ESP_LOGW(TAG_EMPTY, "# %s  Cluster 0x%08" PRIX32 " (%s)", 
-              indent.c_str(), cluster_id, cluster_name.c_str());
-
-      attribute_t *attribute = attribute::get_first(cluster);
-      while(attribute) {
-        uint32_t attribute_id = attribute::get_id(attribute);
-        std::string attribute_name = get_attribute_name(attribute_id);
+        #if SHOW_DEVICE_LOG_ATTRIBUTES
+          attribute_t *attribute = attribute::get_first(cluster);
+          while(attribute) {
+            uint32_t attribute_id = attribute::get_id(attribute);
+            std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
+            
+            esp_matter_attr_val_t val;
+						if(esp_matter::attribute::get_val(attribute, &val) == ESP_OK) {
+              ESP_LOGI(TAG_EMPTY, "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Value: %s, Flags: %s", 
+                      indent.c_str(), 
+                      attribute_id, 
+                      get_attribute_name(cluster_id, attribute_id).c_str(),
+                      get_attribute_type_name(val.type).c_str(),
+                      get_attribute_value(val).c_str(),
+                      get_attribute_flags_string(esp_matter::attribute::get_flags(attribute)).c_str());
+						} else {
+              ESP_LOGE(TAG_EMPTY, "# %s    Failed to get value for attribute 0x%08" PRIX32, 
+                      indent.c_str(), attribute_id);
+						}
+            attribute = attribute::get_next(attribute);
+          }
+        #endif
         
-        esp_matter_attr_val_t val;
-				if(esp_matter::attribute::get_val(attribute, &val) == ESP_OK) {
-          ESP_LOGI(TAG_EMPTY, "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Value: %s, Flags: %s", 
-                  indent.c_str(), 
-                  attribute_id, 
-                  get_attribute_name(attribute_id).c_str(),
-                  get_attribute_type_name(val.type).c_str(),
-                  get_attribute_value(val).c_str(),
-                  get_attribute_flags_string(esp_matter::attribute::get_flags(attribute)).c_str());
-				} else {
-          ESP_LOGE(TAG_EMPTY, "# %s    Failed to get value for attribute 0x%08" PRIX32, 
-                  indent.c_str(), attribute_id);
-				}
-        
-        attribute = attribute::get_next(attribute);
+        #if SHOW_DEVICE_LOG_COMMANDS
+          command_t *command = command::get_first(cluster);
+          while(command) {
+            uint32_t command_id = command::get_id(command);
+            ESP_LOGI(TAG_EMPTY, "%s    Command 0x%08" PRIX32, indent.c_str(), command_id);
+            command = command::get_next(command);
+          }
+        #endif
+        cluster = cluster::get_next(cluster);
       }
-
-      /*
-      command_t *command = command::get_first(cluster);
-      while(command) {
-        uint32_t command_id = command::get_id(command);
-        ESP_LOGI(TAG_EMPTY, "%s    Command 0x%08" PRIX32, indent.c_str(), command_id);
-        command = command::get_next(command);
-      }
-      */
-      cluster = cluster::get_next(cluster);
-    }
+    #endif
   }
 }

@@ -30,7 +30,7 @@
 #include <app/server/Server.h>
 
 
-#define CREATE_ALL_PLUGS(node) \
+#define CREATE_ALL_GPIO_ONOFF_PLUGS(node) \
   for(const auto &relay : relays) { \
     struct gpio_plug plug; \
     plug.GPIO_PIN_VALUE = (gpio_num_t)relay.gpio_pin; \
@@ -400,7 +400,8 @@ extern "C" void app_main()
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create Matter node"));
 
-  CREATE_ALL_PLUGS(node);
+  //-- Creates plug-endpoint mapping for all GPIO pins configured.
+  CREATE_ALL_GPIO_ONOFF_PLUGS(node);
 
   //-- Set OpenThread platform config
   esp_openthread_platform_config_t config = {
@@ -410,19 +411,19 @@ extern "C" void app_main()
   };
   set_openthread_platform_config(&config);
 
-  //-- Matter start
+  //-- Matter starts
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to start Matter, err:%d", err));
 
 	#if ADD_CUSTOM_CLUSTERS
   	//-- Temperature cluster
-  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
+  	if(create_custom_cluster2(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
   		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Temperature cluster created successfully");
   	} else {
   		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Temperature cluster");
   	}
   	//-- Uptime cluster
-  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
+  	if(create_custom_cluster2(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
   		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Uptime cluster created successfully");
   	} else {
   		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Uptime cluster");

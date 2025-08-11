@@ -4,7 +4,7 @@ using namespace esp_matter;
 
 extern std::string get_cluster_name(uint32_t cluster_id);
 
-extern std::string get_attribute_name(uint32_t attribute_id);
+extern std::string get_attribute_name(uint32_t cluster_id, uint32_t attribute_id);
 
 extern std::string get_attribute_flags_string(uint16_t flags);
 

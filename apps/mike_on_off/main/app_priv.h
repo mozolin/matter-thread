@@ -28,11 +28,18 @@
 	//-- !!                                                           !!
 	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//-- Cluster for chip temperature (int16_t)
-	#define CLUSTER_ID_CHIP_TEMP     0xFC00
+	#define CLUSTER_ID_CHIP_TEMP          0xFC00
 	//-- Cluster for uptime (uint32_t)
-	#define CLUSTER_ID_UPTIME        0xFC01
+	#define CLUSTER_ID_UPTIME             0xFC01
 	//-- Custom endpoint for chip temperature & uptime
-	#define CUSTOM_ENDPOINT_ID       1
+	#define CUSTOM_ENDPOINT_ID            1
+	
+	//-- what part of tree to show
+	#define SHOW_CUSTOM_ENDPOINT_ID_ONLY  false
+	#define SHOW_DEVICE_LOG_CLUSTERS      true
+	#define SHOW_DEVICE_LOG_ATTRIBUTES    false
+	#define SHOW_DEVICE_LOG_COMMANDS      false
+
 #endif
 
 
