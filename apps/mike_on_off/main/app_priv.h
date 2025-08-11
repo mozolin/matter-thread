@@ -27,9 +27,9 @@
 	//-- !!            (can be in 0xFC00-0xFFFE)                      !!
 	//-- !!                                                           !!
 	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//-- Cluster for chip temperature
+	//-- Cluster for chip temperature (int16_t)
 	#define CLUSTER_ID_CHIP_TEMP     0xFC00
-	//-- Cluster for uptime
+	//-- Cluster for uptime (uint32_t)
 	#define CLUSTER_ID_UPTIME        0xFC01
 	//-- Custom endpoint for chip temperature & uptime
 	#define CUSTOM_ENDPOINT_ID       1

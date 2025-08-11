@@ -6,8 +6,10 @@ extern bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uin
 
 extern bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t val);
 
-extern void force_attribute_reporting(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id);
+extern void add_custom_cluster_safely(uint16_t endpoint_id);
 
-extern void emulate_matter_cli();
+extern CHIP_ERROR register_custom_endpoint(uint16_t endpoint_id, EmberAfEndpointType *new_endpoint);
+
+extern void remove_custom_cluster(uint16_t endpoint_id);
 
 #endif

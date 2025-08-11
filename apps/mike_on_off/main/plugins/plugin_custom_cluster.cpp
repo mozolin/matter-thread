@@ -83,6 +83,8 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
   	ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
   }
 
+  add_custom_cluster_safely(endpoint_id);
+
   return true;
 }
 
@@ -171,36 +173,184 @@ bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t
   return true;
 }
 
-#include <app-common/zap-generated/endpoint_config.h>
-#include <app/util/attribute-storage.h>
 
-void check_cluster_inclusion()
+
+#include <app/util/attribute-storage.h>
+#include <app/util/af-types.h>
+#include <app/util/endpoint-config-api.h>
+
+EmberAfAttributeMetadata customAttributes[] =
 {
-  const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(1);
-  if(endpoint_type) {
-    for(size_t i = 0; i < endpoint_type->clusterCount; i++) {
-      ChipLogProgress(Zcl, "Cluster 0x%04X", endpoint_type->cluster[i].clusterId);
-    }
+  {
+    .defaultValue  = EmberAfDefaultOrMinMaxAttributeValue(static_cast<uint32_t>(0)),
+    .attributeId   = 0x0000,
+    .size          = 4,
+    .attributeType = ZCL_INT32U_ATTRIBUTE_TYPE,
+    .mask          = MATTER_ATTRIBUTE_FLAG_WRITABLE | MATTER_ATTRIBUTE_FLAG_NULLABLE,
+    
+    /*
+    .attributeId = 0x0000,
+    .size = 2, // INT16 = 2 байта
+    .attributeType = ZCL_INT16S_ATTRIBUTE_TYPE,
+    .mask = MATTER_ATTRIBUTE_FLAG_WRITABLE, // или 0 для read-only
+    */
   }
+};
+
+EmberAfCluster customCluster =
+{
+  .clusterId = 0xFC01,
+  /*
+  .attributes = nullptr, // Будет инициализировано позже
+  .attributeCount = 0,
+  */
+  .attributes = customAttributes,
+  .attributeCount = ARRAY_SIZE(customAttributes),
+  .clusterSize = 0,
+  .mask = MATTER_CLUSTER_FLAG_SERVER,
+  .functions = nullptr,
+  .acceptedCommandList = nullptr,
+  .generatedCommandList = nullptr,
+  .eventList = nullptr,
+  .eventCount = 0,
+};
+
+#include <lib/support/CodeUtils.h>
+#include <app/util/basic-types.h>
+#include <app/ConcreteClusterPath.h>
+
+
+using namespace chip::app::DataModel;
+
+
+void add_custom_cluster_safely(uint16_t endpoint_id)
+{
+  // 1. Получаем текущий endpoint (без модификации)
+  const EmberAfEndpointType *endpoint = emberAfFindEndpointType(endpoint_id);
+  if(!endpoint) {
+    ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+    return;
+  }
+
+  // 2. Создаем копию структуры endpoint
+  EmberAfEndpointType *new_endpoint = (EmberAfEndpointType*)chip::Platform::MemoryAlloc(sizeof(EmberAfEndpointType));
+  memcpy(new_endpoint, endpoint, sizeof(EmberAfEndpointType));
+
+  // 3. Создаем новый массив кластеров (+1 для нашего)
+  size_t new_cluster_count = endpoint->clusterCount + 1;
+  EmberAfCluster *new_clusters = (EmberAfCluster*)chip::Platform::MemoryAlloc(sizeof(EmberAfCluster) * new_cluster_count);
+
+  // 4. Копируем существующие кластеры
+  memcpy(new_clusters, endpoint->cluster, sizeof(EmberAfCluster) * endpoint->clusterCount);
+
+  // 5. Инициализируем кастомный кластер
+  //customCluster.attributes = customAttributes;
+  //customCluster.attributeCount = ARRAY_SIZE(customAttributes);
+
+  // 6. Добавляем наш кластер
+  new_clusters[endpoint->clusterCount] = customCluster;
+  ESP_LOGW(TAG_MIKE_APP, "new_clusters-1: %d (%d)", endpoint->clusterCount, new_cluster_count);
+
+  // 7. Обновляем структуру
+  new_endpoint->cluster = new_clusters;
+  new_endpoint->clusterCount = new_cluster_count;
+
+  ESP_LOGW(TAG_MIKE_APP, "new_clusters-2: %d", new_endpoint->clusterCount);
+
+  // 8. Регистрируем обновленный endpoint
+  CHIP_ERROR err = CHIP_NO_ERROR;
+  
+  // 1. Подготовка параметров
+  uint16_t index = 0; // Индекс в пуле динамических endpoint
+  chip::EndpointId chipEndpointId = endpoint_id; // ID нашего endpoint (не 0!)
+  
+  // 2. Список кластеров (если нужно)
+  //-- const chip::Span<chip::DataVersion> & dataVersionStorage
+  chip::Span<uint32_t> cluster_revisions;
+
+  //-- chip::DataVersion * emberAfDataVersionStorage(const chip::app::ConcreteClusterPath & aConcreteClusterPath);
+  //-- chip::DataVersion * versionPtr = emberAfDataVersionStorage(ConcreteClusterPath(endpointId, cluster.clusterId));
+  
+  //chip::app::ConcreteClusterPath ConcreteClusterPath;
+  
+  //ConcreteClusterPath(EndpointId aEndpointId, ClusterId aClusterId)
+  //chip::EndpointId aEndpointId = 1;
+  //customCluster.clusterId aClusterId = 0xFC01;
+  //chip::DataVersion * versionPtr = emberAfDataVersionStorage(ConcreteClusterPath(aEndpointId, customCluster.clusterId));
+  
+  /*
+  cluster_revisions[0] = 1;
+  cluster_revisions[1] = 1;
+  cluster_revisions[2] = 1;
+  cluster_revisions[3] = 1;
+  cluster_revisions[4] = 1;
+  */
+  //std::vector<int> numbers = {1, 2, 3, 4, 5};
+  
+  // 3. Device types (может быть пустым)
+  chip::Span<const chip::app::DataModel::DeviceTypeEntry> device_types;
+  
+  // 4. Parent endpoint (0 если нет)
+  chip::EndpointId chipParentEndpointId = 0;
+  
+  // 5. Регистрация endpoint
+  //-- emberAfSetDynamicEndpoint(idx, epId, ep, dataVersionStorage, deviceTypeList);
+
+
+  err = emberAfSetDynamicEndpoint(
+    index,               //index              //-- uint16_t index
+    chipEndpointId,      //mCurrentEndpointId //-- EndpointId id
+    new_endpoint,        //ep                 //-- const EmberAfEndpointType * ep
+    cluster_revisions,   //dataVersionStorage //-- const Span<DataVersion> & dataVersionStorage
+    device_types,        //deviceTypeList     //-- Span<const EmberAfDeviceType> deviceTypeList
+    chipParentEndpointId //---                //-- EndpointId parentEndpointId
+  );
+
+  /*
+  emberAfSetDynamicEndpoint(
+  	uint16_t index,
+  	EndpointId id,
+  	const EmberAfEndpointType * ep,
+    const Span<DataVersion> & dataVersionStorage,
+    Span<const EmberAfDeviceType> deviceTypeList,
+    EndpointId parentEndpointId
+  )
+
+  emberAfSetDynamicEndpoint(
+  	index,
+  	mCurrentEndpointId,
+  	ep,
+  	dataVersionStorage,
+  	deviceTypeList
+  );
+  */
+  
+  if(err != CHIP_NO_ERROR) {
+    if(err == CHIP_ERROR_NO_MEMORY) {
+    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_NO_MEMORY");
+    }
+    if(err == CHIP_ERROR_INVALID_ARGUMENT) {
+    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_INVALID_ARGUMENT");
+    }
+    if(err == CHIP_ERROR_ENDPOINT_EXISTS) {
+    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_ENDPOINT_EXISTS");
+    }
+  } else {
+    ESP_LOGI(TAG_MIKE_APP, "Custom endpoint %d registered", endpoint_id);
+  }
+
+  ESP_LOGI(TAG_MIKE_APP, "Custom cluster 0x%08" PRIX32 " added to endpoint %d", 
+          customCluster.clusterId, endpoint_id);
+
+  chip::EndpointId ep = emberAfEndpointFromIndex(1);
+  bool isServer = true;
+  uint8_t num = emberAfClusterCount(ep, isServer);
+	ESP_LOGW(TAG_MIKE_APP, "Clusters: %d", num);
 }
 
-void manual_cluster_registration(uint16_t endpoint_id, uint32_t cluster_id)
+void remove_custom_cluster(uint16_t endpoint_id)
 {
-  // 1. Определяем кастомный кластер
-  //constexpr chip::ClusterId kCustomClusterId = 0xFC00;
-  constexpr chip::ClusterId kCustomClusterId = cluster_id;
-  
-  // 2. Добавляем в список кластеров endpoint
-  EmberAfCluster cluster = {
-    .clusterId = kCustomClusterId,
-    .attributes = nullptr, // Указываем свои атрибуты
-    .attributeCount = 0,
-    .clusterSize = 0
-  };
-  
-  // 3. Регистрируем вручную (пример для endpoint 1)
-  //emberAfEndpointEnableDisable(1, true, &cluster, 1);
-  emberAfEndpointEnableDisable(endpoint_id, true, &cluster, 1);
+  emberAfClearDynamicEndpoint(endpoint_id - 1);
 }
 
 #endif
