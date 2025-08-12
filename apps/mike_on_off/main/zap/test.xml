@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<configurator>
+<domain name="CHIP"/>
+<cluster>
+<domain>General</domain>
+<name>Sample ESP</name>
+<!-- The MSB 16 bits of <code> are the VendorID. Replace this with your
+VendorID. 0x131B is the VendorId of Espressif.
+The LSB 16 bits of <code> are a self-assigned ClusterID -->
+<code>0x131BFC20</code>
+<define>SAMPLE_ESP_CLUSTER</define>
+<description>The Sample ESP cluster showcases a manufacturer custom cluster
+</description>
+<!-- Attributes -->
+<!-- A simple test boolean attribute -->
+<attribute side="server" code="0x0000" define="SAMPLE_BOOLEAN" type="boolean" writable="true" default="false" optional="false">SampleBoolean</attribute>
+<attribute side="server" code="0x0001" define="SAMPLE_CHAR_STR" type="char_string" writable="false" optional="false">SampleCharStr</attribute>
+<!-- Commands -->
+<command source="client" code="0x00" name="CommandwithoutArgs" optional="false">
+<description>
+Simple command without any parameters and without a response.
+</description>
+</command>
+<command source="client" code="0x01" name="CommandWithArgs" response="CommandWithArgsResponse" optional="false">
+<description>
+Command that takes two uint8 arguments.
+</description>
+<arg name="Arg1" type="int8u"/>
+<arg name="Arg2" type="int8u"/>
+</command>
+<!-- Command Responses -->
+<command source="server" code="0x02" name="CommandWithArgsResponse" optional="false" disableDefaultResponse="true">
+<description>
+Response for CommandwithArgs.
+</description>
+<arg name="ResponseArg" type="int8u"/>
+</command>
+<!-- Events -->
+<event side="server" code="0x0000" name="TestEvent" priority="info" isFabricSensitive="true" optional="false">
+<description>
+Example event with a event data
+</description>
+<field id="1" name="EventData" type="int32u"/>
+</event>
+</cluster>
+</configurator>
