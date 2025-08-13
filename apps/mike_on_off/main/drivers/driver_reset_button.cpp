@@ -1,4 +1,5 @@
 
+#include <app_priv.h>
 #include "driver_reset_button.h"
 #include "driver_relay.h"
 #include "driver/gpio.h"
@@ -54,6 +55,23 @@ void reboot_button_task(void *pvParameter)
           ESP_LOGW("Reset Button", "************************");
           vTaskDelay(pdMS_TO_TICKS(5000));
           esp_restart();
+        } else {
+        	ESP_LOGW("Reset Button", "****************************");
+          ESP_LOGW("Reset Button", "*                          *");
+          ESP_LOGW("Reset Button", "*   Reset button pressed   *");
+          ESP_LOGW("Reset Button", "*                          *");
+          ESP_LOGW("Reset Button", "****************************");
+          //-- Get Matter node
+          node_t *node = node::get();
+          if(node) {
+          	//-- Device structure log
+  					ESP_LOGW(TAG_EMPTY, "");
+	          ESP_LOGW(TAG_EMPTY, "##############################################");
+	          log_device_structure(node);
+	          ESP_LOGW(TAG_EMPTY, "##############################################");
+	          ESP_LOGW(TAG_EMPTY, "");
+          	vTaskDelay(pdMS_TO_TICKS(10000));
+          }
         }
       }
       button_pressed = false;

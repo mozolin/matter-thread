@@ -417,13 +417,13 @@ extern "C" void app_main()
 
 	#if ADD_CUSTOM_CLUSTERS
   	//-- Temperature cluster
-  	if(create_custom_cluster2(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
+  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
   		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Temperature cluster created successfully");
   	} else {
   		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Temperature cluster");
   	}
   	//-- Uptime cluster
-  	if(create_custom_cluster2(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
+  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
   		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Uptime cluster created successfully");
   	} else {
   		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Uptime cluster");

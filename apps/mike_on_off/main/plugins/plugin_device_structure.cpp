@@ -120,10 +120,10 @@ std::string get_attribute_flags_string(uint16_t flags)
     uint16_t flag;
     char symbol;
   } flag_map[] = {
-    {ATTRIBUTE_FLAG_NONE,       'N'},
-    {MATTER_ATTRIBUTE_FLAG_WRITABLE, 'W'},
+    {ATTRIBUTE_FLAG_NONE,               'N'},
+    {MATTER_ATTRIBUTE_FLAG_WRITABLE,    'W'},
     {MATTER_ATTRIBUTE_FLAG_NONVOLATILE, 'V'},
-    {ATTRIBUTE_FLAG_NULLABLE,   'U'}
+    {ATTRIBUTE_FLAG_NULLABLE,           'U'}
   };
   
   for(const auto &item : flag_map) {
@@ -252,6 +252,13 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
     std::string indent(level * 2, ' ');
     ESP_LOGE(TAG_EMPTY, "# %sEndpoint 0x%04" PRIX16, indent.c_str(), endpoint_id);
 
+    //-- 3. Получение списка всех атрибутов endpoint
+		ESP_LOGI(TAG_EMPTY, "");
+		ESP_LOGI(TAG_EMPTY, "====================================");
+		print_all_attributes(endpoint_id);
+		ESP_LOGI(TAG_EMPTY, "====================================");
+		ESP_LOGI(TAG_EMPTY, "");
+
     #if SHOW_DEVICE_LOG_CLUSTERS
       cluster_t *cluster = cluster::get_first(endpoint);
       while(cluster) {
@@ -259,26 +266,60 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
         std::string cluster_name = get_cluster_name(cluster_id);
         
         ESP_LOGW(TAG_EMPTY, "# %s  Cluster 0x%08" PRIX32 " (%s)", 
-                indent.c_str(), cluster_id, cluster_name.c_str());
+                indent.c_str(),
+                cluster_id,
+                cluster_name.c_str());
       
         #if SHOW_DEVICE_LOG_ATTRIBUTES
           attribute_t *attribute = attribute::get_first(cluster);
           while(attribute) {
             uint32_t attribute_id = attribute::get_id(attribute);
-            std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
+
             
-            esp_matter_attr_val_t val;
-						if(esp_matter::attribute::get_val(attribute, &val) == ESP_OK) {
+            //-- 1. Использование API esp_matter::attribute::get()
+						if(!is_attribute_present(endpoint_id, cluster_id, attribute_id)) {
+							ESP_LOGE("APP", "Attribute not found in data model");
+						}
+						/*
+						//-- 2. Проверка через ZAP-generated код
+						if(!check_attribute_existence(cluster_id, attribute_id)) {
+							ESP_LOGE("APP", "Attribute not found in ZAP-generated code");
+						}
+						*/
+						/*
+						//-- 3. Получение списка всех атрибутов endpoint
+						print_all_attributes(endpoint_id);
+						*/
+						/*
+						//-- 4. Проверка через Matter API
+						if(!matter_attribute_exists(endpoint_id, cluster_id, attribute_id)) {
+							ESP_LOGE("APP", "Attribute not found in Matter");
+						}
+						*/
+						/*
+						//-- 5. Комплексная проверка с валидацией типа
+						if(!validate_attribute(endpoint_id, cluster_id, attribute_id, ESP_MATTER_VAL_TYPE_UINT32)) {
+							ESP_LOGE("APP", "Attribute validation failed");
+						}
+						*/
+
+            //ESP_LOGI(TAG_EMPTY, "# %s    Attribute ID: 0x%08" PRIX32, indent.c_str(), attribute_id);
+            std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
+            //ESP_LOGI(TAG_EMPTY, "# %s    Attribute Name: %s", indent.c_str(), attribute_name.c_str());
+            uint16_t flags = attribute::get_flags(attribute);
+            //ESP_LOGI(TAG_EMPTY, "# %s    Attribute Flags: %d", indent.c_str(), flags);
+            
+            esp_matter_attr_val_t val = esp_matter_nullable_uint32(0);
+						if(attribute::get_val(attribute, &val) == ESP_OK) {
               ESP_LOGI(TAG_EMPTY, "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Value: %s, Flags: %s", 
                       indent.c_str(), 
                       attribute_id, 
                       get_attribute_name(cluster_id, attribute_id).c_str(),
                       get_attribute_type_name(val.type).c_str(),
                       get_attribute_value(val).c_str(),
-                      get_attribute_flags_string(esp_matter::attribute::get_flags(attribute)).c_str());
+                      get_attribute_flags_string(flags).c_str());
 						} else {
-              ESP_LOGE(TAG_EMPTY, "# %s    Failed to get value for attribute 0x%08" PRIX32, 
-                      indent.c_str(), attribute_id);
+              //ESP_LOGE(TAG_EMPTY, "# %s    Failed to get value for attribute 0x%08" PRIX32, indent.c_str(), attribute_id);
 						}
             attribute = attribute::get_next(attribute);
           }
@@ -288,12 +329,145 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
           command_t *command = command::get_first(cluster);
           while(command) {
             uint32_t command_id = command::get_id(command);
-            ESP_LOGI(TAG_EMPTY, "%s    Command 0x%08" PRIX32, indent.c_str(), command_id);
+            uint16_t flags = command::get_flags(command);
+            ESP_LOGI(TAG_EMPTY, "# %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
             command = command::get_next(command);
           }
         #endif
+
         cluster = cluster::get_next(cluster);
       }
     #endif
   }
+}
+
+
+//-- ПРОВЕРКА СУЩЕСТВОВАНИЯ АТРИБУТА
+
+//-- 1. Использование API esp_matter::attribute::get()
+bool is_attribute_present(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id)
+{
+  //esp_matter_attr_val_t val;
+  attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
+  if(!attribute) {
+  	ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
+  	return false;
+	}
+  return true;
+}
+
+//-- 2. Проверка через ZAP-generated код
+#include <app/util/attribute-metadata.h>
+#include <app/util/attribute-storage.h>
+bool check_attribute_existence(uint32_t cluster_id, uint32_t attribute_id)
+{
+    const EmberAfAttributeMetadata *metadata = emberAfLocateAttributeMetadata(
+        0,  // Проверка на уровне кластера
+        cluster_id,
+        attribute_id);
+    
+    return metadata != nullptr;
+}
+
+//-- 3. Получение списка всех атрибутов endpoint
+#include <app/util/endpoint-config-api.h>
+void print_all_attributes(uint16_t endpoint_id)
+{
+  const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(endpoint_id);
+  if(!endpoint_type) {
+    ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
+    return;
+  }
+
+  int level = 0;
+  std::string indent(level * 2, ' ');
+  uint32_t attribute_id, cluster_id;
+
+  ESP_LOGE(TAG_EMPTY, "# %sEndpoint 0x%04" PRIX16, indent.c_str(), endpoint_id);
+
+  #if SHOW_DEVICE_LOG_CLUSTERS
+    for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
+      const EmberAfCluster *cluster = &endpoint_type->cluster[cluster_idx];
+      
+      cluster_id = cluster->clusterId;
+
+      std::string cluster_name = get_cluster_name(cluster->clusterId);
+      ESP_LOGW(TAG_EMPTY, "# %s  Cluster 0x%08" PRIX32 " (%s)", 
+               indent.c_str(),
+               cluster_id,
+               cluster_name.c_str());
+      
+      #if SHOW_DEVICE_LOG_ATTRIBUTES
+        for(size_t attr_idx = 0; attr_idx < cluster->attributeCount; ++attr_idx) {
+          const EmberAfAttributeMetadata *attr = &cluster->attributes[attr_idx];
+
+          attribute_id = attr->attributeId;
+          attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
+          if(attribute) {
+            std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
+            uint16_t flags = attribute::get_flags(attribute);
+              
+            esp_matter_attr_val_t val = esp_matter_nullable_uint32(0);
+						//-- if attribute size > 0 => get attribute value
+						std::string attribute_value = "";
+						std::string attribute_type = get_attribute_type_name(val.type);
+						if(attr->size > 0 && attribute::get_val(attribute, &val) == ESP_OK) {
+							//-- new value of attribute!
+							attribute_value = get_attribute_value(val);
+							
+						}
+					  
+            ESP_LOGI(TAG_EMPTY, "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Size: %d, Value: %s, Mask: 0x%02x, Flags: %s", 
+                     indent.c_str(), 
+                     attribute_id, 
+                     get_attribute_name(cluster_id, attribute_id).c_str(),
+                     attribute_type.c_str(),
+                     attr->size,
+                     attribute_value.c_str(),
+                     attr->mask,
+                     get_attribute_flags_string(flags).c_str());
+          }
+        }
+      #endif
+    }
+  #endif
+}
+
+/*
+//-- 4. Проверка через Matter API
+#include <app/AttributeAccessInterface.h>
+#include <app/ConcreteAttributePath.h>
+bool matter_attribute_exists(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id)
+{
+    chip::app::ConcreteAttributePath path(endpoint_id, cluster_id, attribute_id);
+    chip::app::AttributeAccessInterface *access = chip::app::AttributeAccessInterface::GetAttributeAccessInterface(path);
+    return access != nullptr;
+}
+*/
+
+//-- 5. Комплексная проверка с валидацией типа
+bool validate_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_val_type_t expected_type)
+{
+    // 1. Проверка существования
+    attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
+  	if(!attribute) {
+  		return false;
+		}
+
+    // 2. Проверка типа
+    esp_matter_attr_val_t val = esp_matter_nullable_uint32(0);
+    ESP_LOGI("VALIDATE", "validate_attribute()");
+    if(attribute::get_val(attribute, &val) == ESP_OK) {
+    	if(val.type != expected_type) {
+        ESP_LOGE("VALIDATE", "Type mismatch: expected %d, got %d", expected_type, val.type);
+        return false;
+    	}
+    }
+
+    // 3. Дополнительные проверки для конкретных типов
+    if (expected_type == ESP_MATTER_VAL_TYPE_UINT32 && val.val.u32 > UINT32_MAX) {
+        return false;
+    }
+
+    return true;
 }

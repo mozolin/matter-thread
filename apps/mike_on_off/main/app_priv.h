@@ -35,10 +35,10 @@
 	#define CUSTOM_ENDPOINT_ID            1
 	
 	//-- what part of tree to show
-	#define SHOW_CUSTOM_ENDPOINT_ID_ONLY  false
+	#define SHOW_CUSTOM_ENDPOINT_ID_ONLY  true
 	#define SHOW_DEVICE_LOG_CLUSTERS      true
-	#define SHOW_DEVICE_LOG_ATTRIBUTES    false
-	#define SHOW_DEVICE_LOG_COMMANDS      false
+	#define SHOW_DEVICE_LOG_ATTRIBUTES    true
+	#define SHOW_DEVICE_LOG_COMMANDS      true
 
 #endif
 

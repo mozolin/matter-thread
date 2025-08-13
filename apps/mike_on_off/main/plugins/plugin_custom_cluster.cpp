@@ -83,7 +83,7 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
   	ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
   }
 
-  add_custom_cluster_safely(endpoint_id);
+  //add_custom_cluster_safely(endpoint_id);
 
   return true;
 }
@@ -177,12 +177,14 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
   return true;
 }
 
+/*
 //-- Set a callback function if there is no other
 static esp_err_t attr_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
 {
   ESP_LOGE(TAG_MIKE_APP, "~~~ attr_update_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
   return ESP_OK;
 }
+*/
 
 //-- Update custom attribute
 bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t val)
