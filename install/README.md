@@ -17,6 +17,7 @@
   - 14. Remote shutdown Ubuntu (Windows, Linux)
   - 15. Remote shutdown Ubuntu (Home Assistant)
   - 16. Set port access
+  - 17. Ubuntu: what we need to install
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   

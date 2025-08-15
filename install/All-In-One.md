@@ -294,3 +294,6 @@ Or we should set permissions for all users when the device is detected.
 ~~~
 sudo chmod a+rw /dev/ttyACM0
 ~~~
+
+# 17. Ubuntu: what we need to install
+- [Can be found here](ubuntu_what_we_need_to_install.md)  
