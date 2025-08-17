@@ -7,7 +7,7 @@
  *                                              *
  ************************************************/
 
-#define TAG_MIKE_APP              "Mike's App"
+#define TAG_MIKE_APP               "Mike's App"
 #define TAG_EMPTY                  ""
 #define CONFIG_NUM_VIRTUAL_PLUGS   8
 #define RELAY_INVERSE_LEVEL        true
