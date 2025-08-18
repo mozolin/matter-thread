@@ -388,14 +388,14 @@
       #if USE_INTERNAL_TEMPERATURE
         temp = (float)read_internal_temperature();
 
-		idx++;
-		if(idx % 2 == 0) {
-			temp = 12.0f;
-		} else {
-			temp = 34.0f;
-		}
+				idx++;
+				if(idx % 2 == 0) {
+					temp = 12.0f;
+				} else {
+					temp = 34.0f;
+				}
         update_temperature_value(1, (int16_t)temp);
-		/*
+				/*
         esp_matter_attr_val_t temp_val = {
           .type = ESP_MATTER_VAL_TYPE_INT16,
           .val = {
