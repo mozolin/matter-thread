@@ -18,6 +18,7 @@
 #define USE_TIME_DRIVER            false
 #define USE_OPENTHREAD_DRIVER      false
 #define ADD_CUSTOM_CLUSTERS        true
+#define SHOW_DEVICE_LOG            true
 
 
 #if ADD_CUSTOM_CLUSTERS
@@ -33,13 +34,14 @@
 	#define CLUSTER_ID_UPTIME             0xFC01
 	//-- Custom endpoint for chip temperature & uptime
 	#define CUSTOM_ENDPOINT_ID            1
-	
+#endif
+
+#if SHOW_DEVICE_LOG
 	//-- what part of tree to show
-	#define SHOW_CUSTOM_ENDPOINT_ID_ONLY  true
+	#define SHOW_DEVICE_LOG_ONE_CLUSTER   1
 	#define SHOW_DEVICE_LOG_CLUSTERS      true
 	#define SHOW_DEVICE_LOG_ATTRIBUTES    true
 	#define SHOW_DEVICE_LOG_COMMANDS      true
-
 #endif
 
 
@@ -118,6 +120,9 @@ extern esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug);
 
 //-- Return GPIO pin from plug-endpoint mapping list
 extern gpio_num_t get_gpio(uint16_t endpoint_id);
+
+extern void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value);
+extern void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds);
 
 extern esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 

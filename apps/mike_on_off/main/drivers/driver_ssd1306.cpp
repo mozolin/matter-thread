@@ -380,19 +380,30 @@
     #endif
     //char* uptime_buf;
     char* short_uptime_buf;
+
+    int idx = 0;
     
     while(1) {
 
       #if USE_INTERNAL_TEMPERATURE
         temp = (float)read_internal_temperature();
 
+		idx++;
+		if(idx % 2 == 0) {
+			temp = 12.0f;
+		} else {
+			temp = 34.0f;
+		}
+        update_temperature_value(1, (int16_t)temp);
+		/*
         esp_matter_attr_val_t temp_val = {
           .type = ESP_MATTER_VAL_TYPE_INT16,
           .val = {
-            .i16 = (int16_t)(temp * 100) // 0.01°C
+            .i16 = temp_val_int // 0.01°C
           }
         };
         update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, temp_val);
+        */
 
         ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
       #endif

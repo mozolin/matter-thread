@@ -242,23 +242,19 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
     	continue;
     }
     
-    #if SHOW_CUSTOM_ENDPOINT_ID_ONLY
+    #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
     	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
-    	if(endpoint_id != CUSTOM_ENDPOINT_ID) {
+    	if(endpoint_id != SHOW_DEVICE_LOG_ONE_CLUSTER) {
     		continue;
     	}
     #endif
 
     std::string indent(level * 2, ' ');
-    ESP_LOGE(TAG_EMPTY, "# %sEndpoint 0x%04" PRIX16, indent.c_str(), endpoint_id);
 
     //-- 3. Получение списка всех атрибутов endpoint
-		ESP_LOGI(TAG_EMPTY, "");
-		ESP_LOGI(TAG_EMPTY, "====================================");
-		print_all_attributes(endpoint_id);
-		ESP_LOGI(TAG_EMPTY, "====================================");
-		ESP_LOGI(TAG_EMPTY, "");
+	print_all_attributes(endpoint_id);
 
+	/*
     #if SHOW_DEVICE_LOG_CLUSTERS
       cluster_t *cluster = cluster::get_first(endpoint);
       while(cluster) {
@@ -280,28 +276,46 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
 						if(!is_attribute_present(endpoint_id, cluster_id, attribute_id)) {
 							ESP_LOGE("APP", "Attribute not found in data model");
 						}
-						/*
 						//-- 2. Проверка через ZAP-generated код
-						if(!check_attribute_existence(cluster_id, attribute_id)) {
-							ESP_LOGE("APP", "Attribute not found in ZAP-generated code");
-						}
-						*/
-						/*
+						//if(!check_attribute_existence(cluster_id, attribute_id)) {
+						//	ESP_LOGE("APP", "Attribute not found in ZAP-generated code");
+if (!cluster) {
+        ESP_LOGE("Uptime", "Failed to create custom uptime cluster");
+        return nullptr;
+    }
+
+    // Добавляем атрибут времени работы (в секундах)
+    esp_matter::attribute::create(
+        cluster,
+        0x0000, // Attribute ID для uptime
+        esp_matter_uint32(0), // Начальное значениеif (!cluster) {
+                ESP_LOGE("Uptime", "Failed to create custom uptime cluster");
+                return nullptr;
+            }
+        
+            // Добавляем атрибут времени работы (в секундах)
+            esp_matter::attribute::create(
+                cluster,
+                0x0000, // Attribute ID для uptime
+                esp_matter_uint32(0), // Начальное значение
+                esp_matter::attribute::flags::ATTRIBUTE_FLAG_NONVOLATILE // Сохраняется между перезагрузками
+            );
+            
+            return cluster;
+        esp_matter::attribute::flags::ATTRIBUTE_FLAG_NONVOLATILE // Сохраняется между перезагрузками
+    );
+    
+    return cluster;						//}
 						//-- 3. Получение списка всех атрибутов endpoint
-						print_all_attributes(endpoint_id);
-						*/
-						/*
+						//print_all_attributes(endpoint_id);
 						//-- 4. Проверка через Matter API
-						if(!matter_attribute_exists(endpoint_id, cluster_id, attribute_id)) {
-							ESP_LOGE("APP", "Attribute not found in Matter");
-						}
-						*/
-						/*
+						//if(!matter_attribute_exists(endpoint_id, cluster_id, attribute_id)) {
+						//	ESP_LOGE("APP", "Attribute not found in Matter");
+						//}
 						//-- 5. Комплексная проверка с валидацией типа
-						if(!validate_attribute(endpoint_id, cluster_id, attribute_id, ESP_MATTER_VAL_TYPE_UINT32)) {
-							ESP_LOGE("APP", "Attribute validation failed");
-						}
-						*/
+						//if(!validate_attribute(endpoint_id, cluster_id, attribute_id, ESP_MATTER_VAL_TYPE_UINT32)) {
+						//	ESP_LOGE("APP", "Attribute validation failed");
+						//}
 
             //ESP_LOGI(TAG_EMPTY, "# %s    Attribute ID: 0x%08" PRIX32, indent.c_str(), attribute_id);
             std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
@@ -335,9 +349,23 @@ void log_device_structure(node_t *node, uint16_t parent_endpoint_id, int level)
           }
         #endif
 
-        cluster = cluster::get_next(cluster);
+        cluster = cluster::get_next(cluster);if (!cluster) {
+                ESP_LOGE("Uptime", "Failed to create custom uptime cluster");
+                return nullptr;
+            }
+        
+            // Добавляем атрибут времени работы (в секундах)
+            esp_matter::attribute::create(
+                cluster,
+                0x0000, // Attribute ID для uptime
+                esp_matter_uint32(0), // Начальное значение
+                esp_matter::attribute::flags::ATTRIBUTE_FLAG_NONVOLATILE // Сохраняется между перезагрузками
+            );
+            
+            return cluster;
       }
     #endif
+    */
   }
 }
 
@@ -351,8 +379,8 @@ bool is_attribute_present(uint16_t endpoint_id, uint32_t cluster_id, uint32_t at
   attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
   if(!attribute) {
   	ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
-  	return false;
-	}
+	return false;
+  }
   return true;
 }
 
@@ -373,6 +401,9 @@ bool check_attribute_existence(uint32_t cluster_id, uint32_t attribute_id)
 #include <app/util/endpoint-config-api.h>
 void print_all_attributes(uint16_t endpoint_id)
 {
+  ESP_LOGW(TAG_EMPTY, "");
+  ESP_LOGW(TAG_EMPTY, "############################################################################################");
+  
   const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(endpoint_id);
   if(!endpoint_type) {
     ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
@@ -383,7 +414,7 @@ void print_all_attributes(uint16_t endpoint_id)
   std::string indent(level * 2, ' ');
   uint32_t attribute_id, cluster_id;
 
-  ESP_LOGE(TAG_EMPTY, "# %sEndpoint 0x%04" PRIX16, indent.c_str(), endpoint_id);
+  ESP_LOGE(TAG_EMPTY, "# %sENDPOINT 0x%04" PRIX16, indent.c_str(), endpoint_id);
 
   #if SHOW_DEVICE_LOG_CLUSTERS
     for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
@@ -429,8 +460,22 @@ void print_all_attributes(uint16_t endpoint_id)
           }
         }
       #endif
+
+      #if SHOW_DEVICE_LOG_COMMANDS
+		cluster_t *cmd_cluster = cluster::get(endpoint_id, cluster_id);
+        command_t *command = command::get_first(cmd_cluster);
+        while(command) {
+          uint32_t command_id = command::get_id(command);
+          uint16_t flags = command::get_flags(command);
+          ESP_LOGI(TAG_EMPTY, "# %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
+          command = command::get_next(command);
+        }
+      #endif
     }
   #endif
+
+  ESP_LOGW(TAG_EMPTY, "############################################################################################");
+  ESP_LOGW(TAG_EMPTY, "");
 }
 
 /*

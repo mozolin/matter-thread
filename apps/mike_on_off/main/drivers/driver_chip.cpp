@@ -199,6 +199,11 @@ char* get_system_clock_uptime(char* str)
 
   //uint32_t esp_uptime = (uint32_t)(esp_timer_get_time() / 1000000);
   esp_uptime = esp_timer_get_time() / 1000;
+
+  //update_uptime_value(1, esp_uptime);
+
+  
+  /*
   esp_matter_attr_val_t uptime_val = {
     .type = ESP_MATTER_VAL_TYPE_UINT32,
     .val = {
@@ -207,6 +212,7 @@ char* get_system_clock_uptime(char* str)
   };
   //-- update uptime for Matter
   update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, uptime_val);
+  */
 
   //-- parse uptime value
   int total = (esp_uptime - (esp_uptime % 1000)) / 1000;

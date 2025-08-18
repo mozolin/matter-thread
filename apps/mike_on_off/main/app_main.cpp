@@ -216,6 +216,7 @@ esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t end
   ESP_LOGW(TAG_MIKE_APP, "~~~ read_custom_attribute_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
  
   if(type == attribute::READ) {
+	#if USE_INTERNAL_TEMPERATURE
     if(cluster_id == CLUSTER_ID_CHIP_TEMP && attribute_id == 0x0000) {
       //-- Reading chip temperature
       float temp = (float)read_internal_temperature();
@@ -235,38 +236,99 @@ esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t end
       val->type = ESP_MATTER_VAL_TYPE_UINT32;
       ESP_LOGW(TAG_MIKE_APP, "~~~ READ UPTIME: %lu", uptime);
     }
+    #endif
   }
   return ESP_OK;
 }
 
+static esp_matter::cluster_t *create_temperature_measurement_cluster(esp_matter::endpoint_t *endpoint)
+{
+    // Создаем кластер измерения температуры
+    esp_matter::cluster::temperature_measurement::config_t temp_config;
+    temp_config.measured_value = 0 * 100; // Начальное значение температуры (25°C, умноженное на 100)
+    temp_config.min_measured_value = -40 * 100; // Минимальная измеряемая температура (-40°C)
+    temp_config.max_measured_value = 80 * 100; // Максимальная измеряемая температура (80°C)
+    
+    return esp_matter::cluster::temperature_measurement::create(endpoint, &temp_config, esp_matter::cluster_flags::CLUSTER_FLAG_SERVER);
+}
+
+void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value)
+{
+	uint32_t
+		cluster_id = chip::app::Clusters::TemperatureMeasurement::Id,
+		attribute_id = chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Id;
+
+	ESP_LOGI("", "");
+	ESP_LOGI("", "###   TEMPERATURE   ###");
+	ESP_LOGI("", "");
+    esp_matter_attr_val_t val = esp_matter_int16(temperature_value * 100); // Значение в 0.01°C
+    
+    esp_matter::attribute::update(endpoint_id, cluster_id, attribute_id, &val);
+	ESP_LOGW(TAG_MIKE_APP, "~~~ Update Temperature: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%d", endpoint_id, cluster_id, attribute_id, temperature_value);
+}
+
+#define CUSTOM_UPTIME_CLUSTER_ID 0xFFFE
+#define CUSTOM_UPTIME_ATTRIBUTE_ID 0x0000
+static esp_matter::cluster_t *create_uptime_cluster(esp_matter::endpoint_t *endpoint)
+{
+    esp_matter::cluster_t *cluster = esp_matter::cluster::create(endpoint, CUSTOM_UPTIME_CLUSTER_ID, esp_matter::cluster_flags::CLUSTER_FLAG_SERVER);
+    if (!cluster) {
+            ESP_LOGE("Uptime", "Failed to create custom uptime cluster");
+            return nullptr;
+        }
+    
+        // Добавляем атрибут времени работы (в секундах)
+        esp_matter::attribute::create(
+            cluster,
+            CUSTOM_UPTIME_ATTRIBUTE_ID,
+            MATTER_ATTRIBUTE_FLAG_NONVOLATILE, // Сохраняется между перезагрузками
+            esp_matter_uint32(0) // Начальное значение
+        );
+        
+        return cluster;
+}
+
+// Функция для обновления времени работы
+void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds)
+{
+    esp_matter_attr_val_t val = esp_matter_uint32(uptime_seconds);
+    
+	ESP_LOGI("", "");
+	ESP_LOGI("", "###   UPTIME   ###");
+	ESP_LOGI("", "");
+    esp_matter::attribute::update(endpoint_id, CUSTOM_UPTIME_CLUSTER_ID, CUSTOM_UPTIME_ATTRIBUTE_ID, &val);
+    ESP_LOGW(TAG_MIKE_APP, "~~~ Update Uptime: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%lu", endpoint_id, (uint32_t)CUSTOM_UPTIME_CLUSTER_ID, (uint32_t)CUSTOM_UPTIME_ATTRIBUTE_ID, uptime_seconds);
+}
 
 //-- This callback is called for every attribute update. The callback implementation shall
 //-- handle the desired attributes and return an appropriate error code. If the attribute
 //-- is not of your interest, please do not return an error code and strictly return ESP_OK.
 static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
 {
-  ESP_LOGE(TAG_MIKE_APP, "~~~ app_attribute_update_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+  ESP_LOGE(TAG_MIKE_APP, "~~~ app_attribute_update_cb():type=%d,ep=0x%04" PRIX16 ",cluster=0x%08" PRIX32 ",attr=0x%08" PRIX32, (int)type, endpoint_id, cluster_id, attribute_id);
   
   esp_err_t err = ESP_OK;
 
   switch(type) {
     case PRE_UPDATE: {
+    	ESP_LOGW(TAG_MIKE_APP, "~~~ app_attribute_update_cb()::PRE_UPDATE");
         //-- Driver update
         bool state = val->val.b;
         app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
         err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
         if(err == ESP_OK) {
-          ESP_LOGW(TAG_MIKE_APP, "~~~ Updated: endpoint:%d|cluster:%d|attribute:%d|state:%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+          ESP_LOGW(TAG_MIKE_APP, "~~~ Updated: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|state:%d", endpoint_id, cluster_id, attribute_id, (int)state);
           //-- Blink...
           get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
         } else {
-          ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to update attribute :%d|%d|%d|%d", (int)endpoint_id, (int)cluster_id, (int)attribute_id, (int)state);
+          ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to update attribute: 0x%04" PRIX16 "|0x%08" PRIX32 "|0x%08" PRIX32 "|%d", endpoint_id, cluster_id, attribute_id, (int)state);
           get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
         }
       }
       break;
   
     case POST_UPDATE:
+      ESP_LOGW(TAG_MIKE_APP, "~~~ app_attribute_update_cb()::POST_UPDATE");
       break;
   
     case READ:
@@ -332,6 +394,12 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   if(err != ESP_OK) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to initialize plug");
     get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+  }
+
+  //-- Add temperature cluster to endpoint 1
+  if(configure_plugs == 0) {
+    create_temperature_measurement_cluster(endpoint);
+    //create_uptime_cluster(endpoint);
   }
 
   //-- Check for maximum plugs that can be configured.
@@ -442,12 +510,8 @@ extern "C" void app_main()
 
   if(node) {
   	//-- Device structure log
-  	ESP_LOGW(TAG_EMPTY, "");
-	  ESP_LOGW(TAG_EMPTY, "##############################################");
-	  log_device_structure(node);
-	  ESP_LOGW(TAG_EMPTY, "##############################################");
-	  ESP_LOGW(TAG_EMPTY, "");
-	}
+    log_device_structure(node);
+  }
 
 
   #if LIVE_BLINK_TIME_MS > 0
