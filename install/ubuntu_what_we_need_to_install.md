@@ -58,6 +58,9 @@ https://github.com/anbox/anbox
 
 
 ### Avahi + mDNS
+How to use the Avahi mDNS/DNS-SD daemon:  
+https://sleeplessbeastie.eu/2023/07/05/how-to-use-the-avahi-daemon/  
+  
 In case of error like "Not loading module atk-bridge":
 ~~~
 apt purge --simulate libatk-adaptor (without sudo)
@@ -66,3 +69,12 @@ sudo reboot
 sudo apt install libatk-adaptor
 sudo reboot
 ~~~
+
+### Check some...
+How to Scan for IP Addresses on Your Network:
+~~~
+arp -a
+~~~
+> ? (10.41.235.157) at 7c:df:a1:f3:56:58 [ether] on wlp1s0
+> ? (10.41.235.87) at 1e:2b:1e:e3:39:ba [ether] on wlp1s0
+> ? (172.30.32.2) at 9e:81:96:26:69:4a [ether] on hassio
