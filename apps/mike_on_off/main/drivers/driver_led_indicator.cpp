@@ -10,8 +10,7 @@
  *********************/
 //-- Just turn on the yellow color
 const blink_step_t yellow_on[] = {
-  //-- Set color to yellow by R:255 G:255 B:0
-  //{LED_BLINK_RGB, SET_RGB(255, 255, 0), 0},
+  //-- Set color to yellow
   {LED_BLINK_RGB, SET_RGB(128, 128, 0), 0},
   {LED_BLINK_HOLD, LED_STATE_ON, 15000},
   {LED_BLINK_STOP, 0, 0},
@@ -19,7 +18,7 @@ const blink_step_t yellow_on[] = {
 
 //-- Just turn on the orange color
 const blink_step_t orange_on[] = {
-  //-- Set color to orange by R:255 G:128 B:0
+  //-- Set color to orange
   {LED_BLINK_RGB, SET_RGB(128, 64, 0), 0},
   {LED_BLINK_HOLD, LED_STATE_ON, 15000},
   {LED_BLINK_STOP, 0, 0},
@@ -28,7 +27,7 @@ const blink_step_t orange_on[] = {
 
 //-- Blinking twice times in red
 const blink_step_t double_red_blink[] = {
-  //-- Set color to red by R:255 G:0 B:0
+  //-- Set color to red
   {LED_BLINK_RGB, SET_RGB(128, 0, 0), 0},
   {LED_BLINK_HOLD, LED_STATE_ON, 500},
   {LED_BLINK_HOLD, LED_STATE_OFF, 500},
@@ -39,7 +38,7 @@ const blink_step_t double_red_blink[] = {
 
 //-- Blinking three times in green
 const blink_step_t triple_green_blink[] = {
-  //-- Set color to green by R:0 G:255 B:0
+  //-- Set color to green
   {LED_BLINK_RGB, SET_RGB(0, 128, 0), 0},
   {LED_BLINK_HOLD, LED_STATE_ON, 500},
   {LED_BLINK_HOLD, LED_STATE_OFF, 500},
@@ -52,30 +51,32 @@ const blink_step_t triple_green_blink[] = {
 
 //-- Blinking once in red
 const blink_step_t red_once_blink[] = {
-  //-- Set color to red by R:128 G:0 B:0
+  //-- Set color to red
   {LED_BLINK_RGB, SET_RGB(32, 0, 0), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 50},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 50},
+  {LED_BLINK_HOLD, LED_STATE_ON, 40},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 40},
   //{LED_BLINK_LOOP, 0, 0},
 };
 
 
 //-- Blinking once in green
 const blink_step_t green_once_blink[] = {
-  //-- Set color to green by R:0 G:128 B:0
-  {LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 50},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 50},
+  //-- Set color to green
+  //{LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+  //-- Set color to purple
+  {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
+  {LED_BLINK_HOLD, LED_STATE_ON, 40},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 40},
   //{LED_BLINK_LOOP, 0, 0},
 };
 
 
 //-- Blinking once in blue
 const blink_step_t blue_once_blink[] = {
-  //-- Set color to blue by R:0 G:0 B:128
+  //-- Set color to blue
   {LED_BLINK_RGB, SET_RGB(0, 0, 32), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 50},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 50},
+  {LED_BLINK_HOLD, LED_STATE_ON, 40},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 40},
   //{LED_BLINK_LOOP, 0, 0},
 };
 
@@ -83,8 +84,8 @@ const blink_step_t blue_once_blink[] = {
 //-- Blinking once
 const blink_step_t live_once_blink[] = {
   {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
-  {LED_BLINK_HOLD, LED_STATE_ON, 50},
-  {LED_BLINK_HOLD, LED_STATE_OFF, 50},
+  {LED_BLINK_HOLD, LED_STATE_ON, 40},
+  {LED_BLINK_HOLD, LED_STATE_OFF, 40},
   //{LED_BLINK_LOOP, 0, 0},
 };
 
@@ -196,7 +197,7 @@ void init_indicator_task(void *pvParameter)
     //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
     uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
     if(blinked_duration >= LIVE_BLINK_TIME_MS) {
-      get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 60, 0);
       live_blink_time = esp_log_timestamp();
     }
 

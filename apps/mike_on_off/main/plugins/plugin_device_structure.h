@@ -12,7 +12,7 @@ extern std::string get_attribute_type_name(esp_matter_val_type_t type);
 
 extern std::string get_attribute_value(esp_matter_attr_val_t val);
 
-extern void log_device_structure(node_t *node, uint16_t parent_endpoint_id=0, int level=0);
+extern void log_device_structure(node_t *node);
 
 
 //-- ПРОВЕРКА СУЩЕСТВОВАНИЯ АТРИБУТА

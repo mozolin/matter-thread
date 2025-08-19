@@ -119,47 +119,47 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   switch(event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Interface IP Address changed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning complete");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
       ESP_LOGE(TAG_MIKE_APP, "~~~ Commissioning failed, fail safe timer expired");
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session started");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning session stopped");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window opened");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Commissioning window closed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kBindingsChangedViaCluster:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Binding entry changed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
       ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric removed successfully");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
         chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
         constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -169,7 +169,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
           CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
           if(err != CHIP_NO_ERROR) {
             ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
-            get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+            get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
           }
         }
       }
@@ -178,22 +178,22 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric will be removed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is updated");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
       ESP_LOGW(TAG_MIKE_APP, "~~~ Fabric is committed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
       ESP_LOGW(TAG_MIKE_APP, "~~~ BLE deinitialized and memory reclaimed");
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       break;
     
     default:
@@ -206,40 +206,42 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
   ESP_LOGW(TAG_MIKE_APP, "~~~ Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
-  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
   return ESP_OK;
 }
 
-//-- Callback for reading custom attributes
-esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
-{
-  ESP_LOGW(TAG_MIKE_APP, "~~~ read_custom_attribute_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
- 
-  if(type == attribute::READ) {
-	#if USE_INTERNAL_TEMPERATURE
-    if(cluster_id == CLUSTER_ID_CHIP_TEMP && attribute_id == 0x0000) {
-      //-- Reading chip temperature
-      float temp = (float)read_internal_temperature();
-      if(temp > 0) {
-      	//-- Temperature at 0.01°C
-      	val->val.i16 = (int16_t)(temp * 100);
-        val->type = ESP_MATTER_VAL_TYPE_INT16;
-        ESP_LOGW(TAG_MIKE_APP, "~~~ READ TEMPERATURE: %.0f°C", temp);
-      } else {
-        ESP_LOGE(TAG_MIKE_APP, "TEMPERATURE FAILED!");
-        return ESP_FAIL;
+#if ADD_CUSTOM_CLUSTERS
+	//-- Callback for reading custom attributes
+	esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
+	{
+    ESP_LOGW(TAG_MIKE_APP, "~~~ read_custom_attribute_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+    
+    if(type == attribute::READ) {
+		#if USE_INTERNAL_TEMPERATURE
+      if(cluster_id == CLUSTER_ID_CHIP_TEMP && attribute_id == 0x0000) {
+        //-- Reading chip temperature
+        float temp = (float)read_internal_temperature();
+        if(temp > 0) {
+        	//-- Temperature at 0.01°C
+        	val->val.i16 = (int16_t)(temp * 100);
+          val->type = ESP_MATTER_VAL_TYPE_INT16;
+          ESP_LOGW(TAG_MIKE_APP, "~~~ READ TEMPERATURE: %.0f°C", temp);
+        } else {
+          ESP_LOGE(TAG_MIKE_APP, "TEMPERATURE FAILED!");
+          return ESP_FAIL;
+        }
+      } else if (cluster_id == CLUSTER_ID_UPTIME && attribute_id == 0x0000) {
+        //-- Reading uptime in seconds
+        uint32_t uptime = (uint32_t)(esp_timer_get_time() / 1000000);
+        val->val.u32 = uptime;
+        val->type = ESP_MATTER_VAL_TYPE_UINT32;
+        ESP_LOGW(TAG_MIKE_APP, "~~~ READ UPTIME: %lu", uptime);
       }
-    } else if (cluster_id == CLUSTER_ID_UPTIME && attribute_id == 0x0000) {
-      //-- Reading uptime in seconds
-      uint32_t uptime = (uint32_t)(esp_timer_get_time() / 1000000);
-      val->val.u32 = uptime;
-      val->type = ESP_MATTER_VAL_TYPE_UINT32;
-      ESP_LOGW(TAG_MIKE_APP, "~~~ READ UPTIME: %lu", uptime);
+      #endif
     }
-    #endif
-  }
-  return ESP_OK;
-}
+    return ESP_OK;
+	}
+#endif
 
 static esp_matter::cluster_t *create_temperature_measurement_cluster(esp_matter::endpoint_t *endpoint)
 {
@@ -267,6 +269,7 @@ void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value)
 	ESP_LOGW(TAG_MIKE_APP, "~~~ Update Temperature: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%d", endpoint_id, cluster_id, attribute_id, temperature_value);
 }
 
+/*
 #define CUSTOM_UPTIME_CLUSTER_ID 0xFFFE
 #define CUSTOM_UPTIME_ATTRIBUTE_ID 0x0000
 static esp_matter::cluster_t *create_uptime_cluster(esp_matter::endpoint_t *endpoint)
@@ -299,6 +302,7 @@ void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds)
     esp_matter::attribute::update(endpoint_id, CUSTOM_UPTIME_CLUSTER_ID, CUSTOM_UPTIME_ATTRIBUTE_ID, &val);
     ESP_LOGW(TAG_MIKE_APP, "~~~ Update Uptime: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%lu", endpoint_id, (uint32_t)CUSTOM_UPTIME_CLUSTER_ID, (uint32_t)CUSTOM_UPTIME_ATTRIBUTE_ID, uptime_seconds);
 }
+*/
 
 //-- This callback is called for every attribute update. The callback implementation shall
 //-- handle the desired attributes and return an appropriate error code. If the attribute
@@ -319,10 +323,10 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
         if(err == ESP_OK) {
           ESP_LOGW(TAG_MIKE_APP, "~~~ Updated: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|state:%d", endpoint_id, cluster_id, attribute_id, (int)state);
           //-- Blink...
-          get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 75, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
         } else {
           ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to update attribute: 0x%04" PRIX16 "|0x%08" PRIX32 "|0x%08" PRIX32 "|%d", endpoint_id, cluster_id, attribute_id, (int)state);
-          get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
         }
       }
       break;
@@ -333,8 +337,10 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   
     case READ:
       ESP_LOGW(TAG_MIKE_APP, "~~~ app_attribute_update_cb()::READ");
-      //-- Callback for reading custom attributes
-      read_custom_attribute_cb(type, endpoint_id, cluster_id, attribute_id, val, priv_data);
+      #if ADD_CUSTOM_CLUSTERS
+	      //-- Callback for reading custom attributes
+  	    read_custom_attribute_cb(type, endpoint_id, cluster_id, attribute_id, val, priv_data);
+      #endif
       break;
   
     case WRITE:
@@ -345,6 +351,63 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   return err;
 }
 
+static esp_matter::cluster_t *create_time_sync_cluster(esp_matter::endpoint_t *endpoint)
+{
+    // Конфигурация кластера времени
+    esp_matter::cluster::time_synchronization::config_t time_config;
+    /*
+    time_config.utc_time = 0;            // Начальное значение UTC времени (эпоха Unix)
+    time_config.time_zone = {            // Часовой пояс
+        .offset = 0,                     // Смещение от UTC в секундах
+        .valid_at = 0                    // Время, когда этот часовой пояс стал актуальным
+    };
+    time_config.dst_offset = {           // Летнее время
+        .offset = 0,                     // Смещение для летнего времени
+        .valid_starting_at = 0,          // Начало действия
+        .valid_until = 0                 // Конец действия
+    };
+    time_config.local_time = 0;          // Локальное время
+    */
+    
+    return esp_matter::cluster::time_synchronization::create(
+        endpoint, 
+        &time_config, 
+        esp_matter::cluster_flags::CLUSTER_FLAG_SERVER
+    );
+}
+
+void update_time_values(uint32_t endpoint_id)
+{
+    // Получаем текущее время
+    time_t now;
+    time(&now);
+    struct tm timeinfo;
+    localtime_r(&now, &timeinfo);
+
+    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TIME #1: %d (%s)", (int)now, asctime(&timeinfo));
+
+    // Обновляем UTC время
+    esp_matter_attr_val_t utc_val = esp_matter_uint64(now);
+    esp_matter::attribute::update(
+        endpoint_id,
+        chip::app::Clusters::TimeSynchronization::Id,
+        chip::app::Clusters::TimeSynchronization::Attributes::UTCTime::Id,
+        &utc_val
+    );
+
+    // Обновляем локальное время (пример для UTC+3)
+    esp_matter_attr_val_t local_val = esp_matter_uint64(now + 3 * 3600);
+    esp_matter::attribute::update(
+        endpoint_id,
+        chip::app::Clusters::TimeSynchronization::Id,
+        chip::app::Clusters::TimeSynchronization::Attributes::LocalTime::Id,
+        &local_val
+    );
+
+    //val->val.i16
+    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TIME #2: utc-%d, local-%d", (int)utc_val.val.u64, (int)local_val.val.u64);
+}
+
 //-- Creates plug-endpoint mapping for each GPIO pin configured.
 static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 {
@@ -352,20 +415,20 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!node) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Matter node cannot be NULL");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     return ESP_ERR_INVALID_ARG;
   }
 
   if(!plug) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Plug cannot be NULL");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     return ESP_ERR_INVALID_ARG;
   }
 
   //-- Check if plug's IO pin is already used by reset button
   if((reset_gpio != gpio_num_t::GPIO_NUM_NC) && (reset_gpio == plug->GPIO_PIN_VALUE)) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Reset button already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -373,7 +436,7 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   for(int i = 0; i < configure_plugs; i++) {
     if(plugin_unit_list[i].plug == plug->GPIO_PIN_VALUE) {
       ESP_LOGE(TAG_MIKE_APP, "~~~ Plug already configured for gpio pin : %d", plug->GPIO_PIN_VALUE);
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       return ESP_ERR_INVALID_STATE;
     }
   }
@@ -384,7 +447,7 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(!endpoint) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Matter endpoint creation failed");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     return ESP_FAIL;
   }
 
@@ -393,13 +456,14 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
 
   if(err != ESP_OK) {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to initialize plug");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
   }
 
   //-- Add temperature cluster to endpoint 1
   if(configure_plugs == 0) {
     create_temperature_measurement_cluster(endpoint);
     //create_uptime_cluster(endpoint);
+    create_time_sync_cluster(endpoint);
   }
 
   //-- Check for maximum plugs that can be configured.
@@ -409,17 +473,106 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
     configure_plugs++;
   } else {
     ESP_LOGE(TAG_MIKE_APP, "~~~ Maximum plugs configuration limit exceeded!");
-    get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     return ESP_FAIL;
   }
 
   uint16_t plug_endpoint_id = endpoint::get_id(endpoint);
   ESP_LOGW(TAG_MIKE_APP, "~~~ Plug created with endpoint_id %d", plug_endpoint_id);
-  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 75, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
   return err;
 }
 
+void update_matter_values()
+{
+	float temp = 0;
+	
+	float volt = 0;
+	char* short_uptime_buf = "";
+	struct tm timeinfo;
+	int16_t temp_val_int = 0;
 
+	//-- empty value of buffer
+  //snprintf(bufUP, sizeof(bufUP), "%s", "");
+  //strncpy(short_uptime_buf, bufUP, OT_UPTIME_STRING_SIZE);
+
+  //-- !!! This block is used to update the value of matter clusters !!!
+	while(1) {
+    #if USE_INTERNAL_TEMPERATURE
+      temp = (float)read_internal_temperature();
+      temp_val_int = (int16_t)temp;
+			/*
+			idx++;
+			if(idx % 2 == 0) {
+				temp = 12.0f;
+			} else {
+				temp = 34.0f;
+			}
+			*/
+      update_temperature_value(1, temp_val_int);
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
+    #endif
+    
+    #if ADD_CUSTOM_CLUSTERS
+      esp_matter_attr_val_t temp_val = {
+        .type = ESP_MATTER_VAL_TYPE_INT16,
+        .val = {
+          .i16 = temp_val_int // 0.01°C
+        }
+      };
+      update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, temp_val);
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Cluster Temperature: %d°C", temp_val_int);
+    #endif
+    
+    #if USE_INTERNAL_UPTIME
+      update_time_values(1);
+      
+      char bufUP[OT_UPTIME_STRING_SIZE];
+      //-- long uptime
+      //uptime_buf = ot_get_thread_uptime(bufUP);
+      //-- short uptime
+      short_uptime_buf = ot_get_thread_short_uptime(bufUP);
+      
+      short_uptime_buf = get_system_clock_uptime(bufUP);
+    #endif
+    
+    #if USE_TIME_DRIVER
+      time_t now;
+      time(&now);
+    
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Time Now - 2: %d", (int)now);
+    
+      if(ot_get_current_thread_time(&timeinfo)) {
+        ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Time is synchronized!");
+      } else if(chip_get_current_matter_time(&timeinfo)) {
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Matter Time is synchronized!");
+    	} else if(now < 3600*24*365) {
+        timeinfo.tm_hour = 12;
+        timeinfo.tm_min = 0;
+        timeinfo.tm_sec = 0;
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using RTC fallback");
+      } else {
+        // Fallback на системное время
+        now = time(nullptr);
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using default value");
+      }
+      
+      localtime_r(&now, &timeinfo);
+      ESP_LOGW(TAG_MIKE_APP, "~~~ Current time: %s", asctime(&timeinfo));
+    #endif
+    
+    #if USE_INTERNAL_VOLTAGE
+      volt = (float)read_internal_voltage();
+    #endif
+    
+    #if USE_SSD1306_DRIVER
+    	//-- show all updated values of matter clusters
+    	ssd1306_show_matter_updates(temp, volt, short_uptime_buf, timeinfo);
+    #endif
+
+    vTaskDelay(pdMS_TO_TICKS(UPDATE_ATTRIBUTES_TIME_MS));
+  }
+}
 
 extern "C" void app_main()
 {
@@ -436,15 +589,11 @@ extern "C" void app_main()
     err = ssd1306_init();
     if(err != ESP_OK) {
       ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     } else {
       ssd1306_initialized = true;
     }
     ssd1306_show_title();
-    #if !CONFIG_IDF_TARGET_ESP32H2
-      //-- can be used as a task if the target board is not ESP32-H2 (which does not have an FPU)
-      xTaskCreate(ssd1306_refresh_display_task, "ssd1306_refresh_display_task", 2048, NULL, 7, NULL);
-    #endif
   #endif
 
   //-- Initialize the ESP NVS (Non-Volatile Storage) layer
@@ -527,7 +676,7 @@ extern "C" void app_main()
      show_time();
   #endif
 
-  #if USE_OPENTHREAD_DRIVER
+  #if USE_INTERNAL_UPTIME
      //-- Initialization of Thread
      ot_init_thread_time_sync();
   #endif
@@ -539,10 +688,6 @@ extern "C" void app_main()
     }
   #endif
 
-  #if USE_SSD1306_DRIVER
-  	#if CONFIG_IDF_TARGET_ESP32H2
-			//-- cannot be used outside the main application unless the target board is an ESP32-H2 (which does not have an FPU)
-			ssd1306_refresh_display_task();
-  	#endif
-  #endif
+  update_matter_values();
+
 }

@@ -84,9 +84,9 @@
     }
     
     if(err != ERR_OK) {
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 75, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       return err;
     }
     
@@ -323,177 +323,6 @@
     ssd1306_display_image(&ssd1306dev, top+1, left+8, image, 8);
   }
 
-
-  /*
-  int idx = 0;
-  void ssd1306_refresh_display_task(void *pvParameter)
-  {
-    //-- if not initialized
-    if(!ssd1306_initialized) {
-      return;
-    }
-
-    int i = 0;
-    uint8_t x_pos = 0;
-    char buf[32], buf2[32];
-
-    int t, v;
-    
-    while(1) {
-      i++;
-
-      t = (int)internal_temp;
-      v = (int)internal_volt;
-
-      ESP_LOGW(TAG_MIKE_APP, "~~~ t:%d, v:%d", t, v);
-
-      
-      
-      //-- !!! IT WORKS !!!
-      idx++;
-      snprintf(buf, sizeof(buf), "NEXT %d", idx);
-      ssd1306_display_text(&ssd1306dev, 2, buf, strlen(buf), false);
-    
-      vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-  }
-  */
-  
-  #if CONFIG_IDF_TARGET_ESP32H2
-  	//-- cannot be used outside the main application unless the target board is an ESP32-H2 (which does not have an FPU)
-  	void ssd1306_refresh_display_task()
-  #else
-  	//-- can be used as a task if the target board is not ESP32-H2 (which does not have an FPU)
-  	void ssd1306_refresh_display_task(void *pvParameter)
-  #endif
-  {
-    //-- if not initialized
-    if(!ssd1306_initialized) {
-      return;
-    }
-
-    uint8_t x_pos = 0;
-    char buf[32], buf2[32];
-    float temp = 0;
-    #if USE_INTERNAL_VOLTAGE
-    	float volt = 0;
-    #endif
-    //char* uptime_buf;
-    char* short_uptime_buf;
-
-    int idx = 0;
-    
-    while(1) {
-
-      #if USE_INTERNAL_TEMPERATURE
-        temp = (float)read_internal_temperature();
-
-				idx++;
-				if(idx % 2 == 0) {
-					temp = 12.0f;
-				} else {
-					temp = 34.0f;
-				}
-        update_temperature_value(1, (int16_t)temp);
-				/*
-        esp_matter_attr_val_t temp_val = {
-          .type = ESP_MATTER_VAL_TYPE_INT16,
-          .val = {
-            .i16 = temp_val_int // 0.01°C
-          }
-        };
-        update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, temp_val);
-        */
-
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
-      #endif
-
-      /*
-      #if USE_OPENTHREAD_DRIVER
-        char bufUP[OT_UPTIME_STRING_SIZE];
-        //-- long uptime
-        //uptime_buf = ot_get_thread_uptime(bufUP);
-        //-- short uptime
-        short_uptime_buf = ot_get_thread_short_uptime(bufUP);
-        //-- indent: 2 spaces before value
-        //snprintf(buf, sizeof(buf), "  %s", short_uptime_buf);
-        //ssd1306_display_text(&ssd1306dev, 0, buf, 16, false);
-      #endif
-      */
-
-      char bufUP[16];
-      short_uptime_buf = get_system_clock_uptime(bufUP);
-      
-      #if USE_TIME_DRIVER && USE_OPENTHREAD_DRIVER
-        time_t now;
-        time(&now);
-        struct tm timeinfo;
-
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Time Now - 2: %d", (int)now);
-
-        if(ot_get_current_thread_time(&timeinfo)) {
-          ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Time is synchronized!");
-        } else if(chip_get_current_matter_time(&timeinfo)) {
-          ESP_LOGW(TAG_MIKE_APP, "~~~ Matter Time is synchronized!");
-      	} else if(now < 3600*24*365) {
-          timeinfo.tm_hour = 12;
-          timeinfo.tm_min = 0;
-          timeinfo.tm_sec = 0;
-          ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using RTC fallback");
-        } else {
-          // Fallback на системное время
-          now = time(nullptr);
-          ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using default value");
-        }
-        
-        localtime_r(&now, &timeinfo);
-        //-- Displaying time on the display
-        ssd1306_show_datetime(timeinfo);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Current time: %s", asctime(&timeinfo));
-      #endif
-
-      #if USE_INTERNAL_VOLTAGE
-        volt = (float)read_internal_voltage();
-      #endif
-      
-      if(temp > 0) {
-        //-- temperature
-        snprintf(buf, sizeof(buf), " %.0f C", temp);
-        //-- save position for degree symbol (between the numeric part and the letter C), 8px per symbol
-        x_pos = (strlen(buf) - 2) * 8;
-      }
-      
-      #if USE_INTERNAL_VOLTAGE
-        if(volt > 0) {
-        	//-- voltage
-        	if(temp > 0) {
-          	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
-	          //-- temperature + voltage
-	          strcat(buf, buf2);
-        	} else {
-        		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
-        	}
-        }
-      #endif
-      
-      if(temp > 0) {
-      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-	      //-- temperature + uptime
-	      strcat(buf, buf2);
-      } else {
-      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-      }
-      ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
-
-      if(temp > 0) {
-      	//-- put degree symbol at saved position (y = 8 => line 1)
-        ssd1306_draw_degree_symbol(x_pos, 8);
-      }
-
-      vTaskDelay(pdMS_TO_TICKS(10000));
-    }
-  }
-
   #if USE_TIME_DRIVER
     bool ssd1306_show_datetime(const tm& timeinfo)
     {
@@ -525,4 +354,65 @@
     ssd1306_bitmaps(&ssd1306dev, x, y, (uint8_t*)degree_symbol, 8, 8, false);
   }
 
+	void ssd1306_show_matter_updates(float temp, float volt, char* short_uptime_buf, const tm& timeinfo)
+	{
+		//-- if not initialized
+    if(!ssd1306_initialized) {
+		  return;
+		}
+  
+    uint8_t x_pos = 0;
+    char buf[32];
+		
+		#if USE_INTERNAL_UPTIME
+			char buf2[32];
+		#endif
+		
+		
+  
+    if(temp > 0) {
+      //-- temperature
+      snprintf(buf, sizeof(buf), " %.0f C", temp);
+      //-- save position for degree symbol (between the numeric part and the letter C), 8px per symbol
+      x_pos = (strlen(buf) - 2) * 8;
+    }
+    
+    #if USE_INTERNAL_VOLTAGE
+      if(volt > 0) {
+      	//-- voltage
+      	if(temp > 0) {
+        	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
+		      //-- temperature + voltage
+		      strcat(buf, buf2);
+      	} else {
+      		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
+      	}
+      }
+    #endif
+    
+    #if USE_INTERNAL_UPTIME
+      if(temp > 0) {
+      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
+			  //-- temperature + uptime
+			  strcat(buf, buf2);
+      } else {
+      	snprintf(buf, sizeof(buf), " %s", short_uptime_buf);
+      }
+    #endif
+    
+
+    #if USE_TIME_DRIVER
+		  //-- Displaying time on the display (row = 0)
+			ssd1306_show_datetime(timeinfo);
+		#endif
+    
+    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
+    
+    if(temp > 0) {
+    	//-- put degree symbol at saved position (y = 8 => line 1)
+      ssd1306_draw_degree_symbol(x_pos, 8);
+    }
+	}
+
 #endif
+

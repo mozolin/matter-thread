@@ -1,7 +1,7 @@
 
-#include "driver_thread.h"
+#include "driver_uptime.h"
 
-#if USE_OPENTHREAD_DRIVER
+#if USE_INTERNAL_UPTIME
 
 	#include <time.h>
 	#include <openthread/instance.h>

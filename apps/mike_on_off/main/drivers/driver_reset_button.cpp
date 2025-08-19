@@ -65,11 +65,7 @@ void reboot_button_task(void *pvParameter)
           node_t *node = node::get();
           if(node) {
           	//-- Device structure log
-  					ESP_LOGW(TAG_EMPTY, "");
-	          ESP_LOGW(TAG_EMPTY, "##############################################");
 	          log_device_structure(node);
-	          ESP_LOGW(TAG_EMPTY, "##############################################");
-	          ESP_LOGW(TAG_EMPTY, "");
           	vTaskDelay(pdMS_TO_TICKS(10000));
           }
         }

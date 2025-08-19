@@ -13,10 +13,11 @@
 #define RELAY_INVERSE_LEVEL        true
 #define USE_SSD1306_DRIVER         true
 #define LIVE_BLINK_TIME_MS         0
+#define UPDATE_ATTRIBUTES_TIME_MS  10000
 #define USE_INTERNAL_TEMPERATURE   true
 #define USE_INTERNAL_VOLTAGE       false
+#define USE_INTERNAL_UPTIME        true
 #define USE_TIME_DRIVER            false
-#define USE_OPENTHREAD_DRIVER      false
 #define ADD_CUSTOM_CLUSTERS        true
 #define SHOW_DEVICE_LOG            true
 
@@ -50,8 +51,8 @@
 #include "driver_relay.h"
 #include "driver_reset_button.h"
 #include "driver_ssd1306.h"
-#include "driver_thread.h"
 #include "driver_time.h"
+#include "driver_uptime.h"
 
 #if ADD_CUSTOM_CLUSTERS
 	#include "plugin_custom_cluster.h"
@@ -122,7 +123,8 @@ extern esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug);
 extern gpio_num_t get_gpio(uint16_t endpoint_id);
 
 extern void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value);
-extern void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds);
+//extern void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds);
+extern void update_time_values(uint32_t endpoint_id);
 
 extern esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 
