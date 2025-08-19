@@ -17,6 +17,7 @@ sudo ls
 
 ### Micro is a terminal-based text editor
 https://github.com/zyedidia/micro  
+https://forum.garudalinux.org/t/mastering-the-micro-text-editor/32889  
 ~~~
 sudo apt install micro
 ~~~
