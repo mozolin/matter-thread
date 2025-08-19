@@ -52,3 +52,17 @@ sudo apt remove gnome-screensaver
 
 Disable Wayland: in /etc/gdm3/custom.conf set:  
 > WaylandEnable=false
+
+### Anbox?
+https://github.com/anbox/anbox  
+
+
+### Avahi + mDNS
+In case of error like "Not loading module atk-bridge":
+~~~
+apt purge --simulate libatk-adaptor (without sudo)
+sudo apt purge libatk-adaptor
+sudo reboot
+sudo apt install libatk-adaptor
+sudo reboot
+~~~
