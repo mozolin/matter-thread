@@ -462,7 +462,7 @@ void print_all_attributes(uint16_t endpoint_id)
       #endif
 
       #if SHOW_DEVICE_LOG_COMMANDS
-		cluster_t *cmd_cluster = cluster::get(endpoint_id, cluster_id);
+		    cluster_t *cmd_cluster = cluster::get(endpoint_id, cluster_id);
         command_t *command = command::get_first(cmd_cluster);
         while(command) {
           uint32_t command_id = command::get_id(command);
