@@ -1,13 +1,13 @@
 # Create a Home Assistant configuration using an office network without Wi-Fi router
 
 ### 1) Used (IP address + Device), IP addresses are taken from the access point's DHCP server and will change when the access point is rebooted:  
-- XXX.YYY.ZZZ.87    Redmi Note 14 Pro (smartphone) - Access Point and Gateway
-- XXX.YYY.ZZZ.171   Xiaomi Mi 12S Ultra (smartphone) - just as a Mobile App for Home Assistant
-- XXX.YYY.ZZZ.29    Dexp Mini Entry (PC, Ubuntu)
-- XXX.YYY.ZZZ.196   Dexp H21 (tablet)
-- XXX.YYY.ZZZ.157   Espressif OpenThread Border Router
-- XXX.YYY.ZZZ.176   Xiaomi Watch 2
-- XXX.YYY.ZZZ.42    SMLight SLZB-06 (WiFi connection)
+- *10.41.235*.87    Redmi Note 14 Pro (smartphone) - Access Point and Gateway
+- *10.41.235*.171   Xiaomi Mi 12S Ultra (smartphone) - just as a Mobile App for Home Assistant
+- *10.41.235*.29    Dexp Mini Entry (PC, Ubuntu)
+- *10.41.235*.196   Dexp H21 (tablet)
+- *10.41.235*.157   Espressif OpenThread Border Router
+- *10.41.235*.176   Xiaomi Watch 2
+- *10.41.235*.42    SMLight SLZB-06 (WiFi connection)
 
 SSID for access point: MIKE_REDMI_NOTE_14
 
@@ -24,14 +24,14 @@ For this, turn on the device with the button pressed, when the LEDs start to fla
   - Network -> Wi-Fi Setup -> Scan for Wi-Fi networks
   - Choose: SSID = MIKE_REDMI_NOTE_14, Password: ###### -> Save
   - Dashboard -> Wi-Fi status -> DHCP
-  - Open: http://XXX.YYY.ZZZ.42/ (Wi-Fi connection with internet access)
+  - Open: http://*10.41.235*.42/ (Wi-Fi connection with internet access)
   - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread -> Save
 
 
 ### 4) in Home Assistant (integration)
 - Settings -> Devices & Services -> Add integration
 - Choose: SMLIGHT SLZB
-- Enter host: **XXX.YYY.ZZZ.42:6638**
+- Enter host: ***10.41.235*.42:6638**
 
 
 ### 5) in Home Assistant (add-on)
@@ -46,7 +46,7 @@ autoflash_firmware: false
 otbr_log_level: notice
 firewall: true
 nat64: false
-network_device: XXX.YYY.ZZZ.42:6638
+network_device: 10.41.235.42:6638
 ~~~
 Here:
 - "device" - any unused port
@@ -75,7 +75,7 @@ Get value of "NETWORKKEY":
 
 ### 7) Join Thread networks
 Web-interface of Espressif OpenThread Border Router:  
-http://XXX.YYY.ZZZ.157/index.html  
+http://*10.41.235*.157/index.html  
 - Available Thread Networks:
   - Press "SCAN" button
   - Press "Join" button, fill the "Network Key" with *1450a03ab4223e9cf9907f0f548c1145* and press "Submit"
@@ -93,8 +93,8 @@ When trying to add a new Matter device to Home Assistant:
 **Attempt #2**  
 The end device is created from the "esp-matter multiple_on_off_plugin_units" example using ESP32-H2 as a target.  
 - Redmi Note 14 Pro smartphone, the pairing process was successful
-Then the ESP32-H2 is flashed using "esp-matter mike_on_off", the target device is interviewed in the Home Assistant "Matter Server" add-on, and it works correctly with the new firmware!
+Then the ESP32-H2 is flashed using "esp-matter mike_on_off", the target device is reinterviewed in the Home Assistant "Matter Server" add-on, and it works correctly with the new firmware!
 
 ![](HA-Office/HA-Office_Matter_info.png)  
 
-![](HA-Office/HA-Office_Matter_server.png)  
+![](HA-Office/HA-Office_Matter_server2.png)  
