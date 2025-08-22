@@ -21,12 +21,13 @@ For this, turn on the device with the button pressed, when the LEDs start to fla
 - Connect
 - Open http://slzb-06.local in browser
 - Configure SLZB-06:
+  - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread
+  - Mode -> Connection mode -> switch to: Wi-Fi connection -> Save
   - Network -> Wi-Fi Setup -> Scan for Wi-Fi networks
-  - Choose: SSID = MIKE_REDMI_NOTE_14, Password: ###### -> Save
-  - Dashboard -> Wi-Fi status -> DHCP
+  - Choose: SSID = MIKE_REDMI_NOTE_14, Password: ######
+  - Network -> Wi-Fi Setup -> ON: DHCP status for Wi-Fi -> Save
   - Open: http://*10.41.235*.42/ (Wi-Fi connection with internet access)
-  - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread -> Save
-
+  
 
 ### 4) in Home Assistant (integration)
 - Settings -> Devices & Services -> Add integration
