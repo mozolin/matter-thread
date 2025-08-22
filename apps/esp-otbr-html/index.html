@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thread Border Router</title>
+    <link href="index.css" type="text/css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
+  	<script src="index.js" defer="true"></script>
+</head>
+<body>
+    <!-- Overlay с формой логина -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-form">
+            <h2>Thread Border Router</h2>
+            <form onsubmit="return handleLogin(event)">
+                <!--
+                <input type="file" id="fileInput">
+                <input type="text" id="username" placeholder="Username" required>
+                -->
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p id="loginError" style="color: red; display: none;">Invalid credentials</p>
+        </div>
+    </div>
+
+    
+    <!-- Основной контент (изначально скрыт) -->
+    <div id="mainContent" class="hidden">
+        <!-- Ваш существующий HTML код -->
+        <h1>Thread Border Router</h1>
+        <div id="content">
+            <!-- остальной контент -->
+        </div>
+    </div>
+
+</body>
+</html>
