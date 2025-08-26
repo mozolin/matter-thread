@@ -1,0 +1,3 @@
+index.min.html: 23518/15303
+restful.min.js: 30262/22234
+style.min.css: 30448/23219
