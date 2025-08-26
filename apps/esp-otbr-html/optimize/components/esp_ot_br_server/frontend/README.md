@@ -2,7 +2,7 @@
 # OTBR Web Page Optimization
 https://github.com/espressif/esp-thread-br.git  
   
-Considering that the ESP32-S3 chip on the ESP OTBR board has 16MB of flash memory, we can optimize the WEP page code inside the OTBR.  
+Considering that the ESP32-S3 chip on the ESP OTBR board has 16MB of flash memory, we can optimize the web page code inside the OTBR.  
   
 ### /examples/basic_thread_border_router/partitions.csv
 Increase web_storage from *100K* to **1600K**
