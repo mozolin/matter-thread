@@ -72,4 +72,15 @@ Hide old lines in the *esp_br_web.c* file:
 ~~~
 
 ### Finish
-After that, we need to compile and flash the firmware to get its current version!
+After that, we need to compile and flash the firmware to get its current version!  
+  
+When web server starts, we can see something like this:  
+>
+>I (10386) obtr_web: <=======================server start========================>
+>
+>I (10386) obtr_web: http://10.122.251.157:80/index.html
+>
+>I (10386) obtr_web: <===========================================================>
+>
+  
+So, we can launch this URL, *http://10.122.251.157:80/index.html* or minified one *http://10.122.251.157:80/index.min.html*.  
