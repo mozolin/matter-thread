@@ -47,7 +47,7 @@ Add a few lines to the *esp_br_web.c*:
 ~~~
 
 ### Minify code
-We can also minify *index.html* (to **index.min.html**), *restful.html* (to **restful.min.html**) and *style.css* (to **style.min.css**) using the *minify* PHP-script:
+We can also minify *index.html* (to **index.min.html**), *restful.html* (to **restful.min.html**) and *style.css* (to **style.min.css**) using the [*minify*](minify/) PHP-script:
 Add new lines to the *esp_br_web.c* file:
 ~~~
 ...
