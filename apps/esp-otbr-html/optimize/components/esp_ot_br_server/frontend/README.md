@@ -59,6 +59,17 @@ Add new lines to the *esp_br_web.c* file:
         return script_js_get_handler(req, info.file_path);
 ...
 ~~~
+Hide old lines in the *esp_br_web.c* file:
+~~~
+...
+/*
+    } else if (strcmp(info.file_name, "/static/style.css") == 0) {
+        return style_css_get_handler(req, info.file_path);
+    } else if (strcmp(info.file_name, "/static/restful.js") == 0) {
+        return script_js_get_handler(req, info.file_path);
+*/
+...
+~~~
 
 ### Finish
 After that, we need to compile and flash the firmware to get its current version!
