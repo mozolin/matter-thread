@@ -17,7 +17,7 @@ web_storage,data, spiffs,   , 1600K,
 rcp_fw,     data, spiffs,   , 640K,
 ~~~
 
-### Change flash size in config
+### Change flash value in configuration
 /examples/basic_thread_border_router/sdkconfig.defaults:  
 Change *ESPTOOLPY_FLASHSIZE_4MB* to **ESPTOOLPY_FLASHSIZE_16MB**
 >
@@ -79,6 +79,25 @@ Hide old lines in file *esp_br_web.c*:
 ...
 ~~~
 *P.S. To run minify correctly, it was necessary to make edits to the **restful.js** file code - to put the missing semicolons at the end of the expressions.*  
+
+
+### Password protected web page
+1) Download *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js* and *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.min.js* and put their code into the **static.min.js** file.
+2) Add code from the [crypt](crypt/) folder: html code to *index.html*, css code to *static/style.css* and js code to *restful.js*.  
+3) Using the commands we get the MD5 sequence for the login and password:
+~~~
+const username = 'my_username';
+const password = 'my_password';
+const crypt_usr = CryptoJS.MD5(username).toString();
+const crypt_pwd = CryptoJS.MD5(password).toString();
+console.log('username:', username, ', MD5 username:', crypt_usr, 'password:', password, ', MD5 password: ', crypt_pwd);
+~~~
+replace the value of the MD5_USERNAME and MD5_PASSWORD variables in the JS code: 
+~~~
+const MD5_USERNAME = '70410b7ffa7b5fb23e87cfaa9c5fc258';
+const MD5_PASSWORD = 'a865a7e0ddbf35fa6f6a232e0893bea4';
+~~~
+![](../../images/web_auth/web_auth.png)
 
 ### Final stage
 After that we need to compile and flash the firmware to get the latest version!  
