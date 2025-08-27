@@ -84,7 +84,7 @@ Hide old lines in file *esp_br_web.c*:
 ### Password protected web page
 1) Download *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js* and *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.min.js* and put their code into the **static.min.js** file.
 2) Add code from the [crypt](crypt/) folder: html code to *index.html*, css code to *static/style.css* and js code to *restful.js*.  
-3) Using the commands we get the MD5 sequence for the login and password:
+3) Using the following commands we will get the MD5 sequence for the login and password:
 ~~~
 const username = 'my_username';
 const password = 'my_password';
