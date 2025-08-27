@@ -20,9 +20,9 @@ rcp_fw,     data, spiffs,   , 640K,
 ### Change flash size in config
 /examples/basic_thread_border_router/sdkconfig.defaults:  
 Change *ESPTOOLPY_FLASHSIZE_4MB* to **ESPTOOLPY_FLASHSIZE_16MB**
-~~~
-CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
-~~~
+>
+> CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+>
   
 The original HTML includes 3 links:
 ~~~
@@ -56,7 +56,7 @@ We can also minify *index.html* (to **index.min.html**), *restful.html* (to **re
 Add new lines to the *esp_br_web.c* file:
 ~~~
 ...
-    //-- added minified version
+    //-- added minified html
     } else if (strcmp(info.file_name, "/index.min.html") == 0) {
         return index_html_get_handler(req, info.file_path);
     //-- added minified css
@@ -84,12 +84,12 @@ Hide old lines in file *esp_br_web.c*:
 After that we need to compile and flash the firmware to get the latest version!  
   
 When the web server starts, we will see something like this:  
->
->I (10386) obtr_web: <=======================server start========================>
->
->I (10386) obtr_web: http://10.122.251.157:80/index.html
->
->I (10386) obtr_web: <===========================================================>
->
+~~~
+I (10386) obtr_web: <=======================server start========================>
+
+I (10386) obtr_web: http://10.122.251.157:80/index.html
+
+I (10386) obtr_web: <===========================================================>
+~~~
   
 So, we can run this URL, http://10.122.251.157:80/index.html or its minified version http://10.122.251.157:80/index.min.html 
