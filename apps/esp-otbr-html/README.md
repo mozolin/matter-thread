@@ -3,6 +3,21 @@
 https://github.com/espressif/esp-thread-br.git  
   
 Considering that the ESP32-S3 chip on the ESP OTBR board has 16MB of flash memory, we can optimize the web page code inside the OTBR.  
+In any case, this is worth checking if the flash memory capacity is really 16 MB:  
+~~~
+esptool -p COM3 flash_id
+~~~
+> Detecting chip type... ESP32-S3
+> Chip is ESP32-S3 (QFN56) (revision v0.1)
+> Features: WiFi, BLE, Embedded PSRAM 2MB (AP_3v3)
+> Crystal is 40MHz
+> MAC: 7c:df:a1:f3:56:58
+> Manufacturer: c8
+> Device: 4018
+> Detected flash size: **16MB**
+> Flash type set in eFuse: quad (4 data lines)
+> Flash voltage set by eFuse to 3.3V
+
   
 ### Change partition table
 /examples/basic_thread_border_router/partitions.csv:  
@@ -84,7 +99,7 @@ Hide old lines in file *esp_br_web.c*:
 ### Password protected web page
 1) Download *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js* and *https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.min.js* and put their code into the **static.min.js** file.
 2) Add code from the [crypt](crypt/) folder: html code to *index.html*, css code to *static/style.css* and js code to *restful.js*.  
-3) Using the following commands we will get the MD5 sequence for the login and password:
+3) Using the following commands we will get the MD5 sequence for the login and password,
 ~~~
 const username = 'my_username';
 const password = 'my_password';
@@ -92,12 +107,18 @@ const crypt_usr = CryptoJS.MD5(username).toString();
 const crypt_pwd = CryptoJS.MD5(password).toString();
 console.log('username:', username, ', MD5 username:', crypt_usr, 'password:', password, ', MD5 password: ', crypt_pwd);
 ~~~
+>
+> username: my_username, MD5 username: 70410b7ffa7b5fb23e87cfaa9c5fc258, password: my_password, MD5 password: a865a7e0ddbf35fa6f6a232e0893bea4
+>
 replace the value of the MD5_USERNAME and MD5_PASSWORD variables in the JS code: 
 ~~~
 const MD5_USERNAME = '70410b7ffa7b5fb23e87cfaa9c5fc258';
 const MD5_PASSWORD = 'a865a7e0ddbf35fa6f6a232e0893bea4';
 ~~~
-![](../../images/web_auth/web_auth.png)
+Now when opening a web page in a browser we will have to log in with the saved username and password. If there is an error filling out the authorization form, the message "Invalid credentials" will be displayed.  
+  
+![](../../images/web_auth/web_auth.png)  
+  
 
 ### Final stage
 After that we need to compile and flash the firmware to get the latest version!  
@@ -105,9 +126,7 @@ After that we need to compile and flash the firmware to get the latest version!
 When the web server starts, we will see something like this:  
 ~~~
 I (10386) obtr_web: <=======================server start========================>
-
 I (10386) obtr_web: http://10.122.251.157:80/index.html
-
 I (10386) obtr_web: <===========================================================>
 ~~~
   
