@@ -133,20 +133,20 @@ I (10386) otbr_web: <=======================server start========================
 I (10386) otbr_web: http://10.122.251.157:80/index.html  
 I (10386) otbr_web: <===========================================================>  
 ~~~ 
-or, in my version of the code :)  
+or, in my version of the code (*esp_br_web.c*) :)  
 ~~~
-ESP_LOGW(WEB_TAG, "%s", "### Server start ##############################################");
+ESP_LOGW(WEB_TAG, "### Server start ##########################");
 ESP_LOGW(WEB_TAG, "#");
 ESP_LOGW(WEB_TAG, "#   http://%s:%d/index.html", s_server.ip, s_server.port);
 ESP_LOGW(WEB_TAG, "#");
-ESP_LOGW(WEB_TAG, "%s", "###############################################################");
+ESP_LOGW(WEB_TAG, "###########################################");
 ~~~
 it looks like:
 ~~~ 
-W (4565) otbr_web: ### Server start ##############################################  
-W (4565) otbr_web: #  
-W (4565) otbr_web: #   http://10.122.251.157:80/index.html  
-W (4565) otbr_web: #  
-W (4565) otbr_web: ###############################################################  
+W (4565) otbr_web: ### Server start ##########################
+W (4565) otbr_web: #
+W (4565) otbr_web: #   http://10.122.251.157:80/index.html
+W (4565) otbr_web: #
+W (4565) otbr_web: ###########################################
 ~~~ 
 So, we can run this URL, http://10.122.251.157:80/index.html or its minified version http://10.122.251.157:80/index.min.html 
