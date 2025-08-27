@@ -38,7 +38,7 @@
 #define VFS_PATH_MAXNUM 15
 #define SERVER_IPV4_LEN 16
 #define FILE_CHUNK_SIZE 1024
-#define WEB_TAG "obtr_web"
+#define WEB_TAG "otbr_web"
 
 /*-----------------------------------------------------
  Note：Http Server
@@ -1178,9 +1178,13 @@ static httpd_handle_t *start_esp_br_http_server(const char *base_path, const cha
     httpd_register_uri_handler(s_server.handle, &default_uris_get);
 
     // Show the login address in the console
-    ESP_LOGI(WEB_TAG, "%s\r\n", "<=======================server start========================>");
-    ESP_LOGI(WEB_TAG, "http://%s:%d/index.html\r\n", s_server.ip, s_server.port);
-    ESP_LOGI(WEB_TAG, "%s\r\n", "<===========================================================>");
+    ESP_LOGW("", "");
+    ESP_LOGW(WEB_TAG, "### Server start ##########################");
+    ESP_LOGW(WEB_TAG, "#");
+    ESP_LOGW(WEB_TAG, "#   http://%s:%d/index.html", s_server.ip, s_server.port);
+    ESP_LOGW(WEB_TAG, "#");
+    ESP_LOGW(WEB_TAG, "###########################################");
+    ESP_LOGW("", "");
 
     return s_server.handle;
 }
