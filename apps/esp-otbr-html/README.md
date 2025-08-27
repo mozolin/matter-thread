@@ -7,16 +7,16 @@ In any case, this is worth checking if the flash memory capacity is really 16 MB
 ~~~
 esptool -p COM3 flash_id
 ~~~
-> Detecting chip type... ESP32-S3
-> Chip is ESP32-S3 (QFN56) (revision v0.1)
-> Features: WiFi, BLE, Embedded PSRAM 2MB (AP_3v3)
-> Crystal is 40MHz
-> Manufacturer: c8
-> Device: 4018
-> Detected flash size: **16MB**
-> Flash type set in eFuse: quad (4 data lines)
-> Flash voltage set by eFuse to 3.3V
-
+> Detecting chip type... ESP32-S3  
+> Chip is ESP32-S3 (QFN56) (revision v0.1)  
+> Features: WiFi, BLE, Embedded PSRAM 2MB (AP_3v3)  
+> Crystal is 40MHz  
+> Manufacturer: c8  
+> Device: 4018  
+> Detected flash size: **16MB**  
+> Flash type set in eFuse: quad (4 data lines)  
+> Flash voltage set by eFuse to 3.3V  
+  
   
 ### Change partition table
 /examples/basic_thread_border_router/partitions.csv:  
@@ -34,10 +34,10 @@ rcp_fw,     data, spiffs,   , 640K,
 ### Change flash value in configuration
 /examples/basic_thread_border_router/sdkconfig.defaults:  
 Change *ESPTOOLPY_FLASHSIZE_4MB* to **ESPTOOLPY_FLASHSIZE_16MB**
->
-> CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
->
-  
+>  
+> CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y  
+>  
+ 
 The original HTML includes 3 links:
 ~~~
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -110,9 +110,10 @@ const crypt_usr = CryptoJS.MD5(username).toString();
 const crypt_pwd = CryptoJS.MD5(password).toString();
 console.log('username:', username, ', MD5 username:', crypt_usr, 'password:', password, ', MD5 password: ', crypt_pwd);
 ~~~
->
-> username: my_username, MD5 username: 70410b7ffa7b5fb23e87cfaa9c5fc258, password: my_password, MD5 password: a865a7e0ddbf35fa6f6a232e0893bea4
->
+>  
+> username: my_username, MD5 username: 70410b7ffa7b5fb23e87cfaa9c5fc258, password: my_password, MD5 password: a865a7e0ddbf35fa6f6a232e0893bea4  
+>  
+  
 replace the value of the MD5_USERNAME and MD5_PASSWORD variables in the JS code: 
 ~~~
 const MD5_USERNAME = '70410b7ffa7b5fb23e87cfaa9c5fc258';
