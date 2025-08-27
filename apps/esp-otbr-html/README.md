@@ -11,7 +11,6 @@ esptool -p COM3 flash_id
 > Chip is ESP32-S3 (QFN56) (revision v0.1)
 > Features: WiFi, BLE, Embedded PSRAM 2MB (AP_3v3)
 > Crystal is 40MHz
-> MAC: 7c:df:a1:f3:56:58
 > Manufacturer: c8
 > Device: 4018
 > Detected flash size: **16MB**
@@ -21,14 +20,14 @@ esptool -p COM3 flash_id
   
 ### Change partition table
 /examples/basic_thread_border_router/partitions.csv:  
-Increase web_storage from *100K* to **1600K**
+Increase web_storage from *100K* to **640K** or more...
 ~~~
 nvs,        data, nvs,      , 0x6000,
 otadata,    data, ota,      , 0x2000,
 phy_init,   data, phy,      , 0x1000,
 ota_0,      app,  ota_0,    , 1600K,
 ota_1,      app,  ota_1,    , 1600K,
-web_storage,data, spiffs,   , 1600K,
+web_storage,data, spiffs,   , 640K,
 rcp_fw,     data, spiffs,   , 640K,
 ~~~
 
@@ -64,9 +63,13 @@ Add a few lines to the */components/esp_ot_br_server/src/esp_br_web.c*:
         return script_js_get_handler(req, info.file_path);
 ...
 ~~~
+It might be correct to change WEB_TAG from "obtr_web" to "otbr_web" (OpenThread Border Router) there:
+~~~
+#define WEB_TAG "otbr_web"
+~~~
 
 ### Minify code
-We can also minify *index.html* (to **index.min.html**), *restful.html* (to **restful.min.html**) and *style.css* (to **style.min.css**) using the [*minify*](minify/) PHP-script:
+We can also minify *index.html* (to **index.min.html**), *restful.js* (to **restful.min.js**) and *style.css* (to **style.min.css**) using the [*minify*](minify/) PHP-script:
   
 Add new lines to the *esp_br_web.c* file:
 ~~~
@@ -115,7 +118,7 @@ replace the value of the MD5_USERNAME and MD5_PASSWORD variables in the JS code:
 const MD5_USERNAME = '70410b7ffa7b5fb23e87cfaa9c5fc258';
 const MD5_PASSWORD = 'a865a7e0ddbf35fa6f6a232e0893bea4';
 ~~~
-Now when opening a web page in a browser we will have to log in with the saved username and password. If there is an error filling out the authorization form, the message "Invalid credentials" will be displayed.  
+Now when opening a web page we will have to log in with the saved username and password. If there is an error filling out the authorization form, the message "Invalid credentials" will be displayed.  
   
 ![](../../images/web_auth/web_auth.png)  
   
@@ -124,10 +127,25 @@ Now when opening a web page in a browser we will have to log in with the saved u
 After that we need to compile and flash the firmware to get the latest version!  
   
 When the web server starts, we will see something like this:  
+>
+>I (10386) otbr_web: <=======================server start========================>
+>I (10386) otbr_web: http://10.122.251.157:80/index.html
+>I (10386) otbr_web: <===========================================================>
+>
+or, in my version of the code :)  
 ~~~
-I (10386) obtr_web: <=======================server start========================>
-I (10386) obtr_web: http://10.122.251.157:80/index.html
-I (10386) obtr_web: <===========================================================>
+ESP_LOGW(WEB_TAG, "%s", "### Server start ##############################################");
+ESP_LOGW(WEB_TAG, "#");
+ESP_LOGW(WEB_TAG, "#   http://%s:%d/index.html", s_server.ip, s_server.port);
+ESP_LOGW(WEB_TAG, "#");
+ESP_LOGW(WEB_TAG, "%s", "###############################################################");
 ~~~
-  
+it looks like:
+>
+>W (4565) otbr_web: ### Server start ##############################################
+>W (4565) otbr_web: #
+>W (4565) otbr_web: #   http://10.122.251.157:80/index.html
+>W (4565) otbr_web: #
+>W (4565) otbr_web: ###############################################################
+>
 So, we can run this URL, http://10.122.251.157:80/index.html or its minified version http://10.122.251.157:80/index.min.html 
