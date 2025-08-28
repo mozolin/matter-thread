@@ -84,4 +84,3 @@
    Matter examples: https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-matter/launchpad.toml  
    Hardware: End devices  
    See descriptions and/or examples [here](esp-launchpad.md)  
-   

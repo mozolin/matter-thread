@@ -1,6 +1,6 @@
 # UBUNTU: SHOULD BE INSTALLED
 
-### To execute sudo without password and get user "mike" a root access
+## To execute SUDO WITHOUT PASSWORD and get user "mike" a root access
 Add user to "sudo" group:  
 ~~~
 sudo usermod -aG sudo mike
@@ -15,7 +15,7 @@ sudo ls
 ~~~
 
 
-### Micro is a terminal-based text editor
+## MICRO is a terminal-based text editor
 https://github.com/zyedidia/micro  
 https://forum.garudalinux.org/t/mastering-the-micro-text-editor/32889  
 ~~~
@@ -33,7 +33,7 @@ micro -plugin install autofmt        # https://github.com/a11ce/micro-autofmt
 micro -plugin install filemanager    # ???
 ~~~
 
-### XScreenSaver
+## XSCREENSAVER
 https://www.debugpoint.com/install-change-autostart-setup-screensaver-ubuntu-linux/
 Install
 ~~~
@@ -54,11 +54,13 @@ sudo apt remove gnome-screensaver
 Disable Wayland: in /etc/gdm3/custom.conf set:  
 > WaylandEnable=false
 
-### Anbox?
+<!--
+## Anbox?
 https://github.com/anbox/anbox  
+-->
 
 
-### Avahi + mDNS
+## AVAHI + MDNS
 How to use the Avahi mDNS/DNS-SD daemon:  
 https://sleeplessbeastie.eu/2023/07/05/how-to-use-the-avahi-daemon/  
   
@@ -71,11 +73,45 @@ sudo apt install libatk-adaptor
 sudo reboot
 ~~~
 
-### Check some...
-How to Scan for IP Addresses on Your Network:
+## TERMINALS AND MONITORS
+### Minicom
+~~~
+sudo apt install minicom
+minicom -help
+minicom -D /dev/ttyACM0
+~~~
+Exit from the terminal: Ctrl+A => X  
+![](../images/system/minicom_exit.png)  
+
+### Screen
+~~~
+sudo apt install screen
+screen /dev/ttyACM0 115200
+~~~
+Exit from the terminal: Ctrl+A => D  
+This is the most common way to exit a screen session while keeping its processes and applications running.  
+  
+Exit from the terminal: Ctrl+A => K  
+This method closes the screen session and any processes running within it.  
+
+### Cu
+~~~
+sudo apt install cu
+cu -l /dev/ttyACM0 -s 115200
+~~~
+Exit from the terminal: type ~. (tilde + dot) and press Enter  
+
+## CHECK SOME...
+
+### Scan IPs
+How to scan for IP Addresses on your Network:
 ~~~
 arp -a
 ~~~
 > ? (10.41.235.157) at 7c:df:a1:f3:56:58 [ether] on wlp1s0
 > ? (10.41.235.87) at 1e:2b:1e:e3:39:ba [ether] on wlp1s0
 > ? (172.30.32.2) at 9e:81:96:26:69:4a [ether] on hassio
+
+### Screenshots
+1) Press PrtScn and select a screen area, window and the entire screen
+2) Press (not everywhere!) Win + right mouse button, select "Take Screenshot" - a copy of the entire screen

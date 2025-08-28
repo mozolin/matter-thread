@@ -18,6 +18,7 @@
   - 15. Remote shutdown Ubuntu (Home Assistant)
   - 16. Set port access
   - 17. Ubuntu: what we need to install
+  
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
   
@@ -28,6 +29,6 @@
 - [HA-Ubuntu22Desktop_RP4](HA-Ubuntu22Desktop_RP4.md)  
   
 - [samba](samba.md)  
-
-
-
+  
+- [Flash SmLight SLZB-06P7](smlight_slzb06p7.md)  
+  
