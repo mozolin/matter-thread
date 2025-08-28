@@ -3,21 +3,21 @@ If there is no prompt (>) when connecting to the COM port via PuTTY or screen an
 ![](../images/slzb-06p7/slzb-06p7_putty.png)  
 
 ## 1) Reset to USB boot mode
-Disconnect the USB cable from SmLight SLZB-06P7, press and hold the Reset button, connect the USB cable. Wait about 4 seconds, release and press the Reset button once again. Reset to USB boot mode is done if in addition to the yellow LED, the blue LED is constantly lit. It is possible that you won't be able to enter this mode the first time - try again and again...
+Disconnect the USB cable from SmLight SLZB-06P7, press and hold the Reset button, connect the USB cable. Wait about 4 seconds, release and press the Reset button once again. Reset to USB boot mode is done if in addition to the yellow LED, the blue LED is constantly lit. If you won't be able to enter this mode the first time - try again and again...
 
 ## 2) Flash using SmartRF Flash Programmer 2 from TI
-- select the port and specify the chip type
+- select the port and specify the chip type  
 ![](../images/slzb-06p7/ti_flash_programmer_2_01.png)  
-
-- select the firmware file
+  
+- select the firmware file  
 ![](../images/slzb-06p7/ti_flash_programmer_2_02.png)  
-
-- flash
+  
+- flash  
 ![](../images/slzb-06p7/ti_flash_programmer_2_03.png)  
-
-- disconnect
+  
+- disconnect  
 ![](../images/slzb-06p7/ti_flash_programmer_2_04.png)  
-
+  
 ## 3) Connect to the internal Wi-Fi network
 ![](../images/slzb-06p7/slzb-06p7_wifi_spot.png)  
 
