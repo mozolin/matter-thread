@@ -4,10 +4,12 @@ require("PhpHtmlCssJsMinifier.php");
 //-- the best with Js
 require("class.JavaScriptPacker.php");;
 
+$path = "../optimized/components/esp_ot_br_server/frontend/";
+
 $minList = [
-  "frontend/index.html"        => "frontend/index.min.html",
-  "frontend/static/restful.js" => "frontend/static/restful.min.js",
-  "frontend/static/style.css"  => "frontend/static/style.min.css",
+  "index.html"        => "index.min.html",
+  "static/restful.js" => "static/restful.min.js",
+  "static/style.css"  => "static/style.min.css",
 ];
 
 $minify = new PhpHtmlCssJsMinifier();
@@ -17,11 +19,11 @@ echo "| File name         |    Source |  Minified |\n";
 echo str_repeat("-", 45)."\n";
 
 foreach($minList as $fileSrc => $fileDst) {
-  if(file_exists($fileDst)) {
-    @unlink($fileDst);
+  if(file_exists($path.$fileDst)) {
+    @unlink($path.$fileDst);
   }
-  if(file_exists($fileSrc)) {
-    $contents = file_get_contents($fileSrc);
+  if(file_exists($path.$fileSrc)) {
+    $contents = file_get_contents($path.$fileSrc);
     $pathInfo = pathinfo($fileSrc);
     
     $flagReady = false;
@@ -39,13 +41,13 @@ foreach($minList as $fileSrc => $fileDst) {
       $flagReady = true;
     }
     if($flagReady) {
-      file_put_contents($fileDst, $result);
-      if(file_exists($fileDst)) {
+      file_put_contents($path.$fileDst, $result);
+      if(file_exists($path.$fileDst)) {
         $pathInfo = pathinfo($fileDst);
         
         $fn = str_pad($pathInfo["basename"], 17, " ", STR_PAD_RIGHT);
-        $size1 = str_pad(filesize($fileSrc), 9, " ", STR_PAD_LEFT);
-        $size2 = str_pad(filesize($fileDst), 9, " ", STR_PAD_LEFT);
+        $size1 = str_pad(filesize($path.$fileSrc), 9, " ", STR_PAD_LEFT);
+        $size2 = str_pad(filesize($path.$fileDst), 9, " ", STR_PAD_LEFT);
         
         echo "| ".$fn." | ".$size1." | ".$size2." |\n";
       }

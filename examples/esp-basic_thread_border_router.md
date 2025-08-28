@@ -6,7 +6,7 @@
 [https://openthread.io/guides/border-router/espressif-esp32](https://openthread.io/guides/border-router/espressif-esp32)  
 [https://openthread.io/codelabs/esp-openthread-hardware](https://openthread.io/codelabs/esp-openthread-hardware)  
  
-![](../images/otbr/esp-thread-border-router-board.png)  
+![](../images/otbr/esp-thread-border-router-board.jpg)  
 Note: Only the USB2 port on the ESP Thread Border Router Board needs to be connected to the host.
 
 ~~~
@@ -31,7 +31,7 @@ idf.py menuconfig
 ![](../images/otbr/esp_otbr_menuconfig_01.png)
 
 **2) Using Ethernet (with Sub-Ethernet board):**  
-![](../images/otbr/esp-thread-border-router-sub-ethernet.png)  
+![](../images/otbr/esp-thread-border-router-sub-ethernet.jpg)  
   
 ![](../images/otbr/esp_otbr_menuconfig_02.png)  
   
