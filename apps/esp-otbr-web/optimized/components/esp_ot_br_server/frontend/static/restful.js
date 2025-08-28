@@ -945,14 +945,14 @@ document.addEventListener('DOMContentLoaded', function()
 
 function showLogin()
 {
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('mainContent').classList.add('hidden');
+  $('#loginOverlay').css('display', 'flex');
+  $('#mainContent, main, section').hide();
 }
 
 function showContent()
 {
-  document.getElementById('loginOverlay').style.display = 'none';
-  document.getElementById('mainContent').classList.remove('hidden');
+  $('#loginOverlay').hide();
+  $('#mainContent, main, section').show();
 }
 
 const originalFetch = window.fetch;

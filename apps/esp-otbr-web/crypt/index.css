@@ -25,17 +25,27 @@
 .login-form button {
   width: 100%;
   padding: 10px;
-  background: #007bff;
+  background-color: #0f406f;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
-#mainContent.hidden {
+#loginOverlay, #mainContent, main, section
+{
   display: none;
 }
 #loginError {
   padding-top: 5px;
   color: #900;
   display: none;
+}
+
+.open-text {
+	color: #939b9e;
+	font-weight: 900;
+}
+.thread-text {
+	color: #0f406f;
+	font-weight: 900;
 }

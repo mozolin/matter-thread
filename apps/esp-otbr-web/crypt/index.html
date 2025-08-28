@@ -10,22 +10,22 @@
 <body>
 
     
-<!-- Overlay with login form -->
-<div id="loginOverlay" class="login-overlay">
-  <div class="login-form">
-    <h2>OpenThread Border Router</h2>
-    <form onsubmit="return handleLogin(event)">
-      <input type="text" id="username" placeholder="Username" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
-    <p id="loginError">Invalid credentials</p>
+  <!-- Overlay with login form -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-form">
+      <h2><span class="open-text">Open</span><span class="thread-text">Thread</span> Border Router</h2>
+      <form onsubmit="return handleLogin(event)">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <p id="loginError">Invalid credentials</p>
+    </div>
   </div>
-</div>
-<!-- Main content (initially hidden) -->
-<div id="mainContent" class="hidden">
-  <!-- Existing HTML code here -->
-</div>
+  <!-- Main content (initially hidden) -->
+  <div id="mainContent">
+    <!-- Existing HTML code here -->
+  </div>
 
 
 </body>

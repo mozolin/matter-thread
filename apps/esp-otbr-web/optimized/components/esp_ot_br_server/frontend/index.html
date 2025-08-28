@@ -9,8 +9,8 @@
 <link href="/static/static.min.css" type="text/css" rel="stylesheet">
 <script src="/static/static.min.js" defer="true"></script>
 
-<link href="/static/style.min.css" type="text/css" rel="stylesheet">
-<script src="/static/restful.min.js" defer="true"></script>
+<link href="/static/style.css" type="text/css" rel="stylesheet">
+<script src="/static/restful.js" defer="true"></script>
 
 <link href="/favicon.ico" rel="icon">
 </head>
@@ -19,7 +19,7 @@
   <!-- Overlay with login form -->
   <div id="loginOverlay" class="login-overlay">
     <div class="login-form">
-      <h2>OpenThread Border Router</h2>
+      <h2><span class="open-text">Open</span><span class="thread-text">Thread</span> Border Router</h2>
       <form onsubmit="return handleLogin(event)">
         <input type="text" id="username" placeholder="Username" required>
         <input type="password" id="password" placeholder="Password" required>
@@ -29,7 +29,7 @@
     </div>
   </div>
   <!-- Main content (initially hidden) -->
-  <div id="mainContent" class="hidden">
+  <div id="mainContent">
     <!-- Existing HTML code here -->
     
     <main id="main">
@@ -65,7 +65,7 @@
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td style="text-align:right;"><!--<button class="btn-submit join" onclick="frontend_show_join_network_window(this)">Join</button>--></td>
+                  <td></td>
                 </tr>
               </tbody>
             </table>
@@ -107,7 +107,7 @@
             </div>
           </div>
             <div class="row">
-              <button class="btn-submit scan" onclick="http_server_scan_thread_network()">SCAN</button>
+              <button class="btn-submit scan" onclick="http_server_scan_thread_network()">Scan</button>
             </div>         
           </div>
         </div>
