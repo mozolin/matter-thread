@@ -115,3 +115,10 @@ arp -a
 ### Screenshots
 1) Press PrtScn and select a screen area, window and the entire screen
 2) Press (not everywhere!) Win + right mouse button, select "Take Screenshot" - a copy of the entire screen
+
+### Terminal Tabs
+Ctrl+PgUp: Switch to the previous tab  
+Ctrl+PgDn: Switch to the next tab  
+
+### Language layout
+Win+Space: Switch between languages  
