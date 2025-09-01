@@ -73,6 +73,22 @@ sudo apt install libatk-adaptor
 sudo reboot
 ~~~
 
+
+## RUN .APPIMAGE
+1) Making it executable:
+~~~
+chmod a+x exampleName.AppImage
+~~~
+2) Execute it (not as root!):
+~~~
+./exampleName.AppImage
+~~~
+3) if error "error loading libfuse.so.2" occured, install this lib:
+~~~
+sudo apt install libfuse2
+~~~
+
+
 ## TERMINALS AND MONITORS
 ### Minicom
 ~~~
@@ -122,3 +138,4 @@ Ctrl+PgDn: Switch to the next tab
 
 ### Language layout
 Win+Space: Switch between languages  
+
