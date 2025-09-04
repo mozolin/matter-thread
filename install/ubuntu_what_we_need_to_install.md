@@ -139,3 +139,71 @@ Ctrl+PgDn: Switch to the next tab
 ### Language layout
 Win+Space: Switch between languages  
 
+### Remove DKMS (Dynamic Kernel Module Support) unremovable packages
+~~~
+sudo dkms status
+~~~
+> xyz12345/6.7.8: added
+> xyz12345/6.7.8, 6.8.0-79-generic, x86_64: installed
+~~~
+sudo dkms remove xyz12345/6.7.8 --all
+~~~
+> Error!  
+Just remove its folder:
+~~~
+sudo rm -r /var/lib/dkms/xyz12345_6.7.8
+~~~
+
+## RealTech 8812BU wireless lan 802.11ac USB NIC Driver
+[https://github.com/morrownr/88x2bu-20210702](https://github.com/morrownr/88x2bu-20210702)  
+### 1) Disable old driver
+Disable "Realtek Semocondactor...Wireless" in the utility "Software & Updates": Do not use the device
+### 2) Install new driver  
+~~~
+sudo apt update && sudo apt upgrade
+sudo reboot
+
+sudo apt install -y build-essential dkms git iw
+
+mkdir -p ~/src
+cd ~/src
+git clone https://github.com/morrownr/88x2bu-20210702.git
+cd ~/src/88x2bu-20210702
+sudo sh install-driver.sh
+
+sudo modprobe 88x2bu
+~~~
+  
+### 3) Check installation  
+  
+~~~
+lsmod | grep 88x2bu
+~~~
+  
+If there is an error like "modprobe: ERROR: could not insert '88x2bu' key was rejected by service", we should disable SecureBoot in BIOS!  
+Than check again:  
+~~~
+mokutil --sb-state
+~~~
+> SecureBoot disabled
+~~~
+lsmod | grep 88x2bu
+~~~
+> **88x2bu**     3903488  0  
+> cfg80211   1363968  3 **88x2bu**,rtw88_core,mac80211  
+
+~~~
+nmcli
+~~~
+> wlx90de80a782e1: connecting (getting IP configuration) to Supervisor wlx90de80a782e1  
+>         "Realtek RTL88x2bu"  
+>         wifi (rtw_8822bu), 90:DE:80:A7:82:E1, hw, mtu 1500  
+      
+### 4) Edit config (/etc/modprobe.d/88x2bu.conf)
+**IMPORTANT**: Prevent loading old driver rtw88 8822bu!
+~~~
+sudo ./edit-options.sh
+~~~
+> blacklist rtw88_8822bu  
+> options 88x2bu rtw_switch_usb_mode=1 rtw_led_ctrl=1  
+  
