@@ -95,6 +95,7 @@ cd esp-matter
 ./install.sh
 cd ..
 ~~~
+
 If bugs occured:
 ~~~
 cd ~/esp-matter/connectedhomeip/connectedhomeip
@@ -102,6 +103,8 @@ git clean -Xdf
 source ./scripts/bootstrap.sh
 ~~~
 
+If a fatal error occurs (e.g. "no response from https://git.gitlab.arm.com/"), try setting DNS to "8.8.8.8" and "8.8.4.4".  
+  
 .bashrc:
 ~~~
 #-- Alias for setting up the ESP-IDF environment
