@@ -207,3 +207,15 @@ sudo ./edit-options.sh
 > blacklist rtw88_8822bu  
 > options 88x2bu rtw_switch_usb_mode=1 rtw_led_ctrl=1  
   
+
+## Archives
+
+### Create a .tar.gz archive of a folder
+~~~
+tar -czvf archive_name.tar.gz /path/to/your/folder
+~~~
+
+### Unpack a .tar.gz archive
+~~~
+tar -xvzf filename.tar.gz
+~~~
