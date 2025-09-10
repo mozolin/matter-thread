@@ -36,6 +36,8 @@ idf.py menuconfig
 
 **2) Using Ethernet (with Sub-Ethernet board):**  
 ![](../images/otbr/esp-thread-border-router-sub-ethernet.jpg)  
+
+[Ethernet based Thread Border Router](https://docs.espressif.com/projects/esp-thread-br/en/latest/dev-guide/build_and_run.html#ethernet-based-thread-border-router)  
   
 ![](../images/otbr/esp_otbr_menuconfig_02.png)  
   
