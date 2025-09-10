@@ -6,8 +6,12 @@
 [https://openthread.io/guides/border-router/espressif-esp32](https://openthread.io/guides/border-router/espressif-esp32)  
 [https://openthread.io/codelabs/esp-openthread-hardware](https://openthread.io/codelabs/esp-openthread-hardware)  
  
+# 1) Hardware
+
 ![](../images/otbr/esp-thread-border-router-board.jpg)  
 Note: Only the USB2 port on the ESP Thread Border Router Board needs to be connected to the host.
+
+# 2) Installation
 
 ~~~
 D:
@@ -35,7 +39,7 @@ idf.py menuconfig
   
 ![](../images/otbr/esp_otbr_menuconfig_02.png)  
   
-**Common settings:**  
+**3) Common settings:**  
 ![](../images/otbr/esp_otbr_menuconfig_03.png)  
  
 ![](../images/otbr/esp_otbr_menuconfig_04.png)  
@@ -46,26 +50,15 @@ idf.py menuconfig
 idf.py -p COM3 build flash monitor
 ~~~
 
-If ethernet connection failed:  
->   
+If the ethernet connection fails, the parameters in the *"Example connection configuration"* section (see above *"2) Using Ethernet..."*) are most likely incorrect.  
+  
 > E (6252) w5500.mac: W5500 version mismatched, expected 0x04, got 0x0hx  
 > E (6252) w5500.mac: emac_w5500_init(826): verify chip ID failed  
 > E (6252) esp_eth: esp_eth_driver_install(228): init mac failed  
 > ESP_ERROR_CHECK failed: esp_err_t 0x10a (ESP_ERR_INVALID_VERSION) at 0x4202126a  
-> ===========================
-> E (6144) dm9051.mac: dm9051_verify_id(307): wrong Vendor ID  
-> E (6144) dm9051.mac: emac_dm9051_init(798): verify chip ID failed  
-> E (6144) esp_eth: esp_eth_driver_install(228): init mac failed  
-> ESP_ERROR_CHECK failed: esp_err_t 0x10a (ESP_ERR_INVALID_VERSION) at 0x42021266  
-> ===========================
-> E (6150) opencores.emac: CONFIG_ETH_USE_OPENETH should only be used when running in QEMU.  
-> E (6150) opencores.emac: When running the app on the ESP32, use CONFIG_ETH_USE_ESP32_EMAC instead.  
-> abort() was called at PC 0x42022542 on core 1    
->   
   
-try to change...  
-![](../images/otbr/esp_otbr_menuconfig_07.png)  
-  
+# 3) Form a Thread network
+
 Now we can form a Thread network using the OpenThread command line on ESP Thread Border Router Board (BR Commissioner):
 ~~~
 dataset init new
@@ -122,7 +115,7 @@ leader
 Done  
 
 
-# Example: OpenThread Border Router + End Device + ChipTool
+# 4) Example: OpenThread Border Router + End Device + ChipTool
 ~/esp-thread-br/examples/basic_thread_border_router : OpenThread Border Router  
   
 ## End Device
