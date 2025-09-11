@@ -1,0 +1,9 @@
+menu "mDNS Hostname Example"
+
+    config MIKE_MDNS_HOSTNAME
+        string "mDNS Hostname Example"
+        default "esp-ot-br"
+        help
+            Use this option to set mDNS hostname.
+
+endmenu
