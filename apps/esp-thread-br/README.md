@@ -188,7 +188,7 @@ Add to the beginning of the file:
 > CONFIG_OPENTHREAD_BR_START_WEB=y  
 >  
   
-***See "3) mDNS: instance name and hostname" section for descriptions of the "CONFIG_MIKE_MDNS_HOSTNAME" parameter!***  
+***See "3) mDNS: custom instance name and hostname" section for descriptions of the "CONFIG_MIKE_MDNS_HOSTNAME" parameter!***  
     
 Add to the "Ethernet" section:  
 > CONFIG_EXAMPLE_CONNECT_ETHERNET=y  
@@ -210,7 +210,7 @@ Add "Wi-Fi" section:
 It is necessary to use **only one of two** configurations for settings: either "Ethernet" or "Wi-Fi". For example, if it is assumed that OTBR will work via Ethernet, all parameters of the "Wi-Fi" section **should be hidden**!  
 -->
 
-## 3) mDNS: instance name and hostname
+## 3) mDNS: custom instance name and hostname
 The "CONFIG_MIKE_MDNS_HOSTNAME" parameter specifies custom values for the mDNS instance name and mDNS hostname.  
   
 Example: the value of this parameter "ESP OTBR Mike Board N5" will be displayed in the flow network as:  
@@ -244,3 +244,5 @@ idf_component_register(SRCS "esp_ot_br.c" "mdns_utils.c"
     #endif
 ...
 ~~~
+![](../../images/otbr/esp_otbr_custom_mdns_names.jpg)  
+  
