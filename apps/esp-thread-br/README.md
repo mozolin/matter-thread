@@ -1,9 +1,16 @@
 
-# OTBR Web Page Optimization
+# ESP OTBR Example Optimization
 https://github.com/espressif/esp-thread-br.git  
+**1) Web Page**  
+**2) Configuration parameters**  
+**3) mDNS: instance name and hostname**  
+
+## 1) Web Page
+
+Considering that the ESP32-S3 chip on the ESP OTBR board can have 8MB or 16MB of flash memory, we can optimize the web page code inside the OTBR.  
+Moreover, we can set custom values for mDNS instance name and mDNS hostname.  
   
-Considering that the ESP32-S3 chip on the ESP OTBR board has 16MB of flash memory, we can optimize the web page code inside the OTBR.  
-In any case, this is worth checking if the flash memory capacity is really 16 MB:  
+In any case, this is worth checking if the flash memory capacity is really more than 4MB:  
 ~~~
 esptool -p COM3 flash_id
 ~~~
@@ -33,11 +40,17 @@ rcp_fw,     data, spiffs,   , 640K,
 
 ### Change flash value in configuration
 /examples/basic_thread_border_router/sdkconfig.defaults:  
-Change *ESPTOOLPY_FLASHSIZE_4MB* to **ESPTOOLPY_FLASHSIZE_16MB**
+Change *ESPTOOLPY_FLASHSIZE_4MB* to **ESPTOOLPY_FLASHSIZE_8MB** or **ESPTOOLPY_FLASHSIZE_16MB**
+>  
+> CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y  
+>  
+  
+Or  
+  
 >  
 > CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y  
 >  
- 
+  
 The original HTML includes 3 links:
 ~~~
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -165,3 +178,69 @@ W (4565) otbr_web: #
 W (4565) otbr_web: ###########################################
 ~~~ 
 So, we can run this URL, http://10.122.251.157:80/index.html or its minified version http://10.122.251.157:80/index.min.html 
+
+## 2) Configuration parameters
+/examples/basic_thread_border_router/sdkconfig.defaults:  
+Add to the beginning of the file:  
+>  
+> CONFIG_MIKE_MDNS_HOSTNAME="ESP OTBR Mike Board N5"  
+> CONFIG_OPENTHREAD_BR_AUTO_START=y  
+> CONFIG_OPENTHREAD_BR_START_WEB=y  
+>  
+  
+***See "3) mDNS: instance name and hostname" section for descriptions of the "CONFIG_MIKE_MDNS_HOSTNAME" parameter!***  
+    
+Add to the "Ethernet" section:  
+> CONFIG_EXAMPLE_CONNECT_ETHERNET=y  
+> CONFIG_EXAMPLE_ETHERNET_EMAC_TASK_STACK_SIZE=2048  
+> CONFIG_EXAMPLE_USE_SPI_ETHERNET=y  
+  
+Add "Wi-Fi" section:  
+> \#  
+> \# Wi-Fi  
+> \#   
+> CONFIG_EXAMPLE_CONNECT_WIFI=y  
+> CONFIG_EXAMPLE_PROVIDE_WIFI_CONSOLE_CMD=y  
+> CONFIG_EXAMPLE_WIFI_SSID="MIKE_OFFICE"  
+> CONFIG_EXAMPLE_WIFI_PASSWORD="mike_secret_password"  
+> CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY=1000000  
+> \# end of Wi-Fi  
+  
+<!--  
+It is necessary to use **only one of two** configurations for settings: either "Ethernet" or "Wi-Fi". For example, if it is assumed that OTBR will work via Ethernet, all parameters of the "Wi-Fi" section **should be hidden**!  
+-->
+
+## 3) mDNS: instance name and hostname
+The "CONFIG_MIKE_MDNS_HOSTNAME" parameter specifies custom values for the mDNS instance name and mDNS hostname.  
+  
+Example: the value of this parameter "ESP OTBR Mike Board N5" will be displayed in the flow network as:  
+- Instance name: display name (ESP OTBR Mike Board N5)  
+- Host name: technical name (esp-otbr-mike-board-n5.local)  
+ 
+Adding the "CONFIG_MIKE_MDNS_HOSTNAME" parameter will affect edits in several places of the application:  
+- adding the *main/Kconfig.projbuild* file with the necessary settings for "idf.py menuconfig"  
+- adding the *main/mdns_utils.c* file, containing a function for correctly converting the parameter value to Hostname  
+- adding the *main/mdns_utils.h* file, containing a declaration of the function from *main/mdns_utils.c*  
+- adding code to the *main/CMakeLists.txt* file to include *main/mdns_utils.c* in the compilation process  
+~~~
+idf_component_register(SRCS "esp_ot_br.c" "mdns_utils.c"
+~~~
+- adding code to the *main/esp_ot_br.c* file to condition the use of this parameter  
+~~~
+...
+#ifdef CONFIG_MIKE_MDNS_HOSTNAME
+  #include "mdns_utils.h"
+#endif
+...
+    #ifdef CONFIG_MIKE_MDNS_HOSTNAME
+      char hostname[256];
+  		//-- convert instance name to correct hostname
+  		hostname_optimized(CONFIG_MIKE_MDNS_HOSTNAME, hostname);
+      ESP_ERROR_CHECK(mdns_hostname_set(hostname));
+      ESP_ERROR_CHECK(mdns_instance_name_set(CONFIG_MIKE_MDNS_HOSTNAME));
+    #else
+      //-- default values
+      ESP_ERROR_CHECK(mdns_hostname_set("esp-ot-br"));
+    #endif
+...
+~~~
