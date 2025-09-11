@@ -234,8 +234,8 @@ idf_component_register(SRCS "esp_ot_br.c" "mdns_utils.c"
 ...
     #ifdef CONFIG_MIKE_MDNS_HOSTNAME
       char hostname[256];
-  		//-- convert instance name to correct hostname
-  		hostname_optimized(CONFIG_MIKE_MDNS_HOSTNAME, hostname);
+      //-- convert instance name to correct hostname
+      hostname_optimized(CONFIG_MIKE_MDNS_HOSTNAME, hostname);
       ESP_ERROR_CHECK(mdns_hostname_set(hostname));
       ESP_ERROR_CHECK(mdns_instance_name_set(CONFIG_MIKE_MDNS_HOSTNAME));
     #else
