@@ -190,3 +190,134 @@ Status = 0x00 (0 = SUCCESS)
 
 ## End Device  
 ![](../images/otbr/ESP32-C6_LED-ON.jpg)  
+
+
+
+# 5) Example "basic_thread_border_router": flash firmware for 8MB and 16MB flash size
+
+### - Partition table binary generated. Contents:
+~~~
+*******************************************************************************
+# ESP-IDF Partition Table
+# Name,      Type, SubType, Offset,   Size,  Flags
+#--------------------------------------------------
+nvs,         data, nvs,     0x9000,   24K,
+otadata,     data, ota,     0xf000,   8K,
+phy_init,    data, phy,     0x11000,  4K,
+ota_0,       app,  ota_0,   0x20000,  1600K,
+ota_1,       app,  ota_1,   0x1b0000, 1600K,
+web_storage, data, spiffs,  0x340000, 640K,
+rcp_fw,      data, spiffs,  0x3e0000, 640K,
+*******************************************************************************
+~~~
+
+### - To flash, run:
+~~~
+python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m
+  0x000000 build\bootloader\bootloader.bin
+  0x008000 build\partition_table\partition-table.bin
+  0x00f000 build\ota_data_initial.bin
+  0x020000 build\esp_ot_br.bin
+  0x340000 build\web_storage.bin
+  0x3e0000 build\rcp_fw.bin
+~~~
+
+Files size:
+~~~
+1451 K │ esp_ot_br.bin
+  8192 │ ota_data_initial.bin
+655360 │ rcp_fw.bin
+655360 │ web_storage.bin
+ 20880 │ bootloader.bin 
+  3072 │ partition-table.bin
+~~~
+
+~~~
+Configuring flash size...
+Flash will be erased from 0x00000000 to 0x00005fff...
+Flash will be erased from 0x00020000 to 0x0018afff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x0000f000 to 0x00010fff...
+Flash will be erased from 0x003e0000 to 0x0047ffff...
+Flash will be erased from 0x00340000 to 0x003dffff...
+~~~
+
+### - Flashing process
+**bootloader.bin**  
+> Compressed 20880 bytes to 13278...  
+> Wrote 20880 bytes (13278 compressed) at 0x00000000  
+  
+**esp_ot_br.bin (1600K)**  
+> Compressed 1485968 bytes to 988504...  
+> Wrote 1485968 bytes (988504 compressed) at 0x00020000  
+  
+**partition-table.bin**  
+> Compressed 3072 bytes to 159...  
+> Wrote 3072 bytes (159 compressed) at 0x00008000  
+  
+**ota_data_initial.bin (8K)**  
+> Compressed 8192 bytes to 31...  
+> Wrote 8192 bytes (31 compressed) at 0x0000f000  
+  
+**rcp_fw.bin (640K)**  
+> Compressed 655360 bytes to 155948...  
+> Wrote 655360 bytes (155948 compressed) at 0x003e0000  
+  
+**web_storage.bin (640K)**  
+> Compressed 655360 bytes to 154806...  
+> Wrote 655360 bytes (154806 compressed) at 0x00340000  
+  
+
+# 6) Example "basic_thread_border_router": flash firmware for 4MB flash size
+We should remove one of the OTA blocks to save memory with the flash size limitation of 4MB, let it be ota_1...  
+  
+### - Partition table binary generated. Contents:
+~~~
+*******************************************************************************
+# ESP-IDF Partition Table
+# Name,      Type, SubType, Offset,   Size,  Flags
+#--------------------------------------------------
+nvs,         data, nvs,     0x9000,   24K,
+otadata,     data, ota,     0xf000,   8K,
+phy_init,    data, phy,     0x11000,  4K,
+ota_0,       app,  ota_0,   0x20000,  1600K,
+web_storage, data, spiffs,  0x1b0000, 640K,
+rcp_fw,      data, spiffs,  0x250000, 640K,
+*******************************************************************************
+~~~
+
+### - To flash, run:
+~~~
+python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 4MB --flash_freq 80m
+  0x000000 build\bootloader\bootloader.bin
+  0x008000 build\partition_table\partition-table.bin
+  0x00f000 build\ota_data_initial.bin
+  0x020000 build\esp_ot_br.bin
+  0x1b0000 build\web_storage.bin
+  0x250000 build\rcp_fw.bin
+~~~
+
+### - Flashing process
+**bootloader.bin**  
+> Compressed 20880 bytes to 13277...  
+> Wrote 20880 bytes (13277 compressed) at 0x00000000  
+
+**esp_ot_br.bin (1600K)**  
+> Compressed 1485984 bytes to 988526...  
+> Wrote 1485984 bytes (988526 compressed) at 0x00020000  
+
+**partition-table.bin**  
+> Compressed 3072 bytes to 150...  
+> Wrote 3072 bytes (150 compressed) at 0x00008000  
+
+**ota_data_initial.bin (8K)**  
+> Compressed 8192 bytes to 31...  
+> Wrote 8192 bytes (31 compressed) at 0x0000f000  
+
+**rcp_fw.bin (640K)**  
+> Compressed 655360 bytes to 155948...  
+> Wrote 655360 bytes (155948 compressed) at 0x00250000  
+
+**web_storage.bin (640K)**  
+> Compressed 655360 bytes to 154806...  
+> Wrote 655360 bytes (154806 compressed) at 0x001b0000  
