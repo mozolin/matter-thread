@@ -70,7 +70,7 @@ network_device: 192.168.0.202:6638
 ~~~
 Here:
 - "device" - any unused port
-
+  
 If there is no serial port in the OTBR settings window, you can connect a development board based on Espressif chips, such as the ESP32-H2, flashed with a minimal firmware for working on the Thread network, such as [mike_h2_tiny](../apps/mike_h2_tiny), to the Raspberry Pi via USB. In this case, you can use the port created by the ESP32-H2 chip in the OTBR settings.  
   
 ![](HA-Office/smlight_otbr_01_settings.png)  
