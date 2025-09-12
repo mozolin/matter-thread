@@ -17,7 +17,7 @@ SSID for TP-Link router: MIKE_OFFICE
 ### 2) To do a hard reset of SLZB-06 device
 For this, turn on the device with the button pressed, when the LEDs start to flash, release the button.
 
-
+<!--
 ### 3) Configure Wi-Fi and "Matter-over-thread" mode for SLZB-06
 - Open: http://192.168.0.202/ (Ethernet connection)
 - Mode -> Connection mode -> Wi-Fi connection
@@ -28,6 +28,25 @@ For this, turn on the device with the button pressed, when the LEDs start to fla
 - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread -> Save
 - Mode -> Connection mode -> Ethernet connection -> Save
 - Open: http://192.168.0.202/ (Ethernet connection)
+-->
+
+### 3) Configure Wi-Fi and "Matter-over-thread" mode for SLZB-06
+- Find WiFi network of type "SLZB-06_198226" (open network)
+- Connect
+- Open http://slzb-06.local in browser
+- Configure SLZB-06:
+  - Mode -> Radio CC2652P mode -> switch to: Matter-over-Thread
+  - Using Wi-Fi connection:
+    - Mode -> Connection mode -> switch to: Wi-Fi connection -> Save
+    - Network -> Wi-Fi Setup -> Scan for Wi-Fi networks
+    - Choose: SSID = MIKE_OFFICE, Password: ######
+    - Network -> Wi-Fi Setup -> ON: DHCP status for Wi-Fi -> Save
+    - Open: http://192.168.0.201/ (Wi-Fi connection)
+  - Using Ethernet connection:
+    - Mode -> Connection mode -> switch to: Ethernet connection -> Save
+    - Network -> Ethernet options -> ON: DHCP status -> Save
+    - Open: http://192.168.0.202/ (Ethernet connection)
+
 
 ### 4) in Home Assistant (integration)
 - Settings -> Devices & Services -> Add integration
@@ -52,7 +71,23 @@ network_device: 192.168.0.202:6638
 Here:
 - "device" - any unused port
 
+If there is no serial port in the OTBR settings window, you can connect a development board based on Espressif chips, such as the ESP32-H2, flashed with a minimal firmware for working on the Thread network, such as [mike_h2_tiny](../apps/mike_h2_tiny), to the Raspberry Pi via USB. In this case, you can use the port created by the ESP32-H2 chip in the OTBR settings.  
+  
+![](HA-Office/smlight_otbr_01_settings.png)  
 
+~~~
+device: >-
+  /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit-if00
+baudrate: "460800"
+flow_control: false
+autoflash_firmware: false
+otbr_log_level: notice
+firewall: true
+nat64: false
+network_device: 192.168.0.202:6638
+~~~
+
+  
 ### 6) in Home Assistant
 - Settings -> Devices & Services -> Thread -> CONFIGURE -> icon "Thread network information"
 Get value of "Active dataset TLVs"  
