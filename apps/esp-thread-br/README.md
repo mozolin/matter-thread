@@ -1,9 +1,17 @@
 
 # ESP OTBR Example Optimization
-https://github.com/espressif/esp-thread-br.git  
-**1) Web Page**  
-**2) Configuration parameters**  
-**3) mDNS: instance name and hostname**  
+Based on [ESP-THREAD-BR Release v1.2](https://github.com/espressif/esp-thread-br/releases/tag/v1.2)  
+  
+*Content:*  
+- **1) Web Page**  
+- **2) Configuration parameters**  
+- **3) mDNS: instance name and hostname**  
+  
+*Links:*  
+- [Crypt Utility](crypt/)  
+- [Minify Utility](minify/)  
+- [Optimized Code](optimized/)  
+  
 
 ## 1) Web Page
 
