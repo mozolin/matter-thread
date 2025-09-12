@@ -1,1 +1,1 @@
-### Example of a single on-off switch to quickly pair an end device with the Thread network in Home Assistant
+### Example firmware for creating a child/router in a Thread network without using any end devices
