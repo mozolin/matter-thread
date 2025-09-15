@@ -17,7 +17,7 @@ Downloads:
 - Download J-Link Software and Documentation Pack: JLink_Linux_V864_x86_64.deb
 - Download nRF5x Command Line Tools: nrf-command-line-tools_10.24.2_amd64.deb
 - Download ARM GNU Toolchain portable archive: gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
-
+- Download nrfUtil: nrfutil
 
   
 **3) Configuring a radio co-processor**  
