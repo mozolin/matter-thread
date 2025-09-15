@@ -57,7 +57,8 @@ Used:
 - gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2  
 - JLink_Linux_V864_x86_64.deb  
 - nrf-command-line-tools_10.24.2_amd64.deb  
-- nrfconnect-5.2.0-x86_64.AppImage  
+- nrfconnect-5.2.0-x86_64.AppImage 
+- nrfutil   
 
 
 # Firmware
