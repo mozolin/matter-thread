@@ -1,7 +1,7 @@
 
 # Documentation
 **1) OpenThread Border Router**  
-[https://openthread.io/guides/border-router](https://openthread.io/guides/border-router)  
+[https://openthread.io/guides/border-router/prepare](https://openthread.io/guides/border-router/prepare)  
 Used:  
 - Raspberry Pi (Thread border router)  
 - nRF52840 USB Dongle (RCP)  
