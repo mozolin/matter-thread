@@ -13,13 +13,14 @@ Used:
 - x86-based Linux (Ubuntu) machine (to serve as the host to a RCP and to flash all nRF52840 PDK boards)
 - nRF52840 PDK boards (RCP and End devices)
   
-Downloads:  
+Downloads (see "Software" section below):  
 - Download J-Link Software and Documentation Pack: JLink_Linux_V864_x86_64.deb
 - Download nRF5x Command Line Tools: nrf-command-line-tools_10.24.2_amd64.deb
 - Download ARM GNU Toolchain portable archive: gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
-- Download nrfUtil: nrfutil
+- Download nRF Connect for Desktop: nrfconnect-5.2.0-x86_64.AppImage 
+- Download nRF Util: nrfutil
 
-  
+ 
 **3) Configuring a radio co-processor**  
 [https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#configuring_a_radio_co-processor](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#configuring_a_radio_co-processor)  
   
@@ -34,7 +35,13 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 ~~~
-
+When running \*.AppImage, an error may occur:  
+> dlopen(): error loading libfuse.so.2  
+  
+This can be fixed by installing the library:
+~~~
+sudo apt install libfuse2
+~~~
   
 **4) How to Setup a OpenThread Border Router Using a NRF52840 USB Stick and Connect the Thread Sensor Tag**  
 [https://www.instructables.com/How-to-Setup-a-OpenThread-Border-Router-Using-a-NR/](https://www.instructables.com/How-to-Setup-a-OpenThread-Border-Router-Using-a-NR/)  
