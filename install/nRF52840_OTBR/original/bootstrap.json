@@ -1,0 +1,9 @@
+{
+  "nrfutil_core_tarball_urls": {
+    "aarch64-apple-darwin": "https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/packages/nrfutil/nrfutil-aarch64-apple-darwin-8.0.0.tar.gz",
+    "x86_64-apple-darwin": "https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/packages/nrfutil/nrfutil-x86_64-apple-darwin-8.0.0.tar.gz",
+    "x86_64-pc-windows-msvc": "https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/packages/nrfutil/nrfutil-x86_64-pc-windows-msvc-8.0.0.tar.gz",
+    "x86_64-unknown-linux-gnu": "https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/packages/nrfutil/nrfutil-x86_64-unknown-linux-gnu-8.0.0.tar.gz",
+    "aarch64-unknown-linux-gnu": "https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/packages/nrfutil/nrfutil-aarch64-unknown-linux-gnu-8.0.0.tar.gz"
+  }
+}

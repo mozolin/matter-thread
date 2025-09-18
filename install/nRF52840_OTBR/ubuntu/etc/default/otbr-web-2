@@ -1,0 +1,6 @@
+OTBR_WEB_OPTS="-d 0 -p 8282 -a 0.0.0.0"
+OTBR_WEB_PORT=8282
+OTBR_WEB_HOST=0.0.0.0
+#OTBR_WEB_AGENT_SOCKET-/var/run/otbr-agent/otbr-agent.sock
+OTBR_WEB_DEBUG=false
+OTBR_WEB_AUTOSTART=1

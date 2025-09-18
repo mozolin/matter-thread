@@ -1,0 +1,10 @@
+# Default settings for otbr-agent. This file is sourced by systemd
+
+# Options to pass to otbr-agent
+OTBR_AGENT_OPTS="-I wpan1 -B enp2s0 spinel+hdlc+uart:///dev/ttyACM1 trel://enp2s0"
+OTBR_AGENT_PORT=10002
+OTBR_AGENT_DEBUG_LEVEL=3
+OTBR_AGENT_BORDER_ROUTING=1
+OTBR_AGENT_AUTOSTART=1
+OTBR_AGENT_BACKBONE_INTERFACE=enp2s0
+OTBR_NO_AUTO_ATTACH=0

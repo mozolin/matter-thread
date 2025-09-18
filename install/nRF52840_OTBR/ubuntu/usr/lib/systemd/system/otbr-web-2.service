@@ -1,0 +1,15 @@
+[Unit]
+Description=Border Router Web 2
+After=otbr-agent-2.service
+ConditionPathExists=/usr/sbin/otbr-web
+
+[Service]
+EnvironmentFile=-/etc/default/otbr-web-2
+ExecStart=/usr/sbin/otbr-web $OTBR_WEB_OPTS
+Restart=on-failure
+RestartSec=5
+RestartPreventExitStatus=SIGKILL
+
+[Install]
+WantedBy=multi-user.target
+Alias=otbr-web-2.service

@@ -1,0 +1,47 @@
+nrfutil 
+
+Usage:
+    nrfutil [+MODIFIER] [OPTIONS] [SUBCOMMAND]
+
+Options:
+      --log-level <LOG_LEVEL>
+          Set the maximum log level [env: NRFUTIL_LOG=] [possible values: off,
+          error, warn, info, debug, trace]
+      --log-output <LOG_OUTPUT>
+          Set log output type: --log-output=stdout --log-output=file ...
+          [possible values: file, stdout]
+      --json
+          Print output in a JSON Lines format
+      --json-pretty
+          Print output as formatted JSON
+      --skip-overhead
+          Skip all message overhead when in JSON output mode, outputting only
+          the data part of "info" messages and ignoring the rest
+      --changelog
+          Print the latest changelog entry
+      --changelog-full
+          Print the full changelog
+  -V, --version
+          
+      --help-extended
+          Show comprehensive documentation
+      --license
+          Show license information for in-built dependencies
+      --detect-proxy
+          Invoke libproxy's 'proxy' utility program to retrieve proxy server
+          info and use it
+  -h, --help
+          Print help (see more with '--help')
+
+
+Built-in nrfutil commands (see installed commands with `list`):
+  help             Show comprehensive documentation
+  install          Download and install nrfutil commands
+  upgrade          Upgrade nrfutil commands to the latest version
+  uninstall        Uninstall nrfutil commands [aliases: remove]
+  prepare-offline  Prepare local package and resource repositories for offline
+                   installs of nrfutil commands
+  search           Search for installable nrfutil commands in the package index
+  list             List installed nrfutil commands
+  self-upgrade     Upgrades the nrfutil core functionality to the latest version
+  config           Subcommands to interact with the main nrfutil configuration

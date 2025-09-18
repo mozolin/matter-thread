@@ -1,0 +1,42 @@
+{
+  "versions": {
+    "1": {
+      "platforms": {
+        "aarch64-apple-darwin": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-macos-aarch64.json"
+        },
+        "x86_64-apple-darwin": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-macos-x86_64.json"
+        },
+        "x86_64-pc-windows-msvc": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-windows-x86_64.json"
+        },
+        "x86_64-unknown-linux-gnu": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-linux-x86_64.json"
+        }
+      },
+      "download_url_template": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/{file_name}"
+    },
+    "2": {
+      "platforms": {
+        "aarch64-apple-darwin": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-macos-aarch64.json"
+        },
+        "x86_64-apple-darwin": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-macos-x86_64.json"
+        },
+        "x86_64-pc-windows-msvc": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-windows-x86_64.json"
+        },
+        "x86_64-unknown-linux-gnu": {
+          "index_url": "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/index-linux-x86_64.json"
+        }
+      },
+      "download_url_templates": [
+          "https://publicburan.blob.core.windows.net/artifactory/NCS/external/bundles/v3/{file_name}",
+          "https://files.nordicsemi.com/artifactory/NCS/external/bundles/v3/{file_name}"
+      ]
+    }
+  }
+}
+

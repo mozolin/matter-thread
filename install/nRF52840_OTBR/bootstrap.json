@@ -1,0 +1,5 @@
+{
+  "nrfutil_core_tarball_urls": {
+    "x86_64-pc-windows-msvc":    "https://mozolin.info/nrfutil/nrfutil-x86_64-pc-windows-msvc-8.1.1.tar.gz",
+  }
+}

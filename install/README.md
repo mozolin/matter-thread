@@ -18,6 +18,7 @@
   - 15. Remote shutdown Ubuntu (Home Assistant)
   - 16. Set port access
   - 17. Ubuntu: what we need to install
+  - 18. Install OTBR (Ubuntu + nRF52840 RCP)
   
 
 - [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
