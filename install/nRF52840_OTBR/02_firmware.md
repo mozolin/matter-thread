@@ -22,6 +22,7 @@ pip3 install -U west
 ### 4) Скачать ncs-toolchain и распаковать
 [ncs-toolchain-x86_64-windows](https://publicburan.blob.core.windows.net/artifactory/NCS/external/bundles/v3/ncs-toolchain-x86_64-windows-0b393f9e1b.tar.gz)  
 например, в C:\\Users\\[username]\\.nrfutil\\ncs-toolchain:  
+  
 ![](images/ncs-toolchain_01.png)  
   
 ![](images/ncs-toolchain_02.png)  
