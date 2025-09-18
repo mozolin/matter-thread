@@ -39,6 +39,9 @@ In the terminal, check the current network PanID - it's 0x2c57. Join the existin
 ![](images/nrf52840_rcp_otbr_join_thread.png)  
   
 ~~~
+sudo ot_ctl
+~~~
+~~~
 panid
 dataset set active 0e080000000000010000000300000f4a0300001035060004001fffe00208dead00beef00cafe0708fd000db800a00000051000112233445566778899aabbccddeeff030e4f70656e5468726561642d455350010212340410104810e2315100afd6bc9215a6bfac530c0402a0f7f8
 dataset commit active
@@ -100,6 +103,11 @@ Create/change settings for the second OTBR instance:
 We will join a second OTBR instance to the existing Thread network. In the Home Assistant "Thread" integration, copy the "Active dataset TLVs" value and run a few commands in the terminal (see above).  
   
 ![](images/nrf52840_rcp_otbr_cli_for_2_instances.png)  
+~~~
+sudo ot-ctl -I wpan0
+
+sudo ot-ctl -I wpan1
+~~~
   
 Let's check the PanID of the second OTBR instance - it will also be equal to 0x1234, that is, the PanID of the existing network.  
   

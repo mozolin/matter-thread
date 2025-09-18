@@ -99,7 +99,7 @@ We can see the firmware process:
   
 ![](images/nrfutil-flash_01.png)  
   
-We can check the firmware's functionality using the Terminal serial port:  
+We can check the firmware's functionality using the Terminal Serial Port:  
     
 ![](images/nrfutil-flash_02.png)  
   
