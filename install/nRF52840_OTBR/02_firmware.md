@@ -97,11 +97,11 @@ nrfutil nrf5sdk-tools dfu usb-serial -pkg zephyr.zip -p COM3
 ~~~
 We can see the firmware process:  
   
-![](images/nrfutil-flash_01.png)  
+![](images/nrfutil-flash_process.png)  
   
 We can check the firmware's functionality using the Terminal Serial Port:  
     
-![](images/nrfutil-flash_02.png)  
+![](images/nrfutil-flash_check.png)  
   
 This is an example of what the ncs_toolchain folder structure might look like for flashing the nRF52840 as an RCP:  
   
