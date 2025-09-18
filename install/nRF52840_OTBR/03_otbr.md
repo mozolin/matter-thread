@@ -116,6 +116,33 @@ Let's check the PanID of the second OTBR instance - it will also be equal to 0x1
 As a result, we can verify that the second OTBR instance is also in the existing Tread network.  
   
 ![](images/nrf52840_rcp_otbr_in_HA_final.png)  
+  
+Add the otbr-agent-2 service to startup:
+~~~
+sudo systemctl enable otbr-agent-2
+~~~
+> Created symlink /etc/systemd/system/multi-user.target.wants/otbr-agent-2.service → /usr/lib/systemd/system/otbr-agent-2.service.  
+  
+Check it:
+~~~
+sudo systemctl is-enabled otbr-agent-2
+~~~
+> enabled  
+
+    
+Add the otbr-web-2 service to startup:
+~~~
+sudo systemctl enable otbr-web-2
+~~~
+> Created symlink /etc/systemd/system/multi-user.target.wants/otbr-web-2.service → /usr/lib/systemd/system/otbr-web-2.service.  
+  
+Check it:
+~~~
+sudo systemctl is-enabled otbr-web-2
+~~~
+> enabled  
+
+
     
   
 # Section Contents
