@@ -2,7 +2,8 @@
 # nRF Util and its packages
 
 Если нет доступа к ресурсу домена *https://files.nordicsemi.com/* (403 Forbidden) и, значит, нет возможности использовать стандартные инструменты от Nordic Semiconductor (например, nRF Connect for Desktop Apps), можно воспользоваться [китайским "зеркалом"](https://files.nordicsemi.cn/ui/packages).  
-[nRF Util branch](https://files.nordicsemi.cn/ui/repos/tree/General/swtools/external/nrfutil)
+[nRF Util branch](https://files.nordicsemi.cn/ui/repos/tree/General/swtools/external/nrfutil)  
+  
 ![](images/nrfutil_cn.png)  
 
 
@@ -13,12 +14,12 @@ nrfutil
 Возможная ошибка:  
   
 > Error: Failed to bootstrap core functionality before executing command.  
-> HTTP request to default bootstrap resource:
-> https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/index/bootstrap.json
-> failed with HTTP code: 403 Forbidden.
-> Please check that your internet connection is functioning. If you use a proxy, please try the --detect-proxy flag or manually set the appropriate HTTP_PROXY-style environment variable(s).
-> To use a custom bootstrap config, set NRFUTIL_BOOTSTRAP_CONFIG_URL.
-> To bootstrap directly from a nrfutil-core package tarball, set NRFUTIL_BOOTSTRAP_TARBALL_PATH.
+> HTTP request to default bootstrap resource:  
+> https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/index/bootstrap.json  
+> failed with HTTP code: 403 Forbidden.  
+> Please check that your internet connection is functioning. If you use a proxy, please try the --detect-proxy flag or manually set the appropriate HTTP_PROXY-style environment variable(s).  
+> To use a custom bootstrap config, set NRFUTIL_BOOTSTRAP_CONFIG_URL.  
+> To bootstrap directly from a nrfutil-core package tarball, set NRFUTIL_BOOTSTRAP_TARBALL_PATH.  
   
 ### Get original bootstrap.json
 [Original bootstrap.json](https://files.nordicsemi.cn/ui/repos/tree/General/swtools-cache/external/nrfutil/index/bootstrap.json)  
@@ -116,13 +117,13 @@ manifest.json,a7d898ded77381a448d8902b72c94071d191baf996762aeceba360763d55b01b
 ~~~
 nrfutil pkg
 ~~~
->Usage: pc_nrfutil_legacy_v6.1.7.exe pkg [OPTIONS] COMMAND [ARGS]...
->  This set of commands supports Nordic DFU package generation.
->Options:
->  --help  Show this message and exit.
->Commands:
->  display   Display the contents of a .zip package file.
->  generate  Generate a zip file for performing DFU.
+>Usage: pc_nrfutil_legacy_v6.1.7.exe pkg [OPTIONS] COMMAND [ARGS]...  
+>  This set of commands supports Nordic DFU package generation.  
+>Options:  
+>  --help  Show this message and exit.  
+>Commands:  
+>  display   Display the contents of a .zip package file.  
+>  generate  Generate a zip file for performing DFU.  
 
 Проделать всё то же самое для пакета "nrfutil-sdk-manager", также необходимого для создания и загрузки прошивки на nRF52840 USB Dongle.  
 
