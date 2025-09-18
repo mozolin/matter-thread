@@ -4,11 +4,11 @@
 **"Configuring radio co-processor"**  
 [https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#configuring_a_radio_co-processor](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#configuring_a_radio_co-processor)  
 
-**Installing west**  
+**"Installing west"**  
 [https://docs.zephyrproject.org/latest/develop/west/install.html](https://docs.zephyrproject.org/latest/develop/west/install.html)  
 
 
-### 2) Insrall west
+### 2) Install west
 ~~~
 pip3 install -U west
 ~~~
@@ -53,8 +53,8 @@ Memory region      Used Size  Region Size  %age Used
      IDT_LIST:          0 GB        32 KB      0.00%
 Generating ../merged.hex
 ~~~
-The merged.hex file will be located in the build/ folder.  
-The zephyr.hex file will be located in the build/coprocessor/zephyr/ folder.  
+The *merged.hex* file will be located in the *build/* folder.  
+The *zephyr.hex* file will be located in the *build/coprocessor/zephyr/* folder.  
 Both files contain the correct RCP firmware for the nRF52840 USB Dongle.  
 
 

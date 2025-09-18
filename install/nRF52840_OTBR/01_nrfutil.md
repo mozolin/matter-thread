@@ -50,7 +50,7 @@ and put it to another web server (http://localhost, for instance):
 
 
 ### Make and run script
-Run _run.cmd => files will be saved in C:\\Users\\[username]\\.nrfutil:  
+Run commands => files will be saved in C:\\Users\\[username]\\.nrfutil:  
 ~~~
 @echo off
 set NRFUTIL_BOOTSTRAP_CONFIG_URL=https://mozolin.info/nrfutil/bootstrap.json
