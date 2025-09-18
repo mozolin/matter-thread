@@ -1,7 +1,7 @@
 
 # nRF Util and its packages
 
-Если нет доступа к ресурсу домена *https://files.nordicsemi.com/* (403 Forbidden) и, значит, нет возможности использовать стандартные инструменты от Nordic Semiconductor (например, nRF Connect for Desktop Apps), можно воспользоваться [китайским "зеркалом"](https://files.nordicsemi.cn/ui/packages).  
+If we cannot access the resource on the domain *https://files.nordicsemi.com/* (403 Forbidden) and, therefore, cannot use standard tools from Nordic Semiconductor (for example, nRF Connect for Desktop Apps), we can use the [Chinese "mirror"](https://files.nordicsemi.cn/ui/packages).  
 [nRF Util branch](https://files.nordicsemi.cn/ui/repos/tree/General/swtools/external/nrfutil)  
   
 ![](images/nrfutil_cn.png)  
@@ -11,7 +11,7 @@
 ~~~  
 nrfutil
 ~~~
-Возможная ошибка:  
+Possible error:  
   
 > Error: Failed to bootstrap core functionality before executing command.  
 > HTTP request to default bootstrap resource:  
@@ -34,7 +34,7 @@ nrfutil
   }
 }
 ~~~
-Здесь могут возникнуть проблемы при скачивании tarball, если доступ к ресурсам *files.nordicsemi.com* закрыт.  
+There may be problems downloading the tarball if access to *files.nordicsemi.com* resources is denied.  
 
 ### Download nrfutil core tarball
 [nrfutil-x86_64-pc-windows-msvc-8.1.1.tar.gz](https://files.nordicsemi.cn/ui/native/swtools-cache/external/nrfutil/packages/nrfutil/nrfutil-x86_64-pc-windows-msvc-8.1.1.tar.gz)
@@ -56,8 +56,8 @@ Run _run.cmd => files will be saved in C:\\Users\\[username]\\.nrfutil:
 set NRFUTIL_BOOTSTRAP_CONFIG_URL=https://mozolin.info/nrfutil/bootstrap.json
 nrfutil > nrfutil.txt
 ~~~
-В случае удачного выполнение скрипта будет создана папка C:\\Users\\[username]\\.nrfutil
-Check, if nRF Util istalled by getting its version:
+If the script is successfully executed, the folder C:\\Users\\[username]\\.nrfutil will be created.  
+Check, if nRF Util is istalled by getting its version:  
 ~~~
 nrfutil -V
 ~~~
@@ -76,13 +76,13 @@ nrfutil -V
 ~~~  
 nrfutil install pkg
 ~~~
-Возможная ошибка:  
+Possible error:  
   
 > Error: Failed to query for package 'nrfutil-pkg' on package index - aborting before uninstall  
 > Caused by:  
 > HTTP request to 'https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/index/x86_64-pc-windows-msvc/nrfutil-pkg' was unsuccessful. Status code: **403 Forbidden**  
 
-Возможная ошибка:  
+Possible error:  
 ~~~
 nrfutil pkg
 ~~~
@@ -92,11 +92,11 @@ nrfutil pkg
 
 1) Unpack "nrfutil-nrf5sdk-tools" package (nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0.tar.gz)
 2) Put a copy of nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0 folder to C:\\Users\\[username]\\.nrfutil\\installed
-3) Переместить содержимое папки nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0/data to C:\\Users\\[username]\\.nrfutil:
-   - добавит содержимое папки bin в существующую папку bin
-   - добавит папку lib
-   - добавит содержимое папки share в существующую папку share
-4) исправить пути к файлам в настройках C:\\Users\\[username]\\.nrfutil\\installed\\nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0\\files (заменить "data/" на "../../")
+3) Move the contents of the nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0/data folder to C:\\Users\\[username]\\.nrfutil:
+   - Adds the contents of the bin folder to the existing bin folder
+   - Adds the lib folder
+   - Adds the contents of the share folder to the existing share folder
+4) Correct the file paths in the C:\\Users\\[username]\\.nrfutil\\installed\\nrfutil-nrf5sdk-tools-x86_64-pc-windows-msvc-1.1.0\\files settings (replace "data/" with "../../")
 ~~~
 Filepath,Checksum
 ../../bin/nrfutil-dfu.exe,b0adce8dcadc7efeb5e413b84300dd37d2fcc526647529561c4317caf2fcb4dd
@@ -113,7 +113,7 @@ Filepath,Checksum
 manifest.json,a7d898ded77381a448d8902b72c94071d191baf996762aeceba360763d55b01b
 ~~~
   
-Проверить, что проблема устранена:
+Check if the problem is resolved:
 ~~~
 nrfutil pkg
 ~~~
@@ -125,7 +125,7 @@ nrfutil pkg
 >  display   Display the contents of a .zip package file.  
 >  generate  Generate a zip file for performing DFU.  
 
-Проделать всё то же самое для пакета "nrfutil-sdk-manager", также необходимого для создания и загрузки прошивки на nRF52840 USB Dongle.  
+Do the same for the "nrfutil-sdk-manager" package, which is also needed to create and load firmware onto the nRF52840 USB Dongle.  
 
   
 # Section Contents

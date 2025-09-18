@@ -1,4 +1,4 @@
-# Как создать RCP прошивку для nRF52840 USB Dongle с помощью nrfutil и west (Windows)
+# How to create RCP Firmware for the nRF52840 USB Dongle Using nrfutil and west (Windows)
 
 ### 1) Links
 **"Configuring radio co-processor"**  
@@ -8,34 +8,34 @@
 [https://docs.zephyrproject.org/latest/develop/west/install.html](https://docs.zephyrproject.org/latest/develop/west/install.html)  
 
 
-### 2) Установить west
+### 2) Insrall west
 ~~~
 pip3 install -U west
 ~~~
 
 
-### 3) Узнать версию ncs-toolchain в config.json
+### 3) Find the ncs-toolchain version in config.json
 [config.json](https://files.nordicsemi.cn/ui/repos/tree/General/NCS/external/bundles/config.json)  
-Например, "ncs-toolchain-x86_64-windows-0b393f9e1b.tar.gz"  
+For example, "ncs-toolchain-x86_64-windows-0b393f9e1b.tar.gz"  
 
 
-### 4) Скачать ncs-toolchain и распаковать
+### 4) Download ncs-toolchain and unzip it
 [ncs-toolchain-x86_64-windows](https://publicburan.blob.core.windows.net/artifactory/NCS/external/bundles/v3/ncs-toolchain-x86_64-windows-0b393f9e1b.tar.gz)  
-например, в C:\\Users\\[username]\\.nrfutil\\ncs-toolchain:  
+For example, in C:\\Users\\[username]\\.nrfutil\\ncs-toolchain:  
   
 ![](images/ncs-toolchain_01.png)  
   
 ![](images/ncs-toolchain_02.png)  
 
   
-### 5) Запустить терминал
+### 5) Launch the terminal
 ~~~
 nrfutil sdk-manager toolchain launch --toolchain-path "C:\Users\[username]\.nrfutil\ncs-toolchain" --terminal
 ~~~
-**Все остальные скрипты/программы выполняются из запущенного Powershell-терминала...**  
+**All other scripts/programs are executed from the running Powershell terminal...**  
 
 
-### 6) Установить nRF Connect SDK
+### 6) Install nRF Connect SDK
 ~~~
 west init -m https://github.com/nrfconnect/sdk-nrf
 west update
@@ -53,9 +53,9 @@ Memory region      Used Size  Region Size  %age Used
      IDT_LIST:          0 GB        32 KB      0.00%
 Generating ../merged.hex
 ~~~
-Файл merged.hex будет находиться в папке build/  
-Файл zephyr.hex будет находиться в папке build/coprocessor/zephyr/  
-Оба файла содержат корректную прошивку RCP для nRF52840 USB Dongle.  
+The merged.hex file will be located in the build/ folder.  
+The zephyr.hex file will be located in the build/coprocessor/zephyr/ folder.  
+Both files contain the correct RCP firmware for the nRF52840 USB Dongle.  
 
 
 ### 8) Generate the RCP firmware package
@@ -91,7 +91,7 @@ Install the RCP firmware package onto the dongle by running the following comman
 ~~~
 nrfutil nrf5sdk-tools dfu usb-serial -pkg merged.zip -p COM3
 ~~~
-или  
+or  
 ~~~
 nrfutil nrf5sdk-tools dfu usb-serial -pkg zephyr.zip -p COM3
 ~~~
