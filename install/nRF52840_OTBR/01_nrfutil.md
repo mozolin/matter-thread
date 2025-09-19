@@ -1,6 +1,6 @@
 
-# nRF Util and its packages
-
+# Manual installation, configuration, and use of nRFUtil and its packages
+  
 If we cannot access the resource on the domain *https://files.nordicsemi.com/* (403 Forbidden) and, therefore, cannot use standard tools from Nordic Semiconductor (for example, nRF Connect for Desktop Apps), we can use the [Chinese "mirror"](https://files.nordicsemi.cn/ui/packages).  
 [nRF Util branch](https://files.nordicsemi.cn/ui/repos/tree/General/swtools/external/nrfutil)  
   
@@ -128,7 +128,7 @@ nrfutil pkg
 Do the same for the "nrfutil-sdk-manager" package, which is also needed to create and load firmware onto the nRF52840 USB Dongle.  
 
   
-# Section Contents
+# Contents
 - [Installing nRF Util and its packages](01_nrfutil.md)  
 - [Creating RCP firmware for the nRF52840 USB Dongle](02_firmware.md)  
 - [Installing and Configuring OTBR on Ubuntu](03_otbr.md)  

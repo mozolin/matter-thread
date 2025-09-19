@@ -1,4 +1,5 @@
-# How to create RCP Firmware for the nRF52840 USB Dongle Using nrfutil and west (Windows)
+# How to create RCP Firmware for the nRF52840 USB Dongle using nrfutil and west (Windows)
+![](images/nRF52840_dongle.jpg)
 
 ### 1) Links
 **"Configuring radio co-processor"**  
@@ -109,7 +110,7 @@ This is an example of what the ncs_toolchain folder structure might look like fo
 
 
   
-# Section Contents
+# Contents
 - [Installing nRF Util and its packages](01_nrfutil.md)  
 - [Creating RCP firmware for the nRF52840 USB Dongle](02_firmware.md)  
 - [Installing and Configuring OTBR on Ubuntu](03_otbr.md)  

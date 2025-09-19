@@ -113,7 +113,7 @@ Let's check the PanID of the second OTBR instance - it will also be equal to 0x1
   
 ![](images/nrf52840_rcp_otbr_cli_for_2_instances_final.png)  
   
-As a result, we can verify that the second OTBR instance is also in the existing Tread network.  
+As a result, we can verify that the second OTBR instance is also in the existing Thread network.  
   
 ![](images/nrf52840_rcp_otbr_in_HA_final.png)  
   
@@ -145,7 +145,7 @@ sudo systemctl is-enabled otbr-web-2
 
     
   
-# Section Contents
+# Contents
 - [Installing nRF Util and its packages](01_nrfutil.md)  
 - [Creating RCP firmware for the nRF52840 USB Dongle](02_firmware.md)  
 - [Installing and Configuring OTBR on Ubuntu](03_otbr.md)  
