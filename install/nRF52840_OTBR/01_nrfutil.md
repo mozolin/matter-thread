@@ -3,6 +3,7 @@
   
 If we cannot access the resource on the domain *https://files.nordicsemi.com/* (403 Forbidden) and, therefore, cannot use standard tools from Nordic Semiconductor (for example, nRF Connect for Desktop Apps),  
 ![](images/nrfconnect-5.2.0_unabled.jpg)
+  
 we can use the [Chinese "mirror"](https://files.nordicsemi.cn/ui/packages).  
 [nRF Util branch](https://files.nordicsemi.cn/ui/repos/tree/General/swtools/external/nrfutil)  
   
