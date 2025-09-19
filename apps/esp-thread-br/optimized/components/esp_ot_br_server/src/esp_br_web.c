@@ -5,6 +5,8 @@
  */
 
 #include "esp_br_web.h"
+#include "esp_br_ota.h"      // ДОБАВЛЕНО: включение OTA заголовка
+
 #include "cJSON.h"
 #include "esp_br_web_api.h"
 #include "esp_br_web_base.h"
@@ -1071,6 +1073,14 @@ static reqeust_url_t parse_request_url_information(const char *uri, const struct
  */
 static esp_err_t default_urls_get_handler(httpd_req_t *req)
 {
+    //-- OTA: .user_ctx любой из статических страницы не равен NULL!
+    if(req->user_ctx != NULL) {
+       ESP_LOGW(WEB_TAG, "Requested static URL...");
+    } else {
+       ESP_LOGW(WEB_TAG, "Requested API URL!");
+       return ESP_FAIL; // !!! OTA API !!!     
+    }
+    
     struct http_parser_url url;
     ESP_RETURN_ON_ERROR(http_parser_parse_url(req->uri, strlen(req->uri), 0, &url), WEB_TAG, "Failed to parse url");
     reqeust_url_t info =
@@ -1086,7 +1096,11 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
             "Failed to send error code");
         return ESP_FAIL;
     }
-    if (strcmp(info.file_name, "/") == 0) {
+    /*
+    if (strncmp(info.file_name, "/api/", 5) == 0) {
+        ESP_LOGW("BR_OTA", "Request to the ESP32 API...");
+        return ESP_FAIL; // "Не мой запрос, ищи другой обработчик"
+    } else */if (strcmp(info.file_name, "/") == 0) {
         return blank_html_get_handler(req);
     } else if (strcmp(info.file_name, "/index.html") == 0) {
         return index_html_get_handler(req, info.file_path);
@@ -1113,6 +1127,37 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
         return script_js_get_handler(req, info.file_path);
     } else if (strcmp(info.file_name, "/favicon.ico") == 0) {
         return favicon_get_handler(req);
+
+    //-- added OTA html
+    } else if (strcmp(info.file_name, "/ota.html") == 0) {
+        return index_html_get_handler(req, info.file_path);
+    //-- added OTA js
+    } else if (strcmp(info.file_name, "/static/ota.js") == 0) {
+        return script_js_get_handler(req, info.file_path);
+    //-- added OTA css
+    } else if (strcmp(info.file_name, "/static/ota.css") == 0) {
+        return style_css_get_handler(req, info.file_path);
+    /*
+    //-- added OTA API
+    } else if (strncmp(info.file_name, "/api/", 5) == 0) {
+        ESP_LOGW("BR_OTA", "Request to the ESP32 API...");
+        return ESP_FAIL; // "Не мой запрос, ищи другой обработчик"
+    */
+    
+    
+    /*
+    //-- added minified OTA html
+    } else if (strcmp(info.file_name, "/ota.min.html") == 0) {
+        return index_html_get_handler(req, info.file_path);
+    //-- added minified OTA js
+    } else if (strcmp(info.file_name, "/static/ota.min.js") == 0) {
+        return script_js_get_handler(req, info.file_path);
+    //-- added minified OTA css
+    } else if (strcmp(info.file_name, "/static/ota.min.css") == 0) {
+        return style_css_get_handler(req, info.file_path);
+    */
+        
+    
     } else {
         ESP_LOGE(WEB_TAG, "Failed to stat file : %s", info.file_path); /* Respond with 404 Not Found */
         return NOT_FOUND_handler(req);
@@ -1159,8 +1204,9 @@ static httpd_handle_t *start_esp_br_http_server(const char *base_path, const cha
     strlcpy(s_server.data.base_path, base_path, ESP_VFS_PATH_MAX + 1);
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
-    config.max_resp_headers = (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
+    //-- ADD: +8 URI handlers for API URIs (for OTA)
+    config.max_uri_handlers = 8 + (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
+    config.max_resp_headers = 8 + (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.stack_size = 8 * 1024;
     s_server.port = config.server_port;
@@ -1168,6 +1214,9 @@ static httpd_handle_t *start_esp_br_http_server(const char *base_path, const cha
     // start http_server
     ESP_RETURN_ON_FALSE(!httpd_start(&s_server.handle, &config), NULL, WEB_TAG, "Failed to start web server");
 
+    // ДОБАВЛЕНО: Регистрация OTA обработчиков
+    esp_br_register_ota_handlers(s_server.handle);
+    
     httpd_uri_t default_uris_get = {.uri = "/*", // Match all URIs of type /path/to/file
                                     .method = HTTP_GET,
                                     .handler = default_urls_get_handler,
@@ -1181,7 +1230,7 @@ static httpd_handle_t *start_esp_br_http_server(const char *base_path, const cha
     ESP_LOGW("", "");
     ESP_LOGW(WEB_TAG, "### Server start ##########################");
     ESP_LOGW(WEB_TAG, "#");
-    ESP_LOGW(WEB_TAG, "#   http://%s:%d/index.html", s_server.ip, s_server.port);
+    ESP_LOGW(WEB_TAG, "#   http://%s:%d/index.min.html", s_server.ip, s_server.port);
     ESP_LOGW(WEB_TAG, "#");
     ESP_LOGW(WEB_TAG, "###########################################");
     ESP_LOGW("", "");

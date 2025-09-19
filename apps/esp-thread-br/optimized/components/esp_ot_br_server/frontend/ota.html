@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTA Update - Thread Border Router</title>
+    <link href="/static/ota.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 OTA Firmware Update</h1>
+            <nav>
+                <a href="/index.min.html">← Back to Main</a>
+            </nav>
+        </header>
+
+        <div class="card">
+            <h2>Device Information</h2>
+            <div class="device-info">
+                <div class="info-row">
+                    <span>Device ID:</span>
+                    <span id="device-id">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span>Firmware Version:</span>
+                    <span id="fw-version">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span>Free Heap:</span>
+                    <span id="free-heap">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span>Project:</span>
+                    <span id="active-partition">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Firmware Update</h2>
+            <form id="ota-form">
+                <div class="form-group">
+                    <label for="firmware-file" class="file-upload">
+                        <span class="file-icon">📁</span>
+                        <span class="file-text">Choose firmware file (.bin)</span>
+                        <input type="file" id="firmware-file" accept=".bin" hidden>
+                    </label>
+                    <div id="file-info" class="file-info">No file selected</div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" id="update-btn" class="btn btn-primary" disabled>
+                        🚀 Start Update
+                    </button>
+                </div>
+            </form>
+
+            <div id="progress-section" class="progress-section" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0%</div>
+                <div class="progress-stats">
+                    <span id="uploaded-size">0 KB</span>
+                    <span id="total-size">0 KB</span>
+                </div>
+            </div>
+
+            <div id="status-message" class="status-message"></div>
+        </div>
+
+        <div class="card warning">
+            <h3>⚠️ Important Notes</h3>
+            <ul>
+                <li>Do not power off the device during update</li>
+                <li>Ensure stable network connection</li>
+                <li>Update may take 2-5 minutes</li>
+                <li>Device will restart automatically</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/static/ota.js"></script>
+</body>
+</html>

@@ -8,8 +8,11 @@ $path = "../optimized/components/esp_ot_br_server/frontend/";
 
 $minList = [
   "index.html"        => "index.min.html",
+  "ota.html"          => "ota.min.html",
   "static/restful.js" => "static/restful.min.js",
   "static/style.css"  => "static/style.min.css",
+  "static/ota.js"     => "static/ota.min.js",
+  "static/ota.css"    => "static/ota.min.css",
 ];
 
 $minify = new PhpHtmlCssJsMinifier();
