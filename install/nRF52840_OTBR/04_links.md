@@ -45,7 +45,7 @@ sudo apt install libfuse2
   
 **4) How to Setup a OpenThread Border Router Using a NRF52840 USB Stick and Connect the Thread Sensor Tag**  
 [https://www.instructables.com/How-to-Setup-a-OpenThread-Border-Router-Using-a-NR/](https://www.instructables.com/How-to-Setup-a-OpenThread-Border-Router-Using-a-NR/)  
-[Local copy (.pdf)](nrf52840/docs/How_to_setup_a_OTBR_using_a_NRF52840_USB_stick_and_connect_the_Thread_Sensor_Tag.pdf)  
+[Local copy (.pdf)](links/How_to_setup_a_OTBR_using_a_NRF52840_USB_stick_and_connect_the_Thread_Sensor_Tag.pdf)  
 Used:  
 - Raspberry Pi 4 (Thread border router)  
 - nRF52840 USB Dongle (RCP)  
@@ -54,13 +54,14 @@ Used:
 **5) Open Thread Border Router on Linux Ubuntu**  
 *October 7, 2022*  
 [https://www.hackster.io/skruglewicz/open-thread-border-router-on-linux-ubuntu-3d93d8](https://www.hackster.io/skruglewicz/open-thread-border-router-on-linux-ubuntu-3d93d8)  
+[Local copy (.pdf)](links/OTBR_nRF52840_Dongle_on_Ubuntu.pdf)  
 Used:  
 - Nordic Semiconductor nRF52840 Dongle
 - Ubuntu
 
 
 # Software
-[https://disk.yandex.ru/d/-m2amEJlKxgsGw](https://disk.yandex.ru/d/-m2amEJlKxgsGw)  
+[https://disk.yandex.ru/d/BH7Dl4UhqGjY9g](https://disk.yandex.ru/d/BH7Dl4UhqGjY9g)  
 - gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2  
 - JLink_Linux_V864_x86_64.deb  
 - nrf-command-line-tools_10.24.2_amd64.deb  
@@ -76,6 +77,14 @@ OpenThread nRF52840 Firmware Builder:
 3) Select the "release" section  
 4) Go to the "Create GitHub release with .bin files" link  
 5) Click on the "Release ready at ..." link  
-6) Choose appropriate binary ([ot-cli-ftd-USB.hex](nrf52840/firmware/ot-cli-ftd-USB.hex) - for instance)  
+6) Choose appropriate binary ([ot-cli-ftd-USB.hex](links/ot-cli-ftd-USB.hex) - for instance)  
   
-![](nrf52840/firmware/nrf52840-OpenThread-rcp.png)  
+![](links/nrf52840-OpenThread-rcp.png)  
+  
+  
+# Contents
+- [Installing nRF Util and its packages](01_nrfutil.md)  
+- [Creating RCP firmware for the nRF52840 USB Dongle](02_firmware.md)  
+- [Installing and Configuring OTBR on Ubuntu](03_otbr.md)  
+- [Some links](04_links.md)  
+  

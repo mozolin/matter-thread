@@ -135,4 +135,5 @@ Do the same for the "nrfutil-sdk-manager" package, which is also needed to creat
 - [Installing nRF Util and its packages](01_nrfutil.md)  
 - [Creating RCP firmware for the nRF52840 USB Dongle](02_firmware.md)  
 - [Installing and Configuring OTBR on Ubuntu](03_otbr.md)  
+- [Some links](04_links.md)  
   
