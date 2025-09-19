@@ -139,3 +139,15 @@ a, label {
 a:hover, label:hover {
   color: #900;
 }
+li.danger {
+	color: #900;
+}
+li.warning {
+	color: orange;
+}
+li.info {
+	color: default;
+}
+.info-row .value {
+	font-weight: 600;
+}
