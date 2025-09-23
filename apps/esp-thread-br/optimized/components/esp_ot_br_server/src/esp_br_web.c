@@ -5,6 +5,7 @@
  */
 
 #include "esp_br_web.h"
+
 #include "esp_br_ota.h"      // ДОБАВЛЕНО: включение OTA заголовка
 
 #include "cJSON.h"
@@ -1073,14 +1074,6 @@ static reqeust_url_t parse_request_url_information(const char *uri, const struct
  */
 static esp_err_t default_urls_get_handler(httpd_req_t *req)
 {
-    //-- OTA: .user_ctx любой из статических страницы не равен NULL!
-    if(req->user_ctx != NULL) {
-       ESP_LOGW(WEB_TAG, "Requested static URL...");
-    } else {
-       ESP_LOGW(WEB_TAG, "Requested API URL!");
-       return ESP_FAIL; // !!! OTA API !!!     
-    }
-    
     struct http_parser_url url;
     ESP_RETURN_ON_ERROR(http_parser_parse_url(req->uri, strlen(req->uri), 0, &url), WEB_TAG, "Failed to parse url");
     reqeust_url_t info =
@@ -1128,6 +1121,7 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
     } else if (strcmp(info.file_name, "/favicon.ico") == 0) {
         return favicon_get_handler(req);
 
+    /*
     //-- added OTA html
     } else if (strcmp(info.file_name, "/ota.html") == 0) {
         return index_html_get_handler(req, info.file_path);
@@ -1137,7 +1131,6 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
     //-- added OTA css
     } else if (strcmp(info.file_name, "/static/ota.css") == 0) {
         return style_css_get_handler(req, info.file_path);
-    /*
     //-- added OTA API
     } else if (strncmp(info.file_name, "/api/", 5) == 0) {
         ESP_LOGW("BR_OTA", "Request to the ESP32 API...");
@@ -1145,7 +1138,6 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
     */
     
     
-    /*
     //-- added minified OTA html
     } else if (strcmp(info.file_name, "/ota.min.html") == 0) {
         return index_html_get_handler(req, info.file_path);
@@ -1155,7 +1147,6 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
     //-- added minified OTA css
     } else if (strcmp(info.file_name, "/static/ota.min.css") == 0) {
         return style_css_get_handler(req, info.file_path);
-    */
         
     
     } else {

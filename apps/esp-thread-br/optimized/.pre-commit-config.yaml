@@ -1,0 +1,17 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 'v14.0.6'  # Use the sha / tag you want to point at
+    hooks:
+    - id: clang-format
+      exclude: "examples/common/thread_border_router_m5stack/image/.*"
+
+  - repo: local
+    hooks:
+      - id: check-version-increment
+        name: Check Version Increment in Specific idf_component.yml
+        entry: bash -c "export ESP_THREAD_BR_PATH=$(pwd) && python3 precommit_version_check.py"
+        language: python
+        additional_dependencies: [pyyaml]

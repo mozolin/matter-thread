@@ -5,6 +5,7 @@ require("PhpHtmlCssJsMinifier.php");
 require("class.JavaScriptPacker.php");;
 
 $path = "../optimized/components/esp_ot_br_server/frontend/";
+//$path = "../../../../../../Espressif/esp-thread-br-8mb/components/esp_ot_br_server/frontend/";
 
 $minList = [
   "index.html"        => "index.min.html",
