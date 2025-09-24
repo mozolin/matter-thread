@@ -1,0 +1,86 @@
+<?
+use app\helpers\SdkConfig;
+
+$flashSizes = [1,2,4,8,16,32];
+
+?>
+<div>
+	<h3>Switchable Sections</h3>
+	<?
+	$switchableSections = SdkConfig::getSwitchableSectionsList();
+	foreach($switchableSections as $switchableSectionName => $switchableSection) {
+		$status = $switchableSection['status'];
+		$checked = ($status === 1) ? ' checked' : '';
+		?>
+		<input type="checkbox" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
+		<?
+		$status = SdkConfig::checkSectionRealStatus($switchableSectionName);
+		echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
+		//echo '<pre>';
+		//print_r($switchableSection);
+		//echo '</pre>';
+	}
+
+	?>
+	
+	<hr/>
+
+	<h3>Sections with custom parameters</h3>
+	<table cellpadding="5px">
+		<?
+		$customSections = SdkConfig::getCustomSectionsList();
+		foreach($customSections as $customSectionName => $customSection) {
+			?>
+			<tr>
+				<th colspan="2"><b><br/><?=$customSectionName?></b></th>
+			</tr>
+			<?
+			foreach($customSection['params'] as $paramName => $param) {
+				?>
+				<tr>
+					<td>
+					<?
+					$val = $param['value'];
+					if(preg_match("{(CONFIG_ESPTOOLPY_FLASHSIZE_)(\d+)(MB)}si", addslashes($paramName), $m)) {
+						$val = $m[2];
+						?>
+						<select>
+							<?
+							foreach($flashSizes as $flashSize) {
+								$selected = ($flashSize == $val) ? ' selected' : '';
+								?>
+								<option value="<?=$flashSize?>"<?=$selected?>><?=$flashSize?>MB</option>
+								<?
+							}
+							?>
+						</select>
+						<?
+					} else {
+						?>
+						<input type="text" value="<?=$val?>"/>
+						<?
+					}
+					?>
+					</td>
+					<td><?=$paramName?></td>
+				</tr>
+				<?
+			}
+		}
+		?>
+	</table>
+	<?
+	
+	$switchableSectionNames = SdkConfig::getSwitchableSectionNamesList();
+	echo '<pre>';
+	print_r($switchableSectionNames);
+	echo '</pre>';
+
+
+	$config = SdkConfig::getSdkConfigList();
+	echo '<pre>';
+	print_r($config);
+	echo '</pre>';
+
+	?>
+</div>

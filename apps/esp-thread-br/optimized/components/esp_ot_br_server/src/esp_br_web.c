@@ -1095,8 +1095,10 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
         return ESP_FAIL; // "Не мой запрос, ищи другой обработчик"
     } else */if (strcmp(info.file_name, "/") == 0) {
         return blank_html_get_handler(req);
+    /*
     } else if (strcmp(info.file_name, "/index.html") == 0) {
         return index_html_get_handler(req, info.file_path);
+    */
     //-- added minified html
     } else if (strcmp(info.file_name, "/index.min.html") == 0) {
         return index_html_get_handler(req, info.file_path);

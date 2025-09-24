@@ -1,0 +1,19 @@
+#div-over-select {
+	width: auto;
+	display: inline-block;
+}
+#div-status {
+	display: none;
+	background-color: #ff0;
+	color: #000;
+	font-weight: 500;
+	cursor: pointer;
+}
+#div-status.error {
+	background-color: #f00;
+	color: #fff;
+}
+#div-status.success {
+	background-color: #0f0;
+	color: #030;
+}

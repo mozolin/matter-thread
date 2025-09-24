@@ -83,7 +83,7 @@ class OTAUpdater {
 
   setupEventListeners() {
     this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-    this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+    this.form.addEventListener('submit', (e) => this.handleSubmitDirect(e));
   }
 
   //-- Upload via form
