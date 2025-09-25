@@ -1,50 +1,94 @@
 <?
+use app\models\MainForm;
 use app\helpers\SdkConfig;
+use yii\widgets\ActiveForm;
+use yii\widgets\Pjax;
 
 $flashSizes = [1,2,4,8,16,32];
 
-?>
-<div>
-	<h3>Switchable Sections</h3>
-	<?
-	$switchableSections = SdkConfig::getSwitchableSectionsList();
-	foreach($switchableSections as $switchableSectionName => $switchableSection) {
-		$status = $switchableSection['status'];
-		$checked = ($status === 1) ? ' checked' : '';
-		?>
-		<input type="checkbox" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
-		<?
-		$status = SdkConfig::checkSectionRealStatus($switchableSectionName);
-		echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
-		//echo '<pre>';
-		//print_r($switchableSection);
-		//echo '</pre>';
-	}
-
-	?>
+Pjax::begin([
+	'linkSelector' => false,
+	'enablePushState' => false,
+]);
+$form = ActiveForm::begin([
+	'options' =>
+		[
+			'data' => [
+				'pjax' => true
+			],
+			'id' => 'main-form'
+		],
+	  'enableAjaxValidation' => true,
+  	'enableClientValidation' => true,
+    'validateOnBlur' => false,
+]);
 	
-	<hr/>
+/*
+$model = new MainForm();
+echo $form->field($model, 'search_word')->textInput([
+    'placeholder' => 'Placeholder here...',
+    'class' => 'form-control'
+  ])->label(false);
+*/
 
-	<h3>Sections with custom parameters</h3>
-	<table cellpadding="5px">
+?>
+<h3>Switchable Sections</h3>
+<?
+$switchableSections = SdkConfig::getSwitchableSectionsList();
+foreach($switchableSections as $switchableSectionName => $switchableSection) {
+	$status = $switchableSection['status'];
+	$checked = ($status === 1) ? ' checked' : '';
+	?>
+	<input type="checkbox" name="CONFIG_SWITCHABLE_SECTIONS_<?=$switchableSectionName?>" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
+	<?
+	$status = SdkConfig::checkSectionRealStatus($switchableSectionName);
+	echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
+	//echo '<pre>';
+	//print_r($switchableSection);
+	//echo '</pre>';
+}
+
+?>
+
+<hr/>
+
+<h3>Sections with custom parameters</h3>
+<table cellpadding="5px" style="padding:0;margin:0;">
+	<?
+	$customSections = SdkConfig::getCustomSectionsList();
+	foreach($customSections as $customSectionName => $customSection) {
+		?>
+		<tr>
+			<th colspan="2"><b><?=$customSectionName?></b></th>
+		</tr>
 		<?
-		$customSections = SdkConfig::getCustomSectionsList();
-		foreach($customSections as $customSectionName => $customSection) {
-			?>
-			<tr>
-				<th colspan="2"><b><br/><?=$customSectionName?></b></th>
-			</tr>
-			<?
-			foreach($customSection['params'] as $paramName => $param) {
+		foreach($customSection['params'] as $paramName => $param) {
+			$val = $param['value'];
+			$defaultValue = $val;
+			if(preg_match("{(CONFIG_ESPTOOLPY_FLASHSIZE_)(\d+)(MB)}si", addslashes($paramName), $m)) {
 				?>
 				<tr>
-					<td>
-					<?
-					$val = $param['value'];
-					if(preg_match("{(CONFIG_ESPTOOLPY_FLASHSIZE_)(\d+)(MB)}si", addslashes($paramName), $m)) {
+					<td colspan="2" class="td-word-break">
+						<span class="span-small">
+							Would you like to use the flash memory value from the ESP32 chip?<br/>
+							Use the <span id="span-goto-get-esp32-info" class="span-like-link">Get ESP32 chip information</span> block and select the appropriate COM port,<br/>
+							where the ESP32 chip is connected...
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td width="200px">
+						<?
+						$paramName = $m[1].'<span id="span-current-flash-size">'.$m[2].'</span>'.$m[3];
+						
 						$val = $m[2];
+						$sdkConfigValue = SdkConfig::checkParameterRealStatus($paramName);
+						if(!is_null($sdkConfigValue)) {
+							$val = $sdkConfigValue;
+							$paramName = $m[1].'<span id="span-current-flash-size">'.$val.'</span>'.$m[3];
+						}
 						?>
-						<select>
+						<select id="select-config-esptoolpy-flashsize" name="CONFIG_ESPTOOLPY_FLASHSIZE">
 							<?
 							foreach($flashSizes as $flashSize) {
 								$selected = ($flashSize == $val) ? ' selected' : '';
@@ -54,13 +98,32 @@ $flashSizes = [1,2,4,8,16,32];
 							}
 							?>
 						</select>
+						<div id="div-esp32-chip-info">
+							<span id="span-esp32-flash-size"></span>
+							<button id="button-esp32-set-ram" class="btn btn-primary">Set</button>
+						</div>
+					</td>
+					<td><?=$paramName?></td>
+				</tr>
+				<tr>
+					<td colspan="2" class="td-word-break">
 						<?
-					} else {
+						echo \Yii::$app->view->renderFile("@app/views/select-com-port.phtml");
 						?>
-						<input type="text" value="<?=$val?>"/>
+					</td>
+				</tr>
+				<?
+			} else {
+				?>
+				<tr>
+					<td>
 						<?
-					}
-					?>
+						$sdkConfigValue = SdkConfig::checkParameterRealStatus($paramName);
+						if(!is_null($sdkConfigValue)) {
+							$val = $sdkConfigValue;
+						}
+						?>
+						<input type="text" value="<?=$val?>" name="<?=$paramName?>" placeholder="<?=$defaultValue?>"/>
 					</td>
 					<td><?=$paramName?></td>
 				</tr>
@@ -68,19 +131,15 @@ $flashSizes = [1,2,4,8,16,32];
 			}
 		}
 		?>
-	</table>
-	<?
-	
-	$switchableSectionNames = SdkConfig::getSwitchableSectionNamesList();
-	echo '<pre>';
-	print_r($switchableSectionNames);
-	echo '</pre>';
-
-
-	$config = SdkConfig::getSdkConfigList();
-	echo '<pre>';
-	print_r($config);
-	echo '</pre>';
-
+		<tr>
+			<td colspan="2">&nbsp;</td>
+		</tr>
+		<?
+	}
 	?>
-</div>
+</table>
+<button id="button-form-submit" class="btn btn-primary">Save to sdkconfig.default</button>
+<?
+
+ActiveForm::end();
+Pjax::end();

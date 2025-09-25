@@ -11,16 +11,31 @@ class PostController extends Controller
   {
     $comPort = \Yii::$app->request->post('com-port');
     
-    $req = [];
+    $params = [];
     if(\Yii::$app->request->isAjax) {
       \Yii::$app->response->format = Response::FORMAT_JSON;
-      $req = [
+      $params = [
       	'comPort' => $comPort,
   	  ];
     }
 
     //return $this->render('esptool-flash-id');
-    return $this->renderPartial('esptool-flash-id', $req);
+    return $this->renderPartial('esptool-flash-id', $params);
+  }
+
+  public function actionFormSubmit()
+  {
+    $data = \Yii::$app->request->post();
+    
+    $params = [];
+    if(\Yii::$app->request->isAjax) {
+      \Yii::$app->response->format = Response::FORMAT_JSON;
+      $params = [
+      	'data' => $data,
+  	  ];
+    }
+
+    return $this->renderPartial('form-submit', $params);
   }
 
 }

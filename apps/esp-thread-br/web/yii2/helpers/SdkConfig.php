@@ -3,8 +3,20 @@ namespace app\helpers;
 
 class SdkConfig
 {
+	private static $PATH_OTBR_COMPONENTS;
+	private static $PATH_OTBR_EXAMPLE;
+	private static $FILE_SDKCONFIG;
+	private static $FILE_SDKCONFIG_DEFAULTS;
 
-	private static $params = [
+	private static function init()
+	{
+		self::$PATH_OTBR_COMPONENTS = \Yii::$app->params["PATH_OTBR_COMPONENTS"];
+		self::$PATH_OTBR_EXAMPLE = \Yii::$app->params["PATH_OTBR_EXAMPLE"];
+		self::$FILE_SDKCONFIG = \Yii::$app->params["FILE_SDKCONFIG"];
+		self::$FILE_SDKCONFIG_DEFAULTS = self::$PATH_OTBR_EXAMPLE.'/'.self::$FILE_SDKCONFIG;
+	}
+	
+	private static $sdkConfigParams = [
 	  "ESP32-S3" => [
 	  	"status" => -1,
 	  	"params" => [
@@ -27,24 +39,26 @@ class SdkConfig
 	  	"params" => [
 				"CONFIG_MIKE_MDNS_HOSTNAME" => [
 					"custom" => 1,
-					"value" => "ESP OTBR Mike Board N3 OTA",
+					"value" => "esp-ot-br",
 		  	],
 				"CONFIG_MIKE_DEVICE_ID" => [
 					"custom" => 1,
-					"value" => "ESP OTBR Mike Board N3 OTA",
+					"value" => "esp-ot-br",
 		  	],
 				"CONFIG_MIKE_FIRMWARE_VERSION" => [
 					"custom" => 1,
-					"value" => "1.2.3",
+					"value" => "1.0.0",
 		  	],
+				/*
 				"CONFIG_APP_PROJECT_VER_FROM_CONFIG" => [
 					"custom" => 0,
 					"value" => "y",
 		  	],
 				"CONFIG_APP_PROJECT_VER" => [
 					"custom" => 1,
-					"value" => "1.2.3",
+					"value" => "1.0.0",
 		  	],
+		  	*/
 			],
 	  ],
 		"Serial flasher config" => [
@@ -304,11 +318,11 @@ class SdkConfig
 		  	],
 				"CONFIG_EXAMPLE_WIFI_SSID" => [
 					"custom" => 1,
-					"value" => "NETIS_WIFI_24",
+					"value" => "SOME_WIFI_24",
 		  	],
 				"CONFIG_EXAMPLE_WIFI_PASSWORD" => [
 					"custom" => 1,
-					"value" => "66nilozom",
+					"value" => "some-pwd",
 		  	],
 				"CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY" => [
 					"custom" => 0,
@@ -330,13 +344,13 @@ class SdkConfig
 	
 	public static function getParamsList()
 	{
-		return self::$params;
+		return self::$sdkConfigParams;
 	}
 
 	public static function getSwitchableSectionsList()
 	{
 		$switchableSections = [];
-		foreach(self::$params as $secname => $section) {
+		foreach(self::$sdkConfigParams as $secname => $section) {
 			$status = $section['status'];
 			if($status === 0 || $status === 1) {
 				$switchableSections[$secname] = $section;
@@ -348,7 +362,7 @@ class SdkConfig
 	public static function getSwitchableSectionNamesList()
 	{
 		$switchableSectionNames = [];
-		foreach(self::$params as $secname => $section) {
+		foreach(self::$sdkConfigParams as $secname => $section) {
 			$status = $section['status'];
 			if($status === 0 || $status === 1) {
 				$switchableSectionNames[] = $secname;
@@ -361,13 +375,9 @@ class SdkConfig
 	public static function getCustomSectionsList()
 	{
 		$customSections = [];
-		foreach(self::$params as $secname => $section) {
+		foreach(self::$sdkConfigParams as $secname => $section) {
 			$params = $section['params'];
 			foreach($params as $paramName => $param) {
-				//echo '<pre>';
-				//print_r($paramName);
-				//echo '</pre>';
-				//exit;
 				if($param['custom']) {
 					if(!array_key_exists($secname, $customSections)) {
 						$customSections[$secname] = [
@@ -385,30 +395,46 @@ class SdkConfig
 	public static function checkSectionRealStatus($section)
 	{
 		$switchableSectionNames = self::getSwitchableSectionNamesList();
-		$config = SdkConfig::getSdkConfigList();
+		$config = self::getSdkConfigList();
 		
 		foreach($switchableSectionNames as $switchableSectionName) {
 			foreach($config as $cnf) {
 				if($cnf['section'] === $section) {
 					//-- section found => return the status of the first parameter
-					//-- it means, that any other parameters in this section have the same status
+					//-- it means, that all other parameters in this section have the same status
 					return $cnf['status'];
 				}
 			}
 		}
 	}
 
+	public static function checkParameterRealStatus($param)
+	{
+		$param = strip_tags($param);
+		$pregCond = "{(CONFIG_ESPTOOLPY_FLASHSIZE_)(\d+)(MB)}si";
+		
+		$config = self::getSdkConfigList();
+		foreach($config as $item) {
+			if(preg_match($pregCond, $param) && preg_match($pregCond, $item['name'], $m)) {
+				return $m[2];
+			} elseif($item['name'] === $param) {
+				return str_replace('"', '', $item['value']);
+			}
+		}
+		return null;
+	}
 	
 	public static function getSdkConfigList()
 	{
-		$PATH_OTBR_COMPONENTS = \Yii::$app->params["PATH_OTBR_COMPONENTS"];
-		$PATH_OTBR_EXAMPLE = \Yii::$app->params["PATH_OTBR_EXAMPLE"];
+		self::init();
 		
 		$config = [];
 		$section = '';
 	  
-		if(file_exists($PATH_OTBR_EXAMPLE.'/sdkconfig.defaults')) {
-			$contents = file($PATH_OTBR_EXAMPLE.'/sdkconfig.defaults');
+		$fn = self::$FILE_SDKCONFIG_DEFAULTS;
+		
+		if(file_exists($fn)) {
+			$contents = file($fn);
 			foreach($contents as $row) {
 				$row = trim($row);
 				if(substr($row, 0, 1) === '#') {
@@ -470,12 +496,14 @@ class SdkConfig
 		}
 	  
 	  return $config;
-	  
-	  /*
-		echo '<pre>';
-		print_r($config);
-		echo '</pre>';
-	  
+	}
+	
+	public static function saveSdkConfigList()
+	{
+		self::init();
+		
+		$config = self::getSdkConfigList();
+		
 		$data = '';
 		foreach($config as $cfg) {
 			$status = $cfg['status'];
@@ -505,8 +533,73 @@ class SdkConfig
 			}
 		}
 	  
-		file_put_contents('sdkconfig.defaults', $data);
-		*/
+	  $fn = self::$FILE_SDKCONFIG_DEFAULTS.'_test';
+
+		if(@file_put_contents($fn, $data)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function saveParamsList($formData)
+	{
+		self::init();
+		
+		$data = '';
+		
+		foreach(self::$sdkConfigParams as $secname => $section) {
+			$status = $section['status'];
+			$chkSec = 'CONFIG_SWITCHABLE_SECTIONS_'.$secname;
+			//-- check for the Switchable Sections
+			if(array_key_exists($chkSec, $formData)) {
+				$status = $formData[$chkSec];
+			}
+			//-- add "# begin of <section>"
+			$data .= "# begin of {$secname}\r\n";
+			$params = $section['params'];
+			foreach($params as $paramName => $param) {
+				$val = trim($param['value']);
+
+				if(preg_match("{(CONFIG_ESPTOOLPY_FLASHSIZE_)(\d+)(MB)}si", $paramName, $m) && array_key_exists('CONFIG_ESPTOOLPY_FLASHSIZE', $formData)) {
+					$val = 'y';
+					$paramName = $m[1].$formData['CONFIG_ESPTOOLPY_FLASHSIZE'].$m[3];
+				} else {
+					//-- replace with a new value
+					if(array_key_exists($paramName, $formData)) {
+						$val = $formData[$paramName];
+					}
+				  //-- correct syntax of value
+					if($val !== 'y' && !is_numeric($val)) {
+						$val = '"'.$val.'"';
+					}
+					//-- disabled section
+					if($status == 0) {
+						//-- put a remark in the beginning of the row
+						$data .= "#";
+					}
+				}
+				//-- add parameter: name + value
+				$data .= "{$paramName}={$val}\r\n";
+				//print_r($param);
+			}
+			//-- add "# end of <section>"
+			$data .= "# end of {$secname}\r\n";
+			//-- add an empty row
+			$data .= "\r\n";
+		}
+
+		$fn = self::$FILE_SDKCONFIG_DEFAULTS;
+		@unlink($fn);
+
+		$fsize = @file_put_contents($fn, $data);
+		if($fsize !== false) {
+			if(file_exists($fn)) {
+				return $fsize;
+			}
+		}
+
+		return 0;
 	}
 
 }

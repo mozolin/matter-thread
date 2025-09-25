@@ -1,29 +1,64 @@
 $(function() {
 
 	comPortSelectInit();
+	flashSizeSelectInit();
 	getFlashIdInit();
+	gotoGetChipInfoSectionInit();
+	formHandler();
 
 });
 
 
 const statusObj = $('#div-status');
-const comPortsListObj = $('#select-com-ports-list');
-let comPortSelectedInt = null;
-const esptoolFlashIdObj = $('#button-esptool-flash-id');
+const comPortsListSelectObj = $('#select-com-ports-list');
+const esptoolFlashIdButtonObj = $('#button-esptool-flash-id');
+const esp32FlashSizeSpanObj = $('#span-esp32-flash-size');
+const esp32ChipInfoDivObj = $('#div-esp32-chip-info');
+const gotoEsp32ChipInfoSpanObj = $('#span-goto-get-esp32-info');
+const cfgEspToolPyFlashSizeSelectObj = $('#select-config-esptoolpy-flashsize');
+const currentFlashSizeSpanObj = $('#span-current-flash-size');
+const esp32SetRAMButtonObj = $('#button-esp32-set-ram');
+const newFlashSizeSpanObj = $('#span-new-flash-size');
+const formSubmitButtonObj = $('#button-form-submit');
 
+
+let comPortSelectedInt = null;
+const defSubmitMsg = 'Save to sdkconfig.default';
+const errSubmitMsg = 'Error saving file sdkconfig.defaults';
+const switchableSubmitMsg = 'You must select at least one of the switchable sections';
+const savedSubmitMsg = 'Saved sdkconfig.default: [NUM-BYTES] bytes';
 
 //-- choose COM port
 const comPortSelectInit = () => {
 	//-- onInit
 	setComPortSelected();
-	comPortsListObj.change(() => {
+	comPortsListSelectObj.change(() => {
   	//-- onChange
   	setComPortSelected();
 	});
 };
 
+
+const flashSizeSelectInit = () => {
+	//-- choose flash size
+	cfgEspToolPyFlashSizeSelectObj.change(() => {
+  	setFlashSizeSelected();
+	});
+	//-- set new flash size
+	esp32SetRAMButtonObj.click((e) => {
+  	e.preventDefault();
+
+  	const newFS = $('#span-new-flash-size').text();
+  	//-- set for parameter name
+  	currentFlashSizeSpanObj.html(newFS);
+  	//-- set for SELECT
+  	cfgEspToolPyFlashSizeSelectObj.val(newFS);
+	});
+};
+
+
 const setComPortSelected = () => {
-	const v = comPortsListObj.find(":selected").val();
+	const v = comPortsListSelectObj.find(":selected").val();
 	//console.log(v);
 	if(typeof(v) != 'undefined' && v != null) {
 		comPortSelectedInt = parseInt(v);
@@ -31,9 +66,18 @@ const setComPortSelected = () => {
 	}
 }
 
+const setFlashSizeSelected = () => {
+	const v = cfgEspToolPyFlashSizeSelectObj.find(":selected").val();
+	if(typeof(v) != 'undefined' && v != null) {
+		currentFlashSizeSpanObj.html(v);
+	}
+}
+
 //-- esptool -p COMx flash-id
 const getFlashIdInit = () => {
-  esptoolFlashIdObj.click(() => {
+  esptoolFlashIdButtonObj.click((e) => {
+  	e.preventDefault();
+  	
   	if(typeof(comPortSelectedInt) != 'undefined' && comPortSelectedInt != null) {
 			
 			$.ajax({
@@ -42,33 +86,43 @@ const getFlashIdInit = () => {
 			  data: {'com-port': comPortSelectedInt},
 			  dataType: 'json',
 			  success: function(result) {
-			    esptoolFlashIdObj.show();
-			    const data = JSON.parse(result);
-			    if(typeof(data.port) != 'undefined') {
-			    	if(typeof(data.chip) == 'undefined') {
-			    		setStatus('The COM'+data.port+' port is invalid!', 10000, 'error');
-        		} else {
-        			setStatus('Successfully!', 10000, 'success');
-        		}
+			    esptoolFlashIdButtonObj.show();
+			    if(isValidJSON(result)) {
+			      const data = JSON.parse(result);
+			      console.log(data);
+			      if(typeof(data.port) != 'undefined') {
+			      	if(typeof(data.chip) == 'undefined') {
+			      		setStatus('The COM'+data.port+' port is invalid!', 'error', 10000);
+        			} else {
+        				setStatus(data.chip+' in COM'+data.port+' with '+data.ram+'MB flash RAM', 'success');
+        				esp32ChipInfoDivObj.show();
+        				esp32FlashSizeSpanObj.html(data.chip+': <span id="span-new-flash-size">'+data.ram+'</span>MB');
+        				//-- re-init functions
+        				//flashSizeSelectInit();
+        			}
+			      } else {
+			      	setStatus('Unknown error!', 'error', 10000);
+			      }
 			    } else {
-			    	setStatus('Unknown error!', 10000, 'error');
+			    	console.error(result);
 			    }
-			    
 			  },
 			  error: function(result) {
-			    esptoolFlashIdObj.show();
+			    esptoolFlashIdButtonObj.show();
 			    //console.error(result);
 			  },
 			});
 
-			esptoolFlashIdObj.hide();
+			esptoolFlashIdButtonObj.hide();
 			setStatus('esptool -p COM'+comPortSelectedInt+' flash-id...');
   	}
   });
 
-  statusObj.click(() => {
+  statusObj.click((e) => {
+    e.preventDefault();
+    
     statusObj.hide();
-    //esptoolFlashIdObj.show();
+    //esptoolFlashIdButtonObj.show();
   });
 };
 
@@ -79,7 +133,7 @@ const changeClass = (obj, cls) => {
 	}
 };
 
-const setStatus = (txt, tm, cls) => {
+const setStatus = (txt, cls, tm) => {
   statusObj.html('&nbsp;'+ txt +'&nbsp;').show();
   changeClass(statusObj, cls);
   if(typeof(tm) != 'undefined') {
@@ -93,3 +147,112 @@ const setStatus = (txt, tm, cls) => {
   }
 };
 
+const gotoGetChipInfoSectionInit = () => {
+  gotoEsp32ChipInfoSpanObj.click((e) => {
+  	e.preventDefault();
+
+  	//scrollToAnchor('get-esp32-chip-info', 'div', 500, 0);
+  	blinkElement('#div-get-esp32-chip-info', {
+   	 //color: '#17a2b8',
+   	 color: '#666',
+	    duration: 3000,
+	    blinkSpeed: 300
+		});
+  });
+};
+
+const scrollToAnchor = (aid, tag, time, offset) => {
+  if(typeof(offset) == 'undefined') {
+  	offset = 0;
+  }
+  const aTag = $(tag+"[name='"+ aid +"']");
+  time = (typeof(time) === 'undefined') ? 2000 : time;
+  try {
+  	$('html, body').stop().animate({
+	    scrollTop: aTag.offset().top - offset
+	  }, time);
+  } catch(e) {}
+};
+
+const formHandler = () => {
+	formSubmitButtonObj.click((e) => {
+		e.preventDefault();
+		
+		setSubmitButton('', 'dark', true);
+		
+		//formSubmitButtonObj.removeClass();
+		//formSubmitButtonObj.addClass('btn btn-dark');
+		//formSubmitButtonObj.prop('disabled', true);
+		
+		const formData = {};
+		let switchableSectionsFound = false;
+		$('form').find('input, textearea, select').each(function() {
+	  	if(this.type === 'checkbox') {
+	  		formData[this.name] = $(this).prop('checked') ? 1 : 0;
+	  		switchableSectionsFound = true;
+	  	} else {
+	  		formData[this.name] = $(this).val();
+	  	}
+		});
+		if(!switchableSectionsFound) {
+			setSubmitButton(switchableSubmitMsg, 'danger');
+		  return false;
+		}
+		//console.warn(formData);
+
+		$.ajax({
+    	type: 'post',
+		  url: '/post/form-submit',
+		  data: formData,
+		  dataType: 'json',
+		  success: function(result) {
+		  	if(isValidJSON(result)) {
+		  		const data = JSON.parse(result);
+		  		if(data.status == 'success') {
+		      	const msg = savedSubmitMsg.replace('[NUM-BYTES]', data.fsize);
+		      	setSubmitButton(msg, 'success');
+		      	return true;
+		      } else {
+		      	if(typeof(data.message) != 'undefined') {
+		      		setSubmitButton(data.message, 'danger');
+		      		return true;
+		      	}
+		      }
+		    }
+		    setSubmitButton(errSubmitMsg, 'danger');
+		  },
+		  error: function(result) {
+		    //console.error(result);
+		    setSubmitButton(errSubmitMsg, 'danger');
+		  },
+		});
+	});
+	/*
+	var inputValue = $('#myInputField').val();
+	var checkboxValue = $('#myCheckbox').prop('checked'); // For checked state of checkbox
+	var radioValue = $('input[name="myRadioGroup"]:checked').val(); // For checked radio button
+	*/
+}
+
+const isValidJSON = (str) => {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {}
+  return false;
+}
+
+const setSubmitButton = (txt, cls, disabled) => {
+  formSubmitButtonObj.removeClass();
+  formSubmitButtonObj.html((txt !== '') ? txt : defSubmitMsg);
+	formSubmitButtonObj.addClass('btn btn-'+cls);
+	if(typeof(disabled) == 'undefined' || !disabled) {
+		formSubmitButtonObj.prop('disabled', false);
+	}
+  if(typeof(tm) != 'undefined') {
+  	//-- hide status in "tm" ms
+		setTimeout(() => {
+			//changeClass(statusObj);
+	  }, 5000);
+  }
+};

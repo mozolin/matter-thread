@@ -18,18 +18,21 @@ if(!empty($matches[2])) {
 	ksort($comPorts);
 
 	?>
-	<div id="div-over-select">
-		<select id="select-com-ports-list" class="frm">
-			<?
-			foreach($comPorts as $comPortNum => $comPortName) {
-				$optStr = "COM{$comPortNum}: {$comPortName}";
-				?>
-				<option value="<?=$comPortNum?>"><?=$optStr?></option>
+	<div id="div-get-esp32-chip-info" name="get-esp32-chip-info">
+		<b>Get ESP32 Chip Info</b><br/>
+		<div id="div-over-select">
+			<select id="select-com-ports-list" class="frm">
 				<?
-			}
-			?>
-		</select><button id="button-esptool-flash-id" class="btn btn-info">Get FlashID</button>
-		<div id="div-status"></div>
+				foreach($comPorts as $comPortNum => $comPortName) {
+					$optStr = "COM{$comPortNum}: {$comPortName}";
+					?>
+					<option value="<?=$comPortNum?>"><?=$optStr?></option>
+					<?
+				}
+				?>
+			</select><button id="button-esptool-flash-id" class="btn btn-primary">Get FlashID</button>
+			<div id="div-status"></div>
+		</div>
 	</div>
 	<?
 }
