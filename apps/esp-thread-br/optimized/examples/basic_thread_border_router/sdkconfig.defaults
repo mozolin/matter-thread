@@ -11,7 +11,7 @@ CONFIG_MIKE_FIRMWARE_VERSION="1.0.1"
 # end of Custom Firmware Config
 
 # begin of Serial flasher config
-CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE_2MB=y
 # end of Serial flasher config
 
 # begin of Partition Table

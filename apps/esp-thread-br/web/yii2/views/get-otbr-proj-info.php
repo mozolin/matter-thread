@@ -18,8 +18,8 @@ $form = ActiveForm::begin([
 			],
 			'id' => 'main-form'
 		],
-	  'enableAjaxValidation' => true,
-  	'enableClientValidation' => true,
+	  'enableAjaxValidation' => false,
+  	'enableClientValidation' => false,
     'validateOnBlur' => false,
 ]);
 	
@@ -39,7 +39,7 @@ foreach($switchableSections as $switchableSectionName => $switchableSection) {
 	$status = $switchableSection['status'];
 	$checked = ($status === 1) ? ' checked' : '';
 	?>
-	<input type="checkbox" name="CONFIG_SWITCHABLE_SECTIONS_<?=$switchableSectionName?>" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
+	<input type="checkbox" name="<?=SdkConfig::$SWITCHABLE_SECTIONS?><?=$switchableSectionName?>" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
 	<?
 	$status = SdkConfig::checkSectionRealStatus($switchableSectionName);
 	echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
@@ -108,7 +108,7 @@ foreach($switchableSections as $switchableSectionName => $switchableSection) {
 				<tr>
 					<td colspan="2" class="td-word-break">
 						<?
-						echo \Yii::$app->view->renderFile("@app/views/select-com-port.phtml");
+						echo \Yii::$app->view->renderFile("@app/views/select-com-port.php");
 						?>
 					</td>
 				</tr>

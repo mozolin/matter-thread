@@ -59,10 +59,8 @@ const flashSizeSelectInit = () => {
 
 const setComPortSelected = () => {
 	const v = comPortsListSelectObj.find(":selected").val();
-	//console.log(v);
 	if(typeof(v) != 'undefined' && v != null) {
 		comPortSelectedInt = parseInt(v);
-		//console.log(comPortSelectedInt);
 	}
 }
 
@@ -89,7 +87,6 @@ const getFlashIdInit = () => {
 			    esptoolFlashIdButtonObj.show();
 			    if(isValidJSON(result)) {
 			      const data = JSON.parse(result);
-			      console.log(data);
 			      if(typeof(data.port) != 'undefined') {
 			      	if(typeof(data.chip) == 'undefined') {
 			      		setStatus('The COM'+data.port+' port is invalid!', 'error', 10000);
@@ -104,7 +101,7 @@ const getFlashIdInit = () => {
 			      	setStatus('Unknown error!', 'error', 10000);
 			      }
 			    } else {
-			    	console.error(result);
+			    	//console.error(result);
 			    }
 			  },
 			  error: function(result) {
@@ -198,7 +195,6 @@ const formHandler = () => {
 			setSubmitButton(switchableSubmitMsg, 'danger');
 		  return false;
 		}
-		//console.warn(formData);
 
 		$.ajax({
     	type: 'post',

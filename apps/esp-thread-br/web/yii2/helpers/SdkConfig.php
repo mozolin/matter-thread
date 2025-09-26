@@ -3,20 +3,22 @@ namespace app\helpers;
 
 class SdkConfig
 {
-	private static $PATH_OTBR_COMPONENTS;
-	private static $PATH_OTBR_EXAMPLE;
-	private static $FILE_SDKCONFIG;
-	private static $FILE_SDKCONFIG_DEFAULTS;
+	private static $_PATH_OTBR_COMPONENTS;
+	private static $_PATH_OTBR_EXAMPLE;
+	private static $_FILE_SDKCONFIG;
+	private static $_FILE_SDKCONFIG_DEFAULTS;
 
-	private static function init()
+	public static $SWITCHABLE_SECTIONS = 'CONFIG_SWITCHABLE_SECTIONS_';
+
+	private static function _init()
 	{
-		self::$PATH_OTBR_COMPONENTS = \Yii::$app->params["PATH_OTBR_COMPONENTS"];
-		self::$PATH_OTBR_EXAMPLE = \Yii::$app->params["PATH_OTBR_EXAMPLE"];
-		self::$FILE_SDKCONFIG = \Yii::$app->params["FILE_SDKCONFIG"];
-		self::$FILE_SDKCONFIG_DEFAULTS = self::$PATH_OTBR_EXAMPLE.'/'.self::$FILE_SDKCONFIG;
+		self::$_PATH_OTBR_COMPONENTS = \Yii::$app->params["PATH_OTBR_COMPONENTS"];
+		self::$_PATH_OTBR_EXAMPLE = \Yii::$app->params["PATH_OTBR_EXAMPLE"];
+		self::$_FILE_SDKCONFIG = \Yii::$app->params["FILE_SDKCONFIG"];
+		self::$_FILE_SDKCONFIG_DEFAULTS = self::$_PATH_OTBR_EXAMPLE.'/'.self::$_FILE_SDKCONFIG;
 	}
 	
-	private static $sdkConfigParams = [
+	private static $_sdkConfigParams = [
 	  "ESP32-S3" => [
 	  	"status" => -1,
 	  	"params" => [
@@ -344,13 +346,13 @@ class SdkConfig
 	
 	public static function getParamsList()
 	{
-		return self::$sdkConfigParams;
+		return self::$_sdkConfigParams;
 	}
 
 	public static function getSwitchableSectionsList()
 	{
 		$switchableSections = [];
-		foreach(self::$sdkConfigParams as $secname => $section) {
+		foreach(self::$_sdkConfigParams as $secname => $section) {
 			$status = $section['status'];
 			if($status === 0 || $status === 1) {
 				$switchableSections[$secname] = $section;
@@ -362,7 +364,7 @@ class SdkConfig
 	public static function getSwitchableSectionNamesList()
 	{
 		$switchableSectionNames = [];
-		foreach(self::$sdkConfigParams as $secname => $section) {
+		foreach(self::$_sdkConfigParams as $secname => $section) {
 			$status = $section['status'];
 			if($status === 0 || $status === 1) {
 				$switchableSectionNames[] = $secname;
@@ -375,7 +377,7 @@ class SdkConfig
 	public static function getCustomSectionsList()
 	{
 		$customSections = [];
-		foreach(self::$sdkConfigParams as $secname => $section) {
+		foreach(self::$_sdkConfigParams as $secname => $section) {
 			$params = $section['params'];
 			foreach($params as $paramName => $param) {
 				if($param['custom']) {
@@ -426,12 +428,12 @@ class SdkConfig
 	
 	public static function getSdkConfigList()
 	{
-		self::init();
+		self::_init();
 		
 		$config = [];
 		$section = '';
 	  
-		$fn = self::$FILE_SDKCONFIG_DEFAULTS;
+		$fn = self::$_FILE_SDKCONFIG_DEFAULTS;
 		
 		if(file_exists($fn)) {
 			$contents = file($fn);
@@ -500,7 +502,7 @@ class SdkConfig
 	
 	public static function saveSdkConfigList()
 	{
-		self::init();
+		self::_init();
 		
 		$config = self::getSdkConfigList();
 		
@@ -533,7 +535,7 @@ class SdkConfig
 			}
 		}
 	  
-	  $fn = self::$FILE_SDKCONFIG_DEFAULTS.'_test';
+	  $fn = self::$_FILE_SDKCONFIG_DEFAULTS.'_test';
 
 		if(@file_put_contents($fn, $data)) {
 			return true;
@@ -544,13 +546,13 @@ class SdkConfig
 
 	public static function saveParamsList($formData)
 	{
-		self::init();
+		self::_init();
 		
 		$data = '';
 		
-		foreach(self::$sdkConfigParams as $secname => $section) {
+		foreach(self::$_sdkConfigParams as $secname => $section) {
 			$status = $section['status'];
-			$chkSec = 'CONFIG_SWITCHABLE_SECTIONS_'.$secname;
+			$chkSec = self::$SWITCHABLE_SECTIONS.$secname;
 			//-- check for the Switchable Sections
 			if(array_key_exists($chkSec, $formData)) {
 				$status = $formData[$chkSec];
@@ -589,7 +591,7 @@ class SdkConfig
 			$data .= "\r\n";
 		}
 
-		$fn = self::$FILE_SDKCONFIG_DEFAULTS;
+		$fn = self::$_FILE_SDKCONFIG_DEFAULTS;
 		@unlink($fn);
 
 		$fsize = @file_put_contents($fn, $data);

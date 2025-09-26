@@ -46,7 +46,8 @@ $config = [
       'enablePrettyUrl' => true,
       'showScriptName' => false,
       'rules' => [
-        //'post/esptool-flash-id' => 'post/esptool-flash-id',
+        'post/esptool-flash-id' => 'post/esptool-flash-id',
+        'post/form-submit' => 'post/form-submit',
         '<controller:\w+>/<action:[\w-]+>/<id:\d+>' => '<controller>/<action>',
       ],
     ],
