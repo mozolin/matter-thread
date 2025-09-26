@@ -1,23 +1,12 @@
 <?
 namespace app\helpers;
 
+use app\helpers\Settings;
+
 class SdkConfig
 {
-	private static $_PATH_OTBR_COMPONENTS;
-	private static $_PATH_OTBR_EXAMPLE;
-	private static $_FILE_SDKCONFIG;
-	private static $_FILE_SDKCONFIG_DEFAULTS;
-
 	public static $SWITCHABLE_SECTIONS = 'CONFIG_SWITCHABLE_SECTIONS_';
 
-	private static function _init()
-	{
-		self::$_PATH_OTBR_COMPONENTS = \Yii::$app->params["PATH_OTBR_COMPONENTS"];
-		self::$_PATH_OTBR_EXAMPLE = \Yii::$app->params["PATH_OTBR_EXAMPLE"];
-		self::$_FILE_SDKCONFIG = \Yii::$app->params["FILE_SDKCONFIG"];
-		self::$_FILE_SDKCONFIG_DEFAULTS = self::$_PATH_OTBR_EXAMPLE.'/'.self::$_FILE_SDKCONFIG;
-	}
-	
 	private static $_sdkConfigParams = [
 	  "ESP32-S3" => [
 	  	"status" => -1,
@@ -428,12 +417,12 @@ class SdkConfig
 	
 	public static function getSdkConfigList()
 	{
-		self::_init();
+		Settings::_init();
 		
 		$config = [];
 		$section = '';
 	  
-		$fn = self::$_FILE_SDKCONFIG_DEFAULTS;
+		$fn = Settings::$_FILE_SDKCONFIG_DEFAULTS;
 		
 		if(file_exists($fn)) {
 			$contents = file($fn);
@@ -502,7 +491,7 @@ class SdkConfig
 	
 	public static function saveSdkConfigList()
 	{
-		self::_init();
+		Settings::_init();
 		
 		$config = self::getSdkConfigList();
 		
@@ -535,7 +524,7 @@ class SdkConfig
 			}
 		}
 	  
-	  $fn = self::$_FILE_SDKCONFIG_DEFAULTS.'_test';
+	  $fn = Settings::$_FILE_SDKCONFIG_DEFAULTS.'_test';
 
 		if(@file_put_contents($fn, $data)) {
 			return true;
@@ -546,7 +535,7 @@ class SdkConfig
 
 	public static function saveParamsList($formData)
 	{
-		self::_init();
+		Settings::_init();
 		
 		$data = '';
 		
@@ -591,7 +580,7 @@ class SdkConfig
 			$data .= "\r\n";
 		}
 
-		$fn = self::$_FILE_SDKCONFIG_DEFAULTS;
+		$fn = Settings::$_FILE_SDKCONFIG_DEFAULTS;
 		@unlink($fn);
 
 		$fsize = @file_put_contents($fn, $data);

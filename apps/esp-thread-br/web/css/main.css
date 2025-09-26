@@ -4,8 +4,11 @@ body {
 main > .container {
 	padding-top: 0 !important;
 }
-#div-over-select {
+#div-over-select, #div-over-partitions {
 	display: inline-block;
+}
+#div-over-partitions {
+	text-align: right;
 }
 #div-status {
 	display: none;
@@ -40,7 +43,7 @@ span.span-like-link {
 span.span-like-link:hover {
  	color: var(--bs-danger);
 }
-#div-get-esp32-chip-info {
+#div-get-esp32-chip-info, #div-get-partitions-info {
 	display: inline-block;
 	padding: 10px;
 	border: 1px solid var(--bs-gray-600);
@@ -66,4 +69,38 @@ button.btn {
 #span-new-flash-size {
 	font-weight: 500;
 	color: var(--bs-success);
+}
+#table-partitions th {
+	background-color: var(--bs-gray-600);
+}
+#table-partitions tr.tr1 {
+	background-color: var(--bs-light);
+	color: var(--bs-black);
+}
+#table-partitions .tdc {
+	text-align: center;
+}
+#table-partitions .tdr {
+	text-align: right;
+}
+#table-partitions tr.unchecked {
+	background-color: var(--bs-warning);
+	color: var(--bs-black);
+}
+#table-partitions tr.checked {
+	background-color: var(--bs-success);
+	color: var(--bs-black);
+}
+#th-partitions-total-size {
+	background-color: var(--bs-gray-600);
+}
+#th-partitions-total-size.error {
+	background-color: var(--bs-danger);
+}
+#th-partitions-total-size.success {
+	background-color: var(--bs-success);
+	color: var(--bs-black);
+}
+label {
+	cursor: pointer;
 }

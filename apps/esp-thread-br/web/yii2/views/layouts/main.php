@@ -10,6 +10,8 @@ use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
 
+use app\helpers\Settings;
+
 AppAsset::register($this);
 
 $this->registerCsrfMetaTags();
@@ -25,6 +27,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <head>
 <title><?= Html::encode($this->title) ?></title>
 <?php $this->head() ?>
+<script>
+const $_FILE_SDKCONFIG = '<?=Settings::$_FILE_SDKCONFIG?>';
+const $_FILE_PARTITIONS = '<?=Settings::$_FILE_SDKCONFIG?>';
+</script>
 </head>
 
 <body class="d-flex flex-column h-100">

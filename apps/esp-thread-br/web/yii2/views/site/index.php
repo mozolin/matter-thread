@@ -1,5 +1,5 @@
 <?
-$this->title = 'ESP-IDF sdkconfig';
+$this->title = 'ESP-IDF Config';
 ?>
 <div>
 	<?

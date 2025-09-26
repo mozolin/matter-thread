@@ -1,10 +1,12 @@
 <?
 use app\models\MainForm;
 use app\helpers\SdkConfig;
+use app\helpers\Settings;
+
 use yii\widgets\ActiveForm;
 use yii\widgets\Pjax;
 
-$flashSizes = [1,2,4,8,16,32];
+$flashSizes = [2,4,8,16,32];
 
 Pjax::begin([
 	'linkSelector' => false,
@@ -38,14 +40,14 @@ $switchableSections = SdkConfig::getSwitchableSectionsList();
 foreach($switchableSections as $switchableSectionName => $switchableSection) {
 	$status = $switchableSection['status'];
 	$checked = ($status === 1) ? ' checked' : '';
+	$id = SdkConfig::$SWITCHABLE_SECTIONS.$switchableSectionName;
 	?>
-	<input type="checkbox" name="<?=SdkConfig::$SWITCHABLE_SECTIONS?><?=$switchableSectionName?>" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?><br/>
+	<label for="<?=$id?>">
+		<input type="checkbox" id="<?=$id?>" name="<?=$id?>" value="<?=$status?>"<?=$checked?>/>&nbsp;<?=$switchableSectionName?>
+	</label><br/>
 	<?
 	$status = SdkConfig::checkSectionRealStatus($switchableSectionName);
-	echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
-	//echo '<pre>';
-	//print_r($switchableSection);
-	//echo '</pre>';
+	//echo "<i>REAL STATUS (sdkconfig) = {$status}</i><br/>";
 }
 
 ?>
@@ -71,8 +73,11 @@ foreach($switchableSections as $switchableSectionName => $switchableSection) {
 					<td colspan="2" class="td-word-break">
 						<span class="span-small">
 							Would you like to use the flash memory value from the ESP32 chip?<br/>
-							Use the <span id="span-goto-get-esp32-info" class="span-like-link">Get ESP32 chip information</span> block and select the appropriate COM port,<br/>
-							where the ESP32 chip is connected...
+							Use the <span id="span-goto-get-esp32-info" class="span-like-link">Get ESP32 chip information</span> block and select the appropriate COM port, where<br/>
+							the ESP32 chip is connected...
+							<br/>
+							To check, if the ESP32 has enough flash memory, you can use the <span id="span-goto-partitions-info" class="span-like-link">Partitions Info</span> with<br/>
+							the ability to enable/disable OTA blocks.
 						</span>
 					</td>
 				</tr>
@@ -112,6 +117,13 @@ foreach($switchableSections as $switchableSectionName => $switchableSection) {
 						?>
 					</td>
 				</tr>
+				<tr>
+					<td colspan="2" class="td-word-break">
+						<?
+						echo \Yii::$app->view->renderFile("@app/views/get-partitions-info.php");
+						?>
+					</td>
+				</tr>
 				<?
 			} else {
 				?>
@@ -138,7 +150,8 @@ foreach($switchableSections as $switchableSectionName => $switchableSection) {
 	}
 	?>
 </table>
-<button id="button-form-submit" class="btn btn-primary">Save to sdkconfig.default</button>
+<button id="button-form-submit" class="btn btn-primary">Save <?=Settings::$_FILE_SDKCONFIG?></button>
+<button id="button-partitions-submit" class="btn btn-primary">Save <?=Settings::$_FILE_PARTITIONS?></button>
 <?
 
 ActiveForm::end();

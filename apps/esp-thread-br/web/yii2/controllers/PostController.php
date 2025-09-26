@@ -38,4 +38,19 @@ class PostController extends Controller
     return $this->renderPartial('form-submit', $params);
   }
 
+  public function actionPartitionsSubmit()
+  {
+    $data = \Yii::$app->request->post();
+
+    $params = [];
+    //if(\Yii::$app->request->isAjax) {
+      \Yii::$app->response->format = Response::FORMAT_JSON;
+      $params = [
+      	'data' => $data,
+  	  ];
+    //}
+
+    return $this->renderPartial('partitions-submit', $params);
+  }
+
 }

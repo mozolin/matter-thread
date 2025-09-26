@@ -3,8 +3,9 @@ $(function() {
 	comPortSelectInit();
 	flashSizeSelectInit();
 	getFlashIdInit();
-	gotoGetChipInfoSectionInit();
+	gotoGetInfoSectionInit();
 	formHandler();
+	partitionsTableInit();
 
 });
 
@@ -20,13 +21,22 @@ const currentFlashSizeSpanObj = $('#span-current-flash-size');
 const esp32SetRAMButtonObj = $('#button-esp32-set-ram');
 const newFlashSizeSpanObj = $('#span-new-flash-size');
 const formSubmitButtonObj = $('#button-form-submit');
+const otaInputCheckboxObj = $('.checkbox-ota-input');
+const partitionsTotalSizeThObj = $('#th-partitions-total-size');
+const partitionsSubmitButtonObj = $('#button-partitions-submit');
+const gotoPartitionsInfoSpanObj = $('#span-goto-partitions-info');
+
 
 
 let comPortSelectedInt = null;
-const defSubmitMsg = 'Save to sdkconfig.default';
-const errSubmitMsg = 'Error saving file sdkconfig.defaults';
+const defSubmitMsg = 'Save '+$_FILE_SDKCONFIG;
+const errSubmitMsg = 'Error saving file '+$_FILE_SDKCONFIG;
 const switchableSubmitMsg = 'You must select at least one of the switchable sections';
-const savedSubmitMsg = 'Saved sdkconfig.default: [NUM-BYTES] bytes';
+const savedSubmitMsg = 'Saved '+$_FILE_SDKCONFIG+': [NUM-BYTES] bytes';
+
+const defPartitionsMsg = 'Save '+$_FILE_PARTITIONS;
+const errPartitionsMsg = 'Error saving file '+$_FILE_PARTITIONS;
+const savedPartitionsMsg = 'Saved '+$_FILE_PARTITIONS+': [NUM-BYTES] bytes';
 
 //-- choose COM port
 const comPortSelectInit = () => {
@@ -40,9 +50,11 @@ const comPortSelectInit = () => {
 
 
 const flashSizeSelectInit = () => {
+	partitionsSizeChange();
 	//-- choose flash size
 	cfgEspToolPyFlashSizeSelectObj.change(() => {
   	setFlashSizeSelected();
+  	partitionsSizeChange();
 	});
 	//-- set new flash size
 	esp32SetRAMButtonObj.click((e) => {
@@ -53,6 +65,7 @@ const flashSizeSelectInit = () => {
   	currentFlashSizeSpanObj.html(newFS);
   	//-- set for SELECT
   	cfgEspToolPyFlashSizeSelectObj.val(newFS);
+		partitionsSizeChange();
 	});
 };
 
@@ -144,12 +157,24 @@ const setStatus = (txt, cls, tm) => {
   }
 };
 
-const gotoGetChipInfoSectionInit = () => {
+const gotoGetInfoSectionInit = () => {
   gotoEsp32ChipInfoSpanObj.click((e) => {
   	e.preventDefault();
 
   	//scrollToAnchor('get-esp32-chip-info', 'div', 500, 0);
   	blinkElement('#div-get-esp32-chip-info', {
+   	 //color: '#17a2b8',
+   	 color: '#666',
+	    duration: 3000,
+	    blinkSpeed: 300
+		});
+  });
+
+  gotoPartitionsInfoSpanObj.click((e) => {
+  	e.preventDefault();
+
+  	//scrollToAnchor('div-get-partitions-info', 'div', 500, 0);
+  	blinkElement('#div-get-partitions-info', {
    	 //color: '#17a2b8',
    	 color: '#666',
 	    duration: 3000,
@@ -251,4 +276,102 @@ const setSubmitButton = (txt, cls, disabled) => {
 			//changeClass(statusObj);
 	  }, 5000);
   }
+};
+
+const setPartitionsButton = (txt, cls, disabled) => {
+  partitionsSubmitButtonObj.removeClass();
+  partitionsSubmitButtonObj.html((txt !== '') ? txt : defPartitionsMsg);
+	partitionsSubmitButtonObj.addClass('btn btn-'+cls);
+	if(typeof(disabled) == 'undefined' || !disabled) {
+		partitionsSubmitButtonObj.prop('disabled', false);
+	}
+  if(typeof(tm) != 'undefined') {
+  	//-- hide status in "tm" ms
+		setTimeout(() => {
+			//changeClass(statusObj);
+	  }, 5000);
+  }
+};
+
+
+const partitionsTableInit = () => {
+  partitionsSubmitButtonObj.click((e) => {
+		e.preventDefault();
+
+		const formData = {};
+		
+		otaInputCheckboxObj.each(function() {
+			const obj = $(this);
+			const checked = obj.prop('checked');
+
+			if(this.type === 'checkbox') {
+	  		formData[this.name] = $(this).prop('checked') ? 1 : 0;
+	  	}
+		});
+
+		$.ajax({
+    	type: 'post',
+		  url: '/post/partitions-submit',
+		  data: formData,
+		  dataType: 'json',
+		  success: function(result) {
+		  	if(isValidJSON(result)) {
+		  		const data = JSON.parse(result);
+		  		if(data.status == 'success') {
+		      	const msg = savedPartitionsMsg.replace('[NUM-BYTES]', data.fsize);
+		      	setPartitionsButton(msg, 'success');
+		      	return true;
+		      } else {
+		      	if(typeof(data.message) != 'undefined') {
+		      		setPartitionsButton(data.message, 'danger');
+		      		return true;
+		      	}
+		      }
+		    }
+		    setPartitionsButton(errPartitionsMsg, 'danger');
+		  },
+		  error: function(result) {
+		    //console.error(result);
+		    setPartitionsButton(errPartitionsMsg, 'danger');
+		  },
+		});
+  });
+  
+  otaInputCheckboxObj.change((e) => {
+  	e.preventDefault();
+		
+		let totalSize = parseInt(partitionsTotalSizeThObj.text());
+		
+		const obj = $(e.target);
+		const val = parseInt(obj.val());
+		const checked = obj.prop('checked');
+		//-- get its TR
+		const papa = obj.parent().parent();
+		papa.removeClass();
+		if(checked) {
+			papa.addClass('checked');
+			totalSize += val;
+		} else {
+			papa.addClass('unchecked');
+			totalSize -= val;
+		}
+
+		partitionsTotalSizeThObj.text(totalSize);
+		//console.log(sizeInMB);
+		partitionsSizeChange();
+
+  });
+};
+
+const partitionsSizeChange = () => {
+	const totalSize = parseInt(partitionsTotalSizeThObj.text());
+	const sizeInMB = totalSize / 1024 / 1024;
+	const sizeRAM = cfgEspToolPyFlashSizeSelectObj.val();
+
+	partitionsTotalSizeThObj.removeClass();
+	if(sizeInMB > sizeRAM) {
+		partitionsTotalSizeThObj.addClass('error');
+	} else {
+		partitionsTotalSizeThObj.addClass('success');
+	}
 };
