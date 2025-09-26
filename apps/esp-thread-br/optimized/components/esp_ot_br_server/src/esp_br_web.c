@@ -1089,16 +1089,10 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
             "Failed to send error code");
         return ESP_FAIL;
     }
-    /*
-    if (strncmp(info.file_name, "/api/", 5) == 0) {
-        ESP_LOGW("BR_OTA", "Request to the ESP32 API...");
-        return ESP_FAIL; // "Не мой запрос, ищи другой обработчик"
-    } else */if (strcmp(info.file_name, "/") == 0) {
+    if (strcmp(info.file_name, "/") == 0) {
         return blank_html_get_handler(req);
-    /*
     } else if (strcmp(info.file_name, "/index.html") == 0) {
         return index_html_get_handler(req, info.file_path);
-    */
     //-- added minified html
     } else if (strcmp(info.file_name, "/index.min.html") == 0) {
         return index_html_get_handler(req, info.file_path);
@@ -1122,24 +1116,6 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
         return script_js_get_handler(req, info.file_path);
     } else if (strcmp(info.file_name, "/favicon.ico") == 0) {
         return favicon_get_handler(req);
-
-    /*
-    //-- added OTA html
-    } else if (strcmp(info.file_name, "/ota.html") == 0) {
-        return index_html_get_handler(req, info.file_path);
-    //-- added OTA js
-    } else if (strcmp(info.file_name, "/static/ota.js") == 0) {
-        return script_js_get_handler(req, info.file_path);
-    //-- added OTA css
-    } else if (strcmp(info.file_name, "/static/ota.css") == 0) {
-        return style_css_get_handler(req, info.file_path);
-    //-- added OTA API
-    } else if (strncmp(info.file_name, "/api/", 5) == 0) {
-        ESP_LOGW("BR_OTA", "Request to the ESP32 API...");
-        return ESP_FAIL; // "Не мой запрос, ищи другой обработчик"
-    */
-    
-    
     //-- added minified OTA html
     } else if (strcmp(info.file_name, "/ota.min.html") == 0) {
         return index_html_get_handler(req, info.file_path);
@@ -1149,8 +1125,6 @@ static esp_err_t default_urls_get_handler(httpd_req_t *req)
     //-- added minified OTA css
     } else if (strcmp(info.file_name, "/static/ota.min.css") == 0) {
         return style_css_get_handler(req, info.file_path);
-        
-    
     } else {
         ESP_LOGE(WEB_TAG, "Failed to stat file : %s", info.file_path); /* Respond with 404 Not Found */
         return NOT_FOUND_handler(req);

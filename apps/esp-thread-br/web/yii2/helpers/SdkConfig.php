@@ -40,16 +40,6 @@ class SdkConfig
 					"custom" => 1,
 					"value" => "1.0.0",
 		  	],
-				/*
-				"CONFIG_APP_PROJECT_VER_FROM_CONFIG" => [
-					"custom" => 0,
-					"value" => "y",
-		  	],
-				"CONFIG_APP_PROJECT_VER" => [
-					"custom" => 1,
-					"value" => "1.0.0",
-		  	],
-		  	*/
 			],
 	  ],
 		"Serial flasher config" => [

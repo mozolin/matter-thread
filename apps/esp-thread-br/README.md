@@ -6,6 +6,8 @@ Based on [ESP-THREAD-BR Release v1.2](https://github.com/espressif/esp-thread-br
 - **1) Web Page**  
 - **2) Configuration parameters**  
 - **3) mDNS: instance name and hostname**  
+- **4) OTA web page**  
+- **5) Yii2 ESP-IDF Config**  
   
 *Links:*  
 - [Crypt Utility](crypt/)  
@@ -166,7 +168,7 @@ After that we need to compile and flash the firmware to get the latest version!
 When the web server starts, we will see something like this:  
 ~~~ 
 I (10386) otbr_web: <=======================server start========================>  
-I (10386) otbr_web: http://10.122.251.157:80/index.html  
+I (10386) otbr_web: http://192.168.1.250:80/index.html  
 I (10386) otbr_web: <===========================================================>  
 ~~~ 
 or, in my version of the code (*esp_br_web.c*) :)  
@@ -181,11 +183,11 @@ it looks like:
 ~~~ 
 W (4565) otbr_web: ### Server start ##########################
 W (4565) otbr_web: #
-W (4565) otbr_web: #   http://10.122.251.157:80/index.html
+W (4565) otbr_web: #   http://192.168.1.250:80/index.html
 W (4565) otbr_web: #
 W (4565) otbr_web: ###########################################
 ~~~ 
-So, we can run this URL, http://10.122.251.157:80/index.html or its minified version http://10.122.251.157:80/index.min.html 
+So, we can run this URL, http://192.168.1.250:80/index.html or its minified version http://192.168.1.250:80/index.min.html 
 
 ## 2) Configuration parameters
 /examples/basic_thread_border_router/sdkconfig.defaults:  
@@ -252,5 +254,99 @@ idf_component_register(SRCS "esp_ot_br.c" "mdns_utils.c"
     #endif
 ...
 ~~~
+- Added to \examples\basic_thread_border_router\main\CMakeLists.txt
+~~~
+idf_component_register(SRCS ... "mdns_utils.c"
+~~~
+
+
 ![](../../images/otbr/esp_otbr_custom_mdns_names.jpg)  
+  
+
+## 4) OTA web page
+- Added \components\esp_ot_br_server\frontend\ota.html
+- Added \components\esp_ot_br_server\frontend\static\ota.css
+- Added \components\esp_ot_br_server\frontend\static\ota.js
+- Added \components\esp_ot_br_server\include\esp_br_ota.h
+- Added \components\esp_ot_br_server\src\esp_br_ota.c
+- Added to \components\esp_ot_br_server\src\esp_br_web.c
+~~~
+#include "esp_br_ota.h"
+~~~
+### Minify code
+We can also minify *ota.html* (to **ota.min.html**), *ota.js* (to **ota.min.js**) and *ota.css* (to **ota.min.css**) using the [*minify*](minify/) PHP-script:
+  
+Add new lines to the *esp_br_web.c* file:
+~~~
+    ...
+    //-- added minified OTA html
+    } else if (strcmp(info.file_name, "/ota.min.html") == 0) {
+        return index_html_get_handler(req, info.file_path);
+    //-- added minified OTA js
+    } else if (strcmp(info.file_name, "/static/ota.min.js") == 0) {
+        return script_js_get_handler(req, info.file_path);
+    //-- added minified OTA css
+    } else if (strcmp(info.file_name, "/static/ota.min.css") == 0) {
+        return style_css_get_handler(req, info.file_path);
+    ...
+~~~
+~~~
+    ...
+    //-- ADD: +8 URI handlers for API URIs (for OTA)
+    config.max_uri_handlers = 8 + (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
+    config.max_resp_headers = 8 + (sizeof(s_resource_handlers) + sizeof(s_web_gui_handlers)) / sizeof(httpd_uri_t) + 2;
+    ...
+~~~
+~~~
+    ...
+    // ДОБАВЛЕНО: Регистрация OTA обработчиков
+    esp_br_register_ota_handlers(s_server.handle);
+    ...
+~~~
+- Added to \components\esp_ot_br_server\CMakeLists.txt
+~~~
+REQUIRES ... app_update
+~~~
+- Replaced \components\esp_ot_br_server\favicon.ico
+- Added to \examples\basic_thread_border_router\main two parameters:
+~~~
+...
+config MIKE_DEVICE_ID
+...
+config MIKE_FIRMWARE_VERSION
+...
+~~~
+- Launch web page: http://192.168.1.250/ota
+  
+![](../../images/otbr/ota_01.png)  
+  
+![](../../images/otbr/ota_02.png)  
+  
+![](../../images/otbr/ota_03.png)  
+  
+![](../../images/otbr/ota_04.png)  
+  
+![](../../images/otbr/ota_05.png)  
+  
+
+## 5) Yii2 ESP OTBR Config
+- install in *\web\yii2* folder (the *vendor* folder will be created):
+~~~
+composer install
+~~~
+- launch web server in *\web* folder (it will be accessible on *http://localhost:8000*):
+~~~
+php -S 127.0.0.1:8000
+~~~
+- ***sdkconfig.defaults*** must have a strict structure (each configuration block must start with the line "# begin of..." and end with the line "# end of...")
+~~~
+# begin of Custom Firmware Config
+CONFIG_MIKE_MDNS_HOSTNAME="ESP OTBR Mike Board N3 OTA"
+CONFIG_MIKE_DEVICE_ID="ESP OTBR Mike Board N3 OTA"
+CONFIG_MIKE_FIRMWARE_VERSION="1.3.5"
+# end of Custom Firmware Config
+~~~
+- Section: "status" -1 means "not used, not shown" (for configurations), 0 - "switchable, now is disabled" and 1 - "switchable, now is enabled"
+- Params: "custom" 0 - "not used, not shown" and 1 - "can be changed"
+![](../../images/yii2_otbr/yii2_esp_otbr_code_01.png)  
   

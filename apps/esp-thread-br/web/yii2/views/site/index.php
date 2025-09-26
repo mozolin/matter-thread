@@ -1,5 +1,5 @@
 <?
-$this->title = 'ESP-IDF Config';
+$this->title = 'Yii2 ESP OTBR Config';
 ?>
 <div>
 	<?

@@ -7,4 +7,3 @@ idf_component_register(
 )
 
 spiffs_create_partition_image(web_storage ${CMAKE_CURRENT_SOURCE_DIR}/frontend FLASH_IN_PROJECT)
-

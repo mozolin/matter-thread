@@ -7,11 +7,11 @@ CONFIG_OPENTHREAD_BR_START_WEB=y
 # begin of Custom Firmware Config
 CONFIG_MIKE_MDNS_HOSTNAME="ESP OTBR Mike Board N3 OTA"
 CONFIG_MIKE_DEVICE_ID="ESP OTBR Mike Board N3 OTA"
-CONFIG_MIKE_FIRMWARE_VERSION="1.0.1"
+CONFIG_MIKE_FIRMWARE_VERSION="1.3.5"
 # end of Custom Firmware Config
 
 # begin of Serial flasher config
-CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
 # end of Serial flasher config
 
 # begin of Partition Table
