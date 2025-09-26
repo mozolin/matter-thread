@@ -330,11 +330,11 @@ config MIKE_FIRMWARE_VERSION
   
 
 ## 5) Yii2 ESP OTBR Config
-- install in *\web\yii2* folder (the *vendor* folder will be created):
+- install in */web/yii2* folder (the *vendor* folder will be created):
 ~~~
 composer install
 ~~~
-- launch web server in *\web* folder (it will be accessible on *http://localhost:8000*):
+- launch web server in */web* folder (it will be accessible on *http://localhost:8000*):
 ~~~
 php -S 127.0.0.1:8000
 ~~~
