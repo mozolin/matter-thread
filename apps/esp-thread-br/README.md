@@ -334,6 +334,7 @@ config MIKE_FIRMWARE_VERSION
 ~~~
 composer install
 ~~~
+[Installing Yii](https://www.yiiframework.com/doc/guide/2.0/en/start-installation)  
 - launch web server in */web* folder (it will be accessible on *http://localhost:8000*):
 ~~~
 php -S 127.0.0.1:8000
