@@ -32,6 +32,42 @@ micro -plugin install manipulator    # https://github.com/NicolaiSoeborg/manipul
 micro -plugin install autofmt        # https://github.com/a11ce/micro-autofmt
 micro -plugin install filemanager    # ???
 ~~~
+Settings in ~/.config/micro/settings.json
+~~~
+{
+  "autosu": false,
+  "colorcolumn": 80,
+  "cursorline": true,
+  "eofnewline": true,
+  "ftoptions": true,
+  "ignorecase": true,
+  "indentchar": " ",
+  "keepautoindent": true,
+  "matchbrace": true,
+  "ruler": true,
+  "savecursor": true,
+  "saveundo": true,
+  "scrollbar": true,
+  "scrollmargin": 3,
+  "smartpaste": true,
+  "softwrap": true,
+  "splitbottom": true,
+  "splitright": true,
+  "status": true,
+  "syntax": true,
+  "tabmovement": true,
+  "tabsize": 4,
+  "tabstospaces": true
+}
+~~~
+Bindings in ~/.config/micro/bindings.json:
+~~~
+{
+  "Ctrl-f": "Find",
+  "F3": "FindNext",
+  ...
+}
+~~~
 
 ## XSCREENSAVER
 https://www.debugpoint.com/install-change-autostart-setup-screensaver-ubuntu-linux/
