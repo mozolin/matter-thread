@@ -2,7 +2,7 @@
 
 - [All-In-One](All-In-One.md)  
   - 1. Install Home Assistant
-  - 2. Install PHP + Apache2
+  - 2. Install PHP 7.4 (fpm) and Apache2
   - 3. Install NetTools
   - 4. Install HardInfo
   - 5. Install Portainer

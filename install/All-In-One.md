@@ -7,40 +7,213 @@
 - [Create a Home Assistant configuration using an office network without Wi-Fi router](HA-Office_2.md)
 
 
-# 2. Install PHP + Apache2
+# 2. Install PHP 7.4 (fpm) and Apache2
+### a) Update the system
 ~~~
-sudo apt install php libapache2-mod-php
-sudo apt install php-cli
-sudo apt install php-cgi
-sudo apt install php-mysql
-sudo apt install php-{extension-name}
+sudo apt update
+sudo apt upgrade
 ~~~
-Restart Apache2 service
+### b) Install Apache2
 ~~~
-sudo systemctl restart apache2.service
+sudo apt install apache2
 ~~~
-Check PHP version
+### c) Add the PHP 7.4 repository
 ~~~
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:ondrej/php
+sudo apt update
+~~~
+### d) Install PHP 7.4 and required modules
+~~~
+sudo apt install php7.4 php7.4-cli php7.4-common php7.4-fpm
+~~~
+### e) Install additional PHP modules
+~~~
+sudo apt install php7.4-mysql php7.4-xml php7.4-json php7.4-curl php7.4-mbstring php7.4-zip php7.4-gd php7.4-bcmath
+
+# Check PHP version
 php -v
 ~~~
-> PHP 8.1.2-1ubuntu2.21 (cli) (built: Mar 24 2025 19:04:23) (NTS)  
-> Copyright (c) The PHP Group  
-> Zend Engine v4.1.2, Copyright (c) Zend Technologies with Zend OPcache v8.1.2-1ubuntu2.21, Copyright (c), by Zend Technologies  
+### f) Configuring Apache to Work with PHP
+~~~
+# Enabling Required Apache Modules
+sudo a2enmod rewrite
+sudo a2enmod proxy_fcgi setenvif
+sudo a2enconf php7.4-fpm
 
-Choose PHP instance
+# Restarting Apache
+sudo systemctl reload apache2
+~~~
+### g) Configuring the Virtual Host
+Create a configuration file:
+~~~
+sudo nano /etc/apache2/sites-available/your-site.conf
+~~~
+Add the following content:
+~~~
+<VirtualHost *:80>
+  ServerName your-domain.com
+  ServerAlias www.your-domain.com
+  DocumentRoot /var/www/html
+
+  <Directory /var/www/html>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+  </Directory>
+
+  # PHP Handler
+  <FilesMatch \.php$>
+    SetHandler "proxy:unix:/var/run/php/php7.4-fpm.sock|fcgi://localhost"
+  </FilesMatch>
+
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+~~~
+Activate the site:
+~~~
+sudo a2ensite your-site.conf
+sudo systemctl reload apache2
+~~~
+### h) Testing PHP
+Create a test file:
+~~~
+sudo nano /var/www/html/info.php
+~~~
+Add the following content:
+~~~
+<?php
+phpinfo();
+?>
+~~~
+Open in a browser: http://your-server-ip/info.php
+### i) Basic Management Commands
+Apache:
+~~~
+sudo systemctl start apache2
+sudo systemctl stop apache2
+sudo systemctl restart apache2
+sudo systemctl status apache2
+~~~
+PHP-FPM:
+~~~
+sudo systemctl start php7.4-fpm
+sudo systemctl stop php7.4-fpm
+sudo systemctl restart php7.4-fpm
+sudo systemctl status php7.4-fpm
+~~~
+### j) Security Configuration
+Configuring php.ini:
+~~~
+sudo nano /etc/php/7.4/fpm/php.ini
+~~~
+Recommended Settings:
+~~~
+expose_php = Off
+display_errors = Off
+log_errors = On
+upload_max_filesize = 16M
+post_max_size = 16M
+max_execution_time = 30
+short_tags=On
+~~~
+### k) Configure Permissions
+~~~
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+~~~
+### l) Check Configuration
+~~~
+# Check Apache Syntax
+sudo apache2ctl configtest
+
+# Check PHP Syntax
+php -l /path/to/your/file.php
+~~~
+### m) Apache2 restart script
+apache-restart.sh
+~~~
+#!/bin/bash
+sudo systemctl restart apache2.service
+sudo systemctl restart php7.4-fpm
+~~~
+### n) Choose PHP instance
 ~~~
 sudo update-alternatives --config php
 
 There are 2 choices for the alternative php (providing /usr/bin/php).
-  Selection    Path                  Priority   Status
-------------------------------------------------------------
-  0            /usr/bin/php.default   100       auto mode
-  1            /usr/bin/php.default   100       manual mode
-* 2            /usr/bin/php8.1        81        manual mode
+  Selection    Path                   Priority   Status
+-------------------------------------------------------------
+  0            /usr/bin/php.default   100        manual mode
+* 1            /usr/bin/php7.4        74         auto mode
+  2            /usr/bin/php8.1        81         manual mode
 Press <enter> to keep the current choice[*], or type selection number:
 ~~~  
-Configuration file can be found here: */etc/php/8.1/apache2/php.ini*
+After completing these steps, we will have a fully configured PHP 7.4 + Apache2 environment on Ubuntu.
+### o) Example
+Testing a link like: http://localhost/pages/test/title/hi_Mike/id/234  
+  
+.htaccess:
+~~~
+DirectoryIndex index.php
 
+#AuthType Basic
+#AuthName "My Webserver Authentification"
+#AuthUserFile /share/htdocs/.htpasswd
+#Require valid-user
+
+RewriteEngine On
+
+# Basic settings
+Options -Indexes
+RewriteBase /
+
+# Rule for /page/index/id/123
+RewriteRule ^([^/]+)/index/id/([0-9]+)/?$ $1/index.php?id=$2 [L,QSA]
+
+# Rule for /page/view/id/123
+RewriteRule ^([^/]+)/view/id/([0-9]+)/?$ $1/view.php?id=$2 [L,QSA]
+
+# Universal rule for any parameters
+# /controller/action/param/value -> /controller/action.php?param=value
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/?$ $1/$2.php?$3=$4 [L,QSA]
+
+# Rule for multiple parameters
+# /controller/action/param1/value1/param2/value2 -> /controller/action.php?param1=value1&param2=value2
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/?$ $1/$2.php?$3=$4&$5=$6 [L,QSA]
+
+# Additional rule for SEF
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/?$ $1/$2.php?$3=$4&$5=$6&$7=$8 [L,QSA]
+
+# If it's necessary to save the trailing slash
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+#---   FINAL   -------------------------
+RewriteCond %{REQUEST_URI} !^/(index\.php|images|robots\.txt|public) [NC]
+RewriteCond %{REQUEST_URI} !\.(cssіjsіjpgіgifіpng)$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php?$1 [L,QSA]
+~~~
+/pages/test.php:
+~~~
+<?
+$qs = $_SERVER['QUERY_STRING'];
+parse_str($qs, $output);
+
+if(!empty($output)) {
+  $id = addslashes($output['id']);
+  $title = addslashes($output['title']);
+  echo "{\"id\":{$id},\"title\":\"{$title}\"}";
+}
+~~~
+>  
+> {"id":234,"title":"hi_Mike"}  
+>  
+  
 
 # 3. Install NetTools
 NetTools includes some useful network applications suck as *arp, dnsdomainname, domainname, hostname, ifconfig, nameif, netstat, nisdomainname, plipconfig, rarp, route, slattach, ypdomainname*
