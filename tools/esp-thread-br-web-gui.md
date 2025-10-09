@@ -27,6 +27,7 @@ If, for example, the IP address of the Thread Border web interface is 192.168.31
   http:/192.168.31.157/topology
  
 ### The Thread REST APIs
+[https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/web-gui.html#thread-rest-apis](https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/web-gui.html#thread-rest-apis)  
 - /diagnostics
 - /node
 - /node/rloc
@@ -41,6 +42,7 @@ If, for example, the IP address of the Thread Border web interface is 192.168.31
 - /node/dataset/active
 - /node/dataset/pending
 ### Web GUI REST APIs
+[https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/web-gui.html#web-gui-rest-apis](https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/web-gui.html#web-gui-rest-apis)
 - /avaiable_network
 - /get_properties
 - /node_information
