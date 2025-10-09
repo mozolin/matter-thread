@@ -255,3 +255,20 @@ tar -czvf archive_name.tar.gz /path/to/your/folder
 ~~~
 tar -xvzf filename.tar.gz
 ~~~
+
+## NodeJS
+~~~
+sudo apt install npm
+~~~
+
+## GitGUI
+- Install GitGUI
+~~~
+sudo apt install git-gui
+~~~
+- Launch GitGUI (in .git folder)
+~~~
+git gui
+~~~
+![](../images/system/git-gui.png)  
+  
