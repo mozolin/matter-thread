@@ -257,6 +257,14 @@ tar -xvzf filename.tar.gz
 ~~~
 
 ## NodeJS
+# Полная установка NVM + Node.js 20
+~~~
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+nvm install 20
+nvm use 20
+nvm alias default 20
+~~~
 ~~~
 sudo apt install npm
 ~~~
