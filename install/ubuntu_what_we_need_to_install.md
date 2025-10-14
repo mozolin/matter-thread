@@ -63,8 +63,11 @@ Settings in ~/.config/micro/settings.json
 Bindings in ~/.config/micro/bindings.json:
 ~~~
 {
-  "Ctrl-f": "Find",
+  "Ctrl-F": "Find",
   "F3": "FindNext",
+  "Ctrl-Y": "CutLine",
+  "F2": "Save",
+  "Esc": "Quit",
   ...
 }
 ~~~

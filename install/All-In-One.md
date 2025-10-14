@@ -474,6 +474,3 @@ sudo chmod a+rw /dev/ttyACM0
 
 # 17. Ubuntu: what we need to install
 - [Can be found here](ubuntu_what_we_need_to_install.md)  
-
-# 18. Install OTBR (Ubuntu + nRF52840 RCP)
-- [Can be found here](nRF52840_OTBR/)  
