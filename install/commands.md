@@ -26,3 +26,10 @@ python3 -m pip install construct
 ~~~
 python3 -m pip install python-stdnum
 ~~~
+
+
+### 3. GIT
+To ignore changes to file permissions (chmod), use the command in the current repository:
+~~~
+git config core.fileMode false
+~~~
