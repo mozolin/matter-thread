@@ -16,6 +16,9 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include "esp32h2_led.h"
+#include "driver_led_indicator.h"
+
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
@@ -146,4 +149,25 @@ extern "C" void app_main()
 		#endif
   	esp_matter::console::init();
 	#endif
+	
+	//--> UART RX/TX Blinking Simulator
+	#if LED_MODE == 1
+	  //-- 1. Простая версия со случайными интервалами
+	  xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
+	  while(1) {
+	    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+	    vTaskDelay(pdMS_TO_TICKS(1000));
+	  }
+	#endif
+	
+	#if LED_MODE == 2
+	  //-- 2. Реалистичная версия с паттернами UART
+	  xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
+	#endif
+	
+	#if LED_MODE == 3
+	 //-- 3. Версия с разными режимами активности
+	 xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
+	#endif
+	//<-- UART RX/TX Blinking Simulator
 }
