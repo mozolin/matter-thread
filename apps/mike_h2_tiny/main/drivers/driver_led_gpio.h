@@ -3,14 +3,18 @@
 #pragma once
 
 #include "driver/gpio.h"
+#include <app_priv.h>
 
-#define TAG "ot_esp_rcp"
+//-- LED 1 for UART activity indication
+#define LED_RX_GPIO ESP32H2_GPIO_LED_1
+//-- use, if LED 1 is not RGB 
+#define USE_LED_RX_GPIO !ESP32H2_RGB_LED_1
 
-#define CMD_UART_NUM 0
+//-- LED 2 for UART activity indication
+#define LED_TX_GPIO ESP32H2_GPIO_LED_2
+//-- use, if LED 2 is not RGB 
+#define USE_LED_TX_GPIO !ESP32H2_RGB_LED_2
 
-//-- LED for UART activity indication
-#define LED_RX_GPIO GPIO_NUM_8 //-- yellow
-#define LED_TX_GPIO GPIO_NUM_13 //-- blue
 
 #define DEBUG_MODE false
 
@@ -36,10 +40,22 @@ bool isLEDInverseBlinking = false;
     TickType_t next_change;
   } led_state_t;
 
-  static led_state_t leds[] = {
-    {LED_RX_GPIO, "RX", false, 0},
-    {LED_TX_GPIO, "TX", false, 0}
-  };
+  #if USE_LED_RX_GPIO && USE_LED_TX_GPIO
+	  static led_state_t leds[] = {
+  	  {LED_RX_GPIO, "RX", false, 0},
+    	{LED_TX_GPIO, "TX", false, 0}
+	  };
+  #elif USE_LED_RX_GPIO
+    static led_state_t leds[] = {
+  	  {LED_RX_GPIO, "RX", false, 0},
+    	{LED_RX_GPIO, "RX", false, 0}
+	  };
+  #else
+    static led_state_t leds[] = {
+  	  {LED_TX_GPIO, "TX", false, 0},
+    	{LED_TX_GPIO, "TX", false, 0}
+	  };
+  #endif
 
   //-- Pseudo-random number generator (simple)
   static uint32_t simple_random(void) {
@@ -111,7 +127,6 @@ bool isLEDInverseBlinking = false;
 #endif
 
 
-
 /**********************************************
  *                                            *
  *  2. Realistic version with UART patterns   *
@@ -137,17 +152,23 @@ bool isLEDInverseBlinking = false;
 
   static void simulate_uart_activity(void *aContext)
   {
-    int rx_active = 0;
-    int tx_active = 0;
-    uint32_t rx_pattern = 0;
-    uint32_t tx_pattern = 0;
-    int rx_bit = 0;
-    int tx_bit = 0;
-  
-    gpio_reset_pin(LED_RX_GPIO);
-    gpio_set_direction(LED_RX_GPIO, GPIO_MODE_OUTPUT);
-    gpio_reset_pin(LED_TX_GPIO);
-    gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
+    #if USE_LED_RX_GPIO
+    	int rx_active = 0;
+    	uint32_t rx_pattern = 0;
+    	int rx_bit = 0;
+    	
+    	gpio_reset_pin(LED_RX_GPIO);
+    	gpio_set_direction(LED_RX_GPIO, GPIO_MODE_OUTPUT);
+    #endif
+
+    #if USE_LED_TX_GPIO
+	    int tx_active = 0;
+	    uint32_t tx_pattern = 0;
+  	  int tx_bit = 0;
+	    
+	    gpio_reset_pin(LED_TX_GPIO);
+  	  gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
+    #endif
   
     #if DEBUG_MODE
     	printf("UART pattern simulation started\n");
@@ -155,6 +176,7 @@ bool isLEDInverseBlinking = false;
   
     while (1) {
       //-- Randomly deciding whether to start a new "package"
+      #if USE_LED_RX_GPIO
       if (!rx_active && (esp_random() % 100 < 15)) { // 15% chance
         rx_active = 1;
         rx_pattern = rx_patterns[esp_random() % 4];
@@ -163,7 +185,9 @@ bool isLEDInverseBlinking = false;
         	printf("RX packet started: 0x%li\n", rx_pattern);
         #endif
       }
-    
+      #endif
+
+      #if USE_LED_TX_GPIO
       if (!tx_active && (esp_random() % 100 < 10)) { // 10% chance
         tx_active = 1;
         tx_pattern = tx_patterns[esp_random() % 4];
@@ -172,8 +196,10 @@ bool isLEDInverseBlinking = false;
         	printf("TX packet started: 0x%li\n", tx_pattern);
         #endif
       }
-    
+      #endif
+
       //-- Processing current packet bits
+      #if USE_LED_RX_GPIO
       if (rx_active) {
         bool bit_state = (rx_pattern >> rx_bit) & 1;
         gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? !bit_state : bit_state);
@@ -187,7 +213,9 @@ bool isLEDInverseBlinking = false;
           #endif
         }
       }
+      #endif
     
+      #if USE_LED_TX_GPIO
       if (tx_active) {
         bool bit_state = (tx_pattern >> tx_bit) & 1;
         gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? !bit_state : bit_state);
@@ -201,7 +229,8 @@ bool isLEDInverseBlinking = false;
           #endif
         }
       }
-    
+      #endif
+
       //-- Bit Delay (UART Speed ​​Simulation)
       vTaskDelay(50 / portTICK_PERIOD_MS);
     }
@@ -237,10 +266,15 @@ bool isLEDInverseBlinking = false;
   static void uart_simulation_task(void *pvParameters) {
     int counter = 0;
   
-    gpio_reset_pin(LED_RX_GPIO);
-    gpio_set_direction(LED_RX_GPIO, GPIO_MODE_OUTPUT);
-    gpio_reset_pin(LED_TX_GPIO);
-    gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
+    #if USE_LED_RX_GPIO
+	    gpio_reset_pin(LED_RX_GPIO);
+  	  gpio_set_direction(LED_RX_GPIO, GPIO_MODE_OUTPUT);
+    #endif
+    
+    #if USE_LED_TX_GPIO
+	    gpio_reset_pin(LED_TX_GPIO);
+  	  gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
+    #endif
 
     #if DEBUG_MODE
     	printf("Advanced UART simulation started\n");
@@ -256,68 +290,92 @@ bool isLEDInverseBlinking = false;
       switch (current_mode) {
         case MODE_IDLE:
           //-- Rare single packets
-          if (counter % 100 == 0) {
-            gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
-            vTaskDelay(30 / portTICK_PERIOD_MS);
-            gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
-            #if DEBUG_MODE
-            	printf("IDLE: Single RX packet\n");
-            #endif
-          }
-          if (counter % 150 == 0) {
-            gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
-            vTaskDelay(30 / portTICK_PERIOD_MS);
-            gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
-            #if DEBUG_MODE
-            	printf("IDLE: Single TX packet\n");
-            #endif
-          }
+          #if USE_LED_RX_GPIO
+	          if (counter % 100 == 0) {
+  	          gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
+    	        vTaskDelay(30 / portTICK_PERIOD_MS);
+      	      gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
+        	    #if DEBUG_MODE
+          	  	printf("IDLE: Single RX packet\n");
+	            #endif
+  	        }
+          #endif
+          
+          #if USE_LED_TX_GPIO
+	          if (counter % 150 == 0) {
+  	          gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
+    	        vTaskDelay(30 / portTICK_PERIOD_MS);
+      	      gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
+        	    #if DEBUG_MODE
+          	  	printf("IDLE: Single TX packet\n");
+	            #endif
+  	        }
+          #endif
+
           break;
         
         case MODE_ACTIVE:
           //-- Regular traffic
-          if (counter % 20 == 0) {
-            gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
-            vTaskDelay(50 / portTICK_PERIOD_MS);
-            gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
-          }
-          if (counter % 25 == 0) {
-            gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
-            vTaskDelay(50 / portTICK_PERIOD_MS);
-            gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
-          }
+          #if USE_LED_RX_GPIO
+	          if (counter % 20 == 0) {
+  	          gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
+    	        vTaskDelay(50 / portTICK_PERIOD_MS);
+      	      gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
+        	  }
+          #endif
+          
+          #if USE_LED_TX_GPIO
+	          if (counter % 25 == 0) {
+  	          gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
+    	        vTaskDelay(50 / portTICK_PERIOD_MS);
+      	      gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
+        	  }
+          #endif
+          
           break;
         
         case MODE_BURST:
           //-- Packages in packs
-          if (counter % 50 == 0) {
-            #if DEBUG_MODE
-            	printf("BURST: RX packet burst\n");
-            #endif
-            for (int i = 0; i < 5; i++) {
-              gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
-              vTaskDelay(20 / portTICK_PERIOD_MS);
-              gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
-              vTaskDelay(10 / portTICK_PERIOD_MS);
-            }
-          }
-          if (counter % 60 == 0) {
-            #if DEBUG_MODE
-            	printf("BURST: TX packet burst\n");
-            #endif
-            for (int i = 0; i < 3; i++) {
-              gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
-              vTaskDelay(25 / portTICK_PERIOD_MS);
-              gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
-              vTaskDelay(15 / portTICK_PERIOD_MS);
-            }
-          }
+          #if USE_LED_RX_GPIO
+          	if (counter % 50 == 0) {
+	            #if DEBUG_MODE
+	            	printf("BURST: RX packet burst\n");
+	            #endif
+	            for (int i = 0; i < 5; i++) {
+	              gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
+	              vTaskDelay(20 / portTICK_PERIOD_MS);
+	              gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
+	              vTaskDelay(10 / portTICK_PERIOD_MS);
+	            }
+	          }
+          #endif
+
+          #if USE_LED_TX_GPIO
+	          if (counter % 60 == 0) {
+  	          #if DEBUG_MODE
+    	        	printf("BURST: TX packet burst\n");
+      	      #endif
+	            for (int i = 0; i < 3; i++) {
+	              gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
+	              vTaskDelay(25 / portTICK_PERIOD_MS);
+	              gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
+	              vTaskDelay(15 / portTICK_PERIOD_MS);
+	            }
+	          }
+          #endif
+          
           break;
         
         case MODE_ERROR:
           //-- Fast blinking (error)
-          gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? !((counter / 2) % 2) : (counter / 2) % 2);
-          gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? !((counter / 3) % 2) : (counter / 3) % 2);
+          #if USE_LED_RX_GPIO
+          	gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? !((counter / 2) % 2) : (counter / 2) % 2);
+          #endif
+
+          #if USE_LED_TX_GPIO
+	          gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? !((counter / 3) % 2) : (counter / 3) % 2);
+          #endif
+          
           break;
       }
     

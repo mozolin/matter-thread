@@ -1,7 +1,57 @@
 
 #include "driver_led_indicator.h"
-#include "led_indicator.h"
-//#include <app_priv.h>
+//#include "led_indicator.h"
+#include <app_priv.h>
+
+blink_step_t const *led_mode[] = {
+  [BLINK_ON_YELLOW] = yellow_on,
+  [BLINK_ON_ORANGE] = orange_on,
+  [BLINK_DOUBLE_RED] = double_red_blink,
+  [BLINK_TRIPLE_GREEN] = triple_green_blink,
+  [BLINK_ONCE_RED] = red_once_blink,
+  [BLINK_ONCE_GREEN] = green_once_blink,
+  [BLINK_ONCE_BLUE] = blue_once_blink,
+  [BLINK_ONCE_LIVE] = live_once_blink,
+  [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
+  [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
+  [BLINK_BLUE_BREATH] = breath_blue_blink,
+  [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
+  [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
+  #if LED_NUMBERS > 1
+    [BLINK_FLOWING] = flowing_blink,
+  #endif
+  [BLINK_MAX] = NULL,
+};
+
+uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
+{
+  uint8_t idx = 255;
+  
+  int size = sizeof(led_mode)/sizeof(led_mode[0]);
+
+  auto item = led_mode[blink_type];
+  for(int i=0; i<size; i++) {
+    if(led_mode[i] == item) {
+      idx = i;
+
+      if(start_delay > 0) {
+        led_indicator_start(led_handle, idx);
+        //vTaskDelay(pdMS_TO_TICKS(start_delay));
+        vTaskDelay(start_delay / portTICK_PERIOD_MS);
+
+        led_indicator_stop(led_handle, idx);
+        if(stop_delay > 0) {
+          //vTaskDelay(pdMS_TO_TICKS(stop_delay));
+          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
+        }
+      }
+
+      break;
+    }
+  }
+
+  return idx;
+}
 
 /*********************
  *                   *
@@ -180,11 +230,11 @@ led_indicator_handle_t configure_indicator(void)
     .blink_list_num = BLINK_MAX,
   };
   
-  led_indicator_handle_t led_handle = NULL;
-  led_handle = led_indicator_create(&config);
-  assert(led_handle != NULL);
+  led_indicator_handle_t led_handle_cfg = NULL;
+  led_handle_cfg = led_indicator_create(&config);
+  assert(led_handle_cfg != NULL);
 
-  return led_handle;
+  return led_handle_cfg;
 }
 
 #if LIVE_BLINK_TIME_MS > 0
@@ -205,34 +255,3 @@ void init_indicator_task(void *pvParameter)
   }
 }
 #endif
-
-uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
-{
-  uint8_t idx = 255;
-  
-  int size = sizeof(led_mode)/sizeof(led_mode[0]);
-
-  auto item = led_mode[blink_type];
-  for(int i=0; i<size; i++) {
-    if(led_mode[i] == item) {
-      //ESP_LOGW(TAG_MIKE_APP, "~~~ ###!!!@@@ FOUND: %d", i);
-      idx = i;
-
-      if(start_delay > 0) {
-        led_indicator_start(led_handle, idx);
-        //vTaskDelay(pdMS_TO_TICKS(start_delay));
-        vTaskDelay(start_delay / portTICK_PERIOD_MS);
-
-        led_indicator_stop(led_handle, idx);
-        if(stop_delay > 0) {
-          //vTaskDelay(pdMS_TO_TICKS(stop_delay));
-          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
-        }
-      }
-
-      break;
-    }
-  }
-
-  return idx;
-}

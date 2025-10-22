@@ -72,29 +72,6 @@ extern blink_step_t const *led_mode[];
 	extern void init_indicator_task(void *pvParameter);
 #endif
 
-/*********************
- *                   *
- *   LED INDICATOR   *
- *                   *
- *********************/
-blink_step_t const *led_mode[] = {
-  [BLINK_ON_YELLOW] = yellow_on,
-  [BLINK_ON_ORANGE] = orange_on,
-  [BLINK_DOUBLE_RED] = double_red_blink,
-  [BLINK_TRIPLE_GREEN] = triple_green_blink,
-  [BLINK_ONCE_RED] = red_once_blink,
-  [BLINK_ONCE_GREEN] = green_once_blink,
-  [BLINK_ONCE_BLUE] = blue_once_blink,
-  [BLINK_ONCE_LIVE] = live_once_blink,
-  [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
-  [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
-  [BLINK_BLUE_BREATH] = breath_blue_blink,
-  [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
-  [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
-  #if LED_NUMBERS > 1
-    [BLINK_FLOWING] = flowing_blink,
-  #endif
-  [BLINK_MAX] = NULL,
-};
+extern led_indicator_handle_t led_handle;
 
 extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);

@@ -16,6 +16,7 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
@@ -23,39 +24,43 @@ using namespace chip::app::Clusters;
 
 constexpr auto k_timeout_seconds = 300;
 
+#include "driver_led_gpio.h"
+
+led_indicator_handle_t led_handle;
+
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
   switch (event->Type) {
   case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-    ESP_LOGI(TAG_H2, "Interface IP Address changed");
+    ESP_LOGI(TAG_H2, "~~~ Interface IP Address changed");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-    ESP_LOGI(TAG_H2, "Commissioning complete");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning complete");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-    ESP_LOGI(TAG_H2, "Commissioning failed, fail safe timer expired");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning failed, fail safe timer expired");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-    ESP_LOGI(TAG_H2, "Commissioning session started");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning session started");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-    ESP_LOGI(TAG_H2, "Commissioning session stopped");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning session stopped");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-    ESP_LOGI(TAG_H2, "Commissioning window opened");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning window opened");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-    ESP_LOGI(TAG_H2, "Commissioning window closed");
+    ESP_LOGI(TAG_H2, "~~~ Commissioning window closed");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-    ESP_LOGI(TAG_H2, "Fabric removed successfully");
+    ESP_LOGI(TAG_H2, "~~~ Fabric removed successfully");
     if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
       chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
       constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -65,7 +70,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
          */
         CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
         if(err != CHIP_NO_ERROR) {
-          ESP_LOGE(TAG_H2, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+          ESP_LOGE(TAG_H2, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
         }
       }
     }
@@ -73,19 +78,19 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   }
 
   case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-    ESP_LOGI(TAG_H2, "Fabric will be removed");
+    ESP_LOGI(TAG_H2, "~~~ Fabric will be removed");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-    ESP_LOGI(TAG_H2, "Fabric is updated");
+    ESP_LOGI(TAG_H2, "~~~ Fabric is updated");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-    ESP_LOGI(TAG_H2, "Fabric is committed");
+    ESP_LOGI(TAG_H2, "~~~ Fabric is committed");
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-    ESP_LOGI(TAG_H2, "BLE deinitialized and memory reclaimed");
+    ESP_LOGI(TAG_H2, "~~~ BLE deinitialized and memory reclaimed");
     break;
 
   default:
@@ -97,7 +102,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 // In the callback implementation, an endpoint can identify itself. (e.g., by flashing an LED or light).
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
-  ESP_LOGI(TAG_H2, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+  ESP_LOGI(TAG_H2, "~~~ Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
   return ESP_OK;
 }
 
@@ -121,7 +126,7 @@ extern "C" void app_main()
 
   // node handle can be used to add/modify other endpoints.
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_H2, "Failed to create Matter node"));
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_H2, "~~~ Failed to create Matter node"));
 
 	#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     /* Set OpenThread platform config */
@@ -135,7 +140,7 @@ extern "C" void app_main()
 
   /* Matter start */
   err = esp_matter::start(app_event_cb);
-  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_H2, "Failed to start Matter, err:%d", err));
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_H2, "~~~ Failed to start Matter, err:%d", err));
 
 	#if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();
@@ -149,22 +154,28 @@ extern "C" void app_main()
 	
 	//--> UART RX/TX Blinking Simulator
 	#if LED_MODE == 1
-	  //-- 1. Простая версия со случайными интервалами
+	  ESP_LOGW(TAG_H2, "~~~ BLINK: 1. Simple version with random intervals");
 	  xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
-	  while(1) {
-	    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-	    vTaskDelay(pdMS_TO_TICKS(1000));
-	  }
 	#endif
 	
 	#if LED_MODE == 2
-	  //-- 2. Реалистичная версия с паттернами UART
+	  ESP_LOGW(TAG_H2, "~~~ BLINK: 2. Realistic version with UART patterns");
 	  xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
 	#endif
 	
 	#if LED_MODE == 3
-	 //-- 3. Версия с разными режимами активности
+	 ESP_LOGW(TAG_H2, "~~~ BLINK: 3. Version with different activity modes");
 	 xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
 	#endif
 	//<-- UART RX/TX Blinking Simulator
+
+	//--> RGB LED indicator
+  led_handle = configure_indicator();
+	while(1) {
+	  //ESP_LOGW(TAG_H2, "~~~ BLINK RGB: BLINK_ONCE_RED");
+	  get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+	  vTaskDelay(pdMS_TO_TICKS(1000));
+	}
+	//<-- RGB LED indicator
+
 }
