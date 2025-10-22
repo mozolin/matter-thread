@@ -16,9 +16,6 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
-#include "esp32h2_led.h"
-#include "driver_led_indicator.h"
-
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
