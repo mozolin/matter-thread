@@ -9,7 +9,7 @@ idf_component_register(
   INCLUDE_DIRS "." "./drivers"
 )
 ~~~
-This depends on the espressif/led_indicator library version 1.1.1, and the source files are located in the /drivers folder.  
+This depends on the *espressif/led_indicator* library version *1.1.1*, and the source files are located in the /drivers folder.  
 idf_component.yml:
 ~~~
 dependencies:
@@ -17,6 +17,7 @@ dependencies:
     version: "^1.1.1"
 ~~~
 The source code for the example can be found [here](rcp/)  
+  
 ![](../../images/esp-led-indicator/esp_otbr_leds.jpg)  
   
 ### 2. ESP-MATTER
@@ -28,7 +29,7 @@ idf_component_register(
   PRIV_INCLUDE_DIRS "." "./drivers" "${ESP_MATTER_PATH}/examples/common/utils"
 )
 ~~~
-This depends on the espressif/led_indicator library version 1.1.1, and the source files are located in the /drivers folder.  
+This depends on the *espressif/led_indicator* library version *1.1.1*, and the source files are located in the /drivers folder.  
 idf_component.yml:
 ~~~
 dependencies:
@@ -43,11 +44,12 @@ dependencies:
     version: "^3"
 ~~~
 The source code for the example can be found [here](h2_tiny/)  
+  
 ![](../../images/esp-led-indicator/esp32h2_leds.jpg)  
   
 ### 3. Common part
-Files **driver_led_indicator.cpp** and **driver_led_indicator.c** are absolutely identical, the only difference is in their extension!
-The header files **driver_led_indicator.h** and **led_config.h** are the same for both types of code.  
+Files ***driver_led_indicator.cpp*** and ***driver_led_indicator.c*** are absolutely identical, the only difference is in their extension!
+The header files ***driver_led_indicator.h*** and ***led_config.h*** are the same for both types of code.  
   
 Add to app_main.c or app_main.cpp:
 ~~~
@@ -57,7 +59,7 @@ Add to app_main.c or app_main.cpp:
   led_indicator_handle_t led_handle;
 #endif
 ~~~
-Add to the function **void app_main(void)** (C-code) or **extern "C" void app_main()** (CPP-code):
+Add to the function ***void app_main(void)*** (C-code) or ***extern "C" void app_main()*** (CPP-code):
 ~~~
   #if USE_DRIVER_LED_INDICATOR
     //-- at least one LED must not be an RGB LED
