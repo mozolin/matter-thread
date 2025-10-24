@@ -1,4 +1,10 @@
-# How to prepare for Compilation and Building
+# ESP LED Indicator
+
+## Description
+These examples demonstrate the simulation of UART (RX and TX) operation by blinking LEDs on ESP32 development boards in the ESP-IDF and ESP-MATTER SDKs from Espressif.
+
+
+## How to prepare for Compilation and Building
 
 ### 1. ESP-IDF
 The driver "driver_led_indicator" must be C-code: drivers/driver_led_indicator.c  
