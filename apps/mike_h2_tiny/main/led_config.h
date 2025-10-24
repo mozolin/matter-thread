@@ -13,7 +13,7 @@
 */
 #define LED_MODE                 1
 
-#define IS_LED_INVERSE_BLINKING  1
+#define IS_LED_INVERSE_BLINKING  false
 
 /*
 ESP OTBR & Zigbee GW (RCP ESP32-H2):
