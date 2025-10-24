@@ -103,9 +103,9 @@ Add to the function ***void app_main(void)*** (C-code) or ***extern "C" void app
 ~~~
 
 ### 4. Examples
-ESP OTBR & Zigbee GW (RCP ESP32-H2):  
-- GPIO_NUM_22: ordinary LED, yellow (old)/green (new)  
-- GPIO_NUM_25: ordinary LED, blue  
+1) ESP OTBR & Zigbee GW (RCP ESP32-H2):  
+  - GPIO_NUM_22: ordinary LED, yellow (old)/green (new)  
+  - GPIO_NUM_25: ordinary LED, blue  
 ~~~
 #define ESP32_GPIO_LED_1         GPIO_NUM_22
 #define ESP32_RGB_LED_1          false
@@ -114,9 +114,9 @@ ESP OTBR & Zigbee GW (RCP ESP32-H2):
 #define ESP32_RGB_LED_2          false
 ~~~
   
-ESP32-H2 SuperMini:  
-- GPIO_NUM_8: RGB LED  
-- GPIO_NUM_13: ordinary LED, blue  
+2) ESP32-H2 SuperMini:  
+  - GPIO_NUM_8: RGB LED  
+  - GPIO_NUM_13: ordinary LED, blue  
 ~~~
 #define ESP32_GPIO_LED_1         GPIO_NUM_8
 #define ESP32_RGB_LED_1          true
