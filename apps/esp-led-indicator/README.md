@@ -1,6 +1,6 @@
 # How to prepare for Compilation and Building
 
-### 1. ESP-IDF (example: openthread/esp-ot-rcp)
+### 1. ESP-IDF
 The driver "driver_led_indicator" must be C-code: drivers/driver_led_indicator.c  
 The CMakeLists.txt file should contain the following lines: 
 ~~~
@@ -16,9 +16,10 @@ dependencies:
   espressif/led_indicator:
     version: "^1.1.1"
 ~~~
-The source code for the example can be found [here](rcp/)
-
-### 2. ESP-MATTER (example: mike_h2_tiny)
+The source code for the example can be found [here](rcp/)  
+![](../../images/esp-led-indicator/esp_otbr_leds.jpg)  
+  
+### 2. ESP-MATTER
 The driver "driver_led_indicator" must be CPP-code: drivers/driver_led_indicator.cpp  
 The CMakeLists.txt file should contain the following lines: 
 ~~~
@@ -41,10 +42,12 @@ dependencies:
   esp_bsp_devkit:
     version: "^3"
 ~~~
-The source code for the example can be found [here](h2_tiny/)
-
+The source code for the example can be found [here](h2_tiny/)  
+![](../../images/esp-led-indicator/esp32h2_leds.jpg)  
+  
 ### 3. Common part
-The header files "driver_led_indicator.h" and "led_config.h" are the same for both types of code.  
+Files **driver_led_indicator.cpp** and **driver_led_indicator.c** are absolutely identical, the only difference is in their extension!
+The header files **driver_led_indicator.h** and **led_config.h** are the same for both types of code.  
   
 Add to app_main.c or app_main.cpp:
 ~~~
