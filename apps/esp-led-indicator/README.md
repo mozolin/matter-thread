@@ -16,7 +16,7 @@ dependencies:
   espressif/led_indicator:
     version: "^1.1.1"
 ~~~
-The source code for the example can be found [here]()
+The source code for the example can be found [here](rcp/)
 
 ### 2. ESP-MATTER (example: mike_h2_tiny)
 The driver "driver_led_indicator" must be CPP-code: drivers/driver_led_indicator.cpp  
@@ -41,7 +41,7 @@ dependencies:
   esp_bsp_devkit:
     version: "^3"
 ~~~
-The source code for the example can be found [here]()
+The source code for the example can be found [here](h2_tiny/)
 
 ### 3. Common part
 The header files "driver_led_indicator.h" and "led_config.h" are the same for both types of code.  
