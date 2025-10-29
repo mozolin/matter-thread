@@ -41,3 +41,6 @@
   - OTBR (nRF52840 USB Dongle)  
   - Yandex Hub + Yandex Smart Home  
   - ESP-Matter firmware  
+  
+- [ESP-Matter: Changing the values of software and hardware configuration parameters](MATTER_SW-HW_CONF.md)  
+  
