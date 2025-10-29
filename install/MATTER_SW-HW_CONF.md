@@ -10,7 +10,7 @@ Default parameters in the description of the BasicInformation cluster:
 ![](MATTER_SW-HW_CONF/sw-hw_conf_03.png)  
 
 Default contents of the CMakeLists.txt file:  
-[sw-hw_conf_04-CMakeLists.txt](sw-hw_conf_04-CMakeLists.txt)  
+[sw-hw_conf_04-CMakeLists.txt](MATTER_SW-HW_CONF/sw-hw_conf_04-CMakeLists.txt)  
 ~~~
 set(PROJECT_VER "1.0")
 set(PROJECT_VER_NUMBER 1)
@@ -23,7 +23,7 @@ Changed parameters in the description of the Matter node:
 ![](MATTER_SW-HW_CONF/sw-hw_conf_05.png)  
 
 Add settings for **VendorName**, **ProductName**, and **HardwareVersionString** in the *CMakeLists.txt* file. The *PROJECT_VER* and *PROJECT_VER_NUMBER* parameters are used in ESP-Matter to set the values of **SoftwareVersionString** and **SoftwareVersion**, respectively. Change the *PROJECT_VER* value.  
-[sw-hw_conf_06-CMakeLists.txt](sw-hw_conf_06-CMakeLists.txt)  
+[sw-hw_conf_06-CMakeLists.txt](MATTER_SW-HW_CONF/sw-hw_conf_06-CMakeLists.txt)  
 ~~~
 set(DEVICE_VENDOR_NAME "Mike_Home")
 set(DEVICE_PRODUCT_NAME "Mike_Zigbee_Bridge")
@@ -39,7 +39,7 @@ project(zigbee_bridge)
 ~~~
   
 Add settings for **HardwareVersion** and **SoftwareVersion** to *sdkconfig.defaults* (they cannot be specified directly in *CMakeLists.txt*) and specify that the PROJECT_VER will be taken from the config:  
-[sw-hw_conf_07-sdkconfig.defaults](sw-hw_conf_07-sdkconfig.defaults)  
+[sw-hw_conf_07-sdkconfig.defaults](MATTER_SW-HW_CONF/sw-hw_conf_07-sdkconfig.defaults)  
 ~~~
 # Device Identification Options
 CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=123
@@ -54,7 +54,7 @@ As we can see, **VendorName**, **ProductName**, and **HardwareVersionString** is
 ![](MATTER_SW-HW_CONF/sw-hw_conf_08.png)  
 
 For PROJECT_VER, disable usage from config:  
-[sw-hw_conf_09-sdkconfig.defaults](sw-hw_conf_09-sdkconfig.defaults)  
+[sw-hw_conf_09-sdkconfig.defaults](MATTER_SW-HW_CONF/sw-hw_conf_09-sdkconfig.defaults)  
 ~~~
 # Device Identification Options
 CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=123
