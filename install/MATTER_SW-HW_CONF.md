@@ -15,7 +15,7 @@ Default contents of the CMakeLists.txt file:
 set(PROJECT_VER "1.0")
 set(PROJECT_VER_NUMBER 1)
 
-project(mike_on_off)
+project(ha_matter_hub)
 ~~~
   
 ### 2. Example of a device with more correct settings:  
