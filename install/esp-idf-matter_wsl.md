@@ -1,4 +1,4 @@
-# How to setup and work with ESP-IDF and ESP-Matter
+# How to setup and work with ESP-IDF and ESP-Matter in Windows
 [How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf](docs/How_to_setup_and_work_with_ESP-IDF_and_ESP-Matter.pdf)  
 
 Test QR code for Matter devices:  

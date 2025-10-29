@@ -6,7 +6,6 @@
 - [Create a Home Assistant configuration using an office network with Wi-Fi router](HA-Office_1.md)
 - [Create a Home Assistant configuration using an office network without Wi-Fi router](HA-Office_2.md)
 
-
 # 2. Install PHP 7.4 (fpm) and Apache2
 ### a) Update the system
 ~~~

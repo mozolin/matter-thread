@@ -1,4 +1,4 @@
-# Home Assistant Integration
+# Home Assistant Integration on Raspberry Pi
 https://docs.espressif.com/projects/esp-thread-br/en/latest/codelab/home_assistant.html  
 
 ## Installation (Ubuntu Desktop 22.04 on Raspberry Pi 4B+)

@@ -20,15 +20,24 @@
   - 17. Ubuntu: what we need to install
   
 
-- [esp-idf-matter_wsl](esp-idf-matter_wsl.md)  
+- [How to setup and work with ESP-IDF and ESP-Matter in Windows](esp-idf-matter_wsl.md)  
   
-- [HA-matter](HA-matter.md)  
+- [Add Matter devices to Home Assistant](HA-matter.md)  
   
-- [HA-Ubuntu22Desktop_PC](HA-Ubuntu22Desktop_PC.md)  
+- [Installing Home Assistant Supervised on Ubuntu](HA-Ubuntu22Desktop_PC.md)  
   
-- [HA-Ubuntu22Desktop_RP4](HA-Ubuntu22Desktop_RP4.md)  
+- [Home Assistant Integration on Raspberry Pi](HA-Ubuntu22Desktop_RP4.md)  
   
-- [samba](samba.md)  
+- [Install Samba (Ubuntu Desktop 22.04)](samba.md)  
   
 - [Flash SmLight SLZB-06P7](smlight_slzb06p7.md)  
   
+- [Office LAN with Internet Access](office_network.md)  
+  - Fixed IP addresses  
+  - Home Assistant  
+  - Thread end devices  
+  - OTBR (Espressif)  
+  - OTBR (SmLight SLZB-06)  
+  - OTBR (nRF52840 USB Dongle)  
+  - Yandex Hub + Yandex Smart Home  
+  - ESP-Matter firmware  
