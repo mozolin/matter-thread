@@ -68,7 +68,7 @@ CONFIG_APP_PROJECT_VER="v666"
 As we can see, the values of **SoftwareVersion** and **SoftwareVersionString** are now taken from the *CMakeLists.txt* settings  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_10.png)  
   
-In summary, what we can see in Home Assistant:
+In summary, what we can see in Home Assistant:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_11.png)  
   
 ![](MATTER_SW-HW_CONF/sw-hw_conf_12.png)  
