@@ -1,21 +1,22 @@
 # HA: Get Matter/Thread entities list
 
-## 1. matter_devices.py (Ubuntu)
-Creates sensor "sensor.orphaned_matter_devices" to get entities without entity_id.  
-- [matter_devices.py](python/ubuntu/home/mike/matter_devices.py)  
-- [matter_devices.log](python/ubuntu/home/mike/matter_devices.txt)  
-- [JSON sensor template](python/ubuntu/home/mike/matter_devices.txt.json)
-
-## 2. cron (Ubuntu)
-Reloads sensor "sensor.orphaned_matter_devices" every minute:  
-- [crontab](python/ubuntu/crontab)  
-  
+## 1. websocket (Ubuntu)  
 It needs to be installed:
 ~~~
 sudo pip3 install websocket-client
 ~~~
 
-## 3. sensor.matter_devices (Home Assistant OS)
+## 2. matter_devices.py (Ubuntu)
+Creates sensor "sensor.orphaned_matter_devices" to get entities without entity_id.  
+- [matter_devices.py](python/ubuntu/home/mike/matter_devices.py)  
+- [matter_devices.log](python/ubuntu/home/mike/matter_devices.txt)  
+- [JSON sensor template](python/ubuntu/home/mike/matter_devices.txt.json)
+
+## 3. cron (Ubuntu)
+Reloads sensor "sensor.orphaned_matter_devices" every minute:  
+- [crontab](python/ubuntu/crontab)  
+
+## 4. sensor.matter_devices (Home Assistant OS)
 Gets all Matter entities list:  
 - [sensor.matter_devices](python/hassio/config/entities/sensors/matter_devices.yaml)  
   
