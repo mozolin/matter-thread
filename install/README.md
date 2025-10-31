@@ -44,3 +44,5 @@
   
 - [ESP-Matter: Changing the values of software and hardware configuration parameters](MATTER_SW-HW_CONF.md)  
   
+- [Comparison of OTBR adapters (development boards)](OTBR-COMPARE.md)  
+  
