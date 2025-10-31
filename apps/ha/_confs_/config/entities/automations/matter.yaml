@@ -1,0 +1,14 @@
+- alias: reload_matter_devices
+  max_exceeded: silent
+  initial_state: true
+  trigger:
+    - platform: time_pattern
+      minutes: "/1"
+  action:
+    - service: pyscript.reload
+      data:
+        script: matter_devices
+    #- service: persistent_notification.create
+    #  data_template:
+    #    title: "Matter Devices"
+    #    message: "reloaded at {{ now().strftime('%H:%M:%S') }}"

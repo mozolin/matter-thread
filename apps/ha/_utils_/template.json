@@ -1,0 +1,3 @@
+﻿{
+  "template": "{{ devices() | selectattr('via_device_id', 'search', 'matter') | list | to_json }}"
+}

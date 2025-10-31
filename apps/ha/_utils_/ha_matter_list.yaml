@@ -1,0 +1,37 @@
+﻿{%- set ns = namespace(matter_device_ids = []) -%}
+{%- set matter_search_identifiers = ['matter', 'deviceid_1C8E139D834DDF3B-0000000000000009-MatterNodeDevice'] -%}
+
+{# Шаг 1: Итерация по сущностям #}
+{%- for entity_id in states | map(attribute='entity_id') | list -%}
+  {%- set device_id = device_id(entity_id) -%}
+  {%- if device_id is not none -%}
+    {%- set identifiers = device_attr(device_id, 'identifiers') -%}
+    {%- if identifiers is not none -%}
+      {%- for identifier_pair in identifiers -%}
+        {%- if identifier_pair is sequence and identifier_pair | first == 'matter' -%}
+          {%- set ns.matter_device_ids = ns.matter_device_ids + [device_id] -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{# Шаг 2: Добавление вашего устройства вручную #}
+{%- set ns.matter_device_ids = ns.matter_device_ids + ['10866b58fdcd8e368bb5383cfe645835'] -%}
+
+{%- set unique_matter_devices = ns.matter_device_ids | unique | list -%}
+
+{%- if unique_matter_devices | length > 0 -%}
+  {%- for device_id in unique_matter_devices -%}
+    {{- device_name(device_id) }} (ID: {{ device_id }})
+    {%- for prop in ['name', 'manufacturer','model','hw_version','sw_version','suggested_area','via_device_id','entry_type','configuration_url','identifiers'] -%}
+      {%- set prop_value = device_attr(device_id, prop) -%}
+      {%- if prop_value is not none -%}
+        {{- "\n  " }}{{- prop | replace('_', ' ') | capitalize -}}: {{ prop_value -}}
+      {%- endif -%}
+    {%- endfor -%}
+    {{- "\n\n" -}}
+  {%- endfor -%}
+{%- else -%}
+  Устройства Matter/Thread не найдены.
+{%- endif -%}

@@ -1,0 +1,8 @@
+- sensor:
+  - name: "matter_devices_test"
+    state: "{{ states.sensor.matter_devices.attributes.devices is mapping }}"
+    attributes:
+      is_list:
+        value: "{{ states.sensor.matter_devices.attributes.devices is iterable }}"
+      first_item_type:
+        value: "{{ states.sensor.matter_devices.attributes.devices[0] is mapping if states.sensor.matter_devices.attributes.devices is iterable else 'not a list' }}"

@@ -1,0 +1,25 @@
+﻿{%- set search_terms = ['mike', 'slzb', 'thread'] -%}
+{%- set ns = namespace(border_router_device_ids = []) -%}
+{%- for entity_id in states | map(attribute='entity_id') | list -%}
+  {%- if (search_terms | select('in', entity_id)) | list | count > 0 -%}
+    {%- set device_id = device_id(entity_id) -%}
+    {%- if device_id is not none -%}
+      {%- set ns.border_router_device_ids = ns.border_router_device_ids + [device_id] -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- set unique_border_routers = ns.border_router_device_ids | unique | list -%}
+{%- if unique_border_routers | length > 0 -%}
+  {%- for device_id in unique_border_routers -%}
+    {{- device_name(device_id) }} (ID: {{ device_id }})
+    {%- for prop in ['name', 'manufacturer', 'model', 'sw_version', 'suggested_area'] -%}
+      {%- set prop_value = device_attr(device_id, prop) -%}
+      {%- if prop_value is not none -%}
+        {{- "\n  " }}{{- prop | replace('_', ' ') | capitalize -}}: {{ prop_value -}}
+      {%- endif -%}
+    {%- endfor -%}
+    {{- "\n\n" -}}
+  {%- endfor -%}
+{%- else -%}
+  Пограничные маршрутизаторы Thread не найдены.
+{%- endif -%}
