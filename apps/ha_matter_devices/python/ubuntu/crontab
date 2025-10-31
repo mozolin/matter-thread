@@ -1,0 +1,1 @@
+*/1 * * * * mike  /usr/bin/python3 /home/mike/matter_devices.py > /home/mike/matter_devices.log 2>&1

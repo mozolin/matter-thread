@@ -1,0 +1,126 @@
+- platform: template
+  sensors:
+    matter_devices_count:
+      value_template: |-
+        {%- set ns1 = namespace(num_matter_devices = 0) -%}
+        {%- set state = states('sensor.matter_devices') -%}
+        {%- if(state != 'unknown' and state != 'unavailable' and state != 'none') -%}
+          {%- set devices = state_attr('sensor.matter_devices', 'devices') | default([]) -%}
+          {#%- if prop_value is not none -%#}
+          
+          {{ devices | length }}
+        {%- else -%}
+          0
+        {%- endif -%}
+      friendly_name: "Matter Devices Count"
+    matter_devices:
+      value_template: |-
+        {{ states('sensor.matter_devices_count') }}
+      friendly_name: "Matter Devices"
+      attribute_templates:
+        friendly_name: "Matter Devices List"
+        devices: |-
+          {%- set ns777 = namespace(all_matter_devices = []) -%}
+        
+          {# Шаг 1: Поиск устройств Matter через сущности #}
+          {%- for entity_id in states | map(attribute='entity_id') | list -%}
+            {%- set device_id = device_id(entity_id) -%}
+            {%- if device_id is not none -%}
+              {%- set identifiers = device_attr(device_id, 'identifiers') -%}
+              {%- if identifiers is not none -%}
+                {%- for identifier_pair in identifiers -%}
+                  {%- if identifier_pair is sequence and identifier_pair | first == 'matter' -%}
+                    {%- set ns777.all_matter_devices = ns777.all_matter_devices + [device_id] -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          
+          {# Шаг 2: Добавление "сиротских" устройств Matter из сенсора #}
+          
+          {%- set state = states('sensor.orphaned_matter_devices') -%}
+          {%- if(state != 'unknown' and state != 'unavailable' and state != 'none') -%}
+            {%- set orphaned_devices_from_sensor = state_attr('sensor.orphaned_matter_devices', 'devices') | default([]) -%}
+            {%- for device in orphaned_devices_from_sensor -%}
+              {%- set ns777.all_matter_devices = ns777.all_matter_devices + [device.id] -%}
+            {%- endfor -%}
+          {%- endif -%}
+          
+          {%- set unique_matter_devices = ns777.all_matter_devices | unique | list -%}
+
+          {%- set ns0 = namespace(global_list_of_items=[]) -%}
+          
+          {%- set ns1 = namespace(manufacturer = '') -%}
+          {%- set ns2 = namespace(model = '') -%}
+          {%- set ns3 = namespace(hw_version = '') -%}
+          {%- set ns4 = namespace(sw_version = '') -%}
+          {#%- set ns5 = namespace(suggested_area = '') -%#}
+          {%- set ns6 = namespace(via_device_id = '') -%}
+          {%- set ns7 = namespace(entry_type = '') -%}
+          {%- set ns8 = namespace(configuration_url = '') -%}
+          {%- set ns9 = namespace(identifiers = '') -%}
+
+          {%- if unique_matter_devices | length > 0 -%}
+            {%- for device_id in unique_matter_devices -%}
+
+              {#%- for prop in ['manufacturer','model','hw_version','sw_version','suggested_area','via_device_id','entry_type','configuration_url','identifiers'] -%#}
+              {%- for prop in ['manufacturer','model','hw_version','sw_version','via_device_id','entry_type','configuration_url'] -%}
+                {%- set prop_value = device_attr(device_id, prop) -%}
+                {%- if prop_value is not none -%}
+                  
+                  {%- if prop == 'manufacturer' -%}
+                    {%- set ns1.manufacturer = prop_value -%}
+                  {%- elif prop == 'model' -%}
+                    {%- set ns2.model = prop_value -%}
+                  {%- elif prop == 'hw_version' -%}
+                    {%- set ns3.hw_version = prop_value -%}
+                  {%- elif prop == 'sw_version' -%}
+                    {%- set ns4.sw_version = prop_value -%}
+                  {#%- elif prop == 'suggested_area' -%}
+                    {%- set ns5.suggested_area = prop_value -%#}
+                  {%- elif prop == 'via_device_id' -%}
+                    {%- set ns6.via_device_id = prop_value -%}
+                  {%- elif prop == 'entry_type' -%}
+                    {%- set ns7.entry_type = prop_value -%}
+                  {%- elif prop == 'configuration_url' -%}
+                    {%- set ns8.configuration_url = prop_value -%}
+                  {#%- elif prop == 'identifiers' -%}
+                    {%- set ns9.identifiers = prop_value -%#}
+                  {%- endif -%}
+
+                {%- endif -%}
+              {%- endfor -%}
+              
+              {#%- set local_item_block = {
+                'name': device_name(device_id) | replace(' ','_') | lower,
+                'friendly_name': device_name(device_id),
+                'id': device_id,
+                'manufacturer': ns1.manufacturer,
+                'model': ns2.model,
+                'hw_version': ns3.hw_version,
+                'sw_version': ns4.sw_version,
+                'suggested_area': ns5.suggested_area,
+                'via_device_id': ns6.via_device_id,
+                'entry_type': ns7.entry_type,
+                'configuration_url': ns8.configuration_url,
+                'identifiers': ns9.identifiers
+              } -%#}
+              {%- set local_item_block = {
+                'name': device_name(device_id) | replace(' ','_') | lower,
+                'friendly_name': device_name(device_id),
+                'id': device_id,
+                'manufacturer': ns1.manufacturer,
+                'model': ns2.model,
+                'hw_version': ns3.hw_version,
+                'sw_version': ns4.sw_version,
+                'via_device_id': ns6.via_device_id,
+                'entry_type': ns7.entry_type,
+                'configuration_url': ns8.configuration_url
+              } -%}
+
+              {%- set ns0.global_list_of_items = ns0.global_list_of_items + [local_item_block] -%}
+            {%- endfor -%}
+          {%- endif -%}
+          
+          {{ns0.global_list_of_items}}

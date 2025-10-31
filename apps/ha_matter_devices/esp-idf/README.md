@@ -12,8 +12,8 @@ Creates sensor "sensor.orphaned_matter_devices" to get entities without entity_i
 
 ## 3. automation.reload_matter_devices
 Reloads sensor "sensor.orphaned_matter_devices" every minute:  
-[automation.reload_matter_devices](_confs_/config/entities/automations/matter.yaml)  
+[automation.reload_matter_devices](_confs_/config/entities/automations/matter_devices.yaml)  
 
 ## 4. sensor.matter_devices
 Gets all Matter entities list:  
-[sensor.matter_devices](_confs_/config/entities/sensors/matter.yaml)  
+[sensor.matter_devices](_confs_/config/entities/sensors/matter_devices.yaml)  
