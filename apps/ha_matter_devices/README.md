@@ -35,13 +35,13 @@ The value of the "devices" attribute of the "matter_devices" sensor can be as fo
     "configuration_url": ""
   },
   {
-    "name": "mike_product",
-    "friendly_name": "MIKE_PRODUCT",
+    "name": "mike_zigbee_bridge",
+    "friendly_name": "Mike_Zigbee_Bridge",
     "id": "2c8d3a12c412abdab474689a092f8335",
-    "manufacturer": "MIKE_VENDOR",
-    "model": "MIKE_PRODUCT",
-    "hw_version": "1.1.1",
-    "sw_version": "2.2.2",
+    "manufacturer": "Mike_Home",
+    "model": "Mike_Zigbee_Bridge",
+    "hw_version": "2.2.2",
+    "sw_version": "1.1.1",
     "via_device_id": "",
     "entry_type": "",
     "configuration_url": ""
