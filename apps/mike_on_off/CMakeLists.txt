@@ -25,7 +25,7 @@ set(DEVICE_PRODUCT_NAME "Mike_On_Off")
 #-- AttributeId 5: NodeLabel
 set(DEVICE_NODE_LABEL "8_Relays_ESP32H2")
 #-- AttributeId 6: Location
-set(DEVICE_LOCATION "RU")
+set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
 set(CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION "See: sdkconfig.default")
 #-- AttributeId 8: HardwareVersionString
