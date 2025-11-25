@@ -18,8 +18,9 @@
 #define USE_INTERNAL_VOLTAGE       false
 #define USE_INTERNAL_UPTIME        true
 #define USE_TIME_DRIVER            false
-#define ADD_CUSTOM_CLUSTERS        true
-#define SHOW_DEVICE_LOG            true
+#define ADD_CUSTOM_CLUSTERS        false
+#define SHOW_DEVICE_LOG            false
+#define UART_MONITOR_DEBUG         false
 
 
 #if ADD_CUSTOM_CLUSTERS

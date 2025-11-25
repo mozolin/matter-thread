@@ -260,49 +260,19 @@ void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value)
 		cluster_id = chip::app::Clusters::TemperatureMeasurement::Id,
 		attribute_id = chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Id;
 
-	ESP_LOGI("", "");
-	ESP_LOGI("", "###   TEMPERATURE   ###");
-	ESP_LOGI("", "");
-    esp_matter_attr_val_t val = esp_matter_int16(temperature_value * 100); // Значение в 0.01°C
+	#if UART_MONITOR_DEBUG
+		ESP_LOGI("", "");
+		ESP_LOGI("", "###   TEMPERATURE   ###");
+		ESP_LOGI("", "");
+	#endif
     
-    esp_matter::attribute::update(endpoint_id, cluster_id, attribute_id, &val);
-	ESP_LOGW(TAG_MIKE_APP, "~~~ Update Temperature: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%d", endpoint_id, cluster_id, attribute_id, temperature_value);
+  esp_matter_attr_val_t val = esp_matter_int16(temperature_value * 100); // Value in 0.01°C
+  esp_matter::attribute::update(endpoint_id, cluster_id, attribute_id, &val);
+ 
+  #if UART_MONITOR_DEBUG
+		ESP_LOGW(TAG_MIKE_APP, "~~~ Update Temperature: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%d", endpoint_id, cluster_id, attribute_id, temperature_value);
+	#endif
 }
-
-/*
-#define CUSTOM_UPTIME_CLUSTER_ID 0xFFFE
-#define CUSTOM_UPTIME_ATTRIBUTE_ID 0x0000
-static esp_matter::cluster_t *create_uptime_cluster(esp_matter::endpoint_t *endpoint)
-{
-    esp_matter::cluster_t *cluster = esp_matter::cluster::create(endpoint, CUSTOM_UPTIME_CLUSTER_ID, esp_matter::cluster_flags::CLUSTER_FLAG_SERVER);
-    if (!cluster) {
-            ESP_LOGE("Uptime", "Failed to create custom uptime cluster");
-            return nullptr;
-        }
-    
-        // Добавляем атрибут времени работы (в секундах)
-        esp_matter::attribute::create(
-            cluster,
-            CUSTOM_UPTIME_ATTRIBUTE_ID,
-            MATTER_ATTRIBUTE_FLAG_NONVOLATILE, // Сохраняется между перезагрузками
-            esp_matter_uint32(0) // Начальное значение
-        );
-        
-        return cluster;
-}
-
-// Функция для обновления времени работы
-void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds)
-{
-    esp_matter_attr_val_t val = esp_matter_uint32(uptime_seconds);
-    
-	ESP_LOGI("", "");
-	ESP_LOGI("", "###   UPTIME   ###");
-	ESP_LOGI("", "");
-    esp_matter::attribute::update(endpoint_id, CUSTOM_UPTIME_CLUSTER_ID, CUSTOM_UPTIME_ATTRIBUTE_ID, &val);
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Update Uptime: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%lu", endpoint_id, (uint32_t)CUSTOM_UPTIME_CLUSTER_ID, (uint32_t)CUSTOM_UPTIME_ATTRIBUTE_ID, uptime_seconds);
-}
-*/
 
 //-- This callback is called for every attribute update. The callback implementation shall
 //-- handle the desired attributes and return an appropriate error code. If the attribute
@@ -384,9 +354,14 @@ void update_time_values(uint32_t endpoint_id)
     struct tm timeinfo;
     localtime_r(&now, &timeinfo);
 
-    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TIME #1: %d (%s)", (int)now, asctime(&timeinfo));
+    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #1: %d (%s)", (int)now, asctime(&timeinfo));
 
     // Обновляем UTC время
+    /*
+    !!! ERROR !!!
+    esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000000 to matter: 0x1
+    !!! ERROR !!!
+    */
     esp_matter_attr_val_t utc_val = esp_matter_uint64(now);
     esp_matter::attribute::update(
         endpoint_id,
@@ -395,7 +370,14 @@ void update_time_values(uint32_t endpoint_id)
         &utc_val
     );
 
+    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #2: utc-%d", (int)utc_val.val.u64);
+
     // Обновляем локальное время (пример для UTC+3)
+    /*
+    !!! ERROR !!!
+    esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000007 to matter: 0x86
+    !!! ERROR !!!
+    */
     esp_matter_attr_val_t local_val = esp_matter_uint64(now + 3 * 3600);
     esp_matter::attribute::update(
         endpoint_id,
@@ -405,7 +387,7 @@ void update_time_values(uint32_t endpoint_id)
     );
 
     //val->val.i16
-    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TIME #2: utc-%d, local-%d", (int)utc_val.val.u64, (int)local_val.val.u64);
+    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #3: local-%d", (int)local_val.val.u64);
 }
 
 //-- Creates plug-endpoint mapping for each GPIO pin configured.
@@ -492,23 +474,12 @@ void update_matter_values()
 	struct tm timeinfo;
 	int16_t temp_val_int = 0;
 
-	//-- empty value of buffer
-  //snprintf(bufUP, sizeof(bufUP), "%s", "");
-  //strncpy(short_uptime_buf, bufUP, OT_UPTIME_STRING_SIZE);
-
   //-- !!! This block is used to update the value of matter clusters !!!
 	while(1) {
     #if USE_INTERNAL_TEMPERATURE
       temp = (float)read_internal_temperature();
       temp_val_int = (int16_t)temp;
-			/*
-			idx++;
-			if(idx % 2 == 0) {
-				temp = 12.0f;
-			} else {
-				temp = 34.0f;
-			}
-			*/
+			
       update_temperature_value(1, temp_val_int);
       ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
     #endif
@@ -525,7 +496,16 @@ void update_matter_values()
     #endif
     
     #if USE_INTERNAL_UPTIME
+      /*
+	    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    !!                                                               !!
+	    !! ERROR UPDATING: Attributes::UTCTime and Attributes::LocalTime !!
+	    !!                                                               !!
+	    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  	  >> esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000000 to matter: 0x1
+    	>> esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000007 to matter: 0x86
       update_time_values(1);
+	    */
       
       char bufUP[OT_UPTIME_STRING_SIZE];
       //-- long uptime
@@ -573,6 +553,99 @@ void update_matter_values()
     vTaskDelay(pdMS_TO_TICKS(UPDATE_ATTRIBUTES_TIME_MS));
   }
 }
+
+void set_basic_attributes_esp_matter()
+{
+  uint16_t endpoint_id = 0x0000;
+
+  #if UART_MONITOR_DEBUG
+	  ESP_LOGW("", "");
+  	ESP_LOGW("", "##################################");
+	  ESP_LOGW("", "#");
+  #endif
+  
+  //-- Set NodeLabel
+  char node_label[] = CONFIG_CUSTOM_DEVICE_NODE_LABEL;
+  esp_matter_attr_val_t node_label_val = esp_matter_char_str(node_label, strlen(node_label));
+  esp_err_t err = esp_matter::attribute::update(
+    endpoint_id,
+    chip::app::Clusters::BasicInformation::Id,
+    chip::app::Clusters::BasicInformation::Attributes::NodeLabel::Id,
+    &node_label_val
+  );
+	if(err == ESP_OK) {
+	  #if UART_MONITOR_DEBUG
+	    ESP_LOGW(TAG_MIKE_APP, "~~~ NodeLabel set via ESP-Matter API");
+	  #endif
+	} else {
+	  #if UART_MONITOR_DEBUG
+	    ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to set NodeLabel: %d", err);
+	  #endif
+	}
+  
+  
+  
+  //-- Set Location (unfortunately, it is not yet included in the cluster definition)
+  char location[] = CONFIG_CUSTOM_DEVICE_LOCATION;
+  esp_matter_attr_val_t location_val = esp_matter_char_str(location, strlen(location));
+  /*
+  //-- !!! TRYING TO GET ITS VALUE !!!
+  cluster_t *cluster = cluster::get(endpoint_id, chip::app::Clusters::BasicInformation::Id);
+  if(!cluster) {
+  	ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to get cluster");
+  } else {
+  	ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, chip::app::Clusters::BasicInformation::Id, endpoint_id);
+  	
+  	attribute_t *attribute = attribute::get(endpoint_id, chip::app::Clusters::BasicInformation::Id, chip::app::Clusters::BasicInformation::Attributes::Location::Id);
+  	if(!attribute) {
+  		ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to get Location attribute!");
+		} else {
+			ESP_LOGW(TAG_MIKE_APP, "~~~ Location attribute received!");
+		}
+  	
+  	attribute_t *location_attr = cluster::basic_information::attribute::create_location(cluster, location, strlen(location));
+  	if(!location_attr) {
+  		ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create Location attribute!");
+		}
+  }
+  */
+  err = esp_matter::attribute::update(
+    endpoint_id,
+    chip::app::Clusters::BasicInformation::Id,
+    chip::app::Clusters::BasicInformation::Attributes::Location::Id,
+    &location_val
+  );
+	if(err == ESP_OK) {
+    #if UART_MONITOR_DEBUG
+  		ESP_LOGW(TAG_MIKE_APP, "~~~ Location set via ESP-Matter API");
+  	#endif
+	} else {
+	  #if UART_MONITOR_DEBUG
+	  	ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to set Location: %d", err);
+	  #endif
+	}
+
+	#if UART_MONITOR_DEBUG  
+	  ESP_LOGW("", "#");
+  	ESP_LOGW("", "##################################");
+	  ESP_LOGW("", "");
+  #endif
+
+}
+
+void print_attribute_ids()
+{
+  ESP_LOGW("", "");
+  ESP_LOGW("", "##################################");
+  ESP_LOGW("", "#");
+  ESP_LOGW("", "#   NodeLabel Attribute ID: 0x%04" PRIX32, chip::app::Clusters::BasicInformation::Attributes::NodeLabel::Id);
+  ESP_LOGW("", "#   Location Attribute ID: 0x%04" PRIX32, chip::app::Clusters::BasicInformation::Attributes::Location::Id);
+  ESP_LOGW("", "#   Basic Information Cluster ID: 0x%04" PRIX32, chip::app::Clusters::BasicInformation::Id);
+  ESP_LOGW("", "#");
+  ESP_LOGW("", "##################################");
+  ESP_LOGW("", "");
+}
+
 
 extern "C" void app_main()
 {
@@ -631,6 +704,14 @@ extern "C" void app_main()
   //-- Matter starts
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to start Matter, err:%d", err));
+
+  //-- Setting BasicInformationCluster attributes
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  set_basic_attributes_esp_matter();
+  #if UART_MONITOR_DEBUG
+  	print_attribute_ids();
+  #endif
+
 
 	#if ADD_CUSTOM_CLUSTERS
   	//-- Temperature cluster

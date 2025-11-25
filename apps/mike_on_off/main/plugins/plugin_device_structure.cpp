@@ -244,14 +244,18 @@ void log_device_structure(node_t *node)
     	continue;
     }
     
-    #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
-    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
-    	if(endpoint_id != SHOW_DEVICE_LOG_ONE_CLUSTER) {
-    		continue;
-    	}
+    #ifdef SHOW_DEVICE_LOG_ONE_CLUSTER
+      #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
+	    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
+  	  	if(endpoint_id != SHOW_DEVICE_LOG_ONE_CLUSTER) {
+    			continue;
+    		}
+    	#endif
     #endif
 
-		print_all_attributes(endpoint_id);
+    #if SHOW_DEVICE_LOG
+		  print_all_attributes(endpoint_id);
+		#endif
 	
   }
 }
@@ -297,11 +301,12 @@ void print_all_attributes(uint16_t endpoint_id)
 
   int level = 0;
   std::string indent(level * 2, ' ');
-  uint32_t attribute_id, cluster_id;
 
   ESP_LOGE(TAG_EMPTY, "# %sENDPOINT 0x%04" PRIX16, indent.c_str(), endpoint_id);
 
   #if SHOW_DEVICE_LOG_CLUSTERS
+  	uint32_t attribute_id, cluster_id;
+
     for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
       const EmberAfCluster *cluster = &endpoint_type->cluster[cluster_idx];
       
