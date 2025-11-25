@@ -1,5 +1,6 @@
 # ESP-Matter: Changing the values of software and hardware configuration parameters
 For Matter devices programmed with ESP-Matter, the default values are *ProductName*=**TEST_PRODUCT**, *VendorName*=**TEST_VENDOR** and *HardwareVersionString*=**TEST_VERSION**. So, distinguishing one device from another, for example, in Home Assistant, is quite difficult. This article describes ESP-Matter settings for changing these parameters.  
+  
 What we can see in Home Assistant:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_00.png)  
 
