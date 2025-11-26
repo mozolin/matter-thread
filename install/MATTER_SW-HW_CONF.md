@@ -1,5 +1,17 @@
 # ESP-Matter: Changing the values of software and hardware configuration parameters
 For Matter devices programmed with ESP-Matter, the default values are *ProductName*=**TEST_PRODUCT**, *VendorName*=**TEST_VENDOR** and *HardwareVersionString*=**TEST_VERSION**. So, distinguishing one device from another, for example, in Home Assistant, is quite difficult. This article describes ESP-Matter settings for changing these parameters.  
+
+The main default parameters are located in the file *~/esp-matter/connectedhomeip/connectedhomeip/src/include/platform/CHIPDeviceConfig.h* (it is clear that editing them there is, to put it mildly, not entirely correct):  
+~~~
+- #define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME "TEST_VENDOR"
+- #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "TEST_PRODUCT"
+- #define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "TEST_VERSION"
+- #define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION 0
+- #define CHIP_DEVICE_CONFIG_DEVICE_SOFTWARE_VERSION_STRING "1.0"
+- #define CHIP_DEVICE_CONFIG_DEVICE_SOFTWARE_VERSION 1
+- #define CHIP_DEVICE_CONFIG_TEST_SERIAL_NUMBER "TEST_SN"
+- #define CHIP_DEVICE_CONFIG_DEVICE_NAME "Test Kitchen"
+~~~
   
 What we can see in Home Assistant:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_00.png)  
@@ -107,7 +119,7 @@ void set_basic_attributes_esp_matter()
     &node_label_val
   );
   
-  //-- Set Location (unfortunately, it is not yet included in the cluster definition)
+  //-- Set Location (has administrator privileges and cannot be updated)
   char location[] = CONFIG_CUSTOM_DEVICE_LOCATION;
   esp_matter_attr_val_t location_val = esp_matter_char_str(location, strlen(location));
   err = esp_matter::attribute::update(
@@ -118,9 +130,15 @@ void set_basic_attributes_esp_matter()
   );
 }
 ~~~
-The values ​​for **CONFIG_CUSTOM_DEVICE_NODE_LABEL** and **CONFIG_CUSTOM_DEVICE_LOCATION** are defined in *CMakeLists.txt*.  
-Unfortunately, the **Location** parameter is not yet included in the cluster definition, so we will save its processing for a future ESP-IDF/ESP-MATTER release.  
-  
+The values for **CONFIG_CUSTOM_DEVICE_NODE_LABEL** and **CONFIG_CUSTOM_DEVICE_LOCATION** are defined in *CMakeLists.txt*.  
+Unfortunately, the **Location** attribute has administrator privileges, so we cannot change its value.  
+~~~
+#define GENERATED_ACCESS_WRITE_ATTRIBUTE__CLUSTER
+...
+0x00000028, /* Cluster: Basic Information, Attribute: NodeLabel, Privilege: manage */ \
+0x00000028, /* Cluster: Basic Information, Attribute: Location, Privilege: administer */ \
+~~~
+    
 In summary, what we can see in Home Assistant:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_11.png)  
   
