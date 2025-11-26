@@ -103,7 +103,7 @@ CONFIG_APP_PROJECT_VER="v666"
 As we can see, the values of **SoftwareVersion** and **SoftwareVersionString** are now taken from the *CMakeLists.txt* settings  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_10.png)  
 
-The **Location** and **NodeLabel** parameters cannot be set in the project configuration, so we will change them programmatically:
+The **NodeLabel** parameter cannot be set in the project configuration, so we will change them programmatically:
 ~~~
 void set_basic_attributes_esp_matter()
 {
@@ -118,25 +118,16 @@ void set_basic_attributes_esp_matter()
     chip::app::Clusters::BasicInformation::Attributes::NodeLabel::Id,
     &node_label_val
   );
-  
-  //-- Set Location (has administrator privileges and cannot be updated)
-  char location[] = CONFIG_CUSTOM_DEVICE_LOCATION;
-  esp_matter_attr_val_t location_val = esp_matter_char_str(location, strlen(location));
-  err = esp_matter::attribute::update(
-    endpoint_id,
-    chip::app::Clusters::BasicInformation::Id,
-    chip::app::Clusters::BasicInformation::Attributes::Location::Id,
-    &location_val
-  );
 }
 ~~~
-The values for **CONFIG_CUSTOM_DEVICE_NODE_LABEL** and **CONFIG_CUSTOM_DEVICE_LOCATION** are defined in *CMakeLists.txt*.  
+The value for **CONFIG_CUSTOM_DEVICE_NODE_LABEL** is defined in *CMakeLists.txt*.  
 Unfortunately, the **Location** attribute has administrator privileges, so we cannot change its value.  
 ~~~
 #define GENERATED_ACCESS_WRITE_ATTRIBUTE__CLUSTER
 ...
 0x00000028, /* Cluster: Basic Information, Attribute: NodeLabel, Privilege: manage */ \
 0x00000028, /* Cluster: Basic Information, Attribute: Location, Privilege: administer */ \
+...
 ~~~
     
 In summary, what we can see in Home Assistant:  
