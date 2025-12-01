@@ -11,7 +11,7 @@ Example of creating a local network in an office. Features:
 - Dedicated Ubuntu computer for creating ESP-Matter firmware for Thread end devices  
 - Office computer with a Wi-Fi connection to the local network  
   
-![](office_network/OFFICE_NETWORK.jpg)  
+![](office_network/OFFICE_NETWORK_x4500.jpg)  
   
 ![](office_network/netis_01-dark.png)  
   
