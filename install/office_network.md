@@ -100,40 +100,40 @@ Example of creating a local network in an office.
   The ESP32-H2 chip is loaded with the "Mike OnOff" app, which controls 8 relays for connection to the Thread network.
 
 
-### Настройка роутера Netis N5
-- Главная страница "Advanced Setup"  
+### Setting up the Netis N5 router
+- Main page "Advanced Setup"  
 ![](office_network/netis_01.png)  
   
-- Подключение по Wi-Fi к точке доступа, созданной на смартфоне Redmi Note 14.  
+- Connecting via Wi-Fi to an access point created on a Redmi Note 14 smartphone.  
 ![](office_network/netis_02.png)  
 
-- Настройка локальной сети  
+- Setting up a local network  
 ![](office_network/netis_03.png)  
   
-- Привязка MAC к IP адресам для всех устройств в сети (резервирование адресов)  
+- Binding MAC addresses to IP addresses for all devices on the network (address reservation)  
 ![](office_network/netis_04.png)  
 
-- Установка режима работы роутера как "Роутер"  
+- Setting the router operating mode to "Router"  
 ![](office_network/netis_05.png)  
   
-- Использование IP4/IP6  
+- Using IP4/IP6  
 ![](office_network/netis_06.png)  
   
-- Настройка точки доступа на роутере для подключения беспроводных устройств на 2.4ГГц   
+- Setting up an access point on Router for connecting wireless devices on the 2.4GHz band  
 ![](office_network/netis_07.png)  
   
-- Настройка WPS на 2.4ГГц  
+- Configuring WPS on 2.4GHz  
 ![](office_network/netis_08.png)  
   
-- Отключение "AP Isolation" на 2.4ГГц  
+- Disabling "AP Isolation" on 2.4GHz  
 ![](office_network/netis_09.png)  
 
-- Настройка точки доступа на роутере для подключения беспроводных устройств на 5ГГц  
+- Configuring an access point on a router for connecting wireless devices on the 5GHz band  
 ![](office_network/netis_10.png)  
 
-- Настройка WPS на 5ГГц  
+- Configuring WPS on 5GHz  
 ![](office_network/netis_11.png)  
 
-- Отключение "AP Isolation" на 5ГГц  
+- Disabling "AP Isolation" on 5GHz  
 ![](office_network/netis_12.png)  
   
