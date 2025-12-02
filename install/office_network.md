@@ -35,70 +35,70 @@ Example of creating a local network in an office.
 | 192.168.1.252 | Wi-Fi            | OTBR #4 Wi-Fi              | Espressif             |
 | 192.168.1.253 | Wi-Fi            | OTBR #5 Wi-Fi              | Espressif             |
   
-- **Смартфон Redmi Note 14**  
-  Подключён к ***мобильному интернету*** и создаёт Wi-Fi точку доступа.
-- **Роутер Netis N5**  
-  Подключён по ***Wi-Fi*** к точке доступа, созданной на смартфоне Redmi Note 14.  
-  Использование роутера позволяет создавать независимую от точки доступа локальную сеть со своей собственной адресацией.
-- **Коммутатор TP-Link LS1008**  
-  Подключён через ***Ethernet*** к выходу роутера Netis N5.  
-  Предназначен для расширения числа выходов Ethernet, поскольку роутер Netis N5 имеет только 2 таких выхода.
+- **Redmi Note 14 Smartphone**  
+  Connected to ***mobile internet*** and creates a Wi-Fi hotspot.
+- **Netis N5 Router**  
+  Connected via ***Wi-Fi*** to an access point created on the Redmi Note 14 smartphone.  
+  Using a router allows you to create a local network with its own addressing, independent of the access point.
+- **TP-Link LS1008 Switch**  
+  Connected via ***Ethernet*** to the Netis N5 router output.  
+  Designed to expand the number of Ethernet outputs, as the Netis N5 router only has two.
 - **DEXP Mini**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Работает под Ubuntu. Используется для компиляции C++ ESP-IDF/ESP-Matter приложений.
+  Connected via ***Ethernet*** to the TP-Link LS1008 switch.  
+  Runs under Ubuntu. Used for compiling C++ ESP-IDF/ESP-Matter applications.
 - **HA Office**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Работает на Raspberry Pi 4 под HAOS. Используется для работы систем Home Assistant.
+  Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
+  Runs on a Raspberry Pi 4 running HAOS. Used to run Home Assistant systems.
 - **SmLight SLZB-06**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
+  Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
 - **ESP OTBR #4**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
+  Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
 - **ESP OTBR #5**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
+  Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
 - **Yandex Hub**  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для подключения Matter устройств.
+  Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
+  Used to connect Matter devices.
 - **ESP OTBR #3**  
-  Подключён по ***Wi-Fi*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
+  Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
 - **HP Office PC**  
-  Подключён по ***Wi-Fi*** к коммутатору TP-Link LS1008.  
-  Работает под Windows 10. Используется для более удобного редактирования исходного кода C++ приложений и скриптов Home Assistant. Папки с исходным кодом подключаются к системе Windows через службы Samba, установленные на компьютерах соответственно с ESP-IDF/ESP-Matter (под Ubuntu) и Home Assistant (под HAOS).
+  Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
+  Runs under Windows 10. Used for more convenient editing of C++ application source code and Home Assistant scripts. Folders containing source code are connected to the Windows system via Samba services installed on computers running ESP-IDF/ESP-Matter (under Ubuntu) and Home Assistant (under HAOS), respectively.
 - **Xiaomi 12S Ultra**  
-  Подключён по ***Wi-Fi*** к коммутатору TP-Link LS1008.  
-  Используется для подключения конечных Matter устройств к Thread сети через мобильное приложение Home Assistant.
-
+  Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
+  Used to connect Matter end devices to the Thread network via the Home Assistant mobile app.
 
 ### Thread Network
 
-- SmLight SLZB-06  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
-- OTBR #3 Wi-Fi  
-  Подключён по ***Wi-Fi*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
-- OTBR #4 Ethernet  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
-- OTBR #5 Ethernet  
-  Подключён через ***Ethernet*** к коммутатору TP-Link LS1008.  
-  Используется для создания OpenThread Boarder Router.
-- nRF52840 Dongle 1  
-  Подключён через ***USB*** к компьютеру DEXP Mini (под Ubuntu).  
-  Используется в качестве RPC-модуля для создания OpenThread Boarder Router под Ubuntu.
-- nRF52840 Dongle 2  
-  Подключён через ***USB*** к компьютеру DEXP Mini (под Ubuntu).  
-  Используется в качестве RPC-модуля для создания OpenThread Boarder Router под Ubuntu.
-- ESP32-H2 Mike Tiny RP4 RCP  
-  Подключён через ***USB*** к компьютеру HA Office (на Raspberry Pi 4 под HAOS).  
-  Используется в качестве RPC-модуля для создания OpenThread Boarder Router в дополнении "OpenThread Boarder Router" Home Assistant.
-- ESP32-H2 Mike Tiny  
-  В чип ESP32-H2 прошивается приложение "Mike Tiny" c минимальным функционалом для подключения к сети Thread.
-- ESP32-H2 Mike OnOff  
-  В чип ESP32-H2 прошивается приложение "Mike OnOff" с функционалом управления 8 реле для подключения к сети Thread.
+- **SmLight SLZB-06**  
+  Connected via Ethernet to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
+- **OTBR #3 Wi-Fi**  
+  Connected via Wi-Fi to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
+- **OTBR #4 Ethernet**  
+  Connected via Ethernet to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
+- **OTBR #5 Ethernet**  
+  Connected via Ethernet to a TP-Link LS1008 switch.  
+  Used to create an OpenThread Boarder Router.
+- **nRF52840 Dongle 1**  
+  Connected via USB to a DEXP Mini computer (running Ubuntu).  
+  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.
+- **nRF52840 Dongle 2**  
+  Connected via USB to a DEXP Mini computer (running Ubuntu).  
+  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.
+- **ESP32-H2 Mike Tiny RP4 RCP**  
+  Connected via USB to an HA Office computer (running HAOS on a Raspberry Pi 4).  
+  Used as an RPC module to create an OpenThread Boarder Router in the "OpenThread Boarder Router" Home Assistant add-on.
+- **ESP32-H2 Mike Tiny**  
+  The "Mike Tiny" app is flashed onto the ESP32-H2 chip and provides minimal functionality for connecting to the Thread network.
+- **ESP32-H2 Mike OnOff**  
+  The ESP32-H2 chip is loaded with the "Mike OnOff" app, which controls 8 relays for connection to the Thread network.
+
 
 ### Настройка роутера Netis N5
 - Главная страница "Advanced Setup"  
