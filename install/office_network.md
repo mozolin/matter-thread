@@ -45,7 +45,7 @@ Unfortunately, it is not possible to create a local network without internet acc
   Connected to ***mobile internet*** and creates a Wi-Fi hotspot.
 - **Netis N5 Router**  
   Connected via ***Wi-Fi*** to an access point created on the Redmi Note 14 smartphone.  
-  Using a router allows you to create a local network with its own addressing, independent of the access point.
+  Using a router allows to create a local network with its own addressing, independent of the access point.
 - **TP-Link LS1008 Switch**  
   Connected via ***Ethernet*** to the Netis N5 router output.  
   Used to expand the number of Ethernet outputs, as the Netis N5 router only has three.
@@ -83,7 +83,7 @@ Unfortunately, it is not possible to create a local network without internet acc
   
 - **SmLight SLZB-06**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
-  Used to create an OpenThread Boarder Router.
+  Used to create an OpenThread Boarder Router. To configure the Home Assistant add-on correctly, we need either a free COM port available on our computer running Home Assistant, or an artificially created COM port by connecting an external RCP module via USB.
 - **ESP OTBR #3 Wi-Fi**  
   Connected via Wi-Fi to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
@@ -101,7 +101,7 @@ Unfortunately, it is not possible to create a local network without internet acc
   Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.
 - **ESP32-H2 Mike Tiny RP4 RCP**  
   Connected via USB to an HA Office computer (running HAOS on a Raspberry Pi 4).  
-  Used as an RPC module to create an OpenThread Boarder Router in the "OpenThread Boarder Router" Home Assistant add-on.
+  Used as an RPC module to create an OpenThread Boarder Router (based on SmLight SLZB-06) in the "OpenThread Boarder Router" Home Assistant add-on.  
 - **ESP32-H2 Mike Tiny**  
   The "Mike Tiny" app runs on an ESP32-H2 chip and provides minimal functionality to connect to the Thread network.
 - **ESP32-H2 Mike OnOff**  
