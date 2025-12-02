@@ -103,9 +103,9 @@ Unfortunately, it is not possible to create a local network without internet acc
   Connected via USB to an HA Office computer (running HAOS on a Raspberry Pi 4).  
   Used as an RPC module to create an OpenThread Boarder Router in the "OpenThread Boarder Router" Home Assistant add-on.
 - **ESP32-H2 Mike Tiny**  
-  The "Mike Tiny" app is flashed onto the ESP32-H2 chip and provides minimal functionality for connecting to the Thread network.
+  The "Mike Tiny" app runs on an ESP32-H2 chip and provides minimal functionality to connect to the Thread network.
 - **ESP32-H2 Mike OnOff**  
-  The ESP32-H2 chip is loaded with the "Mike OnOff" app, which controls 8 relays for connection to the Thread network.
+  The "Mike OnOff" app runs on an ESP32-H2 chip and controls 8 relays to connect to the Thread network.
 
 
 ### Setting up the Netis N5 router
