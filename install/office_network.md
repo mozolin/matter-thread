@@ -4,7 +4,7 @@
 Creating an environment for developing and testing a Matter/Thread network.  
   
 **Limitations**  
-Unfortunately, it is not possible to create a local network without internet access for this project. An internet connection is required when compiling C++ applications, as they use components loaded during firmware building.  
+Unfortunately, it is not possible to create a local network without internet access for this project. An internet connection is required when compiling C++ applications, as they use components loaded during firmware builds.  
   
 **Implementation diagram**  
 ![](office_network/OFFICE_NETWORK_x4500.jpg)  
