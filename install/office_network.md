@@ -84,13 +84,13 @@ Unfortunately, it is not possible to create a local network without internet acc
 - **SmLight SLZB-06**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
-- **OTBR #3 Wi-Fi**  
+- **ESP OTBR #3 Wi-Fi**  
   Connected via Wi-Fi to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
-- **OTBR #4 Ethernet**  
+- **ESP OTBR #4 Ethernet**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
-- **OTBR #5 Ethernet**  
+- **ESP OTBR #5 Ethernet**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
 - **nRF52840 Dongle 1**  
