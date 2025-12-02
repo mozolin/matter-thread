@@ -48,7 +48,7 @@ Unfortunately, it is not possible to create a local network without internet acc
   Using a router allows you to create a local network with its own addressing, independent of the access point.
 - **TP-Link LS1008 Switch**  
   Connected via ***Ethernet*** to the Netis N5 router output.  
-  Designed to expand the number of Ethernet outputs, as the Netis N5 router only has two.
+  Used to expand the number of Ethernet outputs, as the Netis N5 router only has two.
 - **DEXP Mini**  
   Connected via ***Ethernet*** to the TP-Link LS1008 switch.  
   Runs under Ubuntu. Used for compiling C++ ESP-IDF/ESP-Matter applications.
