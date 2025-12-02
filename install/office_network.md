@@ -1,6 +1,8 @@
 # Office LAN with Internet Access
-Example of creating a local network in an office.
-  
+### Example of creating a local network in an office.
+Project idea: creating an environment for developing and testing a Matter/Thread network.  
+Limitations: Unfortunately, it is impossible to create a local network without internet access. An internet connection is required when compiling C++ applications, as they use components loaded during firmware creation.  
+    
 ![](office_network/OFFICE_NETWORK_x4500.jpg)  
   
 ### Features
@@ -71,8 +73,10 @@ Example of creating a local network in an office.
   Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
   Used to connect Matter end devices to the Thread network via the Home Assistant mobile app.
 
-### Thread Network
 
+### Thread Network
+![](office_network/otbr_web_topology_light.png)  
+  
 - **SmLight SLZB-06**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
