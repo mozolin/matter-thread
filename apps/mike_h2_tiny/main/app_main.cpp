@@ -117,6 +117,44 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   return ESP_OK;
 }
 
+void set_basic_attributes_esp_matter()
+{
+  uint16_t endpoint_id = 0x0000;
+
+  #if UART_MONITOR_DEBUG
+	  ESP_LOGW("", "");
+  	ESP_LOGW("", "##################################");
+	  ESP_LOGW("", "#");
+  #endif
+  
+  //-- Set NodeLabel
+  char node_label[] = CONFIG_CUSTOM_DEVICE_NODE_LABEL;
+  esp_matter_attr_val_t node_label_val = esp_matter_char_str(node_label, strlen(node_label));
+  esp_err_t err = esp_matter::attribute::update(
+    endpoint_id,
+    chip::app::Clusters::BasicInformation::Id,
+    chip::app::Clusters::BasicInformation::Attributes::NodeLabel::Id,
+    &node_label_val
+  );
+	if(err == ESP_OK) {
+	  #if UART_MONITOR_DEBUG
+	    ESP_LOGW(TAG_H2, "~~~ NodeLabel set via ESP-Matter API");
+	  #endif
+	} else {
+	  #if UART_MONITOR_DEBUG
+	    ESP_LOGE(TAG_H2, "~~~ Failed to set NodeLabel: %d", err);
+	  #endif
+	}
+
+	#if UART_MONITOR_DEBUG  
+	  ESP_LOGW("", "#");
+  	ESP_LOGW("", "##################################");
+	  ESP_LOGW("", "");
+  #endif
+
+}
+
+
 extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
@@ -144,6 +182,11 @@ extern "C" void app_main()
   /* Matter start */
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_H2, "~~~ Failed to start Matter, err:%d", err));
+
+  //-- Setting BasicInformationCluster attributes
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  set_basic_attributes_esp_matter();
+
 
 	#if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();

@@ -1,5 +1,7 @@
 #pragma once
 
+#define UART_MONITOR_DEBUG         false
+
 #include <esp_err.h>
 #include <esp_matter.h>
 
