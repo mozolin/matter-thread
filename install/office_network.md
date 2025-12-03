@@ -167,6 +167,8 @@ Home Assistant has a tool for sharing Matter endpoints between other ecosystems 
 However, not every Matter hub can commission custom endpoints. For example, both Yandex Hub and Google Nest Hub rejected attempts to connect "Mike OnOf" and "Mike Tiny" devices, which use test credentials and have not been officially certified by the CSA. This is clearly unnecessary for home use.  
 The "[Home-Assistant-Matter-Hub](https://github.com/t0bst4r/home-assistant-addons)" add-on allows us to bypass this limitation.  
 ![](office_network/on_matter_hub_filter.png)  
+  
+This add-on generates a QR code that can be successfully scanned by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems.  
 ![](office_network/on_matter_hub_list.png)  
   
 
