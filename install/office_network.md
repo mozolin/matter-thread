@@ -1,4 +1,5 @@
 # Office LAN with Internet Access
+
 ### Example of creating a local network in an office.
 **Project idea**  
 Creating an environment for developing and testing a Matter/Thread network.  
@@ -9,6 +10,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 **Implementation diagram**  
 ![](office_network/OFFICE_NETWORK_x4500.jpg)  
   
+
 ### Features
 - Internet access via a smartphone hotspot  
 - Fixed IP addresses for all devices  
@@ -20,6 +22,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 - Yandex Hub + Yandex Smart Home for connecting and displaying Matter devices  
 - Dedicated Ubuntu computer for creating ESP-Matter firmware for Thread end devices  
 - Office computer with a Wi-Fi connection to the local network  
+
 
 ### Hardware
 | IP            | Protocol         | Model                      | Vendor                |
@@ -132,6 +135,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 ![](office_network/on_mike_tiny.png)  
   
 **Addon "OpenThread Border Router"**  
+There is an artificially created COM port by connecting an external RCP module via USB.  
 ![](office_network/on_otbr_addon.png)  
   
 **List of OpenThread Border Routers**  
@@ -154,6 +158,16 @@ Unfortunately, it is not possible to create a local network without internet acc
   
 **SMLight SMZB-06 Settings: Mode**  
 ![](office_network/on_slzb06_mode.png)  
+
+
+### Share Device
+Home Assistant has a tool for sharing Matter endpoints between other ecosystems (see the Share Device tool on the Device Info page of the Matter integration).  
+![](office_network/on_share_device.png)  
+  
+However, not every Matter hub can commission custom endpoints. For example, both Yandex Hub and Google Nest Hub rejected attempts to connect "Mike OnOf" and "Mike Tiny" devices, which use test credentials and have not been officially certified by the CSA. This is clearly unnecessary for home use.  
+The "[Home-Assistant-Matter-Hub](https://github.com/t0bst4r/home-assistant-addons)" add-on allows us to bypass this limitation.  
+![](office_network/on_matter_hub_filter.png)  
+![](office_network/on_matter_hub_list.png)  
   
 
 ### Setting up the Netis N5 router
