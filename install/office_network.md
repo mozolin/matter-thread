@@ -83,30 +83,78 @@ Unfortunately, it is not possible to create a local network without internet acc
   
 - **SmLight SLZB-06**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
-  Used to create an OpenThread Boarder Router. To configure the Home Assistant add-on correctly, we need either a free COM port available on our computer running Home Assistant, or an artificially created COM port by connecting an external RCP module via USB.
+  Used to create an OpenThread Boarder Router. To configure the Home Assistant add-on correctly, we need either a free COM port available on our computer running Home Assistant, or an artificially created COM port by connecting an external RCP module via USB.  
+  Firmware: [flasher](https://smlight.tech/flasher).
 - **ESP OTBR #3 Wi-Fi**  
   Connected via Wi-Fi to a TP-Link LS1008 switch.  
-  Used to create an OpenThread Boarder Router.
+  Used to create an OpenThread Boarder Router.  
+  Firmware: [esp-thread-br](https://github.com/mozolin/esp-thread-br).
 - **ESP OTBR #4 Ethernet**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
-  Used to create an OpenThread Boarder Router.
+  Used to create an OpenThread Boarder Router.  
+  Firmware: [esp-thread-br](https://github.com/mozolin/esp-thread-br).
 - **ESP OTBR #5 Ethernet**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
-  Used to create an OpenThread Boarder Router.
+  Used to create an OpenThread Boarder Router.  
+  Firmware: [esp-thread-br](https://github.com/mozolin/esp-thread-br).
 - **nRF52840 Dongle 1**  
   Connected via USB to a DEXP Mini computer (running Ubuntu).  
-  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.
+  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.  
+  Firmware: [nRFUtil](https://www.nordicsemi.com/Products/Development-tools/nRF-Util).
 - **nRF52840 Dongle 2**  
   Connected via USB to a DEXP Mini computer (running Ubuntu).  
-  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.
+  Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.  
+  Firmware: [nRFUtil](https://www.nordicsemi.com/Products/Development-tools/nRF-Util).
 - **ESP32-H2 Mike Tiny RP4 RCP**  
   Connected via USB to an HA Office computer (running HAOS on a Raspberry Pi 4).  
   Used as an RPC module to create an OpenThread Boarder Router (based on SmLight SLZB-06) in the "OpenThread Boarder Router" Home Assistant add-on.  
+  Firmware: [mike_h2_tiny](https://github.com/mozolin/matter-thread/tree/main/apps/mike_h2_tiny).
 - **ESP32-H2 Mike Tiny**  
-  The "Mike Tiny" app runs on an ESP32-H2 chip and provides minimal functionality to connect to the Thread network.
+  The "Mike Tiny" app runs on an ESP32-H2 chip and provides minimal functionality to connect to the Thread network.  
+  Firmware: [mike_h2_tiny](https://github.com/mozolin/matter-thread/tree/main/apps/mike_h2_tiny).
 - **ESP32-H2 Mike OnOff**  
-  The "Mike OnOff" app runs on an ESP32-H2 chip and controls 8 relays to connect to the Thread network.
+  The "Mike OnOff" app runs on an ESP32-H2 chip and controls 8 relays to connect to the Thread network.  
+  Firmware: [mike_on_off](https://github.com/mozolin/matter-thread/tree/main/apps/mike_on_off).
 
+**Thread Network**  
+![](office_network/on_list_of_otbrs.png)  
+  
+**List of Matter end devices**  
+![](office_network/on_matter_list_of_devs.png)  
+    
+**Matter Server**  
+![](office_network/on_matter_server.png)  
+  
+**Mike OnOff end devices (built on ESP32-H2)**  
+![](office_network/on_mike_onoff.png)  
+  
+**Mike Tiny end devices (built on ESP32-H2)**  
+![](office_network/on_mike_tiny.png)  
+  
+**Addon "OpenThread Border Router"**  
+![](office_network/on_otbr_addon.png)  
+  
+**List of OpenThread Border Routers**  
+![](office_network/on_otbr_addon_list.png)  
+  
+**Addon "SMLIGHT SMZB"**  
+![](office_network/on_slzb06_addon.png)  
+  
+**SMLight SMZB-06 Settings: Connection Mode**  
+![](office_network/on_slzb06_connection.png)  
+  
+**SMLight SMZB-06 Settings: Dashboard**  
+![](office_network/on_slzb06_dashboard.png)  
+  
+**SMLight SMZB-06 Settings: Device Info**  
+![](office_network/on_slzb06_device_info.png)  
+  
+**SMLight SMZB-06 Settings: Ethernet Status**  
+![](office_network/on_slzb06_ethernet.png)  
+  
+**SMLight SMZB-06 Settings: Mode**  
+![](office_network/on_slzb06_mode.png)  
+  
 
 ### Setting up the Netis N5 router
 - Main page "Advanced Setup"  
