@@ -168,8 +168,10 @@ However, not every Matter hub can commission custom endpoints. For example, both
 The "[Home-Assistant-Matter-Hub](https://github.com/t0bst4r/home-assistant-addons)" add-on allows us to bypass this limitation.  
 ![](office_network/on_matter_hub_filter.png)  
   
-This add-on generates a QR code that can be successfully scanned by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems.  
+This add-on generates a QR code and Manual Pairing Code that can be successfully scanned by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems.  
 ![](office_network/on_matter_hub_list.png)  
+  
+If there is a problem with removing an unnecessary bridge, we set a filter that cannot be matched, so no entities are created, and we can remove the bridge.  
   
 
 ### Setting up the Netis N5 router
