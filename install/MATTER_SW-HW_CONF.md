@@ -13,12 +13,12 @@ The main default parameters are located in the file *~/esp-matter/connectedhomei
 - #define CHIP_DEVICE_CONFIG_DEVICE_NAME "Test Kitchen"
 ~~~
   
-What we can see in Home Assistant:  
-![](MATTER_SW-HW_CONF/sw-hw_conf_00.png)  
-
+What we can see in Home Assistant. The first example (Node 5) shows a device with default settings. The second example (Node 13) shows a device with more user-friendly settings.  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_01.png)  
   
 ### 1. Example of a device with default settings:  
+![](MATTER_SW-HW_CONF/sw-hw_conf_00.png)  
+
 Default parameters in the description of the Matter node:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_02.png)  
 
@@ -34,7 +34,9 @@ set(PROJECT_VER_NUMBER 1)
 project(mike_on_off)
 ~~~
   
-### 2. Example of a device with more correct settings:  
+### 2. Example of a device with more user-friendly settings:  
+![](MATTER_SW-HW_CONF/sw-hw_conf_12.png)  
+  
 Changed parameters in the description of the Matter node:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_05.png)  
 
@@ -129,9 +131,3 @@ Unfortunately, the **Location** attribute has administrator privileges, so we ca
 0x00000028, /* Cluster: Basic Information, Attribute: Location, Privilege: administer */ \
 ...
 ~~~
-    
-In summary, what we can see in Home Assistant:  
-![](MATTER_SW-HW_CONF/sw-hw_conf_11.png)  
-  
-![](MATTER_SW-HW_CONF/sw-hw_conf_12.png)  
-  
