@@ -20,7 +20,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 - OpenThread Border Router (SmLight SLZB-06)  
 - OpenThread Border Router (nRF52840 USB Dongle)  
 - Yandex Hub + Yandex Smart Home for connecting and displaying Matter devices  
-- Dedicated Ubuntu computer for creating ESP-Matter firmware for Thread end devices  
+- Dedicated Ubuntu computer for creating ESP-Matter firmware for Thread end devices, and to install a virtual machine to use eWeLink CubeOS  
 - Office computer with a Wi-Fi connection to the local network  
 
 
@@ -34,10 +34,12 @@ Unfortunately, it is not possible to create a local network without internet acc
 | 192.168.1.151 | Wi-Fi            | HA Office Wi-Fi            | HA                    |
 | 192.168.1.152 | Wi-Fi            | Redmi Note 14 Wi-Fi        | HA                    |
 | 192.168.1.153 | Wi-Fi            | Xiaomi 12S Ultra           | Xiaomi                |
+| 192.168.1.154 | Wi-Fi            | Sonoff Micro Wi-Fi         | Sonoff                |
 | 192.168.1.201 | Ethernet         | SmLight SLZB-06 Ethernet   | SmLight               |
 | 192.168.1.202 | Ethernet         | OTBR #4 Ethernet           | Espressif             |
 | 192.168.1.203 | Ethernet         | OTBR #5 Ethernet           | Espressif             |
 | 192.168.1.204 | Ethernet         | Yandex Hub Ethernet        | Yandex                |
+| 192.168.1.205 | Ethernet         | eWeLink CubeOS             | eWeLink               |
 | 192.168.1.234 | Wi-Fi            | HP Office PC               | HP                    |
 | 192.168.1.250 | Wi-Fi            | OTBR #3 Wi-Fi              | Espressif             |
 | 192.168.1.251 | Wi-Fi            | SmLight SLZB-06 Wi-Fi      | SmLight               |
@@ -70,6 +72,9 @@ Unfortunately, it is not possible to create a local network without internet acc
 - **Yandex Hub**  
   Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
   Used to connect Matter devices.
+- **eWeLink CubeOS**  
+  Connected via ***virtual machine*** simulating an Ethernet connection.  
+  Used to connect Wi-Fi and Ethernet devices compatible with eWeLink.
 - **ESP OTBR #3**  
   Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
@@ -79,6 +84,9 @@ Unfortunately, it is not possible to create a local network without internet acc
 - **Xiaomi 12S Ultra**  
   Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
   Used to connect Matter end devices to the Thread network via the Home Assistant mobile app.
+- **Sonoff Micro**  
+  Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
+  Used as a physical switch to connect to eWeLink CubeOS.
 
 
 ### Thread Network
@@ -168,7 +176,7 @@ However, not every Matter hub can commission custom endpoints. For example, both
 The "[Home-Assistant-Matter-Hub](https://github.com/t0bst4r/home-assistant-addons)" add-on allows us to bypass this limitation.  
 ![](office_network/on_matter_hub_filter.png)  
   
-This add-on generates a QR code and Manual Pairing Code that can be successfully scanned by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems.  
+This add-on generates a QR code and a manual pairing code that can be successfully used by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems. However, the add-on can only be commissioned for one ecosystem; all other devices connect through the first connected one.  
 ![](office_network/on_matter_hub_list.png)  
   
 If there is a problem with removing an unnecessary bridge, we set a filter that cannot be matched, so no entities are created, and we can remove the bridge.  
