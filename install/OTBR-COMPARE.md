@@ -30,9 +30,10 @@
 ![](../images/otbr-compare/W500-google_nest_hub_01.jpg)  
   
 
+<!--
 ### 5. eWelink CubeOS
 - Requires a dedicated computer (Raspberry Pi) or virtual machine to install software.  
 - On Raspberry Pi, it won't boot from an SSD connected to the computer's USB port. It only boots from an SD card, which is, of course, extremely unreliable and short-lived!  
   
 ![](../images/otbr-compare/CUBEOSv2.8.1_Ubuntu_VirtualBox.png)  
-  
+-->
