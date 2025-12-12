@@ -114,25 +114,65 @@ VBoxManage showvminfo "CubeOS" | grep -i autostart
 
 # 3. Pairing and commissioning
 
+### 3.1. Родные устройства в eWeLink SmartHome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_01-eWeLink_SmartHome.png)  
+
+### 3.2. Matter Bridge. Спаривание. Main page
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02a_Matter_Pairing.png)  
+
+### 3.3. Matter Bridge. Спаривание. Preparation
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02b_Matter_Pairing.png)  
+
+### 3.4. Matter Bridge. Спаривание. Pairing
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02c_Matter_Pairing.png)  
+
+### 3.5. Matter Bridge. Спаривание. Pairing code
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02d_Matter_Pairing.png)  
+
+### 3.6. Matter Bridge. Спаривание. Добавлено в Home Assistant
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02e_Matter_Pairing.png)  
+
+### 3.7. Matter Bridge. Спаривание. Добавлено в Home Assistant
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02f_Matter_Pairing.png)  
+
+### 3.8. Поделиться устройством в Home Assistant с Yandex Smarthome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02g_Matter_Pairing.png)  
+
+### 3.9. Matter Bridge. Спаривание. Добавлено в Home Assistant и Yandex Smarthome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02h_Matter_Pairing.png)  
+
+### 3.10. Matter Bridge. Device List. Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_03-Matter_DeviceList.png)  
+
+### 3.11. Matter Bridge. Device List. Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_04-Micro_USB.png)  
+
+### 3.12. Matter Bridge. Device List. Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_05-Micro_USB.png)  
+
+### 3.13. Home Assistant. Matter Server. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_06-HA_MatterServer.png)  
+
+### 3.14. Home Assistant. Matter Server. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_07-HA_MatterServer.png)  
+
+### 3.15. Home Assistant. Matter Server. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_08-HA_Matter_Cube.png)  
+
+### 3.16. Home Assistant. Matter Server. Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_09-HA_Matter_Micro.png)  
-![](CUBEOS_Ubuntu_VirtualBox/cubeOS_10-YandexHome.jpg)  
+
+### 3.17. Yandex Smarthome. Cab 379
 ![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_01-cab379.jpg)  
+
+### 3.18. Yandex Smarthome. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_02-CubeOS.jpg)  
+
+### 3.19. Yandex Smarthome. Home Assistant
 ![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_03-HomeAssistant.jpg)  
+
+### 3.20. Yandex Smarthome. Yandex Hub
 ![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_04-YandexHub_01.jpg)  
+
+### 3.21. Yandex Smarthome. Yandex Hub
 ![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_04-YandexHub_02.jpg)  
