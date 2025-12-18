@@ -130,6 +130,7 @@ VBoxManage showvminfo "CubeOS" | grep -i autostart
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02d_Matter_Pairing.png)  
 
 ### 3.6. Matter Bridge. Спаривание. Добавлено в Home Assistant
+Само дополнение "Home Assistant Matter Hub" технически не содержит проприетарного кода Google LLC, но его работа тесно связана с инфраструктурой Google. В частности, инициализация (Commissioning): Для сопряжения устройств Matter через Android-приложение Home Assistant используются системные API Google Play Services. Это стандартный механизм Android для управления ключами безопасности Matter, что и вызывает отображение связи с Google LLC.  
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02e_Matter_Pairing.png)  
 
 ### 3.7. Matter Bridge. Спаривание. Добавлено в Home Assistant
@@ -156,23 +157,20 @@ VBoxManage showvminfo "CubeOS" | grep -i autostart
 ### 3.14. Home Assistant. Matter Server. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_07-HA_MatterServer.png)  
 
-### 3.15. Home Assistant. Matter Server. CubeOS
+### 3.15. Home Assistant. Интеграция "Matter". CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_08-HA_Matter_Cube.png)  
 
-### 3.16. Home Assistant. Matter Server. Sonoff Micro
+### 3.16. Home Assistant. Интеграция "Matter". Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_09-HA_Matter_Micro.png)  
 
 ### 3.17. Yandex Smarthome. Cab 379
-![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_01-cab379.jpg)  
+![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_01-cab379.png)  
 
 ### 3.18. Yandex Smarthome. CubeOS
-![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_02-CubeOS.jpg)  
+![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_02-CubeOS.png)  
 
 ### 3.19. Yandex Smarthome. Home Assistant
-![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_03-HomeAssistant.jpg)  
+![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_03-HomeAssistant.png)  
 
 ### 3.20. Yandex Smarthome. Yandex Hub
-![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_04-YandexHub_01.jpg)  
-
-### 3.21. Yandex Smarthome. Yandex Hub
-![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_04-YandexHub_02.jpg)  
+![](CUBEOS_Ubuntu_VirtualBox/YandexSmartHome_04-YandexHub.png)  
