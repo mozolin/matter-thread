@@ -131,3 +131,25 @@ Unfortunately, the **Location** attribute has administrator privileges, so we ca
 0x00000028, /* Cluster: Basic Information, Attribute: Location, Privilege: administer */ \
 ...
 ~~~
+
+### Devices with Custom Firmware in Google Home
+Google Home can connect Matter-over-Thread devices with custom firmware, but this requires meeting certain technical requirements in the developer console.  
+See: [Build a Matter device](https://developers.home.google.com/codelabs/matter-device?hl=en)  
+**Basic requirements for connection:**  
+- *Identification (VID/PID):* The firmware must specify a Vendor ID (VID) and Product ID (PID). For development and testing, you can use test IDs (e.g., VID 0xFFF1 and PIDs from 0x8000 to 0x801F).  
+- *Developer Console:* You must create a project in the Google Home Developer Console, specify the VID/PID pairing you are using, and create an integration.  
+- *Account:* The user adding the device in the Google Home app must be an owner or member of that project in the developer console.  
+  
+Add parameters for the VENDOR_ID and PRODUCT_ID of the custom firmware to sdkconfig.defaults:  
+~~~
+CONFIG_DEVICE_VENDOR_ID=0xFFF1
+CONFIG_DEVICE_PRODUCT_ID=0x8001
+~~~
+After flashing, these parameters can be found in the description of BasicInformationCluster (ClusterId 40, 0x0028), Endpoint 0:  
+- AttributeId 2: VendorID  
+- AttributeId 4: ProductID  
+  
+In the developer console, create a new Matter device and add the same parameters for it:  
+![](MATTER_SW-HW_CONF/sw-hw_conf_13.png)  
+![](MATTER_SW-HW_CONF/sw-hw_conf_14.png)  
+  
