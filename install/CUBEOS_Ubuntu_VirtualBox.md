@@ -113,32 +113,32 @@ VBoxManage showvminfo "CubeOS" | grep -i autostart
 
 # 3. Pairing and commissioning
 
-### 3.1. Родные устройства в eWeLink SmartHome
+### 3.1. Native devices in eWeLink SmartHome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_01-eWeLink_SmartHome.png)  
 
-### 3.2. Matter Bridge. Спаривание. Main page
+### 3.2. Matter Bridge. Pairing. Main page
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02a_Matter_Pairing.png)  
 
-### 3.3. Matter Bridge. Спаривание. Preparation
+### 3.3. Matter Bridge. Pairing. Preparation
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02b_Matter_Pairing.png)  
 
-### 3.4. Matter Bridge. Спаривание. Pairing
+### 3.4. Matter Bridge. Pairing
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02c_Matter_Pairing.png)  
 
-### 3.5. Matter Bridge. Спаривание. Pairing code
+### 3.5. Matter Bridge. Pairing. Pairing code
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02d_Matter_Pairing.png)  
 
-### 3.6. Matter Bridge. Спаривание. Добавлено в Home Assistant
-Само дополнение "Home Assistant Matter Hub" технически не содержит проприетарного кода Google LLC, но его работа тесно связана с инфраструктурой Google. В частности, инициализация (Commissioning): Для сопряжения устройств Matter через Android-приложение Home Assistant используются системные API Google Play Services. Это стандартный механизм Android для управления ключами безопасности Matter, что и вызывает отображение связи с Google LLC.  
+### 3.6. Matter Bridge. Pairing. Added to Home Assistant
+The Home Assistant Matter Hub add-on itself technically does not contain proprietary code from Google LLC, but its operation is closely tied to Google's infrastructure. In particular, commissioning: Google Play Services system APIs are used to pair Matter devices via the Home Assistant Android app. This is the standard Android mechanism for managing Matter security keys, which is what causes the connection to Google LLC to appear.  
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02e_Matter_Pairing.png)  
 
-### 3.7. Matter Bridge. Спаривание. Добавлено в Home Assistant
+### 3.7. Matter Bridge. Pairing. Added to Home Assistant
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02f_Matter_Pairing.png)  
 
-### 3.8. Поделиться устройством в Home Assistant с Yandex Smarthome
+### 3.8. Share a device in Home Assistant with Yandex Smarthome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02g_Matter_Pairing.png)  
 
-### 3.9. Matter Bridge. Спаривание. Добавлено в Home Assistant и Yandex Smarthome
+### 3.9. Matter Bridge. Pairing. Added to Home Assistant and Yandex Smarthome
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_02h_Matter_Pairing.png)  
 
 ### 3.10. Matter Bridge. Device List. Sonoff Micro
@@ -156,10 +156,10 @@ VBoxManage showvminfo "CubeOS" | grep -i autostart
 ### 3.14. Home Assistant. Matter Server. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_07-HA_MatterServer.png)  
 
-### 3.15. Home Assistant. Интеграция "Matter". CubeOS
+### 3.15. Home Assistant. Matter Integration. CubeOS
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_08-HA_Matter_Cube.png)  
 
-### 3.16. Home Assistant. Интеграция "Matter". Sonoff Micro
+### 3.16. Home Assistant. Matter Integration. Sonoff Micro
 ![](CUBEOS_Ubuntu_VirtualBox/cubeOS_09-HA_Matter_Micro.png)  
 
 ### 3.17. Yandex Smarthome. Cab 379

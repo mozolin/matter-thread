@@ -1,14 +1,14 @@
-# Office LAN with Internet Access
+# Mobile LAN with Internet Access
 
-### Example of creating a local network in an office.
+### Example of creating a local network using mobile Wi-Fi.
 **Project idea**  
 Creating an environment for developing and testing a Matter/Thread network.  
   
 **Limitations**  
-Unfortunately, it is not possible to create a local network without internet access for this project. An internet connection is required when compiling C++ applications, as they use components loaded during firmware builds.  
+Unfortunately, it is not possible to create a local network without internet access for this project. An internet connection is required when compiling C++ applications, as they use components loaded during firmware builds. Additionally, the commissioning process uses Google Play Services APIs to pair Matter devices via the Home Assistant app for Android.  
   
 **Implementation diagram**  
-![](office_network/OFFICE_NETWORK_x4500.jpg)  
+![](mobile_network/MOBILE_NETWORK_x4500.jpg)  
   
 
 ### Features
@@ -21,7 +21,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 - OpenThread Border Router (nRF52840 USB Dongle)  
 - Yandex Hub + Yandex Smart Home for connecting and displaying Matter devices  
 - Dedicated Ubuntu computer for creating ESP-Matter firmware for Thread end devices, and to install a virtual machine to use eWeLink CubeOS  
-- Office computer with a Wi-Fi connection to the local network  
+- Desktop computer or Laptop with a Wi-Fi connection to the local network  
 
 
 ### Hardware
@@ -29,9 +29,9 @@ Unfortunately, it is not possible to create a local network without internet acc
 |--------------:|:----------------:|:---------------------------|:----------------------|
 |   192.168.1.1 | Wi-Fi / Ethernet | Netis N5 Router            | Netis                 |
 | 192.168.1.100 | Ethernet         | DEXP Mini Ethernet         | DEXP                  |
-| 192.168.1.101 | Ethernet         | HA Office Ethernet         | HA                    |
+| 192.168.1.101 | Ethernet         | HA Ethernet                | HA                    |
 | 192.168.1.150 | Wi-Fi            | DEXP Mini Wi-Fi            | DEXP                  |
-| 192.168.1.151 | Wi-Fi            | HA Office Wi-Fi            | HA                    |
+| 192.168.1.151 | Wi-Fi            | HA Wi-Fi                   | HA                    |
 | 192.168.1.152 | Wi-Fi            | Redmi Note 14 Wi-Fi        | HA                    |
 | 192.168.1.153 | Wi-Fi            | Xiaomi 12S Ultra           | Xiaomi                |
 | 192.168.1.154 | Wi-Fi            | Sonoff Micro Wi-Fi         | Sonoff                |
@@ -40,7 +40,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 | 192.168.1.203 | Ethernet         | OTBR #5 Ethernet           | Espressif             |
 | 192.168.1.204 | Ethernet         | Yandex Hub Ethernet        | Yandex                |
 | 192.168.1.205 | Ethernet         | eWeLink CubeOS             | eWeLink               |
-| 192.168.1.234 | Wi-Fi            | HP Office PC               | HP                    |
+| 192.168.1.234 | Wi-Fi            | HP PC                      | HP                    |
 | 192.168.1.250 | Wi-Fi            | OTBR #3 Wi-Fi              | Espressif             |
 | 192.168.1.251 | Wi-Fi            | SmLight SLZB-06 Wi-Fi      | SmLight               |
 | 192.168.1.252 | Wi-Fi            | OTBR #4 Wi-Fi              | Espressif             |
@@ -57,7 +57,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 - **DEXP Mini**  
   Connected via ***Ethernet*** to the TP-Link LS1008 switch.  
   Runs under Ubuntu. Used for compiling C++ ESP-IDF/ESP-Matter applications.
-- **HA Office**  
+- **HA**  
   Connected via ***Ethernet*** to a TP-Link LS1008 switch.  
   Runs on a Raspberry Pi 4 running HAOS. Used to run Home Assistant systems.
 - **SmLight SLZB-06**  
@@ -78,7 +78,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 - **ESP OTBR #3**  
   Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
   Used to create an OpenThread Boarder Router.
-- **HP Office PC**  
+- **HP PC**  
   Connected via ***Wi-Fi*** to a TP-Link LS1008 switch.  
   Runs under Windows 10. Used for more convenient editing of C++ application source code and Home Assistant scripts. Folders containing source code are connected to the Windows system via Samba services installed on computers running ESP-IDF/ESP-Matter (under Ubuntu) and Home Assistant (under HAOS), respectively.
 - **Xiaomi 12S Ultra**  
@@ -90,7 +90,7 @@ Unfortunately, it is not possible to create a local network without internet acc
 
 
 ### Thread Network
-![](office_network/otbr_web_topology_light.png)  
+![](mobile_network/otbr_web_topology_light.png)  
   
 - **SmLight SLZB-06**  
   Connected via Ethernet to a TP-Link LS1008 switch.  
@@ -117,7 +117,7 @@ Unfortunately, it is not possible to create a local network without internet acc
   Used as an RPC module to create an OpenThread Boarder Router under Ubuntu.  
   Firmware: [nRFUtil](https://www.nordicsemi.com/Products/Development-tools/nRF-Util).
 - **ESP32-H2 Mike Tiny RP4 RCP**  
-  Connected via USB to an HA Office computer (running HAOS on a Raspberry Pi 4).  
+  Connected via USB to an HA computer (running HAOS on a Raspberry Pi 4).  
   Used as an RPC module to create an OpenThread Boarder Router (based on SmLight SLZB-06) in the "OpenThread Boarder Router" Home Assistant add-on.  
   Firmware: [mike_h2_tiny](https://github.com/mozolin/matter-thread/tree/main/apps/mike_h2_tiny).
 - **ESP32-H2 Mike Tiny**  
@@ -128,94 +128,94 @@ Unfortunately, it is not possible to create a local network without internet acc
   Firmware: [mike_on_off](https://github.com/mozolin/matter-thread/tree/main/apps/mike_on_off).
 
 **Thread Network**  
-![](office_network/on_list_of_otbrs.png)  
+![](mobile_network/on_list_of_otbrs.png)  
   
 **List of Matter end devices**  
-![](office_network/on_matter_list_of_devs.png)  
+![](mobile_network/on_matter_list_of_devs.png)  
     
 **Matter Server**  
-![](office_network/on_matter_server.png)  
+![](mobile_network/on_matter_server.png)  
   
 **Mike OnOff end devices (built on ESP32-H2)**  
-![](office_network/on_mike_onoff.png)  
+![](mobile_network/on_mike_onoff.png)  
   
 **Mike Tiny end devices (built on ESP32-H2)**  
-![](office_network/on_mike_tiny.png)  
+![](mobile_network/on_mike_tiny.png)  
   
 **Addon "OpenThread Border Router"**  
 There is an artificially created COM port by connecting an external RCP module via USB.  
-![](office_network/on_otbr_addon.png)  
+![](mobile_network/on_otbr_addon.png)  
   
 **List of OpenThread Border Routers**  
-![](office_network/on_otbr_addon_list.png)  
+![](mobile_network/on_otbr_addon_list.png)  
   
 **Addon "SMLIGHT SMZB"**  
-![](office_network/on_slzb06_addon.png)  
+![](mobile_network/on_slzb06_addon.png)  
   
 **SMLight SMZB-06 Settings: Connection Mode**  
-![](office_network/on_slzb06_connection.png)  
+![](mobile_network/on_slzb06_connection.png)  
   
 **SMLight SMZB-06 Settings: Dashboard**  
-![](office_network/on_slzb06_dashboard.png)  
+![](mobile_network/on_slzb06_dashboard.png)  
   
 **SMLight SMZB-06 Settings: Device Info**  
-![](office_network/on_slzb06_device_info.png)  
+![](mobile_network/on_slzb06_device_info.png)  
   
 **SMLight SMZB-06 Settings: Ethernet Status**  
-![](office_network/on_slzb06_ethernet.png)  
+![](mobile_network/on_slzb06_ethernet.png)  
   
 **SMLight SMZB-06 Settings: Mode**  
-![](office_network/on_slzb06_mode.png)  
+![](mobile_network/on_slzb06_mode.png)  
 
 
 ### Share Device
 Home Assistant has a tool for sharing Matter endpoints between other ecosystems (see the Share Device tool on the Device Info page of the Matter integration).  
-![](office_network/on_share_device.png)  
+![](mobile_network/on_share_device.png)  
   
 However, not every Matter hub can commission custom endpoints. For example, both Yandex Hub and Google Nest Hub rejected attempts to connect "Mike OnOf" and "Mike Tiny" devices, which use test credentials and have not been officially certified by the CSA. This is clearly unnecessary for home use.  
 The "[Home-Assistant-Matter-Hub](https://github.com/t0bst4r/home-assistant-addons)" add-on allows us to bypass this limitation.  
-![](office_network/on_matter_hub_filter.png)  
+![](mobile_network/on_matter_hub_filter.png)  
   
 This add-on generates a QR code and a manual pairing code that can be successfully used by both Yandex Hub and Google Nest Hub, and adds new devices to both ecosystems. However, the add-on can only be commissioned for one ecosystem; all other devices connect through the first connected one.  
-![](office_network/on_matter_hub_list.png)  
+![](mobile_network/on_matter_hub_list.png)  
   
 If there is a problem with removing an unnecessary bridge, we set a filter that cannot be matched, so no entities are created, and we can remove the bridge.  
   
 
 ### Setting up the Netis N5 router
 - Main page "Advanced Setup"  
-![](office_network/netis_01.png)  
+![](mobile_network/netis_01.png)  
   
 - Connecting via Wi-Fi to an access point created on a Redmi Note 14 smartphone.  
-![](office_network/netis_02.png)  
+![](mobile_network/netis_02.png)  
 
 - Setting up a local network  
-![](office_network/netis_03.png)  
+![](mobile_network/netis_03.png)  
   
 - Binding MAC addresses to IP addresses for all devices on the network (address reservation)  
-![](office_network/netis_04.png)  
+![](mobile_network/netis_04.png)  
 
 - Setting the router operating mode to "Router"  
-![](office_network/netis_05.png)  
+![](mobile_network/netis_05.png)  
   
 - Using IP4/IP6  
-![](office_network/netis_06.png)  
+![](mobile_network/netis_06.png)  
   
 - Setting up an access point on Router for connecting wireless devices on the 2.4GHz band  
-![](office_network/netis_07.png)  
+![](mobile_network/netis_07.png)  
   
 - Configuring WPS on 2.4GHz  
-![](office_network/netis_08.png)  
+![](mobile_network/netis_08.png)  
   
 - Disabling "AP Isolation" on 2.4GHz  
-![](office_network/netis_09.png)  
+![](mobile_network/netis_09.png)  
 
 - Configuring an access point on a router for connecting wireless devices on the 5GHz band  
-![](office_network/netis_10.png)  
+![](mobile_network/netis_10.png)  
 
 - Configuring WPS on 5GHz  
-![](office_network/netis_11.png)  
+![](mobile_network/netis_11.png)  
 
 - Disabling "AP Isolation" on 5GHz  
-![](office_network/netis_12.png)  
+![](mobile_network/netis_12.png)  
   

@@ -32,7 +32,7 @@
   
 - [Flash SmLight SLZB-06P7](smlight_slzb06p7.md)  
   
-- [Office LAN with Internet Access](office_network.md)  
+- [Office LAN with Internet Access](mobile_network.md)  
   - Fixed IP addresses  
   - Home Assistant  
   - Thread end devices  
