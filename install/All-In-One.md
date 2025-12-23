@@ -3,8 +3,10 @@
 - On [Raspberry Pi 4b+](HA-Ubuntu22Desktop_RP4.md)  
 - On [PC](HA-Ubuntu22Desktop_PC.md)  
 - [Some settings](HA-Settings.md)  
+<!--
 - [Create a Home Assistant configuration using an office network with Wi-Fi router](HA-Office_1.md)
 - [Create a Home Assistant configuration using an office network without Wi-Fi router](HA-Office_2.md)
+-->
 
 # 2. Install PHP 7.4 (fpm) and Apache2
 ### a) Update the system
