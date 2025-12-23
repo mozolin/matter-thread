@@ -1,0 +1,20 @@
+idf_component_register(
+    SRCS 
+        "app_main.cpp"
+        "drivers/hc_sr501.c"
+        "drivers/rcwl_0516.c"
+        "drivers/hc_sr04.c"
+        "drivers/sensor_driver.c"
+    INCLUDE_DIRS 
+        "."
+        "drivers"
+    REQUIRES 
+        esp_matter
+        esp_matter_ota
+        nvs_flash
+        esp_wifi
+        bt
+        app_update
+        driver
+        esp_timer
+)
