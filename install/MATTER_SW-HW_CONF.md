@@ -4,7 +4,9 @@ For Matter devices programmed with ESP-Matter, the default values are *ProductNa
 The main default parameters are located in the file *~/esp-matter/connectedhomeip/connectedhomeip/src/include/platform/CHIPDeviceConfig.h* (it is clear that editing them there is, to put it mildly, not entirely correct):  
 ~~~
 - #define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME "TEST_VENDOR"
+- #define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_ID 0xFFF1
 - #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "TEST_PRODUCT"
+- #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x8001
 - #define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "TEST_VERSION"
 - #define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION 0
 - #define CHIP_DEVICE_CONFIG_DEVICE_SOFTWARE_VERSION_STRING "1.0"
@@ -149,7 +151,10 @@ After flashing, these parameters can be found in the description of BasicInforma
 - AttributeId 2: VendorID  
 - AttributeId 4: ProductID  
   
+The decimal value of VendorID (0xFFF1) will be 65521.  
+The decimal value of ProductID (0x8001) will be 32769.  
+![](MATTER_SW-HW_CONF/sw-hw_conf_15.png)  
+  
 In the developer console, create a new Matter device and add the same parameters for it:  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_13.png)  
 ![](MATTER_SW-HW_CONF/sw-hw_conf_14.png)  
-  
