@@ -5,7 +5,6 @@
 #include <esp_matter_cluster.h>
 #include <esp_matter_endpoint.h>
 #include <esp_matter_attribute.h>
-#include <esp_matter_ota.h>
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

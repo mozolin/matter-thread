@@ -10,7 +10,6 @@ idf_component_register(
         "drivers"
     REQUIRES 
         esp_matter
-        esp_matter_ota
         nvs_flash
         esp_wifi
         bt
