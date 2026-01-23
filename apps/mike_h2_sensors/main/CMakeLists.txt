@@ -1,19 +1,7 @@
 idf_component_register(
-    SRCS 
-        "app_main.cpp"
-        "drivers/hc_sr501.c"
-        "drivers/rcwl_0516.c"
-        "drivers/hc_sr04.c"
-        "drivers/sensor_driver.c"
-    INCLUDE_DIRS 
-        "."
-        "drivers"
-    REQUIRES 
-        esp_matter
-        nvs_flash
-        esp_wifi
-        bt
-        app_update
-        driver
-        esp_timer
+	SRC_DIRS "." "./drivers"
+  PRIV_INCLUDE_DIRS "." "./drivers" "${ESP_MATTER_PATH}/examples/common/utils"
 )
+
+set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
+target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
