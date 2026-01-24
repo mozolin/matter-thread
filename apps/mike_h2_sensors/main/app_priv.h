@@ -1,10 +1,3 @@
-/*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 
 #pragma once
 
@@ -13,9 +6,10 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
+#include "driver_reset_button.h"
 
 #define TAG_MULTI_SENSOR   "MIKE MULTISENSOR H2"
-#define CONFIG_NUM_SENSORS 3
+#define CONFIG_NUM_SENSORS 4
 
 //-- Sensors configuration
 #define CONFIG_HCSR501_ENABLED           true
@@ -23,11 +17,14 @@
 #define CONFIG_HCSR04_ENABLED            true
 #define CONFIG_SENSOR_POLL_PERIOD_MS     1000
 
+#define OCCUPANCY_UNOCCUPIED             0x00
+#define OCCUPANCY_OCCUPIED               0x01
+
 //-- GPIO Configuration
-#define CONFIG_HCSR501_PIR_GPIO          4
-#define CONFIG_RCWL0516_MICROWAVE_GPIO   5
-#define CONFIG_HCSR04_TRIG_GPIO          6
-#define CONFIG_HCSR04_ECHO_GPIO          7
+#define CONFIG_HCSR501_PIR_GPIO          1
+#define CONFIG_RCWL0516_MICROWAVE_GPIO   2
+#define CONFIG_HCSR04_TRIG_GPIO          3
+#define CONFIG_HCSR04_ECHO_GPIO          5
 #define CONFIG_BUTTON_GPIO               0
 
 
@@ -108,20 +105,6 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_config);
  */
 esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
                                       uint32_t attribute_id, esp_matter_attr_val_t *val);
-
-/** Initialize the button driver
- *
- * This initializes the button driver associated with the selected board.
- * 
- * @param[out] reset_gpio GPIO pin # assigned to the reset button
- *
- * @return Handle on success.
- * @return NULL in case of failure.
- */
-
-/*
-app_driver_handle_t app_driver_button_init(gpio_num_t * reset_gpio);
-*/
 
 /** Read sensor data
  *

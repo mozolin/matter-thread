@@ -6,19 +6,23 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
+//#include <stdlib.h>
+#include "app_priv.h"
 #include "sensor_driver.h"
 #include <driver/gpio.h>
 #include <esp_timer.h>
 #include <esp_err.h>
 #include <esp_log.h>
 
-static const char *TAG = "SensorDriver";
+//static const char *TAG = "SensorDriver";
+
+uint32_t base_distance_cm = 0;
 
 // HC-SR501 PIR Sensor Implementation
 esp_err_t hcsr501_init(hcsr501_dev_t *dev, gpio_num_t output_pin)
 {
     if (dev == NULL) {
-        ESP_LOGE(TAG, "Device pointer is NULL");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Device pointer is NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -30,23 +34,24 @@ esp_err_t hcsr501_init(hcsr501_dev_t *dev, gpio_num_t output_pin)
     gpio_reset_pin(output_pin);
     esp_err_t err = gpio_set_direction(output_pin, GPIO_MODE_INPUT);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set GPIO direction for HC-SR501");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set GPIO direction for HC-SR501");
         return err;
     }
 
     // Enable pull-down resistor (HC-SR501 output is active HIGH)
     err = gpio_set_pull_mode(output_pin, GPIO_PULLDOWN_ONLY);
     if (err != ESP_OK) {
-        ESP_LOGW(TAG, "Failed to set pull mode for HC-SR501, continuing anyway");
+        ESP_LOGW(TAG_MULTI_SENSOR, "Failed to set pull mode for HC-SR501, continuing anyway");
     }
 
-    ESP_LOGW(TAG, "~~~ HC-SR501 initialized on GPIO %d", output_pin);
+    ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR501 initialized on GPIO %d", output_pin);
     return ESP_OK;
 }
 
 bool hcsr501_read(hcsr501_dev_t *dev)
 {
     if (dev == NULL) {
+        ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR501: is NULL");
         return false;
     }
 
@@ -57,9 +62,9 @@ bool hcsr501_read(hcsr501_dev_t *dev)
         dev->last_state = current_state;
         if (current_state) {
             dev->last_detection_time = esp_timer_get_time();
-            ESP_LOGW(TAG, "~~~ HC-SR501: Motion detected");
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR501: Motion detected");
         } else {
-            ESP_LOGW(TAG, "~~~ HC-SR501: Motion ended");
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR501: Motion ended");
         }
     }
     
@@ -70,7 +75,7 @@ bool hcsr501_read(hcsr501_dev_t *dev)
 esp_err_t rcwl0516_init(rcwl0516_dev_t *dev, gpio_num_t output_pin)
 {
     if (dev == NULL) {
-        ESP_LOGE(TAG, "Device pointer is NULL");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Device pointer is NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -82,17 +87,17 @@ esp_err_t rcwl0516_init(rcwl0516_dev_t *dev, gpio_num_t output_pin)
     gpio_reset_pin(output_pin);
     esp_err_t err = gpio_set_direction(output_pin, GPIO_MODE_INPUT);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set GPIO direction for RCWL-0516");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set GPIO direction for RCWL-0516");
         return err;
     }
 
     // RCWL-0516 output is active LOW, enable pull-up
     err = gpio_set_pull_mode(output_pin, GPIO_PULLUP_ONLY);
     if (err != ESP_OK) {
-        ESP_LOGW(TAG, "Failed to set pull mode for RCWL-0516, continuing anyway");
+        ESP_LOGW(TAG_MULTI_SENSOR, "Failed to set pull mode for RCWL-0516, continuing anyway");
     }
 
-    ESP_LOGW(TAG, "~~~ RCWL-0516 initialized on GPIO %d", output_pin);
+    ESP_LOGW(TAG_MULTI_SENSOR, "~~~ RCWL-0516 initialized on GPIO %d", output_pin);
     return ESP_OK;
 }
 
@@ -110,9 +115,9 @@ bool rcwl0516_read(rcwl0516_dev_t *dev)
         dev->last_state = current_state;
         if (current_state) {
             dev->last_detection_time = esp_timer_get_time();
-            ESP_LOGI(TAG, "RCWL-0516: Motion detected");
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ RCWL-0516: Motion detected");
         } else {
-            ESP_LOGI(TAG, "RCWL-0516: Motion ended");
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ RCWL-0516: Motion ended");
         }
     }
     
@@ -123,7 +128,7 @@ bool rcwl0516_read(rcwl0516_dev_t *dev)
 esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo_pin)
 {
     if (dev == NULL) {
-        ESP_LOGE(TAG, "Device pointer is NULL");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Device pointer is NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -136,7 +141,7 @@ esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo
     gpio_reset_pin(trigger_pin);
     esp_err_t err = gpio_set_direction(trigger_pin, GPIO_MODE_OUTPUT);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set GPIO direction for HC-SR04 trigger");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set GPIO direction for HC-SR04 trigger");
         return err;
     }
     gpio_set_level(trigger_pin, 0);
@@ -145,11 +150,11 @@ esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo
     gpio_reset_pin(echo_pin);
     err = gpio_set_direction(echo_pin, GPIO_MODE_INPUT);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set GPIO direction for HC-SR04 echo");
+        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set GPIO direction for HC-SR04 echo");
         return err;
     }
 
-    ESP_LOGW(TAG, "~~~ HC-SR04 initialized: trigger=%d, echo=%d", trigger_pin, echo_pin);
+    ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR04 initialized: trigger=%d, echo=%d", trigger_pin, echo_pin);
     return ESP_OK;
 }
 
@@ -172,7 +177,7 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev)
     uint32_t start_time = esp_timer_get_time();
     while (gpio_get_level(dev->echo_pin) == 0) {
         if ((esp_timer_get_time() - start_time) > 10000) { // 10ms timeout
-            ESP_LOGW(TAG, "HC-SR04: Echo pin timeout (no response)");
+            ESP_LOGW(TAG_MULTI_SENSOR, "HC-SR04: Echo pin timeout (no response)");
             return 0;
         }
     }
@@ -181,7 +186,7 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev)
     start_time = esp_timer_get_time();
     while (gpio_get_level(dev->echo_pin) == 1) {
         if ((esp_timer_get_time() - start_time) > 60000) { // 60ms timeout (~10m distance)
-            ESP_LOGI(TAG, "HC-SR04: Echo pulse too long");
+            ESP_LOGI(TAG_MULTI_SENSOR, "HC-SR04: Echo pulse too long");
             return 0;
         }
     }
@@ -201,7 +206,10 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev)
     dev->last_distance_cm = distance_cm;
     dev->last_measurement_time = esp_timer_get_time();
     
-    ESP_LOGI(TAG, "HC-SR04: Distance = %lu cm", distance_cm);
+    if(abs((int)distance_cm - (int)base_distance_cm) >= 5) {
+    	ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR04: Distance = %lu cm", distance_cm);
+    	base_distance_cm = distance_cm;
+    }
     
     return distance_cm;
 }
