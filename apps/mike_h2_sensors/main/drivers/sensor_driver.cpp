@@ -109,7 +109,7 @@ bool rcwl0516_read(rcwl0516_dev_t *dev)
 
     int level = gpio_get_level(dev->output_pin);
     // RCWL-0516 output is active LOW, so invert the reading
-    bool current_state = (level == 0);
+    bool current_state = (level == 1);
     
     if (current_state != dev->last_state) {
         dev->last_state = current_state;

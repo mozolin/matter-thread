@@ -205,24 +205,35 @@ void sensor_polling_task(void *pvParameters)
                     int16_t pressure_value = BASE_PRESSURE + (current_distance * PRESSURE_PER_CM);
                     
                     // Update if distance changed significantly (> 1cm) or 2 seconds passed
-                    bool should_update = false;
+                    bool should_update_pressure = false;
+                    bool should_update_occupancy = false;
                     uint64_t current_time = esp_timer_get_time();
                     
                     // Calculate previous pressure value for comparison
                     int16_t last_pressure_value = BASE_PRESSURE + (sensor->last_distance_cm * PRESSURE_PER_CM);
                     int16_t pressure_change = abs(pressure_value - last_pressure_value);
                     
+                    bool motion_detected = false;
                     if (pressure_change > (PRESSURE_PER_CM * 2)) {  // > 2 cm change
-                        should_update = true;
+                        should_update_pressure = true;
+                        motion_detected = true;
                         ESP_LOGD(TAG_MULTI_SENSOR, "HC-SR04: Significant change detected: %d pressure units", 
                                 pressure_change);
                     } 
                     else if ((current_time - sensor->last_detection_time) > 2000000) { // 2 seconds
-                        should_update = true;
+                        should_update_pressure = true;
                         ESP_LOGD(TAG_MULTI_SENSOR, "HC-SR04: Time-based update (2s interval)");
                     }
                     
-                    if (should_update) {
+                    //bool motion_detected = (current_distance < 50); // Object within 50cm
+                    uint8_t occupancy_value = motion_detected ? 0x01 : 0x00;
+                    
+                    // Check occupancy change
+                    if (motion_detected != sensor->last_state) {
+                        should_update_occupancy = true;
+                    }
+                    
+                    if (should_update_pressure || should_update_occupancy) {
                         sensor->last_distance_cm = current_distance;
                         sensor->last_detection_time = current_time;
                         
@@ -241,11 +252,7 @@ void sensor_polling_task(void *pvParameters)
                             ESP_LOGI(TAG_MULTI_SENSOR, "HC-SR04: Distance = %lu cm -> Pressure = %d (0.1 kPa)", 
                                     current_distance, pressure_value);
                             
-                            // Optional: Also update occupancy if distance indicates presence
-                            bool motion_detected = (current_distance < 50); // Object within 50cm
-                            uint8_t occupancy_value = motion_detected ? 0x01 : 0x00;
-
-                            if (motion_detected != sensor->last_state) {
+                            if (should_update_occupancy) {
                                 esp_matter_attr_val_t occupancy_val = esp_matter_uint8(occupancy_value);
                                 
                                 esp_err_t occupancy_err = esp_matter::attribute::update(
