@@ -416,7 +416,7 @@ void sensor_polling_task(void *pvParameters)
                             
                             if (pressure_err == ESP_OK) {
                                 ESP_LOGI(TAG_MULTI_SENSOR, 
-                                        "KY-038: Sound level = %lu (ADC) -> Pressure = %d (0.1 kPa)", 
+                                        "KY-038: Sound level = %lu (ADC) -> Pressure = %lu (0.1 kPa)", 
                                         raw_sound_level, pressure_value);
                             } else {
                                 ESP_LOGE(TAG_MULTI_SENSOR, 
