@@ -352,6 +352,7 @@ void sensor_polling_task(void *pvParameters)
                     // Читаем аналоговый уровень звука
                     uint32_t raw_sound_level = ky038_read_analog(&sound_sensor);
                     
+                    /*
                     // Преобразуем в значение для Pressure Measurement
                     // KY-038: 0-4095 (12-bit ADC) -> масштабируем в 0-5000 (0.1 kPa)
                     const uint32_t MAX_ADC_VALUE = 4095;
@@ -364,6 +365,9 @@ void sensor_polling_task(void *pvParameters)
                     }
                     
                     pressure_value = (raw_sound_level * MAX_PRESSURE_VALUE) / MAX_ADC_VALUE;
+                    */
+
+                    uint32_t pressure_value = app_driver_read_sound_level(i);
                     
                     // Проверяем изменение цифрового состояния (обнаружение звука)
                     bool should_update_occupancy = false;
