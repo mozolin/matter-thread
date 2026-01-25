@@ -15,6 +15,8 @@
 #define CONFIG_HCSR501_ENABLED           true
 #define CONFIG_RCWL0516_ENABLED          true
 #define CONFIG_HCSR04_ENABLED            true
+#define CONFIG_KY038_ENABLED             true
+#define CONFIG_KY038_ANALOG_ENABLED      false
 #define CONFIG_SENSOR_POLL_PERIOD_MS     1000
 
 #define OCCUPANCY_UNOCCUPIED             0x00
@@ -25,14 +27,15 @@
 #define CONFIG_RCWL0516_MICROWAVE_GPIO   2
 #define CONFIG_HCSR04_TRIG_GPIO          3
 #define CONFIG_HCSR04_ECHO_GPIO          5
-#define CONFIG_BUTTON_GPIO               0
-
+#define CONFIG_KY038_TRIGGER_GPIO        0   // digital output
+#define CONFIG_KY038_ECHO_GPIO           4   // analog output
 
 // Sensor types
 typedef enum {
     SENSOR_TYPE_PIR = 0,
     SENSOR_TYPE_MICROWAVE,
     SENSOR_TYPE_ULTRASONIC,
+    SENSOR_TYPE_SOUND,
     SENSOR_TYPE_MAX
 } sensor_type_t;
 
@@ -139,3 +142,13 @@ void sensor_polling_task(void *pvParameters);
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
 #endif
+
+/** Read sound sensor level
+ *
+ * This reads the current sound level from the sensor
+ *
+ * @param[in] sensor_idx Index of the sensor in sensors array
+ *
+ * @return Current sound level in pressure units (0.1 kPa)
+ */
+uint32_t app_driver_read_sound_level(uint8_t sensor_idx);

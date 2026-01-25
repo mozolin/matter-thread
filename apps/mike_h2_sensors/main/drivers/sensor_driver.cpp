@@ -213,3 +213,100 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev)
     
     return distance_cm;
 }
+
+// KY-038 Sound Sensor Implementation
+
+esp_err_t ky038_init(ky038_dev_t *dev, gpio_num_t digital_pin, gpio_num_t analog_pin)
+{
+    if (dev == NULL) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "Device pointer is NULL");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    dev->output_pin = digital_pin;
+    dev->analog_pin = analog_pin;
+    dev->last_state = false;
+    dev->last_sound_level = 0;
+    dev->last_detection_time = 0;
+    dev->sound_threshold = 2048; // Среднее значение по умолчанию (50% от 4095)
+
+    // Configure digital output pin as input
+    gpio_reset_pin(digital_pin);
+    esp_err_t err = gpio_set_direction(digital_pin, GPIO_MODE_INPUT);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "~~~ Failed to set GPIO direction for KY-038 digital pin");
+        return err;
+    }
+
+    // Enable pull-down resistor для цифрового выхода
+    err = gpio_set_pull_mode(digital_pin, GPIO_PULLDOWN_ONLY);
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG_MULTI_SENSOR, "~~~ Failed to set pull mode for KY-038 digital pin, continuing anyway");
+    }
+
+    // Если используется аналоговый пин, настраиваем ADC
+    if (analog_pin != GPIO_NUM_NC) {
+        // Настройка ADC (требует дополнительной конфигурации в зависимости от платы)
+        ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038 analog pin configured on GPIO %d", analog_pin);
+        // Для ESP32: потребуется настройка ADC через esp_adc_cal_characterize()
+    }
+
+    ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038 Sound Sensor initialized: digital=%d, analog=%d", 
+             digital_pin, analog_pin);
+    return ESP_OK;
+}
+
+bool ky038_read_digital(ky038_dev_t *dev)
+{
+    if (dev == NULL) {
+        return false;
+    }
+
+    // KY-038 имеет цифровой выход, который становится HIGH при обнаружении звука
+    int level = gpio_get_level(dev->output_pin);
+    bool current_state = (level == 1);
+    
+    if (current_state != dev->last_state) {
+        dev->last_state = current_state;
+        if (current_state) {
+            dev->last_detection_time = esp_timer_get_time();
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038: Sound detected (digital)");
+        } else {
+            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038: Sound ended");
+        }
+    }
+    
+    return current_state;
+}
+
+uint32_t ky038_read_analog(ky038_dev_t *dev)
+{
+    if (dev == NULL || dev->analog_pin == GPIO_NUM_NC) {
+        return 0;
+    }
+
+    // Чтение аналогового значения с ADC
+    // Для ESP32 используем API ADC
+    uint32_t adc_reading = 0;
+    
+    // Пример для ESP32:
+    // int raw = adc1_get_raw(ADC1_CHANNEL_X); // X зависит от GPIO
+    // adc_reading = esp_adc_cal_raw_to_voltage(raw, &adc_chars);
+    
+    // Заглушка - возвращаем тестовое значение
+    // В реальной реализации здесь будет чтение ADC
+    adc_reading = 2000 + (esp_timer_get_time() % 1000); // Тестовые данные
+    
+    dev->last_sound_level = adc_reading;
+    
+    ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038: Analog sound level = %lu", adc_reading);
+    return adc_reading;
+}
+
+void ky038_set_threshold(ky038_dev_t *dev, uint32_t threshold)
+{
+    if (dev != NULL) {
+        dev->sound_threshold = threshold;
+        ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038: Sound threshold set to %lu", threshold);
+    }
+}

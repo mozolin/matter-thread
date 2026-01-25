@@ -1,10 +1,3 @@
-/*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +15,8 @@ static hcsr501_dev_t pir_sensor;
 static rcwl0516_dev_t microwave_sensor;
 //-- HC-SR04: Ultrasonic Distance Sensor
 static hcsr04_dev_t ultrasonic_sensor;
-
+//-- KY-038: Sound Sensor
+static ky038_dev_t sound_sensor;
 
 esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 {
@@ -42,6 +36,10 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
             break;
         case SENSOR_TYPE_ULTRASONIC:
             err = hcsr04_init(&ultrasonic_sensor, sensor_cfg->trigger_pin, sensor_cfg->echo_pin);
+            break;
+        case SENSOR_TYPE_SOUND:
+            err = ky038_init(&sound_sensor, sensor_cfg->trigger_pin, sensor_cfg->echo_pin);
+            // Если echo_pin установлен как GPIO_NUM_NC, будет использоваться только цифровой выход
             break;
         default:
             ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg->type);
@@ -68,7 +66,10 @@ bool app_driver_read_sensor_state(uint8_t sensor_idx)
             return rcwl0516_read(&microwave_sensor);
         case SENSOR_TYPE_ULTRASONIC:
             // Ultrasonic doesn't have a binary state, use distance threshold
-            return (hcsr04_measure_distance(&ultrasonic_sensor) < 50); // 50cm threshold
+            //return (hcsr04_measure_distance(&ultrasonic_sensor) < 50); // 50cm threshold
+            return (hcsr04_measure_distance(&ultrasonic_sensor) > 0);
+        case SENSOR_TYPE_SOUND:
+            return ky038_read_digital(&sound_sensor);
         default:
             return false;
     }
@@ -117,6 +118,35 @@ uint16_t get_endpoint_by_sensor_type(sensor_type_t type)
         }
     }
     return 0;
+}
+
+// Функция для чтения уровня звука (аналогового значения)
+uint32_t app_driver_read_sound_level(uint8_t sensor_idx)
+{
+    if (sensor_idx >= configured_sensors) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "Invalid sensor index: %d", sensor_idx);
+        return 0;
+    }
+
+    if (sensors[sensor_idx].config.type != SENSOR_TYPE_SOUND) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "Sensor %d is not sound sensor", sensor_idx);
+        return 0;
+    }
+
+    // Читаем аналоговый уровень звука
+    uint32_t raw_level = ky038_read_analog(&sound_sensor);
+    
+    // Масштабируем в диапазон Pressure (0.1 kPa)
+    const uint32_t MAX_ADC_VALUE = 4095;
+    const uint32_t MAX_PRESSURE_VALUE = 5000;
+    
+    if (raw_level > MAX_ADC_VALUE) {
+        raw_level = MAX_ADC_VALUE;
+    }
+    
+    uint32_t pressure_value = (raw_level * MAX_PRESSURE_VALUE) / MAX_ADC_VALUE;
+    
+    return pressure_value; // Возвращаем в единицах 0.1 kPa
 }
 
 // Sensor polling task implementation
@@ -219,11 +249,13 @@ void sensor_polling_task(void *pvParameters)
                         motion_detected = true;
                         ESP_LOGD(TAG_MULTI_SENSOR, "HC-SR04: Significant change detected: %d pressure units", 
                                 pressure_change);
-                    } 
+                    }
+                    /*
                     else if ((current_time - sensor->last_detection_time) > 2000000) { // 2 seconds
                         should_update_pressure = true;
                         ESP_LOGD(TAG_MULTI_SENSOR, "HC-SR04: Time-based update (2s interval)");
                     }
+                    */
                     
                     //bool motion_detected = (current_distance < 50); // Object within 50cm
                     uint8_t occupancy_value = motion_detected ? 0x01 : 0x00;
@@ -277,57 +309,97 @@ void sensor_polling_task(void *pvParameters)
                     }
                     break;
                 }
-                
+
                 /*
-                case SENSOR_TYPE_ULTRASONIC: {
-                    // Read ultrasonic sensor distance
-                    uint32_t current_distance = hcsr04_measure_distance(&ultrasonic_sensor);
+                case SENSOR_TYPE_SOUND: {
+                    // Read sound sensor state
+                    bool current_state = ky038_read_digital(&sound_sensor);
+                    uint32_t sound_level = ky038_read_analog(&sound_sensor);
                     
-                    // Validate distance (HC-SR04 range: 2-400 cm)
-                    if (current_distance < 2 || current_distance > 400) {
-                        ESP_LOGW(TAG_MULTI_SENSOR, "HC-SR04: Invalid distance reading: %lu cm", current_distance);
-                        break;
+                    if (current_state != sensor->last_state) {
+                        sensor->last_state = current_state;
+                        sensor->last_detection_time = esp_timer_get_time();
+                        
+                        // Update Matter attribute - используем Occupancy Sensing для обнаружения звука
+                        uint8_t occupancy_value = current_state ? OCCUPANCY_OCCUPIED : OCCUPANCY_UNOCCUPIED;
+                        esp_matter_attr_val_t val = esp_matter_uint8(occupancy_value);
+                        
+                        esp_err_t update_err = esp_matter::attribute::update(
+                            endpoint_id, 
+                            OccupancySensing::Id, 
+                            OccupancySensing::Attributes::Occupancy::Id, 
+                            &val
+                        );
+                        
+                        if (update_err == ESP_OK) {
+                            ESP_LOGW(TAG_MULTI_SENSOR, "~~~ KY-038: Sound %s (level = %lu)", 
+                                    current_state ? "detected" : "ended", sound_level);
+                        } else {
+                            ESP_LOGE(TAG_MULTI_SENSOR, "Failed to update sound occupancy attribute: %d", update_err);
+                        }
                     }
                     
-                    // Convert distance to pressure value
-                    const int16_t BASE_PRESSURE = 1000;
-                    const int16_t PRESSURE_PER_CM = 10;
-                    int16_t pressure_value = BASE_PRESSURE + (current_distance * PRESSURE_PER_CM);
+                    // Также можно обновлять аналоговый уровень звука через кастомный атрибут
+                    // или через другой подходящий кластер
+                    break;
+                }
+                */
+
+                case SENSOR_TYPE_SOUND: {
+                    // Читаем цифровой выход (есть/нет звук)
+                    bool current_digital_state = ky038_read_digital(&sound_sensor);
                     
-                    // Check occupancy based on distance threshold
-                    bool motion_detected = (current_distance < 50); // Object within 50cm
-                    uint8_t occupancy_value = motion_detected ? 0x01 : 0x00;
+                    // Читаем аналоговый уровень звука
+                    uint32_t raw_sound_level = ky038_read_analog(&sound_sensor);
                     
-                    // Update conditions
-                    bool should_update_pressure = false;
+                    // Преобразуем в значение для Pressure Measurement
+                    // KY-038: 0-4095 (12-bit ADC) -> масштабируем в 0-5000 (0.1 kPa)
+                    const uint32_t MAX_ADC_VALUE = 4095;
+                    const int16_t MAX_PRESSURE_VALUE = 5000;
+                    
+                    // Масштабируем ADC значение в диапазон Pressure
+                    int16_t pressure_value;
+                    if (raw_sound_level > MAX_ADC_VALUE) {
+                        raw_sound_level = MAX_ADC_VALUE;
+                    }
+                    
+                    pressure_value = (raw_sound_level * MAX_PRESSURE_VALUE) / MAX_ADC_VALUE;
+                    
+                    // Проверяем изменение цифрового состояния (обнаружение звука)
                     bool should_update_occupancy = false;
+                    bool should_update_pressure = false;
                     uint64_t current_time = esp_timer_get_time();
                     
-                    // Check pressure change (> 2cm change)
-                    int16_t last_pressure_value = BASE_PRESSURE + (sensor->last_distance_cm * PRESSURE_PER_CM);
-                    int16_t pressure_change = abs(pressure_value - last_pressure_value);
-                    
-                    if (pressure_change > (PRESSURE_PER_CM * 2)) {
-                        should_update_pressure = true;
-                    }
-                    
-                    // Check occupancy change
-                    if (motion_detected != sensor->last_state) {
+                    if (current_digital_state != sensor->last_state) {
                         should_update_occupancy = true;
+                        should_update_pressure = true; // Обновляем уровень при изменении статуса
                     }
                     
-                    // Time-based update (every 2 seconds)
-                    if ((current_time - sensor->last_detection_time) > 2000000) {
+                    // Также обновляем уровень звука если он изменился значительно
+                    // или прошло время (чтобы видеть изменения уровня даже без триггера)
+                    uint32_t last_sound_level = sensor->last_distance_cm; // Используем это поле для хранения последнего уровня
+                    uint32_t level_change = abs((int)raw_sound_level - (int)last_sound_level);
+                    
+                    // Порог для значительного изменения уровня звука
+                    const uint32_t SOUND_LEVEL_THRESHOLD = 50; // ~1.2% от полного диапазона
+                    
+                    if (level_change > SOUND_LEVEL_THRESHOLD) {
                         should_update_pressure = true;
                     }
                     
-                    // Update if needed
+                    // Или обновляем периодически (каждые 2 секунды)
+                    else if ((current_time - sensor->last_detection_time) > 2000000) { // 2 секунды
+                        should_update_pressure = true;
+                    }
+                    
+                    // Обновляем атрибуты Matter если нужно
                     if (should_update_pressure || should_update_occupancy) {
-                        sensor->last_distance_cm = current_distance;
-                        sensor->last_state = motion_detected;
+                        // Сохраняем текущие значения
+                        sensor->last_state = current_digital_state;
+                        sensor->last_distance_cm = raw_sound_level; // Используем для хранения уровня звука
                         sensor->last_detection_time = current_time;
                         
-                        // 1. Update Pressure Measurement cluster
+                        // 1. Обновляем Pressure Measurement (уровень звука)
                         if (should_update_pressure) {
                             esp_matter_attr_val_t pressure_val = esp_matter_int16(pressure_value);
                             
@@ -339,15 +411,18 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (pressure_err == ESP_OK) {
-                                ESP_LOGI(TAG_MULTI_SENSOR, "HC-SR04: Distance = %lu cm -> Pressure = %d", 
-                                        current_distance, pressure_value);
+                                ESP_LOGI(TAG_MULTI_SENSOR, 
+                                        "KY-038: Sound level = %lu (ADC) -> Pressure = %d (0.1 kPa)", 
+                                        raw_sound_level, pressure_value);
                             } else {
-                                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to update pressure: %d", pressure_err);
+                                ESP_LOGE(TAG_MULTI_SENSOR, 
+                                        "Failed to update sound pressure attribute: %d", pressure_err);
                             }
                         }
                         
-                        // 2. Update Occupancy Sensing cluster
+                        // 2. Обновляем Occupancy (обнаружение звука)
                         if (should_update_occupancy) {
+                            uint8_t occupancy_value = current_digital_state ? OCCUPANCY_OCCUPIED : OCCUPANCY_UNOCCUPIED;
                             esp_matter_attr_val_t occupancy_val = esp_matter_uint8(occupancy_value);
                             
                             esp_err_t occupancy_err = esp_matter::attribute::update(
@@ -358,16 +433,31 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (occupancy_err == ESP_OK) {
-                                ESP_LOGI(TAG_MULTI_SENSOR, "HC-SR04: Motion %s (distance = %lu cm)", 
-                                        motion_detected ? "detected" : "ended", current_distance);
+                                ESP_LOGI(TAG_MULTI_SENSOR, "KY-038: Sound %s (digital)", 
+                                        current_digital_state ? "detected" : "ended");
+                                
+                                // Также логируем уровень при обнаружении
+                                if (current_digital_state) {
+                                    ESP_LOGI(TAG_MULTI_SENSOR, "KY-038: Peak sound level = %lu", raw_sound_level);
+                                }
                             } else {
-                                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to update occupancy: %d", occupancy_err);
+                                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to update sound occupancy: %d", occupancy_err);
                             }
                         }
+                        
+                        // 3. (Опционально) Обновляем Binary Input для цифрового выхода
+                        // Это может быть полезно для простого статуса без интерпретации
+                        esp_matter_attr_val_t binary_val = esp_matter_bool(current_digital_state);
+                        esp_matter::attribute::update(
+                            endpoint_id,
+                            0x000F, // Binary Input cluster ID
+                            0x0055, // PresentValue attribute ID
+                            &binary_val
+                        );
                     }
+                    
                     break;
                 }
-                */
 
                 default:
                     break;

@@ -23,3 +23,7 @@
   
 ### RCWL-0516: Microwave Doppler Radar Motion Sensor
 ![](images/RCWL-0516.jpg)  
+  
+### KY-038: Sound Detection Sensor
+![](images/ky-038.jpg)  
+  
