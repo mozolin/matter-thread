@@ -42,16 +42,6 @@ typedef struct {
     uint64_t last_measurement_time;
 } hcsr04_dev_t;
 
-// KY-038 Sound Sensor Driver
-typedef struct {
-    gpio_num_t output_pin;
-    gpio_num_t analog_pin;    // Для аналогового выхода (если используется)
-    bool last_state;
-    uint32_t last_sound_level; // Уровень звука (0-4095 для ADC)
-    uint64_t last_detection_time;
-    uint32_t sound_threshold;  // Порог обнаружения звука
-} ky038_dev_t;
-
 // Initialize PIR (HC-SR501) sensor
 esp_err_t hcsr501_init(hcsr501_dev_t *dev, gpio_num_t output_pin);
 
@@ -70,17 +60,10 @@ esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo
 // Measure distance with ultrasonic sensor (in cm)
 uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev);
 
-// Initialize sound sensor (KY-038)
-esp_err_t ky038_init(ky038_dev_t *dev, gpio_num_t digital_pin, gpio_num_t analog_pin);
+esp_err_t hcsr04_reset(hcsr04_dev_t *dev);
 
-// Read digital sound sensor state (высокий уровень = звук обнаружен)
-bool ky038_read_digital(ky038_dev_t *dev);
-
-// Read analog sound level (для точного измерения уровня звука)
-uint32_t ky038_read_analog(ky038_dev_t *dev);
-
-// Set sound detection threshold
-void ky038_set_threshold(ky038_dev_t *dev, uint32_t threshold);
+esp_err_t hcsr04_hard_reset(hcsr04_dev_t *dev);
+esp_err_t hcsr04_soft_reset(hcsr04_dev_t *dev);
 
 #ifdef __cplusplus
 }

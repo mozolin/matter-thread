@@ -21,42 +21,6 @@
 
 #include "sensor_driver.h"
 
-// ADC калибровка для точных измерений
-#if CONFIG_KY038_ANALOG_ENABLED
-#include "esp_adc_cal.h"
-
-static esp_adc_cal_characteristics_t *adc_chars;
-
-static void init_adc_for_sound_sensor()
-{
-    // Настраиваем ADC для аналогового входа KY-038
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    
-    // Настраиваем канал ADC в зависимости от GPIO
-    // Предположим, что аналоговый пин подключен к GPIO 36 (ADC1_CH0)
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
-    
-    // Характеристика для калибровки
-    adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
-    esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, 
-                             1100, adc_chars);
-    
-    ESP_LOGW(TAG_MULTI_SENSOR, "ADC initialized for KY-038 analog input");
-}
-
-static uint32_t read_ky038_analog(gpio_num_t analog_pin)
-{
-    // Читаем ADC значение
-    int raw = adc1_get_raw(ADC1_CHANNEL_0);
-    
-    // Конвертируем в милливольты (опционально)
-    uint32_t voltage = esp_adc_cal_raw_to_voltage(raw, adc_chars);
-    
-    // Можем вернуть либо raw значение (0-4095), либо напряжение
-    return raw; // Возвращаем raw значение для простоты
-}
-#endif
-
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
@@ -67,22 +31,6 @@ constexpr auto k_timeout_seconds = 300;
 uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 sensor_data_t sensors[CONFIG_NUM_SENSORS];
-
-#include "led_config.h"
-#if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator.h"
-  led_indicator_handle_t led_handle;
-#endif
-
-/*
-#if CONFIG_ENABLE_ENCRYPTED_OTA
-	extern const char decryption_key_start[] asm("_binary_esp_image_encryption_key_pem_start");
-	extern const char decryption_key_end[] asm("_binary_esp_image_encryption_key_pem_end");
-
-	static const char *s_decryption_key = decryption_key_start;
-	static const uint16_t s_decryption_key_len = decryption_key_end - decryption_key_start;
-#endif // CONFIG_ENABLE_ENCRYPTED_OTA
-*/
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -338,124 +286,6 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             break;
         }
 
-        /*
-        case SENSOR_TYPE_SOUND: {
-            // Create occupancy sensor endpoint для датчика звука
-            occupancy_sensor::config_t occupancy_config;
-            occupancy_config.occupancy_sensing.occupancy = 0; // Not occupied initially
-            
-            // Можно указать свой тип датчика или использовать generic
-            occupancy_config.occupancy_sensing.occupancy_sensor_type = 0x03; // Acoustic
-            occupancy_config.occupancy_sensing.occupancy_sensor_type_bitmap = (1 << 3); // Acoustic bit
-            
-            occupancy_config.occupancy_sensing.features = 0x01; // Occupancy feature
-            
-            endpoint = occupancy_sensor::create(node, &occupancy_config, ENDPOINT_FLAG_NONE, sensor_cfg);
-            break;
-        }
-        */
-
-        case SENSOR_TYPE_SOUND: {
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Creating KY-038 Sound Sensor endpoint with Pressure + Occupancy clusters...");
-            
-            // Создаем endpoint для датчика звука
-            occupancy_sensor::config_t sensor_config;
-            
-            // Настраиваем Occupancy Sensing кластер
-            sensor_config.occupancy_sensing.occupancy = 0; // Изначально нет звука
-            sensor_config.occupancy_sensing.occupancy_sensor_type = 0x03; // Acoustic sensor type
-            sensor_config.occupancy_sensing.occupancy_sensor_type_bitmap = (1 << 3); // Acoustic bit
-            sensor_config.occupancy_sensing.features = 0x01; // Occupancy feature
-            
-            // Создаем endpoint
-            endpoint = occupancy_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
-
-            if (!endpoint) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Failed to create endpoint for sound sensor");
-                return ESP_FAIL;
-            }
-            
-            // 1. Добавляем Pressure Measurement cluster для аналогового уровня звука
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Adding Pressure Measurement cluster for sound level...");
-            cluster::pressure_measurement::config_t pressure_config;
-            
-            // Настраиваем диапазон для уровня звука
-            // KY-038 аналоговый выход: 0-4095 (12-bit ADC) или 0-1023 (10-bit ADC)
-            const int16_t MIN_SOUND_LEVEL = 0;    // Минимальный уровень звука
-            const int16_t MAX_SOUND_LEVEL = 5000; // Максимальный уровень звука (масштабируем)
-            const int16_t INITIAL_SOUND_LEVEL = 1000; // Начальный уровень (тишина)
-            
-            // Конфигурация Pressure Measurement для уровня звука
-            pressure_config.pressure_min_measured_value = nullable<int16_t>(MIN_SOUND_LEVEL);
-            pressure_config.pressure_max_measured_value = nullable<int16_t>(MAX_SOUND_LEVEL);
-            pressure_config.pressure_measured_value = INITIAL_SOUND_LEVEL;
-            
-            // Создаем Pressure Measurement кластер
-            esp_matter::cluster_t *pressure_cluster = 
-                esp_matter::cluster::pressure_measurement::create(
-                    endpoint, 
-                    &pressure_config, 
-                    MATTER_CLUSTER_FLAG_SERVER
-                );
-            
-            if (!pressure_cluster) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Failed to create Pressure Measurement cluster for sound");
-            } else {
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Pressure cluster for sound level created successfully");
-                
-                // Добавляем описание для Pressure Measurement кластера
-                // (опционально, помогает понять что измеряется)
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Sound level mapping: ADC value -> Pressure (0.1 kPa)");
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Sound threshold: %d", 2048); // Пример порога
-            }
-            
-            // 2. Occupancy Sensing кластер уже создан в occupancy_sensor::create
-            // Можем дополнительно настроить его
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Occupancy cluster already created for sound detection");
-            
-            // 3. Добавляем Identify кластер
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Adding Identify cluster...");
-            esp_matter::cluster::identify::config_t identify_config;
-            identify_config.identify_time = 0; // Время идентификации по умолчанию
-            
-            esp_matter::cluster_t *identify_cluster = 
-                esp_matter::cluster::identify::create(endpoint, &identify_config, MATTER_CLUSTER_FLAG_SERVER);
-            
-            if (!identify_cluster) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Failed to create Identify cluster (non-critical)");
-            }
-            
-            // 4. (Опционально) Можем добавить другие кластеры
-            // Например, Binary Input Basic для простого статуса звука
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Creating custom Binary Input cluster for digital sound output...");
-            
-            // Создаем кастомный endpoint descriptor
-            esp_matter::cluster_t *binary_input_cluster = esp_matter::cluster::create(
-                endpoint,
-                0x000F, // Binary Input (Basic) cluster ID
-                MATTER_CLUSTER_FLAG_SERVER
-            );
-            
-            if (binary_input_cluster) {
-                // Добавляем атрибут PresentValue (текущее значение)
-                esp_matter::attribute::create(
-                    binary_input_cluster,
-                    0x0055, // PresentValue attribute ID
-                    ATTRIBUTE_FLAG_NONE,
-                    esp_matter_bool(false) // Начальное значение
-                );
-                
-                ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Binary Input cluster created for digital output");
-            }
-            
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> KY-038 endpoint created with ID: %d", 
-                    esp_matter::endpoint::get_id(endpoint));
-            ESP_LOGW(TAG_MULTI_SENSOR, "!!! -> Sound level range: %d - %d (0.1 kPa)", 
-                    MIN_SOUND_LEVEL, MAX_SOUND_LEVEL);
-            
-            break;
-        }
-
         default:
             ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg->type);
             return ESP_ERR_INVALID_ARG;
@@ -583,7 +413,7 @@ extern "C" void app_main()
   esp_err_t err = ESP_OK;
 
   //-- Start reboot button task
-  xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, 5, NULL);
+  xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
   
   /* Initialize the ESP NVS layer */
   nvs_flash_init();
@@ -620,15 +450,6 @@ extern "C" void app_main()
       .name = "Ultrasonic Sensor (HC-SR04)"
   };
 
-  sensor_config_t sound_sensor = {
-      .type = SENSOR_TYPE_SOUND,
-      .trigger_pin = (gpio_num_t)CONFIG_KY038_TRIGGER_GPIO,
-      //.echo_pin = GPIO_NUM_NC,  // или GPIO для аналогового входа если используется
-      .echo_pin = (gpio_num_t)CONFIG_KY038_ECHO_GPIO,
-      .endpoint_id = 0,
-      .name = "Sound Sensor (KY-038)"
-  };
-
   // Create sensor endpoints
   if (CONFIG_HCSR501_ENABLED) {
       create_sensor_endpoint(&pir_sensor, node);
@@ -640,10 +461,6 @@ extern "C" void app_main()
   
   if (CONFIG_HCSR04_ENABLED) {
       create_sensor_endpoint(&ultrasonic_sensor, node);
-  }
-
-  if (CONFIG_KY038_ENABLED) {
-      create_sensor_endpoint(&sound_sensor, node);
   }
 
 	#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
@@ -665,7 +482,7 @@ extern "C" void app_main()
   set_basic_attributes_esp_matter();
 
   // Start sensor polling task
-  xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, 5, NULL);
+  xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
 	#if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();
@@ -676,57 +493,5 @@ extern "C" void app_main()
 		#endif
     esp_matter::console::init();
 	#endif
-
-	/*
-	#if LIVE_BLINK_TIME_MS > 0
-	  //-- Start init indicator task
-  	xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
-  #endif
-  */
-
-  // Инициализация ADC для аналогового входа (если используется)
-  #if CONFIG_KY038_ANALOG_ENABLED
-    init_adc_for_sound_sensor();
-  #endif
-
-  #if USE_DRIVER_LED_INDICATOR
-    //-- at least one LED must not be an RGB LED
-    #if USE_ORDINARY_LED
-      //--> UART RX/TX Blinking Simulator
-      #if LED_MODE == 1
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_H2, "~~~ BLINK: 1. Simple version with random intervals");
-        #endif
-        xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
-      #endif
-    
-      #if LED_MODE == 2
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_H2, "~~~ BLINK: 2. Realistic version with UART patterns");
-        #endif
-        xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
-      #endif
-    
-      #if LED_MODE == 3
-        #if DEBUG_MODE
-           ESP_LOGW(TAG_H2, "~~~ BLINK: 3. Version with different activity modes");
-         #endif
-         xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
-      #endif
-      //<-- UART RX/TX Blinking Simulator
-    #endif //-- USE_ORDINARY_LED
-  
-    //-- at least one LED must be an RGB LED
-    #if USE_RGB_LED
-      //--> RGB LED indicator
-      led_handle = configure_indicator();
-      while(1) {
-        //ESP_LOGW(TAG_H2, "~~~ BLINK RGB: BLINK_ONCE_RED");
-        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-      }
-      //<-- RGB LED indicator
-    #endif //-- USE_RGB_LED
-  #endif //-- USE_DRIVER_LED_INDICATOR
-
+	
 }

@@ -21,9 +21,9 @@ set(EXTRA_COMPONENT_DIRS
 #-- AttributeId 1: VendorName
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
-set(DEVICE_PRODUCT_NAME "Mike_Sensors")
+set(DEVICE_PRODUCT_NAME "Mike_MultiMotion")
 #-- AttributeId 5: NodeLabel
-set(DEVICE_NODE_LABEL "Sensors_ESP32H2")
+set(DEVICE_NODE_LABEL "MultiMotion_ESP32H2")
 #-- AttributeId 6: Location
 set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
@@ -46,7 +46,7 @@ idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME=
 idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME=\"${DEVICE_PRODUCT_NAME}\"" APPEND)
 idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING=\"${DEVICE_HARDWARE_VERSION_STRING}\"" APPEND)
 
-project(mike_h2_sensors)
+project(mike_h2_multimotion)
 
 idf_build_set_property(CXX_COMPILE_OPTIONS "-std=gnu++17;-Os;-DCHIP_HAVE_CONFIG_H;-Wno-overloaded-virtual" APPEND)
 idf_build_set_property(C_COMPILE_OPTIONS "-Os" APPEND)

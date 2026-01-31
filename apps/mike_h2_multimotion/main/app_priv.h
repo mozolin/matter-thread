@@ -12,30 +12,30 @@
 #define CONFIG_NUM_SENSORS 4
 
 //-- Sensors configuration
-#define CONFIG_HCSR501_ENABLED           true
-#define CONFIG_RCWL0516_ENABLED          true
-#define CONFIG_HCSR04_ENABLED            true
-#define CONFIG_KY038_ENABLED             true
-#define CONFIG_KY038_ANALOG_ENABLED      false
-#define CONFIG_SENSOR_POLL_PERIOD_MS     1000
+#define CONFIG_HCSR501_ENABLED                 true
+#define CONFIG_RCWL0516_ENABLED                true
+#define CONFIG_HCSR04_ENABLED                  true
+#define CONFIG_SENSOR_POLL_PERIOD_MS           1000
 
-#define OCCUPANCY_UNOCCUPIED             0x00
-#define OCCUPANCY_OCCUPIED               0x01
+//-- task priorities
+#define CONFIG_ULTRASONIC_FAST_TASK_PRIORITY   6
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
+#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY     4
+
+#define OCCUPANCY_UNOCCUPIED                   0x00
+#define OCCUPANCY_OCCUPIED                     0x01
 
 //-- GPIO Configuration
-#define CONFIG_HCSR501_PIR_GPIO          1
-#define CONFIG_RCWL0516_MICROWAVE_GPIO   2
-#define CONFIG_HCSR04_TRIG_GPIO          3
-#define CONFIG_HCSR04_ECHO_GPIO          5
-#define CONFIG_KY038_TRIGGER_GPIO        0   // digital output
-#define CONFIG_KY038_ECHO_GPIO           4   // analog output
+#define CONFIG_HCSR501_PIR_GPIO                1
+#define CONFIG_RCWL0516_MICROWAVE_GPIO         2
+#define CONFIG_HCSR04_TRIG_GPIO                3
+#define CONFIG_HCSR04_ECHO_GPIO                5
 
 // Sensor types
 typedef enum {
     SENSOR_TYPE_PIR = 0,
     SENSOR_TYPE_MICROWAVE,
     SENSOR_TYPE_ULTRASONIC,
-    SENSOR_TYPE_SOUND,
     SENSOR_TYPE_MAX
 } sensor_type_t;
 
@@ -126,6 +126,10 @@ uint32_t app_driver_read_ultrasonic_distance(uint8_t sensor_idx);
  */
 void sensor_polling_task(void *pvParameters);
 
+esp_err_t app_driver_reset_sensor_by_type(sensor_type_t type);
+esp_err_t app_driver_reset_all_sensors(void);
+void app_driver_log_sensor_statistics(void);
+
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \
     {                                                                                   \
@@ -142,13 +146,3 @@ void sensor_polling_task(void *pvParameters);
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
 #endif
-
-/** Read sound sensor level
- *
- * This reads the current sound level from the sensor
- *
- * @param[in] sensor_idx Index of the sensor in sensors array
- *
- * @return Current sound level in pressure units (0.1 kPa)
- */
-uint32_t app_driver_read_sound_level(uint8_t sensor_idx);
