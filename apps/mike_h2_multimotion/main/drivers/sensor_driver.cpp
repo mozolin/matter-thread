@@ -192,6 +192,20 @@ esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo
     filter_index = 0;
 
     ESP_LOGW(TAG_MULTI_SENSOR, "~~~ HC-SR04 initialized: trigger=%d, echo=%d", trigger_pin, echo_pin);
+
+    /*
+    static bool fast_task_started = false;
+    if (!fast_task_started) {
+        ESP_LOGW("", "#######################################");
+        ESP_LOGW("", "##                                   ##");
+        ESP_LOGW("", "##   TEST TEST TEST TEST TEST TEST   ##");
+        ESP_LOGW("", "##                                   ##");
+        ESP_LOGW("", "#######################################");
+        app_driver_start_fast_ultrasonic_task();
+        fast_task_started = true;
+    }
+    */
+
     return ESP_OK;
 }
 
@@ -363,7 +377,7 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev)
             ESP_LOGW(TAG_MULTI_SENSOR, "HC-SR04: Suspicious jump %lu cm -> %lu cm (diff: %lu)", 
                     dev->last_distance_cm, filtered_distance, diff);
             // Возвращаем старое значение или используем фильтрованное с осторожностью
-            filtered_distance = dev->last_distance_cm;
+            //filtered_distance = dev->last_distance_cm;
         }
     }
     

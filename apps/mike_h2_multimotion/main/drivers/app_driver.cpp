@@ -34,6 +34,7 @@ static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 #define MIN_DISTANCE_FOR_MOTION_CM      400   // Максимальное расстояние для детектирования
 #define UPDATE_DISTANCE_CHANGED_BY_CM   1     // Обновляем расстояние при этом изменении (см)
 
+/*
 // Быстрая задача только для HC-SR04
 void ultrasonic_fast_task(void *pvParameters)
 {
@@ -185,6 +186,7 @@ void app_driver_start_fast_ultrasonic_task(void)
                 task_priority);
     }
 }
+*/
 
 esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 {
@@ -211,11 +213,18 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
             break;
     }
 
+    /*
     static bool fast_task_started = false;
     if (!fast_task_started) {
+        ESP_LOGE("", "#######################################");
+        ESP_LOGE("", "##                                   ##");
+        ESP_LOGE("", "##   TEST TEST TEST TEST TEST TEST   ##");
+        ESP_LOGE("", "##                                   ##");
+        ESP_LOGE("", "#######################################");
         app_driver_start_fast_ultrasonic_task();
         fast_task_started = true;
     }
+    */
 
     return err;
 }
@@ -549,6 +558,11 @@ void sensor_polling_task(void *pvParameters)
                     }
                     
                     // Проверяем изменение состояния occupancy
+                    /*
+                    if (motion_detected != sensor->last_state) {
+                        should_update_occupancy = true;
+                    }
+                    */
                     if (motion_detected != sensor->last_state) {
                         should_update_occupancy = true;
                     }
@@ -574,7 +588,7 @@ void sensor_polling_task(void *pvParameters)
                             if (should_update_occupancy) {
                                 uint8_t occupancy_value = motion_detected ? OCCUPANCY_OCCUPIED : OCCUPANCY_UNOCCUPIED;
                                 esp_matter_attr_val_t occupancy_val = esp_matter_uint8(occupancy_value);
-                                
+
                                 esp_err_t occupancy_err = esp_matter::attribute::update(
                                     endpoint_id, 
                                     OccupancySensing::Id, 

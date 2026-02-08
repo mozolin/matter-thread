@@ -146,3 +146,5 @@ void app_driver_log_sensor_statistics(void);
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
 #endif
+
+//void app_driver_start_fast_ultrasonic_task(void);
