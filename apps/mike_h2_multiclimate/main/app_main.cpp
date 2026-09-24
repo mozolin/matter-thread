@@ -19,6 +19,7 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include <driver/i2c.h>
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
