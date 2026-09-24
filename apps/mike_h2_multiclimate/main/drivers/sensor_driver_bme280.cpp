@@ -1,10 +1,11 @@
 #include "sensor_driver_bme280.h"
 #include "app_priv.h"
+#include "i2c_bus.h"
 #include <esp_log.h>
 #include <esp_timer.h>
-#include <driver/i2c.h>
 #include <string.h>
 
+// BME280 Register Map
 #define BME280_REG_ID           0xD0
 #define BME280_REG_RESET        0xE0
 #define BME280_REG_CTRL_HUM     0xF2
@@ -16,7 +17,6 @@
 #define BME280_REG_HUM_MSB      0xFD
 
 #define BME280_CHIP_ID          0x60
-
 #define BME280_RESET_CMD        0xB6
 
 // Timing constants
@@ -48,17 +48,15 @@ typedef struct {
 
 static const char *TAG = "BME280";
 
+// ИЗМЕНЕНО: используем функции из i2c_bus, а не дублируем их
+
+// Запись в регистр
 static esp_err_t bme280_write_reg(bme280_dev_t *dev, uint8_t reg, uint8_t value)
 {
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (dev->i2c_addr << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, reg, true);
-    i2c_master_write_byte(cmd, value, true);
-    i2c_master_stop(cmd);
+    uint8_t write_buf[2] = {reg, value};
     
-    esp_err_t ret = i2c_master_cmd_begin((i2c_port_t)dev->i2c_bus, cmd, pdMS_TO_TICKS(BME280_I2C_TIMEOUT_MS));
-    i2c_cmd_link_delete(cmd);
+    esp_err_t ret = i2c_master_transmit(dev->dev_handle, write_buf, sizeof(write_buf), 
+                                         pdMS_TO_TICKS(BME280_I2C_TIMEOUT_MS));
     
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C write failed: %d", ret);
@@ -67,23 +65,11 @@ static esp_err_t bme280_write_reg(bme280_dev_t *dev, uint8_t reg, uint8_t value)
     return ret;
 }
 
+// Чтение из регистра
 static esp_err_t bme280_read_reg(bme280_dev_t *dev, uint8_t reg, uint8_t *data, size_t len)
 {
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (dev->i2c_addr << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, reg, true);
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (dev->i2c_addr << 1) | I2C_MASTER_READ, true);
-    
-    if (len > 1) {
-        i2c_master_read(cmd, data, len - 1, I2C_MASTER_ACK);
-    }
-    i2c_master_read_byte(cmd, data + len - 1, I2C_MASTER_NACK);
-    i2c_master_stop(cmd);
-    
-    esp_err_t ret = i2c_master_cmd_begin((i2c_port_t)dev->i2c_bus, cmd, pdMS_TO_TICKS(BME280_I2C_TIMEOUT_MS));
-    i2c_cmd_link_delete(cmd);
+    esp_err_t ret = i2c_master_transmit_receive(dev->dev_handle, &reg, 1, data, len,
+                                                pdMS_TO_TICKS(BME280_I2C_TIMEOUT_MS));
     
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "I2C read failed: %d", ret);
@@ -92,6 +78,7 @@ static esp_err_t bme280_read_reg(bme280_dev_t *dev, uint8_t reg, uint8_t *data, 
     return ret;
 }
 
+// Чтение калибровочных данных
 static esp_err_t bme280_read_calibration(bme280_dev_t *dev, bme280_calib_data_t *calib)
 {
     uint8_t buffer[26];
@@ -127,6 +114,7 @@ static esp_err_t bme280_read_calibration(bme280_dev_t *dev, bme280_calib_data_t 
     return ESP_OK;
 }
 
+// Компенсация температуры
 static int32_t bme280_compensate_temperature(int32_t adc_T, bme280_calib_data_t *calib, int32_t *t_fine)
 {
     int32_t var1, var2, T;
@@ -141,6 +129,7 @@ static int32_t bme280_compensate_temperature(int32_t adc_T, bme280_calib_data_t 
     return T;
 }
 
+// Компенсация давления
 static uint32_t bme280_compensate_pressure(int32_t adc_P, bme280_calib_data_t *calib, int32_t t_fine)
 {
     int64_t var1, var2, P;
@@ -153,7 +142,7 @@ static uint32_t bme280_compensate_pressure(int32_t adc_P, bme280_calib_data_t *c
     var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)calib->dig_P1) >> 33;
     
     if (var1 == 0) {
-        return 0; // Avoid division by zero
+        return 0;
     }
     
     P = 1048576 - adc_P;
@@ -165,6 +154,7 @@ static uint32_t bme280_compensate_pressure(int32_t adc_P, bme280_calib_data_t *c
     return (uint32_t)P;
 }
 
+// Компенсация влажности
 static uint32_t bme280_compensate_humidity(int32_t adc_H, bme280_calib_data_t *calib, int32_t t_fine)
 {
     int32_t v_x1_u32r;
@@ -182,7 +172,8 @@ static uint32_t bme280_compensate_humidity(int32_t adc_H, bme280_calib_data_t *c
     return (uint32_t)(v_x1_u32r >> 12);
 }
 
-esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin, i2c_port_t i2c_bus, uint8_t i2c_addr)
+// Инициализация BME280
+esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin, i2c_port_t i2c_port, uint8_t i2c_addr)
 {
     if (dev == NULL) {
         return ESP_ERR_INVALID_ARG;
@@ -190,30 +181,20 @@ esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin,
 
     dev->sda_pin = sda_pin;
     dev->scl_pin = scl_pin;
-    dev->i2c_bus = i2c_bus;
+    dev->i2c_port = i2c_port;
     dev->i2c_addr = i2c_addr;
     dev->initialized = false;
     
-    // Configure I2C
-    i2c_config_t conf = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = sda_pin,
-        .scl_io_num = scl_pin,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master = { .clk_speed = BME280_I2C_FREQ_HZ },
-        .clk_flags = 0
-    };
-    
-    esp_err_t err = i2c_param_config(i2c_bus, &conf);
+    // Инициализация I2C шины через общий менеджер
+    esp_err_t err = i2c_bus_init(sda_pin, scl_pin, i2c_port);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "I2C config failed: %d", err);
         return err;
     }
     
-    err = i2c_driver_install(i2c_bus, I2C_MODE_MASTER, 0, 0, 0);
+    // Добавление устройства на шину
+    err = i2c_bus_add_device(i2c_addr, BME280_I2C_FREQ_HZ, &dev->dev_handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "I2C driver install failed: %d", err);
+        ESP_LOGE(TAG, "Failed to add device to I2C bus: %d", err);
         return err;
     }
     
@@ -222,34 +203,45 @@ esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin,
     err = bme280_read_reg(dev, BME280_REG_ID, &chip_id, 1);
     if (err != ESP_OK || chip_id != BME280_CHIP_ID) {
         ESP_LOGE(TAG, "Invalid BME280 chip ID: 0x%02x", chip_id);
+        i2c_master_bus_rm_device(dev->dev_handle);
         return ESP_ERR_NOT_FOUND;
     }
     
     // Reset sensor
     err = bme280_write_reg(dev, BME280_REG_RESET, BME280_RESET_CMD);
-    if (err != ESP_OK) return err;
+    if (err != ESP_OK) {
+        i2c_master_bus_rm_device(dev->dev_handle);
+        return err;
+    }
     
     vTaskDelay(pdMS_TO_TICKS(10));
     
     // Configure sensor
-    // Set humidity oversampling to x1
     err = bme280_write_reg(dev, BME280_REG_CTRL_HUM, 0x01);
-    if (err != ESP_OK) return err;
+    if (err != ESP_OK) {
+        i2c_master_bus_rm_device(dev->dev_handle);
+        return err;
+    }
     
-    // Set temperature and pressure oversampling to x1, normal mode
-    err = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, 0x27); // 0b00100111
-    if (err != ESP_OK) return err;
+    err = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, 0x27);
+    if (err != ESP_OK) {
+        i2c_master_bus_rm_device(dev->dev_handle);
+        return err;
+    }
     
-    // Set config register: t_sb = 0.5ms, filter = 0, SPI 3-wire off
     err = bme280_write_reg(dev, BME280_REG_CONFIG, 0x00);
-    if (err != ESP_OK) return err;
+    if (err != ESP_OK) {
+        i2c_master_bus_rm_device(dev->dev_handle);
+        return err;
+    }
     
     dev->initialized = true;
-    ESP_LOGI(TAG, "BME280 initialized on I2C bus %d, addr 0x%02x", i2c_bus, i2c_addr);
+    ESP_LOGI(TAG, "BME280 initialized on I2C port %d, addr 0x%02x", i2c_port, i2c_addr);
     
     return ESP_OK;
 }
 
+// Чтение всех данных
 esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *humidity, int16_t *pressure)
 {
     if (!dev || !dev->initialized) {
@@ -261,7 +253,7 @@ esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *hum
     if (err != ESP_OK) return err;
     
     // Trigger measurement
-    err = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, 0x27); // Normal mode with oversampling
+    err = bme280_write_reg(dev, BME280_REG_CTRL_MEAS, 0x27);
     if (err != ESP_OK) return err;
     
     vTaskDelay(pdMS_TO_TICKS(BME280_MEASUREMENT_TIME_MS));
@@ -275,22 +267,21 @@ esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *hum
     int32_t adc_T = (int32_t)data[3] << 12 | (int32_t)data[4] << 4 | (int32_t)data[5] >> 4;
     int32_t adc_H = (int32_t)data[6] << 8 | (int32_t)data[7];
     
-    // Compensate values
     int32_t t_fine;
     int32_t temp_raw = bme280_compensate_temperature(adc_T, &calib, &t_fine);
     uint32_t press_raw = bme280_compensate_pressure(adc_P, &calib, t_fine);
     uint32_t hum_raw = bme280_compensate_humidity(adc_H, &calib, t_fine);
     
     if (temperature) {
-        *temperature = (int16_t)(temp_raw / 100); // Convert to 0.01°C
+        *temperature = (int16_t)(temp_raw / 100);
     }
     
     if (humidity) {
-        *humidity = (uint16_t)(hum_raw / 1024); // Convert to 0.01%
+        *humidity = (uint16_t)(hum_raw / 1024);
     }
     
     if (pressure) {
-        *pressure = (int16_t)(press_raw / 100); // Convert to Pa (0.01 hPa)
+        *pressure = (int16_t)(press_raw / 100);
     }
     
     dev->last_temperature = temp_raw / 100;
@@ -327,7 +318,6 @@ esp_err_t bme280_reset(bme280_dev_t *dev)
     
     vTaskDelay(pdMS_TO_TICKS(10));
     
-    // Reconfigure
     err = bme280_write_reg(dev, BME280_REG_CTRL_HUM, 0x01);
     if (err != ESP_OK) return err;
     

@@ -381,6 +381,11 @@ extern "C" void app_main()
         .name = "DHT11 Sensor"
     };
 
+    if (CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
+        ESP_ERROR_CHECK(i2cdev_init());
+    }
+
+
     // Create sensor endpoints based on configuration
     if (CONFIG_BME280_ENABLED) {
         create_sensor_endpoint(&bme280_sensor, node);

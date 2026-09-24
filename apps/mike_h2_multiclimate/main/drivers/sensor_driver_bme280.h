@@ -2,7 +2,7 @@
 
 #include <esp_err.h>
 #include <driver/gpio.h>
-#include <driver/i2c.h>
+#include <driver/i2c_master.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -14,18 +14,18 @@ extern "C" {
 typedef struct {
     gpio_num_t sda_pin;
     gpio_num_t scl_pin;
-    i2c_port_t i2c_bus;
+    i2c_port_t i2c_port;
     uint8_t i2c_addr;
-    int16_t last_temperature;  // in 0.01°C
-    uint16_t last_humidity;     // in 0.01%
-    int16_t last_pressure;      // in Pa
+    i2c_master_dev_handle_t dev_handle;
+    int16_t last_temperature;
+    uint16_t last_humidity;
+    int16_t last_pressure;
     uint64_t last_read_time;
     bool initialized;
-    void* i2c_handle;  // I2C handle for communication
 } bme280_dev_t;
 
 // Initialize BME280 sensor
-esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin, i2c_port_t i2c_bus, uint8_t i2c_addr);
+esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin, i2c_port_t i2c_port, uint8_t i2c_addr);
 
 // Read all data from BME280
 esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *humidity, int16_t *pressure);

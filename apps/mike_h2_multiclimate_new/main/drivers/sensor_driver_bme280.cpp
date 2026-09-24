@@ -1,55 +1,57 @@
 #include "sensor_driver_bme280.h"
 #include "app_priv.h"
 
-esp_err_t bme280_init(bme280_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin,
-                      i2c_port_t i2c_bus, uint8_t i2c_addr)
+bmp280_t dev;
+bool bme280p;
+
+esp_err_t bme280_init()
 {
-    if (!dev) return ESP_ERR_INVALID_ARG;
+    ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
+    
+    //ESP_ERROR_CHECK(i2cdev_init());
+    
+    bmp280_params_t params;
+    bmp280_init_default_params(&params);
+    
+    memset(&dev, 0, sizeof(bmp280_t));
 
-    dev->sda_pin = sda_pin;
-    dev->scl_pin = scl_pin;
-    dev->i2c_addr = i2c_addr;
+    //ESP_ERROR_CHECK(bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, 0, CONFIG_BME280_SDA_GPIO, CONFIG_BME280_SCL_GPIO));
+    ESP_ERROR_CHECK(bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO));
+    ESP_ERROR_CHECK(bmp280_init(&dev, &params));
 
-    // Инициализация I2C master bus
-    i2c_master_bus_config_t bus_cfg = {
-        .i2c_port = i2c_bus,
-        .sda_io_num = sda_pin,
-        .scl_io_num = scl_pin,
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .glitch_ignore_cnt = 7,
-        .flags.enable_internal_pullup = true,
-    };
-    esp_err_t err = i2c_new_master_bus(&bus_cfg, &dev->bus_handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME280: i2c_new_master_bus failed: %d", err);
-        return err;
-    }
+    bme280p = dev.id == BME280_CHIP_ID;
+    ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
 
-    // Инициализация bmp280 через i2cdev
-    err = bmp280_init_desc(&dev->dev, i2c_addr, i2c_bus, sda_pin, scl_pin);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME280: bmp280_init_desc failed: %d", err);
-        return err;
-    }
-
-    err = bmp280_init(&dev->dev);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME280: bmp280_init failed: %d", err);
-        return err;
-    }
-
-    dev->initialized = true;
-    ESP_LOGI(TAG_MULTI_SENSOR, "BME280 initialized at 0x%02X", i2c_addr);
     return ESP_OK;
 }
 
-esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *humidity, int16_t *pressure)
+esp_err_t bme280_read_all(bme280_dev_t *dev1, int16_t *temperature, uint16_t *humidity, int16_t *pressure)
 {
-    if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
+    float temp, hum, press;
 
-    float temp, press, hum;
-    esp_err_t err = bmp280_get_forced_all(&dev->dev, &temp, &press, &hum, true);
-    if (err != ESP_OK) return err;
+    /*
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(500));
+    */
+        if (bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
+        {
+            ESP_LOGE(TAG_MULTI_SENSOR, "Temperature/pressure reading failed!");
+            //continue;
+            return ESP_OK;
+        }
+
+        ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
+        /*
+        if (bme280p) {
+            ESP_LOGI(TAG_MULTI_SENSOR, "Humidity: %.2f", hum);
+        } else {
+            
+        }
+        */
+    /*
+    }
+    */
 
     // Matter ожидает 0.01°C, 0.01%, Па
     *temperature = (int16_t)(temp * 100.0f);
@@ -58,8 +60,11 @@ esp_err_t bme280_read_all(bme280_dev_t *dev, int16_t *temperature, uint16_t *hum
     return ESP_OK;
 }
 
-esp_err_t bme280_reset(bme280_dev_t *dev)
+esp_err_t bme280_reset(bme280_dev_t *dev1)
 {
+    /*
     if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
     return bmp280_init(&dev->dev);
+    */
+    return ESP_OK;
 }

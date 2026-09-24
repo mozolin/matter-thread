@@ -42,8 +42,11 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 
     switch (sensor_cfg->type) {
         case SENSOR_TYPE_BME280:
+            /*
             err = bme280_init(&bme280_sensor, sensor_cfg->sda_pin, sensor_cfg->scl_pin, 
                               sensor_cfg->i2c_bus, sensor_cfg->i2c_addr);
+            */
+            err = bme280_init();
             break;
         case SENSOR_TYPE_BME680:
             err = bme680_init(&bme680_sensor, sensor_cfg->sda_pin, sensor_cfg->scl_pin, 
@@ -109,7 +112,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         
         case SENSOR_TYPE_DS18B20: {
             int16_t temperature;
-            err = ds18b20_read_temperature(&ds18b20_sensor, &temperature);
+            err = ds18b20_read(&ds18b20_sensor, &temperature);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_read_time = esp_timer_get_time();
@@ -281,8 +284,6 @@ void sensor_polling_task(void *pvParameters)
             esp_err_t read_err = app_driver_read_sensor_data(i);
             
             if (read_err == ESP_OK) {
-                bool updated = false;
-                
                 // Update Matter attributes based on sensor type
                 switch (sensor->config.type) {
                     case SENSOR_TYPE_BME280:
@@ -299,7 +300,6 @@ void sensor_polling_task(void *pvParameters)
                         if (err == ESP_OK) {
                             ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
-                            updated = true;
                         }
                         
                         // Update Humidity
@@ -346,7 +346,6 @@ void sensor_polling_task(void *pvParameters)
                         if (err == ESP_OK) {
                             ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
-                            updated = true;
                         }
                         break;
                     }

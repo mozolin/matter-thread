@@ -33,8 +33,8 @@
 #define CONFIG_BME280_SCL_GPIO                2
 #define CONFIG_BME680_SDA_GPIO                3
 #define CONFIG_BME680_SCL_GPIO                5
-#define CONFIG_DS18B20_GPIO                   6
-#define CONFIG_DHT11_GPIO                     7
+#define CONFIG_DS18B20_GPIO                   10
+#define CONFIG_DHT11_GPIO                     11
 
 #define CONFIG_BME280_I2C_PORT                I2C_NUM_0
 #define CONFIG_BME680_I2C_PORT                I2C_NUM_1
