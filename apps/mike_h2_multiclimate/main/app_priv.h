@@ -4,7 +4,7 @@
 #include <esp_matter.h>
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
-#include <driver/i2c_master.h>  // ИЗМЕНЕНО: заменен i2c.h на i2c_master.h
+#include <driver/i2c.h>
 #include <button_gpio.h>
 #include "driver_reset_button.h"
 
@@ -12,32 +12,32 @@
 #define CONFIG_NUM_SENSORS 8
 
 //-- Sensors configuration
-#define CONFIG_BME280_ENABLED                  true
-#define CONFIG_BME680_ENABLED                  false
-#define CONFIG_DS18B20_ENABLED                 false
-#define CONFIG_DHT11_ENABLED                   true
-#define CONFIG_SENSOR_POLL_PERIOD_MS           2000
+#define CONFIG_BME280_ENABLED                 true
+#define CONFIG_BME680_ENABLED                 true
+#define CONFIG_DS18B20_ENABLED                true
+#define CONFIG_DHT11_ENABLED                  true
+#define CONFIG_SENSOR_POLL_PERIOD_MS          4500
 
 //-- task priorities
-#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
-#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY     4
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY      5
+#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY    4
 
 //-- I2C Configuration
-#define CONFIG_BME280_I2C_BUS                  0
-#define CONFIG_BME280_I2C_ADDR                 0x77
-#define CONFIG_BME680_I2C_BUS                  0
-#define CONFIG_BME680_I2C_ADDR                 0x77
+#define CONFIG_BME280_I2C_BUS                 0
+#define CONFIG_BME280_I2C_ADDR                0x76
+#define CONFIG_BME680_I2C_BUS                 0
+#define CONFIG_BME680_I2C_ADDR                0x77
 
 //-- GPIO Configuration
-#define CONFIG_BME280_SDA_GPIO                 1
-#define CONFIG_BME280_SCL_GPIO                 2
-#define CONFIG_BME680_SDA_GPIO                 3
-#define CONFIG_BME680_SCL_GPIO                 5
-#define CONFIG_DS18B20_GPIO                    4
-#define CONFIG_DHT11_GPIO                      11
+#define CONFIG_BME280_SDA_GPIO                1
+#define CONFIG_BME280_SCL_GPIO                2
+#define CONFIG_BME680_SDA_GPIO                3
+#define CONFIG_BME680_SCL_GPIO                5
+#define CONFIG_DS18B20_GPIO                   10
+#define CONFIG_DHT11_GPIO                     11
 
-#define CONFIG_BME280_I2C_PORT                 I2C_NUM_0
-#define CONFIG_BME680_I2C_PORT                 I2C_NUM_0
+#define CONFIG_BME280_I2C_PORT                I2C_NUM_0
+#define CONFIG_BME680_I2C_PORT                I2C_NUM_1
 
 // Sensor types
 typedef enum {

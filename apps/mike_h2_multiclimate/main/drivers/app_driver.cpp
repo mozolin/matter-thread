@@ -42,8 +42,7 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 
     switch (sensor_cfg->type) {
         case SENSOR_TYPE_BME280:
-            err = bme280_init(&bme280_sensor, sensor_cfg->sda_pin, sensor_cfg->scl_pin, 
-                              sensor_cfg->i2c_bus, sensor_cfg->i2c_addr);
+            err = bme280_init();
             break;
         case SENSOR_TYPE_BME680:
             err = bme680_init(&bme680_sensor, sensor_cfg->sda_pin, sensor_cfg->scl_pin, 
@@ -89,6 +88,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             }
             break;
         }
+        
         case SENSOR_TYPE_BME680: {
             int16_t temperature;
             uint16_t humidity;
@@ -96,19 +96,19 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             uint32_t gas;
             
             err = bme680_read_all(&bme680_sensor, &temperature, &humidity, &pressure, &gas);
-            if (err == ESP_OK) {
-                sensor->last_temperature = temperature;
-                sensor->last_humidity = humidity;
-                sensor->last_pressure = pressure;
-                sensor->last_gas_resistance = gas;
-                sensor->last_read_time = esp_timer_get_time();
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_humidity = humidity;
+              sensor->last_pressure = pressure;
+              sensor->last_gas_resistance = gas;
+              sensor->last_read_time = esp_timer_get_time();
             }
             break;
         }
         
         case SENSOR_TYPE_DS18B20: {
             int16_t temperature;
-            err = ds18b20_read_temperature(&ds18b20_sensor, &temperature);
+            err = ds18b20_read(&ds18b20_sensor, &temperature);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_read_time = esp_timer_get_time();
@@ -226,9 +226,9 @@ void sensor_polling_task(void *pvParameters)
     
     uint32_t cycle_counter = 0;
     const uint32_t RESET_CHECK_INTERVAL = 100;
-    const uint32_t STATS_LOG_INTERVAL = 5000;
+    //const uint32_t STATS_LOG_INTERVAL = 5000;
     
-    ESP_LOGW(TAG_MULTI_SENSOR, "Sensor polling task started with %d sensors", configured_sensors);
+    ESP_LOGI(TAG_MULTI_SENSOR, "Sensor polling task started with %d sensors", configured_sensors);
     
     while (true) {
         
@@ -246,7 +246,7 @@ void sensor_polling_task(void *pvParameters)
                 uint64_t time_since_last_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
                 
                 if (time_since_last_reset >= RESET_INTERVAL_MS) {
-                    ESP_LOGW(TAG_MULTI_SENSOR, 
+                    ESP_LOGI(TAG_MULTI_SENSOR, 
                             "Scheduled reset for sensor %d (%s): %llu ms since last reset", 
                             i, sensors[i].config.name, time_since_last_reset);
                     
@@ -255,7 +255,7 @@ void sensor_polling_task(void *pvParameters)
                     sensor_reset_tracker[i].reset_in_progress = false;
                     
                     if (reset_err == ESP_OK) {
-                        ESP_LOGW(TAG_MULTI_SENSOR, "Scheduled reset completed for sensor %d", i);
+                        ESP_LOGI(TAG_MULTI_SENSOR, "Scheduled reset completed for sensor %d", i);
                     }
                     
                     vTaskDelay(pdMS_TO_TICKS(200));
@@ -264,9 +264,9 @@ void sensor_polling_task(void *pvParameters)
         }
         
         // Log statistics
-        if (cycle_counter % STATS_LOG_INTERVAL == 0) {
+        //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
             app_driver_log_sensor_statistics();
-        }
+        //}
         
         // Read all sensors
         for (int i = 0; i < configured_sensors; i++) {
@@ -278,10 +278,8 @@ void sensor_polling_task(void *pvParameters)
             uint16_t endpoint_id = sensor_mapping_list[i].endpoint_id;
             
             esp_err_t read_err = app_driver_read_sensor_data(i);
-
+            
             if (read_err == ESP_OK) {
-                //bool updated = false;
-                
                 // Update Matter attributes based on sensor type
                 switch (sensor->config.type) {
                     case SENSOR_TYPE_BME280: {
@@ -295,9 +293,8 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME280 (%d): Temperature = %.2f°C", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
-                            //updated = true;
                         }
                         
                         // Update Humidity
@@ -310,7 +307,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME280 (%d): Humidity = %.2f%%", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
                                     i, sensor->last_humidity / 100.0f);
                         }
                         
@@ -325,7 +322,7 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME280 (%d): Pressure = %.2f hPa", 
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
                             }
                         }
@@ -343,9 +340,8 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME680 (%d): Temperature = %.2f°C", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
-                            //updated = true;
                         }
                         
                         // Update Humidity
@@ -358,7 +354,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME680 (%d): Humidity = %.2f%%", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
                                     i, sensor->last_humidity / 100.0f);
                         }
                         
@@ -373,10 +369,33 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor BME680 (%d): Pressure = %.2f hPa", 
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
                             }
                         }
+                        
+                        // Update Gas Resistance
+                        esp_matter_attr_val_t gas_val = esp_matter_float((float)sensor->last_gas_resistance);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TotalVolatileOrganicCompoundsConcentrationMeasurement::Id,
+                            TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                            &gas_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                    i, sensor->last_gas_resistance);
+                        } else {
+                        	/*
+                        	ESP_LOGE("", "");
+                        	ESP_LOGE("", "*******************************");
+                        	ESP_LOGE("", " BME680 Gas Resistance: WRONG!");
+                        	ESP_LOGE("", "*******************************");
+                        	ESP_LOGE("", "");
+                        	*/
+                        }
+                        
                         break;
                     }
                     
@@ -390,9 +409,8 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor DS18B20 (%d): Temperature = %.2f°C", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
-                            //updated = true;
                         }
                         break;
                     }
@@ -406,9 +424,9 @@ void sensor_polling_task(void *pvParameters)
                             TemperatureMeasurement::Attributes::MeasuredValue::Id,
                             &temp_val
                         );
-
+                        
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor DHT11 (%d): Temperature = %.2f°C", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                         }
                         
@@ -420,9 +438,9 @@ void sensor_polling_task(void *pvParameters)
                             RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
                             &hum_val
                         );
-
+                        
                         if (err == ESP_OK) {
-                            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor DHT11 (%d): Humidity = %.2f%%", 
+                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
                                     i, sensor->last_humidity / 100.0f);
                         }
                         break;
@@ -493,30 +511,91 @@ void app_driver_log_sensor_statistics(void)
 {
     uint64_t current_time_ms = esp_timer_get_time() / 1000;
     
-    ESP_LOGI(TAG_MULTI_SENSOR, "=== Sensor Statistics ===");
-    ESP_LOGI(TAG_MULTI_SENSOR, "Total sensors: %d", configured_sensors);
-    ESP_LOGI(TAG_MULTI_SENSOR, "Uptime: %llu minutes", current_time_ms / 60000);
+
+    ESP_LOGW("", "");
+    ESP_LOGW("", "=== SENSOR STATISTICS =====================================================");
+    ESP_LOGW("", "");
+    ESP_LOGW("", "Total sensors: %d", configured_sensors);
+    ESP_LOGW("", "Uptime: %llu minutes", current_time_ms / 60000);
+    ESP_LOGW("", "");
+    ESP_LOGW("", "===========================================================================");
+    ESP_LOGW("", "");
     
-    for (int i = 0; i < configured_sensors; i++) {
+    for(int i = 0; i < configured_sensors; i++) {
         sensor_data_t *sensor = &sensors[i];
-        uint64_t ms_since_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
-        uint64_t hours_since_reset = ms_since_reset / 3600000;
-        uint64_t minutes_since_reset = (ms_since_reset % 3600000) / 60000;
+        //uint64_t ms_since_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
+        //uint64_t hours_since_reset = ms_since_reset / 3600000;
+        //uint64_t minutes_since_reset = (ms_since_reset % 3600000) / 60000;
         
+        /*
         const char* type_str = "Unknown";
-        switch (sensor->config.type) {
-            case SENSOR_TYPE_BME280: type_str = "BME280"; break;
-            case SENSOR_TYPE_BME680: type_str = "BME680"; break;
-            case SENSOR_TYPE_DS18B20: type_str = "DS18B20"; break;
-            case SENSOR_TYPE_DHT11: type_str = "DHT11"; break;
-            default: break;
+        switch(sensor->config.type) {
+            case SENSOR_TYPE_BME280: {
+                type_str = "BME280";
+                break;
+            }
+            case SENSOR_TYPE_BME680: {
+                type_str = "BME680";
+                break;
+            }
+            case SENSOR_TYPE_DS18B20: {
+                type_str = "DS18B20";
+                break;
+            }
+            case SENSOR_TYPE_DHT11: {
+                type_str = "DHT11";
+                break;
+            }
+            default: {
+                break;
+            }
         }
-        
-        ESP_LOGI(TAG_MULTI_SENSOR, 
+        */
+
+        /*
+        ESP_LOGW("", 
                 "Sensor %d: %s (%s), Resets=%lu, Last reset %llu:%02llu ago",
                 i, sensor->config.name, type_str,
                 sensor_reset_tracker[i].reset_count,
                 hours_since_reset, minutes_since_reset);
+        */
+        switch(sensor->config.type) {
+            case SENSOR_TYPE_BME280: {
+                ESP_LOGW("", "BME280  (%d) | Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f,
+                sensor->last_pressure);
+                break;
+            }
+            case SENSOR_TYPE_BME680: {
+                ESP_LOGW("", "BME680  (%d) | Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa, Gas: %d Ohm",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f,
+                sensor->last_pressure,
+                (uint16_t)sensor->last_gas_resistance);
+                break;
+            }
+            case SENSOR_TYPE_DS18B20: {
+                ESP_LOGW("", "DS18B20 (%d) | Temp: %.2f °C",
+                i,
+                sensor->last_temperature / 100.0f);
+                break;
+            }
+            case SENSOR_TYPE_DHT11: {
+                ESP_LOGW("", "DHT11   (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
-    ESP_LOGI(TAG_MULTI_SENSOR, "=========================");
+    ESP_LOGW("", "");
+    ESP_LOGW("", "===========================================================================");
+    ESP_LOGW("", "");
 }

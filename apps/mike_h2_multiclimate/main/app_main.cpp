@@ -19,13 +19,10 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
-#include <driver/i2c_master.h>
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
 #include "sensor_driver_dht11.h"
-
-#include "drivers/i2c_bus.h"
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -145,55 +142,39 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
     
     switch (sensor_cfg->type) {
         case SENSOR_TYPE_BME280: {
-            // Create endpoint with multiple clusters - ИСПРАВЛЕНО
+            // Create endpoint with multiple clusters
             ESP_LOGW("", "");
             ESP_LOGW("", "************************************");
             ESP_LOGW("", " Start creating endpoint for BME280");
             ESP_LOGW("", "************************************");
             ESP_LOGW("", "");
-            //endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
             esp_matter::endpoint::temperature_sensor::config_t sensor_config;
-            //sensor_config.measured_value = nullable<int16_t>(2000);      // 20.00°C
-            //sensor_config.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
-            //sensor_config.max_measured_value = nullable<int16_t>(8500);  // 85.00°C
-
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
-
-            ESP_LOGW("", "1");
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
             
-            if (!endpoint) {
-                ESP_LOGE("", "--------------------------");
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME280");
-                ESP_LOGE("", "--------------------------");
-                return ESP_FAIL;
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+            
+            if(!endpoint) {
+              ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME280");
+              return ESP_FAIL;
             }
-        
-            // Add Temperature Measurement cluster
-            //cluster::temperature_measurement::config_t temp_config;
-            //temp_config.measured_value = nullable<int16_t>(2000);      // 20.00°C
-            //temp_config.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
-            //temp_config.max_measured_value = nullable<int16_t>(8500);  // 85.00°C
-            
-            //cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
 
-            //ESP_LOGW("", "2");
-        
-            // Add Humidity Measurement cluster
+            //-- Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
-            hum_config.measured_value = nullable<uint16_t>(5000);    // 50.00%
+            hum_config.measured_value = nullable<uint16_t>(5000);
             hum_config.min_measured_value = nullable<uint16_t>(0);
-            hum_config.max_measured_value = nullable<uint16_t>(10000); // 100.00%
-            
+            hum_config.max_measured_value = nullable<uint16_t>(10000);
             cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
 
-            ESP_LOGW("", "3");
-        
-            // Add Identify cluster
-            //cluster::identify::config_t identify_config;
-            //cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
+            //-- Add Pressure Measurement cluster
+            cluster::pressure_measurement::config_t press_config;
+            // 1013.25 hPa = 10132.5 в единицах 0.1 hPa, округляем до 10133
+            press_config.pressure_measured_value = nullable<int16_t>(10133);    // 1013.25 hPa (10133 * 0.1 = 1013.3)
+            press_config.pressure_min_measured_value = nullable<int16_t>(3000); // 300 hPa (3000 * 0.1 = 300.0)
+            press_config.pressure_max_measured_value = nullable<int16_t>(11000); // 1100 hPa (11000 * 0.1 = 1100.0)
+            cluster::pressure_measurement::create(endpoint, &press_config, CLUSTER_FLAG_SERVER);
 
-            //ESP_LOGW("", "4");
-            
             break;
         }
 
@@ -204,128 +185,111 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             ESP_LOGW("", " Start creating endpoint for BME680");
             ESP_LOGW("", "************************************");
             ESP_LOGW("", "");
-            //endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
-            temperature_sensor::config_t sensor_config;
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
+                        
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
-                ESP_LOGE("", "--------------------------");
                 ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
-                ESP_LOGE("", "--------------------------");
                 return ESP_FAIL;
             }
 
-            /*
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);
-            temp_config.min_measured_value = nullable<int16_t>(-4000);
-            temp_config.max_measured_value = nullable<int16_t>(8500);
-            
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
-            */
-
-            // Add Humidity Measurement cluster
+            //-- Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
             hum_config.measured_value = nullable<uint16_t>(5000);
             hum_config.min_measured_value = nullable<uint16_t>(0);
             hum_config.max_measured_value = nullable<uint16_t>(10000);
-            
             cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
 
-            // Add Pressure Measurement cluster
+            //-- Add Pressure Measurement cluster
             cluster::pressure_measurement::config_t press_config;
             // 1013.25 hPa = 10132.5 в единицах 0.1 hPa, округляем до 10133
             press_config.pressure_measured_value = nullable<int16_t>(10133);    // 1013.25 hPa (10133 * 0.1 = 1013.3)
             press_config.pressure_min_measured_value = nullable<int16_t>(3000); // 300 hPa (3000 * 0.1 = 300.0)
             press_config.pressure_max_measured_value = nullable<int16_t>(11000); // 1100 hPa (11000 * 0.1 = 1100.0)
-            
             cluster::pressure_measurement::create(endpoint, &press_config, CLUSTER_FLAG_SERVER);
-
-            /*
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
-            */
+            
+            //-- Add Gas Resistance Measurement cluster
+            cluster::total_volatile_organic_compounds_concentration_measurement::config_t tvoc_config;
+            cluster_t *tvoc_cluster = cluster::total_volatile_organic_compounds_concentration_measurement::create(endpoint, &tvoc_config, CLUSTER_FLAG_SERVER);
+            if (tvoc_cluster) {
+                // MeasuredValue (обязательный)
+                cluster::total_volatile_organic_compounds_concentration_measurement::attribute::create_measured_value(
+                    tvoc_cluster, 
+                    nullable<float>(0)  // или float, в зависимости от версии
+                );
+                
+                // MinMeasuredValue (опциональный, но часто требуется)
+                cluster::total_volatile_organic_compounds_concentration_measurement::attribute::create_min_measured_value(
+                    tvoc_cluster, 
+                    nullable<float>(0)
+                );
+                
+                // MaxMeasuredValue (опциональный)
+                cluster::total_volatile_organic_compounds_concentration_measurement::attribute::create_max_measured_value(
+                    tvoc_cluster, 
+                    nullable<float>(1000000)
+                );
+                
+                /*
+                // MeasurementMedium (обязательный fixed attribute)
+                cluster::total_volatile_organic_compounds_concentration_measurement::attribute::create_measurement_medium(
+                    tvoc_cluster, 
+                    chip::app::Clusters::ConcentrationMeasurement::MeasurementMediumEnum::kAir
+                );
+                */
+            } else {
+                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create TVOC cluster");
+            }
 
             break;
         }
 
         case SENSOR_TYPE_DS18B20: {
-            // Create endpoint with multiple clusters
+            // Create temperature sensor endpoint
             ESP_LOGW("", "");
             ESP_LOGW("", "*************************************");
             ESP_LOGW("", " Start creating endpoint for DS18B20");
             ESP_LOGW("", "*************************************");
             ESP_LOGW("", "");
-            //endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
             temperature_sensor::config_t sensor_config;
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
             
-            if (!endpoint) {
-                ESP_LOGE("", "--------------------------");
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for DS18B20");
-                ESP_LOGE("", "--------------------------");
-                return ESP_FAIL;
-            }
-
-            /*
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);
-            temp_config.min_measured_value = nullable<int16_t>(-5500);
-            temp_config.max_measured_value = nullable<int16_t>(12500);
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-5500); // -55.00°C
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
             
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
-
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
-            */
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             break;
         }
 
         case SENSOR_TYPE_DHT11: {
-            // Create endpoint with multiple clusters - ИСПРАВЛЕНО
+            // Create endpoint with multiple clusters
             ESP_LOGW("", "");
             ESP_LOGW("", "***********************************");
             ESP_LOGW("", " Start creating endpoint for DHT11");
             ESP_LOGW("", "***********************************");
             ESP_LOGW("", "");
-            //endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
-            temperature_sensor::config_t sensor_config;
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
+                        
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
-            if (!endpoint) {
-                ESP_LOGE("", "--------------------------");
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for DHT11");
-                ESP_LOGE("", "--------------------------");
-                return ESP_FAIL;
+            if(!endpoint) {
+              ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for DHT11");
+              return ESP_FAIL;
             }
-        
-            /*
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);    // 20.00°C
-            temp_config.min_measured_value = nullable<int16_t>(0);   // 0°C
-            temp_config.max_measured_value = nullable<int16_t>(5000); // 50°C
 
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
-            */
-        
-            // Add Humidity Measurement cluster
+            //-- Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
-            hum_config.measured_value = nullable<uint16_t>(5000);    // 50.00%
-            hum_config.min_measured_value = nullable<uint16_t>(2000); // 20%
-            hum_config.max_measured_value = nullable<uint16_t>(9000); // 90%
-
+            hum_config.measured_value = nullable<uint16_t>(5000);
+            hum_config.min_measured_value = nullable<uint16_t>(0);
+            hum_config.max_measured_value = nullable<uint16_t>(10000);
             cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
-
-            /*
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
-            */
             
             break;
         }
@@ -335,9 +299,9 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             return ESP_ERR_INVALID_ARG;
     }
 
-    if (!endpoint) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
-        return ESP_FAIL;
+    if(!endpoint) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
+      return ESP_FAIL;
     }
 
     // Initialize sensor hardware
@@ -364,10 +328,8 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         
         configured_sensors++;
         
-        ESP_LOGW("", "--------------------------");
-        ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %s created with endpoint_id %d", sensor_cfg->name, endpoint::get_id(endpoint));
-        ESP_LOGW("", "--------------------------");
-
+        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %s created with endpoint_id %d", 
+                sensor_cfg->name, endpoint::get_id(endpoint));
     } else {
         ESP_LOGE(TAG_MULTI_SENSOR, "Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
@@ -381,7 +343,7 @@ void set_basic_attributes_esp_matter()
     uint16_t endpoint_id = 0x0000;
 
     // Set NodeLabel
-    char node_label[] = CONFIG_CUSTOM_DEVICE_NODE_LABEL;
+    char node_label[] = "MultiClimate_ESP32H2";
     esp_matter_attr_val_t node_label_val = esp_matter_char_str(node_label, strlen(node_label));
     esp_err_t err = esp_matter::attribute::update(
         endpoint_id,
@@ -421,7 +383,7 @@ extern "C" void app_main()
         .i2c_bus = CONFIG_BME280_I2C_PORT,
         .i2c_addr = CONFIG_BME280_I2C_ADDR,
         .endpoint_id = 0,
-        .name = "BME280"
+        .name = "BME280 Sensor"
     };
     
     sensor_config_t bme680_sensor = {
@@ -432,7 +394,7 @@ extern "C" void app_main()
         .i2c_bus = CONFIG_BME680_I2C_PORT,
         .i2c_addr = CONFIG_BME680_I2C_ADDR,
         .endpoint_id = 0,
-        .name = "BME680"
+        .name = "BME680 Sensor"
     };
     
     sensor_config_t ds18b20_sensor = {
@@ -443,7 +405,7 @@ extern "C" void app_main()
         .i2c_bus = I2C_NUM_0,
         .i2c_addr = 0,
         .endpoint_id = 0,
-        .name = "DS18B20"
+        .name = "DS18B20 Sensor"
     };
     
     sensor_config_t dht11_sensor = {
@@ -454,8 +416,13 @@ extern "C" void app_main()
         .i2c_bus = I2C_NUM_0,
         .i2c_addr = 0,
         .endpoint_id = 0,
-        .name = "DHT11"
+        .name = "DHT11 Sensor"
     };
+
+    if (CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
+        ESP_ERROR_CHECK(i2cdev_init());
+    }
+
 
     // Create sensor endpoints based on configuration
     if (CONFIG_BME280_ENABLED) {
