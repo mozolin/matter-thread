@@ -143,20 +143,22 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
     switch (sensor_cfg->type) {
         case SENSOR_TYPE_BME280: {
             // Create endpoint with multiple clusters
-            endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
+            ESP_LOGW("", "");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", " Start creating endpoint for BME280");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", "");
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
+            
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
                 ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
                 return ESP_FAIL;
             }
-
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);
-            temp_config.min_measured_value = nullable<int16_t>(-4000);
-            temp_config.max_measured_value = nullable<int16_t>(8500);
-            
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
 
             // Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
@@ -165,30 +167,27 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             hum_config.max_measured_value = nullable<uint16_t>(10000);
             
             cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
-
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
-            
             break;
         }
 
         case SENSOR_TYPE_BME680: {
             // Create endpoint with multiple clusters
-            endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
+            ESP_LOGW("", "");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", " Start creating endpoint for BME680");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", "");
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
+                        
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
                 ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
                 return ESP_FAIL;
             }
-
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);
-            temp_config.min_measured_value = nullable<int16_t>(-4000);
-            temp_config.max_measured_value = nullable<int16_t>(8500);
-            
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
 
             // Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
@@ -206,53 +205,51 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             press_config.pressure_max_measured_value = nullable<int16_t>(11000); // 1100 hPa (11000 * 0.1 = 1100.0)
             
             cluster::pressure_measurement::create(endpoint, &press_config, CLUSTER_FLAG_SERVER);
-
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
             break;
         }
 
         case SENSOR_TYPE_DS18B20: {
             // Create temperature sensor endpoint
+            ESP_LOGW("", "");
+            ESP_LOGW("", "*************************************");
+            ESP_LOGW("", " Start creating endpoint for DS18B20");
+            ESP_LOGW("", "*************************************");
+            ESP_LOGW("", "");
             temperature_sensor::config_t sensor_config;
             
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
             sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-5500); // -55.00°C
             sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
             
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             break;
         }
 
         case SENSOR_TYPE_DHT11: {
             // Create endpoint with multiple clusters
-            endpoint = endpoint::create(node, ENDPOINT_FLAG_NONE, sensor_cfg);
+            ESP_LOGW("", "");
+            ESP_LOGW("", "***********************************");
+            ESP_LOGW("", " Start creating endpoint for DHT11");
+            ESP_LOGW("", "***********************************");
+            ESP_LOGW("", "");
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(8500);
+                        
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
-            if (!endpoint) {
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
-                return ESP_FAIL;
+            if(!endpoint) {
+              ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
+              return ESP_FAIL;
             }
-
-            // Add Temperature Measurement cluster
-            cluster::temperature_measurement::config_t temp_config;
-            temp_config.measured_value = nullable<int16_t>(2000);
-            temp_config.min_measured_value = nullable<int16_t>(-4000);
-            temp_config.max_measured_value = nullable<int16_t>(8500);
-            
-            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
 
             // Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
             hum_config.measured_value = nullable<uint16_t>(5000);
             hum_config.min_measured_value = nullable<uint16_t>(0);
             hum_config.max_measured_value = nullable<uint16_t>(10000);
-            
             cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
-
-            // Add Identify cluster
-            cluster::identify::config_t identify_config;
-            cluster::identify::create(endpoint, &identify_config, CLUSTER_FLAG_SERVER);
             break;
         }
 
@@ -261,9 +258,9 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             return ESP_ERR_INVALID_ARG;
     }
 
-    if (!endpoint) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
-        return ESP_FAIL;
+    if(!endpoint) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
+      return ESP_FAIL;
     }
 
     // Initialize sensor hardware

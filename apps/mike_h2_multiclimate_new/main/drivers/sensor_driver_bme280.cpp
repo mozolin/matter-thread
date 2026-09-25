@@ -6,6 +6,8 @@ bool bme280p;
 
 esp_err_t bme280_init()
 {
+    esp_err_t err = ESP_OK;
+    
     ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
     
     //ESP_ERROR_CHECK(i2cdev_init());
@@ -15,14 +17,23 @@ esp_err_t bme280_init()
     
     memset(&dev, 0, sizeof(bmp280_t));
 
-    //ESP_ERROR_CHECK(bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, 0, CONFIG_BME280_SDA_GPIO, CONFIG_BME280_SCL_GPIO));
-    ESP_ERROR_CHECK(bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO));
-    ESP_ERROR_CHECK(bmp280_init(&dev, &params));
+    //ESP_ERROR_CHECK(bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO));
+    err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
+      return err;
+    }
+    //ESP_ERROR_CHECK(bmp280_init(&dev, &params));
+    err = bmp280_init(&dev, &params);
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
+      return err;
+    }
 
     bme280p = dev.id == BME280_CHIP_ID;
     ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
 
-    return ESP_OK;
+    return err;
 }
 
 esp_err_t bme280_read_all(bme280_dev_t *dev1, int16_t *temperature, uint16_t *humidity, int16_t *pressure)

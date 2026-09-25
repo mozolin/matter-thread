@@ -16,7 +16,7 @@
 #define CONFIG_BME680_ENABLED                 false
 #define CONFIG_DS18B20_ENABLED                false
 #define CONFIG_DHT11_ENABLED                  true
-#define CONFIG_SENSOR_POLL_PERIOD_MS          2000
+#define CONFIG_SENSOR_POLL_PERIOD_MS          4500
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY      5

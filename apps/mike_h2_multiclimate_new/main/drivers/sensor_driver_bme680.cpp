@@ -8,15 +8,25 @@ uint32_t duration;
 esp_err_t bme680_init(bme680_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin,
                       i2c_port_t i2c_bus, uint8_t i2c_addr)
 {
-    //ESP_ERROR_CHECK(i2cdev_init());
+    esp_err_t err = ESP_OK;
     
     
     memset(&sensor, 0, sizeof(bme680_t));
 
-    ESP_ERROR_CHECK(bme680_init_desc(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO));
+    //ESP_ERROR_CHECK(bme680_init_desc(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO));
+    err = bme680_init_desc(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "bme680_init failed: %s", esp_err_to_name(err));
+      return err;
+    }
 
     // init the sensor
-    ESP_ERROR_CHECK(bme680_init_sensor(&sensor));
+    //ESP_ERROR_CHECK(bme680_init_sensor(&sensor));
+    err = bme680_init_sensor(&sensor);
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "bme680_init failed: %s", esp_err_to_name(err));
+      return err;
+    }
 
     // Changes the oversampling rates to 4x oversampling for temperature
     // and 2x oversampling for humidity. Pressure measurement is skipped.
@@ -36,48 +46,8 @@ esp_err_t bme680_init(bme680_dev_t *dev, gpio_num_t sda_pin, gpio_num_t scl_pin,
     bme680_get_measurement_duration(&sensor, &duration);
     
     last_wakeup = xTaskGetTickCount();
-    /*
-    if (!dev) return ESP_ERR_INVALID_ARG;
-
-    dev->sda_pin = sda_pin;
-    dev->scl_pin = scl_pin;
-    dev->i2c_addr = i2c_addr;
-
-    i2c_master_bus_config_t bus_cfg = {
-        .i2c_port = i2c_bus,
-        .sda_io_num = sda_pin,
-        .scl_io_num = scl_pin,
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .glitch_ignore_cnt = 7,
-        .flags.enable_internal_pullup = true,
-    };
-    esp_err_t err = i2c_new_master_bus(&bus_cfg, &dev->bus_handle);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME680: i2c_new_master_bus failed: %d", err);
-        return err;
-    }
-
-    err = bme680_init_desc(&dev->dev, i2c_addr, i2c_bus, sda_pin, scl_pin);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME680: bme680_init_desc failed: %d", err);
-        return err;
-    }
-
-    err = bme680_init(&dev->dev);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "BME680: bme680_init failed: %d", err);
-        return err;
-    }
-
-    // Настройка oversampling и фильтра (опционально)
-    bme680_set_oversampling_rates(&dev->dev, BME680_OSR_4X, BME680_OSR_4X, BME680_OSR_2X);
-    bme680_set_filter_size(&dev->dev, BME680_IIR_SIZE_3);
-    bme680_set_heater_profile(&dev->dev, 0, 200, 100);  // 200°C, 100ms
-
-    dev->initialized = true;
-    ESP_LOGI(TAG_MULTI_SENSOR, "BME680 initialized at 0x%02X", i2c_addr);
-    */
-    return ESP_OK;
+    
+    return err;
 }
 
 esp_err_t bme680_read_all(bme680_dev_t *dev, int16_t *temperature, uint16_t *humidity,

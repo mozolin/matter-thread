@@ -8,25 +8,6 @@ static const int MAX_SENSORS = CONFIG_EXAMPLE_DS18X20_MAX_SENSORS;
 static const int RESCAN_INTERVAL = 8;
 static const uint32_t LOOP_DELAY_MS = 500;
 
-
-/*
-static const char *sensor_type(uint8_t family_id)
-{
-    switch (family_id)
-    {
-        case DS18X20_FAMILY_DS18S20:
-            return "DS18S20";
-        case DS18X20_FAMILY_DS1822:
-            return "DS1822";
-        case DS18X20_FAMILY_DS18B20:
-            return "DS18B20";
-        case DS18X20_FAMILY_MAX31850:
-            return "MAX31850";
-    }
-    return "Unknown";
-}
-*/
-
 onewire_addr_t addrs[MAX_SENSORS];
 float temps[MAX_SENSORS];
 size_t sensor_count = 0;
@@ -44,29 +25,6 @@ esp_err_t ds18b20_init(ds18b20_dev_t *dev, gpio_num_t data_pin)
     // recommended instead!)
     gpio_set_pull_mode(SENSOR_GPIO, GPIO_PULLUP_ONLY);
 
-    /*
-    if (!dev) return ESP_ERR_INVALID_ARG;
-    dev->data_pin = data_pin;
-
-    // Инициализация onewire шины
-    esp_err_t err = ds18x20_init(data_pin);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: ds18x20_init failed: %d", err);
-        return err;
-    }
-
-    // Поиск устройств на шине
-    size_t device_count = 0;
-    err = ds18x20_scan(&dev->rom_code[0], 1, &device_count);
-    if (err != ESP_OK || device_count == 0) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: no devices found");
-        return ESP_ERR_NOT_FOUND;
-    }
-
-    dev->initialized = true;
-    ESP_LOGI(TAG_MULTI_SENSOR, "DS18B20 initialized on GPIO %d", data_pin);
-    return ESP_OK;
-    */
     return ESP_OK;
 }
 
@@ -83,14 +41,12 @@ esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
     if (res != ESP_OK)
     {
         ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
-        //continue;
         return ESP_OK;
     }
 
     if (!sensor_count)
     {
         ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: No sensors detected!");
-        //continue;
         return ESP_OK;
     }
 
@@ -102,8 +58,6 @@ esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
         sensor_count = MAX_SENSORS;
 
     // Do a number of temperature samples, and print the results.
-    //for (int i = 0; i < RESCAN_INTERVAL; i++)
-    //{
         //ESP_LOGI(TAG_MULTI_SENSOR, "Measuring...");
 
         res = ds18x20_measure_and_read_multi(SENSOR_GPIO, addrs, sensor_count, temps);
@@ -121,36 +75,18 @@ esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
 
             temp = temp_c;
 
-            /*
-            ESP_LOGW(">> DS18B20", "Sensor %08" PRIx32 "%08" PRIx32 " (%s) reports %.3f°C (%.3f°F)",
-                     (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j],
-                     sensor_type(addrs[j]),
-                     temp_c, temp_f);
-            */
             ESP_LOGW("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")",
                      temp_c,
                      (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
         }
 
-    //}
-
     
-    /*
-    if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
-
-    float temp;
-    esp_err_t err = ds18x20_measure_and_read(dev->rom_code, &temp);
-    if (err != ESP_OK) return err;
-
-    *temperature = (int16_t)(temp * 100.0f);  // 0.01°C
-    return ESP_OK;
-    */
     *temperature = (int16_t)(temp * 100.0f);  // 0.01°C
     return ESP_OK;
 }
 
 esp_err_t ds18b20_reset(ds18b20_dev_t *dev)
 {
-    if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
+    //if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
     return ESP_OK;  // DS18B20 не требует reset, просто перечитать
 }
