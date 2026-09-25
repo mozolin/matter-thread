@@ -63,7 +63,7 @@ esp_err_t bme280_read_all(bme280_dev_t *dev1, int16_t *temperature, uint16_t *hu
     // Matter ожидает 0.01°C, 0.01%, Па
     *temperature = (int16_t)(temp * 100.0f);
     *humidity = (uint16_t)(hum * 100.0f);
-    *pressure = (int16_t)press;  // Па
+    *pressure = (int16_t)(press / 100.0f);  // Па
     return ESP_OK;
 }
 

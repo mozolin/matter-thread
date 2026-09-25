@@ -68,7 +68,8 @@ esp_err_t bme680_read_all(bme680_dev_t *dev, int16_t *temperature, uint16_t *hum
 
     *temperature = (int16_t)(values.temperature * 100.0f);
     *humidity = (uint16_t)(values.humidity * 100.0f);
-    *pressure = (int16_t)values.pressure;
+    //*pressure = (int16_t)values.pressure;
+    *pressure = (int16_t)(values.pressure / 100.0f);  // Па
     *gas_resistance = (uint32_t)values.gas_resistance;
     return ESP_OK;
 }

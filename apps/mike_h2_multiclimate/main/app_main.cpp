@@ -207,7 +207,8 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             //-- Add Pressure Measurement cluster
             cluster::pressure_measurement::config_t press_config;
             // 1013.25 hPa = 10132.5 в единицах 0.1 hPa, округляем до 10133
-            press_config.pressure_measured_value = nullable<int16_t>(10133);    // 1013.25 hPa (10133 * 0.1 = 1013.3)
+            //press_config.pressure_measured_value = nullable<int16_t>(10133);    // 1013.25 hPa (10133 * 0.1 = 1013.3)
+            press_config.pressure_measured_value = nullable<int16_t>(0);    // 1013.25 hPa (10133 * 0.1 = 1013.3)
             press_config.pressure_min_measured_value = nullable<int16_t>(3000); // 300 hPa (3000 * 0.1 = 300.0)
             press_config.pressure_max_measured_value = nullable<int16_t>(11000); // 1100 hPa (11000 * 0.1 = 1100.0)
             cluster::pressure_measurement::create(endpoint, &press_config, CLUSTER_FLAG_SERVER);
