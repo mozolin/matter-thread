@@ -12,9 +12,9 @@
 #define CONFIG_NUM_SENSORS 8
 
 //-- Sensors configuration
-#define CONFIG_BME280_ENABLED                 true
-#define CONFIG_BME680_ENABLED                 true
-#define CONFIG_DS18B20_ENABLED                true
+#define CONFIG_BME280_ENABLED                 false
+#define CONFIG_BME680_ENABLED                 false
+#define CONFIG_DS18B20_ENABLED                false
 #define CONFIG_DHT11_ENABLED                  true
 #define CONFIG_SENSOR_POLL_PERIOD_MS          2000
 
