@@ -22,6 +22,8 @@ uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev);
 
 // Reset functions
 esp_err_t hcsr04_reset(hcsr04_dev_t *dev);
+esp_err_t hcsr04_hard_reset(hcsr04_dev_t *dev);
+esp_err_t hcsr04_soft_reset(hcsr04_dev_t *dev);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@ extern "C" {
 
 // Общие определения для всех датчиков
 #define OCCUPANCY_UNOCCUPIED                   0x00
-#define OCCUPANCY_OCCUPIED                      0x01
+#define OCCUPANCY_OCCUPIED                     0x01
 
 // Общие типы датчиков
 typedef enum {

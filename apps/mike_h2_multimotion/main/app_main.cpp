@@ -195,6 +195,7 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
                 ESP_LOGW(TAG_MULTI_SENSOR, "Failed to create Pressure Measurement cluster");
             }
             
+            /*
             esp_matter::cluster::occupancy_sensing::config_t occupancy_config;
             
             occupancy_config.occupancy = 0x00;
@@ -214,7 +215,8 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             
             esp_matter::cluster_t *identify_cluster = 
                 esp_matter::cluster::identify::create(endpoint, &identify_config, MATTER_CLUSTER_FLAG_SERVER);
-            
+            */
+
             break;
         }
 
@@ -291,6 +293,80 @@ void set_basic_attributes_esp_matter()
     }
 }
 
+/*
+#include <stdio.h>
+#include <stdbool.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <ultrasonic.h>
+#include <esp_err.h>
+
+#define MAX_DISTANCE_CM 5 // 5m max
+
+#define TRIGGER_GPIO    3
+#define ECHO_GPIO       5
+
+void ultrasonic_test(void *pvParameters)
+{
+    ultrasonic_sensor_t sensor =
+    {
+        .trigger_pin = (gpio_num_t)TRIGGER_GPIO,
+        .echo_pin = (gpio_num_t)ECHO_GPIO
+    };
+
+    //ultrasonic_init(&sensor);
+
+    gpio_num_t trigger_pin = (gpio_num_t)TRIGGER_GPIO;
+    gpio_num_t echo_pin = (gpio_num_t)ECHO_GPIO;
+
+    // Configure trigger pin as output
+    gpio_reset_pin(trigger_pin);
+    esp_err_t err = gpio_set_direction(trigger_pin, GPIO_MODE_OUTPUT);
+    if (err != ESP_OK) {
+        printf("Failed to set GPIO direction for HC-SR04 trigger\n");
+        return;
+    }
+    gpio_set_level(trigger_pin, 0);
+
+    // Configure echo pin as input
+    gpio_reset_pin(echo_pin);
+    err = gpio_set_direction(echo_pin, GPIO_MODE_INPUT);
+    if (err != ESP_OK) {
+        printf("Failed to set GPIO direction for HC-SR04 echo\n");
+        return;
+    }
+
+
+    while (true)
+    {
+        float distance;
+        esp_err_t res = ultrasonic_measure(&sensor, MAX_DISTANCE_CM, &distance);
+        if (res != ESP_OK)
+        {
+            printf("Error %d: ", res);
+            switch (res)
+            {
+                case ESP_ERR_ULTRASONIC_PING:
+                    printf("Cannot ping (device is in invalid state)\n");
+                    break;
+                case ESP_ERR_ULTRASONIC_PING_TIMEOUT:
+                    printf("Ping timeout (no device found)\n");
+                    break;
+                case ESP_ERR_ULTRASONIC_ECHO_TIMEOUT:
+                    printf("Echo timeout (i.e. distance too big)\n");
+                    break;
+                default:
+                    printf("%s\n", esp_err_to_name(res));
+            }
+        }
+        else
+            printf("Distance: %0.04f m\n", distance);
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+*/
+
 extern "C" void app_main()
 {
     esp_err_t err = ESP_OK;
@@ -361,6 +437,8 @@ extern "C" void app_main()
     set_basic_attributes_esp_matter();
 
     xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
+
+    //xTaskCreate(ultrasonic_test, "ultrasonic_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 
     #if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();

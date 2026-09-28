@@ -15,7 +15,7 @@
 #define CONFIG_HCSR501_ENABLED                 true
 #define CONFIG_RCWL0516_ENABLED                true
 #define CONFIG_HCSR04_ENABLED                  true
-#define CONFIG_SENSOR_POLL_PERIOD_MS           1000
+#define CONFIG_SENSOR_POLL_PERIOD_MS           5000
 
 //-- task priorities
 #define CONFIG_ULTRASONIC_FAST_TASK_PRIORITY   6
@@ -25,8 +25,8 @@
 //-- GPIO Configuration
 #define CONFIG_HCSR501_PIR_GPIO                1
 #define CONFIG_RCWL0516_MICROWAVE_GPIO         2
-#define CONFIG_HCSR04_TRIG_GPIO                 3
-#define CONFIG_HCSR04_ECHO_GPIO                 5
+#define CONFIG_HCSR04_TRIG_GPIO                3
+#define CONFIG_HCSR04_ECHO_GPIO                5
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include "esp_openthread_types.h"

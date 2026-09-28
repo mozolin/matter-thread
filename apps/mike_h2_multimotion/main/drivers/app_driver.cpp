@@ -3,7 +3,9 @@
 #include <esp_log.h>
 #include <esp_matter.h>
 #include <app_priv.h>
+
 #include "sensor_common.h"
+
 #include "sensor_pir.h"
 #include "sensor_microwave.h"
 #include "sensor_ultrasonic.h"
@@ -59,6 +61,7 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 #if CONFIG_HCSR04_ENABLED
         case SENSOR_TYPE_ULTRASONIC:
             err = hcsr04_init(&ultrasonic_sensor, sensor_cfg->trigger_pin, sensor_cfg->echo_pin);
+            //err = hcsr04_init1();
             break;
 #endif
 
@@ -94,6 +97,7 @@ bool app_driver_read_sensor_state(uint8_t sensor_idx)
 #if CONFIG_HCSR04_ENABLED
         case SENSOR_TYPE_ULTRASONIC:
             return (hcsr04_measure_distance(&ultrasonic_sensor) > 0);
+            //return (hcsr04_measure_distance1() > 0);
 #endif
 
         default:
@@ -115,6 +119,7 @@ uint32_t app_driver_read_ultrasonic_distance(uint8_t sensor_idx)
     }
 
     return hcsr04_measure_distance(&ultrasonic_sensor);
+    //return hcsr04_measure_distance1();
 #else
     ESP_LOGE(TAG_MULTI_SENSOR, "Ultrasonic sensor is disabled");
     return 0;
@@ -168,8 +173,11 @@ esp_err_t app_driver_sensor_reinit(uint8_t sensor_idx)
 #endif
 
 #if CONFIG_HCSR04_ENABLED
+        /*
         case SENSOR_TYPE_ULTRASONIC:
             return hcsr04_init(&ultrasonic_sensor, cfg->trigger_pin, cfg->echo_pin);
+            //return hcsr04_init1();
+        */
 #endif
 
         default:
@@ -204,10 +212,10 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 #endif
 
 #if CONFIG_HCSR04_ENABLED
+        /*
         case SENSOR_TYPE_ULTRASONIC:
-            err = hcsr04_init(&ultrasonic_sensor, 
-                             sensor->config.trigger_pin, 
-                             sensor->config.echo_pin);
+            err = hcsr04_init(&ultrasonic_sensor, sensor->config.trigger_pin, sensor->config.echo_pin);
+            //err = hcsr04_init();
             if (err == ESP_OK) {
                 vTaskDelay(pdMS_TO_TICKS(100));
                 for (int i = 0; i < 3; i++) {
@@ -218,6 +226,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
                 }
             }
             break;
+        */
 #endif
 
         default:
@@ -359,11 +368,14 @@ void sensor_polling_task(void *pvParameters)
 #if CONFIG_HCSR04_ENABLED
                 case SENSOR_TYPE_ULTRASONIC: {
                     uint32_t current_distance = hcsr04_measure_distance(&ultrasonic_sensor);
+                    //uint32_t current_distance = hcsr04_measure_distance1();
                     
+                    /*
                     if (current_distance < 2 || current_distance > 400) {
                         ESP_LOGW(TAG_MULTI_SENSOR, "HC-SR04: Invalid distance reading: %lu cm", current_distance);
                         break;
                     }
+                    */
 
                     bool motion_detected = false;
                     bool should_update_pressure = false;
