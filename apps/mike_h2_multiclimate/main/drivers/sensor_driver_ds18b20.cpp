@@ -12,7 +12,7 @@ onewire_addr_t addrs[MAX_SENSORS];
 float temps[MAX_SENSORS];
 size_t sensor_count = 0;
 
-esp_err_t ds18b20_init(ds18b20_dev_t *dev, gpio_num_t data_pin)
+esp_err_t ds18b20_init()
 {
     // There is no special initialization required before using the ds18x20
     // routines.  However, we make sure that the internal pull-up resistor is
@@ -28,7 +28,7 @@ esp_err_t ds18b20_init(ds18b20_dev_t *dev, gpio_num_t data_pin)
     return ESP_OK;
 }
 
-esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
+esp_err_t ds18b20_read(int16_t *temperature)
 {
     esp_err_t res;
     float temp;
@@ -75,9 +75,15 @@ esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
 
             temp = temp_c;
 
-            ESP_LOGD("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")",
+            #if DO_DEBUG
+                ESP_LOGW("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")",
                      temp_c,
                      (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
+            #else
+                ESP_LOGD("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")",
+                     temp_c,
+                     (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
+            #endif
         }
 
     
@@ -85,7 +91,7 @@ esp_err_t ds18b20_read(ds18b20_dev_t *dev, int16_t *temperature)
     return ESP_OK;
 }
 
-esp_err_t ds18b20_reset(ds18b20_dev_t *dev)
+esp_err_t ds18b20_reset()
 {
     //if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
     return ESP_OK;  // DS18B20 не требует reset, просто перечитать

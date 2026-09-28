@@ -12,12 +12,6 @@
 using namespace chip::app::Clusters;
 using namespace esp_matter;
 
-// Sensor device structures
-static bme280_dev_t bme280_sensor;
-static bme680_dev_t bme680_sensor;
-static ds18b20_dev_t ds18b20_sensor;
-static dht11_dev_t dht11_sensor;
-
 typedef struct {
     uint64_t last_reset_time;
     uint32_t reset_count;
@@ -31,31 +25,25 @@ static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 #define MS_PER_HOUR                     (3600 * 1000)
 #define RESET_INTERVAL_MS               (RESET_INTERVAL_HOURS * MS_PER_HOUR)
 
-esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
+esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
 {
-    if (sensor_cfg == NULL) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Sensor config is NULL");
-        return ESP_ERR_INVALID_ARG;
-    }
-
     esp_err_t err = ESP_OK;
 
-    switch (sensor_cfg->type) {
+    switch (sensor_cfg) {
         case SENSOR_TYPE_BME280:
             err = bme280_init();
             break;
         case SENSOR_TYPE_BME680:
-            err = bme680_init(&bme680_sensor, sensor_cfg->sda_pin, sensor_cfg->scl_pin, 
-                              sensor_cfg->i2c_bus, sensor_cfg->i2c_addr);
+            err = bme680_init();
             break;
         case SENSOR_TYPE_DS18B20:
-            err = ds18b20_init(&ds18b20_sensor, sensor_cfg->data_pin);
+            err = ds18b20_init();
             break;
         case SENSOR_TYPE_DHT11:
-            err = dht11_init(&dht11_sensor, sensor_cfg->data_pin);
+            err = dht11_init();
             break;
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg->type);
+            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg);
             err = ESP_ERR_INVALID_ARG;
             break;
     }
@@ -73,13 +61,13 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     sensor_data_t *sensor = &sensors[sensor_idx];
     esp_err_t err = ESP_OK;
 
-    switch (sensor->config.type) {
+    switch (sensor->config) {
         case SENSOR_TYPE_BME280: {
             int16_t temperature;
             uint16_t humidity;
             int16_t pressure;
             
-            err = bme280_read_all(&bme280_sensor, &temperature, &humidity, &pressure);
+            err = bme280_read_all(&temperature, &humidity, &pressure);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
@@ -95,7 +83,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             int16_t pressure;
             uint32_t gas;
             
-            err = bme680_read_all(&bme680_sensor, &temperature, &humidity, &pressure, &gas);
+            err = bme680_read_all(&temperature, &humidity, &pressure, &gas);
             if(err == ESP_OK) {
               sensor->last_temperature = temperature;
               sensor->last_humidity = humidity;
@@ -108,7 +96,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         
         case SENSOR_TYPE_DS18B20: {
             int16_t temperature;
-            err = ds18b20_read(&ds18b20_sensor, &temperature);
+            err = ds18b20_read(&temperature);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_read_time = esp_timer_get_time();
@@ -119,7 +107,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         case SENSOR_TYPE_DHT11: {
             int16_t temperature;
             uint16_t humidity;
-            err = dht11_read(&dht11_sensor, &temperature, &humidity);
+            err = dht11_read(&temperature, &humidity);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
@@ -176,26 +164,26 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     }
     
     sensor_data_t *sensor = &sensors[sensor_idx];
-    ESP_LOGW(TAG_MULTI_SENSOR, "Performing soft reset for sensor %d (%s)", 
-            sensor_idx, sensor->config.name);
+    ESP_LOGW(TAG_MULTI_SENSOR, "Performing soft reset for sensor %d (%d)", 
+            sensor_idx, sensor->config);
     
     esp_err_t err = ESP_OK;
     
-    switch (sensor->config.type) {
+    switch (sensor->config) {
         case SENSOR_TYPE_BME280:
-            err = bme280_reset(&bme280_sensor);
+            err = bme280_reset();
             break;
         case SENSOR_TYPE_BME680:
-            err = bme680_reset(&bme680_sensor);
+            err = bme680_reset();
             break;
         case SENSOR_TYPE_DS18B20:
-            err = ds18b20_reset(&ds18b20_sensor);
+            err = ds18b20_reset();
             break;
         case SENSOR_TYPE_DHT11:
-            err = dht11_reset(&dht11_sensor);
+            err = dht11_reset();
             break;
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type for reset: %d", sensor->config.type);
+            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type for reset: %d", sensor->config);
             err = ESP_ERR_NOT_SUPPORTED;
             break;
     }
@@ -247,8 +235,8 @@ void sensor_polling_task(void *pvParameters)
                 
                 if (time_since_last_reset >= RESET_INTERVAL_MS) {
                     ESP_LOGI(TAG_MULTI_SENSOR, 
-                            "Scheduled reset for sensor %d (%s): %llu ms since last reset", 
-                            i, sensors[i].config.name, time_since_last_reset);
+                            "Scheduled reset for sensor %d (%d): %llu ms since last reset", 
+                            i, sensors[i].config, time_since_last_reset);
                     
                     sensor_reset_tracker[i].reset_in_progress = true;
                     esp_err_t reset_err = app_driver_sensor_soft_reset(i);
@@ -281,7 +269,7 @@ void sensor_polling_task(void *pvParameters)
             
             if (read_err == ESP_OK) {
                 // Update Matter attributes based on sensor type
-                switch (sensor->config.type) {
+                switch (sensor->config) {
                     case SENSOR_TYPE_BME280: {
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
@@ -293,8 +281,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
                         }
                         
                         // Update Humidity
@@ -307,8 +300,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
                         }
                         
                         // Update Pressure (if available)
@@ -322,8 +320,13 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                #if DO_DEBUG
+                                    ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
+                                #else
+                                    ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                        i, sensor->last_pressure / 100.0f);
+                                #endif
                             }
                         }
                         break;
@@ -340,8 +343,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
                         }
                         
                         // Update Humidity
@@ -354,12 +362,17 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
                         }
                         
                         // Update Pressure (if available)
-                        if (sensor->last_pressure > 0) {
+                        //if (sensor->last_pressure > 0) {
                             esp_matter_attr_val_t press_val = esp_matter_int16((int16_t)sensor->last_pressure);
                             err = esp_matter::attribute::update(
                                 endpoint_id,
@@ -369,10 +382,15 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                #if DO_DEBUG
+                                    ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
+                                #else
+                                    ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                        i, sensor->last_pressure / 100.0f);
+                                #endif
                             }
-                        }
+                        //}
                         
                         // Update Gas Resistance
                         esp_matter_attr_val_t gas_val = esp_matter_float((float)sensor->last_gas_resistance);
@@ -384,16 +402,21 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
                                     i, sensor->last_gas_resistance);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                    i, sensor->last_gas_resistance);
+                            #endif
                         } else {
-                        	/*
-                        	ESP_LOGE("", "");
-                        	ESP_LOGE("", "*******************************");
-                        	ESP_LOGE("", " BME680 Gas Resistance: WRONG!");
-                        	ESP_LOGE("", "*******************************");
-                        	ESP_LOGE("", "");
-                        	*/
+                        	#if DO_DEBUG
+                        		ESP_LOGE("", "");
+                        		ESP_LOGE("", "*******************************");
+                        		ESP_LOGE("", " BME680 Gas Resistance: WRONG!");
+                        		ESP_LOGE("", "*******************************");
+                        		ESP_LOGE("", "");
+                        	#endif
                         }
                         
                         break;
@@ -409,8 +432,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
                         }
                         break;
                     }
@@ -426,8 +454,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
                         }
                         
                         // Update Humidity
@@ -440,8 +473,13 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f%%", 
+                            #if DO_DEBUG
+                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
                         }
                         break;
                     }
@@ -462,7 +500,7 @@ esp_err_t app_driver_reset_sensor_by_type(sensor_type_t type)
     uint8_t reset_count = 0;
     
     for (int i = 0; i < configured_sensors; i++) {
-        if (sensors[i].config.type == type) {
+        if (sensors[i].config == type) {
             ESP_LOGI(TAG_MULTI_SENSOR, "Resetting sensor %d of type %d", i, type);
             esp_err_t err = app_driver_sensor_soft_reset(i);
             if (err != ESP_OK) {
@@ -488,8 +526,8 @@ esp_err_t app_driver_reset_all_sensors(void)
     uint8_t fail_count = 0;
     
     for (int i = 0; i < configured_sensors; i++) {
-        ESP_LOGI(TAG_MULTI_SENSOR, "Resetting sensor %d/%d: %s", 
-                i + 1, configured_sensors, sensors[i].config.name);
+        ESP_LOGI(TAG_MULTI_SENSOR, "Resetting sensor %d/%d: %d", 
+                i + 1, configured_sensors, sensors[i].config);
         
         esp_err_t err = app_driver_sensor_soft_reset(i);
         if (err != ESP_OK) {
@@ -523,35 +561,7 @@ void app_driver_log_sensor_statistics(void)
     
     for(int i = 0; i < configured_sensors; i++) {
         sensor_data_t *sensor = &sensors[i];
-        //uint64_t ms_since_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
-        //uint64_t hours_since_reset = ms_since_reset / 3600000;
-        //uint64_t minutes_since_reset = (ms_since_reset % 3600000) / 60000;
         
-        /*
-        const char* type_str = "Unknown";
-        switch(sensor->config.type) {
-            case SENSOR_TYPE_BME280: {
-                type_str = "BME280";
-                break;
-            }
-            case SENSOR_TYPE_BME680: {
-                type_str = "BME680";
-                break;
-            }
-            case SENSOR_TYPE_DS18B20: {
-                type_str = "DS18B20";
-                break;
-            }
-            case SENSOR_TYPE_DHT11: {
-                type_str = "DHT11";
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-        */
-
         /*
         ESP_LOGW("", 
                 "Sensor %d: %s (%s), Resets=%lu, Last reset %llu:%02llu ago",
@@ -559,7 +569,7 @@ void app_driver_log_sensor_statistics(void)
                 sensor_reset_tracker[i].reset_count,
                 hours_since_reset, minutes_since_reset);
         */
-        switch(sensor->config.type) {
+        switch(sensor->config) {
             case SENSOR_TYPE_BME280: {
                 ESP_LOGW("", "BME280  (%d) | Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa",
                 i,

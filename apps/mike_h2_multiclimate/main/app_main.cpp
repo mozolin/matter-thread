@@ -122,25 +122,26 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
     return err;
 }
 
-static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* node)
+static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 {
     esp_err_t err = ESP_OK;
 
-    if (!node || !sensor_cfg) {
-        return ESP_ERR_INVALID_ARG;
+    //if (!node || !sensor_cfg) {
+    if(!node) {
+      return ESP_ERR_INVALID_ARG;
     }
 
     // Check if sensor is already configured
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensor_mapping_list[i].sensor_type == sensor_cfg->type) {
-            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor type %d already configured", sensor_cfg->type);
-            return ESP_ERR_INVALID_STATE;
-        }
+    for(int i = 0; i < configured_sensors; i++) {
+      if(sensor_mapping_list[i].sensor_type == sensor_cfg) {
+        ESP_LOGW(TAG_MULTI_SENSOR, "Sensor type %d already configured", sensor_cfg);
+        return ESP_ERR_INVALID_STATE;
+      }
     }
 
     endpoint_t *endpoint = NULL;
     
-    switch (sensor_cfg->type) {
+    switch (sensor_cfg) {
         case SENSOR_TYPE_BME280: {
             // Create endpoint with multiple clusters
             ESP_LOGW("", "");
@@ -296,31 +297,31 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         }
 
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg->type);
+            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg);
             return ESP_ERR_INVALID_ARG;
     }
 
     if(!endpoint) {
-      ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
+      ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
       return ESP_FAIL;
     }
 
     // Initialize sensor hardware
     err = app_driver_sensor_init(sensor_cfg);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to initialize sensor type: %d", sensor_cfg->type);
+        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to initialize sensor type: %d", sensor_cfg);
         return err;
     }
 
     // Store mapping
     if (configured_sensors < CONFIG_NUM_SENSORS) {
         sensor_mapping_list[configured_sensors].endpoint_id = endpoint::get_id(endpoint);
-        sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg->type;
-        sensor_mapping_list[configured_sensors].primary_gpio = sensor_cfg->sda_pin;
-        sensor_mapping_list[configured_sensors].secondary_gpio = sensor_cfg->scl_pin;
+        sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg;
+        //sensor_mapping_list[configured_sensors].primary_gpio = sensor_cfg->sda_pin;
+        //sensor_mapping_list[configured_sensors].secondary_gpio = sensor_cfg->scl_pin;
         
         // Store in sensors array
-        sensors[configured_sensors].config = *sensor_cfg;
+        sensors[configured_sensors].config = sensor_cfg;
         sensors[configured_sensors].last_temperature = 0;
         sensors[configured_sensors].last_humidity = 0;
         sensors[configured_sensors].last_pressure = 0;
@@ -329,8 +330,8 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         
         configured_sensors++;
         
-        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %s created with endpoint_id %d", 
-                sensor_cfg->name, endpoint::get_id(endpoint));
+        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %d created with endpoint_id %d", 
+                sensor_cfg, endpoint::get_id(endpoint));
     } else {
         ESP_LOGE(TAG_MULTI_SENSOR, "Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
@@ -374,51 +375,7 @@ extern "C" void app_main()
     node::config_t node_config;
     node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
     ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create Matter node"));
-
-    // Configure sensors
-    sensor_config_t bme280_sensor = {
-        .type = SENSOR_TYPE_BME280,
-        .sda_pin = (gpio_num_t)CONFIG_BME280_SDA_GPIO,
-        .scl_pin = (gpio_num_t)CONFIG_BME280_SCL_GPIO,
-        .data_pin = GPIO_NUM_NC,
-        .i2c_bus = CONFIG_BME280_I2C_PORT,
-        .i2c_addr = CONFIG_BME280_I2C_ADDR,
-        .endpoint_id = 0,
-        .name = "BME280 Sensor"
-    };
     
-    sensor_config_t bme680_sensor = {
-        .type = SENSOR_TYPE_BME680,
-        .sda_pin = (gpio_num_t)CONFIG_BME680_SDA_GPIO,
-        .scl_pin = (gpio_num_t)CONFIG_BME680_SCL_GPIO,
-        .data_pin = GPIO_NUM_NC,
-        .i2c_bus = CONFIG_BME680_I2C_PORT,
-        .i2c_addr = CONFIG_BME680_I2C_ADDR,
-        .endpoint_id = 0,
-        .name = "BME680 Sensor"
-    };
-    
-    sensor_config_t ds18b20_sensor = {
-        .type = SENSOR_TYPE_DS18B20,
-        .sda_pin = GPIO_NUM_NC,
-        .scl_pin = GPIO_NUM_NC,
-        .data_pin = (gpio_num_t)CONFIG_DS18B20_GPIO,
-        .i2c_bus = I2C_NUM_0,
-        .i2c_addr = 0,
-        .endpoint_id = 0,
-        .name = "DS18B20 Sensor"
-    };
-    
-    sensor_config_t dht11_sensor = {
-        .type = SENSOR_TYPE_DHT11,
-        .sda_pin = GPIO_NUM_NC,
-        .scl_pin = GPIO_NUM_NC,
-        .data_pin = (gpio_num_t)CONFIG_DHT11_GPIO,
-        .i2c_bus = I2C_NUM_0,
-        .i2c_addr = 0,
-        .endpoint_id = 0,
-        .name = "DHT11 Sensor"
-    };
 
     if (CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
         ESP_ERROR_CHECK(i2cdev_init());
@@ -427,49 +384,49 @@ extern "C" void app_main()
 
     // Create sensor endpoints based on configuration
     if (CONFIG_BME280_ENABLED) {
-        create_sensor_endpoint(&bme280_sensor, node);
+        create_sensor_endpoint(SENSOR_TYPE_BME280, node);
     }
     
     if (CONFIG_BME680_ENABLED) {
-        create_sensor_endpoint(&bme680_sensor, node);
+        create_sensor_endpoint(SENSOR_TYPE_BME680, node);
     }
     
     if (CONFIG_DS18B20_ENABLED) {
-        create_sensor_endpoint(&ds18b20_sensor, node);
+        create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
     }
     
     if (CONFIG_DHT11_ENABLED) {
-        create_sensor_endpoint(&dht11_sensor, node);
+        create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
     }
 
     #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
-    /* Set OpenThread platform config */
-    esp_openthread_platform_config_t config = {
-        .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
-        .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
-        .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
-    };
-    set_openthread_platform_config(&config);
+      //-- Set OpenThread platform config
+      esp_openthread_platform_config_t config = {
+          .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
+          .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
+          .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
+      };
+      set_openthread_platform_config(&config);
     #endif
 
-    /* Matter start */
+    //-- Matter start
     err = esp_matter::start(app_event_cb);
     ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to start Matter, err:%d", err));
 
-    // Setting BasicInformationCluster attributes
+    //-- Setting BasicInformationCluster attributes
     vTaskDelay(pdMS_TO_TICKS(3000));
     set_basic_attributes_esp_matter();
 
-    // Start sensor polling task
+    //-- Start sensor polling task
     xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
     #if CONFIG_ENABLE_CHIP_SHELL
-    esp_matter::console::diagnostics_register_commands();
-    esp_matter::console::wifi_register_commands();
-    esp_matter::console::factoryreset_register_commands();
-    #if CONFIG_OPENTHREAD_CLI
-    esp_matter::console::otcli_register_commands();
-    #endif
-    esp_matter::console::init();
+      esp_matter::console::diagnostics_register_commands();
+      esp_matter::console::wifi_register_commands();
+      esp_matter::console::factoryreset_register_commands();
+      #if CONFIG_OPENTHREAD_CLI
+        esp_matter::console::otcli_register_commands();
+      #endif
+      esp_matter::console::init();
     #endif
 }

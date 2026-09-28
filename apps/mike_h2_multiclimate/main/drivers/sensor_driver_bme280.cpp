@@ -32,33 +32,22 @@ esp_err_t bme280_init()
     return err;
 }
 
-esp_err_t bme280_read_all(bme280_dev_t *dev1, int16_t *temperature, uint16_t *humidity, int16_t *pressure)
+esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pressure)
 {
     float temp, hum, press;
 
-    /*
-    while (1)
+    if (bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
     {
-        vTaskDelay(pdMS_TO_TICKS(500));
-    */
-        if (bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
-        {
-            ESP_LOGE(TAG_MULTI_SENSOR, "Temperature/pressure reading failed!");
-            //continue;
-            return ESP_OK;
-        }
-
-        ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
-        /*
-        if (bme280p) {
-            ESP_LOGI(TAG_MULTI_SENSOR, "Humidity: %.2f", hum);
-        } else {
-            
-        }
-        */
-    /*
+        ESP_LOGE(TAG_MULTI_SENSOR, "Temperature/pressure reading failed!");
+        //continue;
+        return ESP_OK;
     }
-    */
+
+    #if DO_DEBUG
+        ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
+    #else
+        ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
+    #endif
 
     // Matter ожидает 0.01°C, 0.01%, Па
     *temperature = (int16_t)(temp * 100.0f);
@@ -67,7 +56,7 @@ esp_err_t bme280_read_all(bme280_dev_t *dev1, int16_t *temperature, uint16_t *hu
     return ESP_OK;
 }
 
-esp_err_t bme280_reset(bme280_dev_t *dev1)
+esp_err_t bme280_reset()
 {
     /*
     if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;

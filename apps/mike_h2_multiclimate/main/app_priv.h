@@ -8,7 +8,9 @@
 #include <button_gpio.h>
 #include "driver_reset_button.h"
 
-#define TAG_MULTI_SENSOR   "MIKE MULTISENSOR H2"
+#define DO_DEBUG true
+
+#define TAG_MULTI_SENSOR   "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS 8
 
 //-- Sensors configuration
@@ -41,28 +43,16 @@
 
 // Sensor types
 typedef enum {
-    SENSOR_TYPE_BME280 = 0,
-    SENSOR_TYPE_BME680,
-    SENSOR_TYPE_DS18B20,
-    SENSOR_TYPE_DHT11,
+    SENSOR_TYPE_BME280  = 0,
+    SENSOR_TYPE_BME680  = 1,
+    SENSOR_TYPE_DS18B20 = 2,
+    SENSOR_TYPE_DHT11   = 3,
     SENSOR_TYPE_MAX
 } sensor_type_t;
 
-// Sensor configuration structure
-typedef struct {
-    sensor_type_t type;
-    gpio_num_t sda_pin;      // For I2C sensors
-    gpio_num_t scl_pin;      // For I2C sensors
-    gpio_num_t data_pin;     // For 1-wire (DS18B20) and DHT11
-    i2c_port_t i2c_bus;
-    uint8_t i2c_addr;
-    uint16_t endpoint_id;
-    const char* name;
-} sensor_config_t;
-
 // Sensor data structure
 typedef struct {
-    sensor_config_t config;
+    sensor_type_t config;
     float last_temperature;
     float last_humidity;
     float last_pressure;
@@ -103,7 +93,7 @@ typedef void *app_driver_handle_t;
  * @return ESP_OK on success.
  * @return error in case of failure.
  */
-esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_config);
+esp_err_t app_driver_sensor_init(sensor_type_t sensor_config);
 
 /** Driver Update
  *
