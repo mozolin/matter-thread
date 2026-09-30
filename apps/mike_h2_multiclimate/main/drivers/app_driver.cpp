@@ -135,28 +135,6 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
     return ESP_OK;
 }
 
-// Helper function to get sensor by endpoint ID
-sensor_data_t* get_sensor_by_endpoint(uint16_t endpoint_id)
-{
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensor_mapping_list[i].endpoint_id == endpoint_id) {
-            return &sensors[i];
-        }
-    }
-    return NULL;
-}
-
-// Helper function to get endpoint by sensor type
-uint16_t get_endpoint_by_sensor_type(sensor_type_t type)
-{
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensor_mapping_list[i].sensor_type == type) {
-            return sensor_mapping_list[i].endpoint_id;
-        }
-    }
-    return 0;
-}
-
 static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 {
     if (sensor_idx >= configured_sensors) {
@@ -490,57 +468,6 @@ void sensor_polling_task(void *pvParameters)
         
         vTaskDelay(poll_period_ms);
     }
-}
-
-esp_err_t app_driver_reset_sensor_by_type(sensor_type_t type)
-{
-    esp_err_t overall_err = ESP_OK;
-    uint8_t reset_count = 0;
-    
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensors[i].config == type) {
-            ESP_LOGI(TAG_MULTI_SENSOR, "Resetting sensor %d of type %d", i, type);
-            esp_err_t err = app_driver_sensor_soft_reset(i);
-            if (err != ESP_OK) {
-                overall_err = err;
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to reset sensor %d: %d", i, err);
-            } else {
-                reset_count++;
-            }
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
-    
-    ESP_LOGI(TAG_MULTI_SENSOR, "Reset %d sensors of type %d", reset_count, type);
-    return overall_err;
-}
-
-esp_err_t app_driver_reset_all_sensors(void)
-{
-    ESP_LOGI(TAG_MULTI_SENSOR, "=== Resetting all %d sensors ===", configured_sensors);
-    
-    esp_err_t overall_err = ESP_OK;
-    uint8_t success_count = 0;
-    uint8_t fail_count = 0;
-    
-    for (int i = 0; i < configured_sensors; i++) {
-        ESP_LOGI(TAG_MULTI_SENSOR, "Resetting sensor %d/%d: %d", 
-                i + 1, configured_sensors, sensors[i].config);
-        
-        esp_err_t err = app_driver_sensor_soft_reset(i);
-        if (err != ESP_OK) {
-            overall_err = err;
-            fail_count++;
-            ESP_LOGE(TAG_MULTI_SENSOR, "Failed to reset sensor %d: %d", i, err);
-        } else {
-            success_count++;
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    ESP_LOGI(TAG_MULTI_SENSOR, "Reset completed: %d success, %d failed", success_count, fail_count);
-    return overall_err;
 }
 
 void app_driver_log_sensor_statistics(void)

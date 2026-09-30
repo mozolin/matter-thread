@@ -17,8 +17,8 @@
 
 //-- Sensors configuration
 #define CONFIG_BME280_ENABLED                 true
-#define CONFIG_BME680_ENABLED                 false
-#define CONFIG_DS18B20_ENABLED                false
+#define CONFIG_BME680_ENABLED                 true
+#define CONFIG_DS18B20_ENABLED                true
 #define CONFIG_DHT11_ENABLED                  true
 #define CONFIG_SENSOR_POLL_PERIOD_MS          4500
 
@@ -78,12 +78,6 @@ extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 extern uint16_t configured_sensors;
 extern sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
-// Function to get sensor by endpoint ID
-sensor_data_t* get_sensor_by_endpoint(uint16_t endpoint_id);
-
-// Function to get endpoint by sensor type
-uint16_t get_endpoint_by_sensor_type(sensor_type_t type);
-
 typedef void *app_driver_handle_t;
 
 /** Sensor initialization
@@ -129,8 +123,6 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
  */
 void sensor_polling_task(void *pvParameters);
 
-esp_err_t app_driver_reset_sensor_by_type(sensor_type_t type);
-esp_err_t app_driver_reset_all_sensors(void);
 void app_driver_log_sensor_statistics(void);
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
