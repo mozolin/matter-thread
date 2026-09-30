@@ -8,25 +8,27 @@ esp_err_t bme280_init()
 {
     esp_err_t err = ESP_OK;
     
-    ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
+    #if !MOCK_SENSORS_BEHAVIOR
+      bmp280_params_t params;
+      bmp280_init_default_params(&params);
     
-    bmp280_params_t params;
-    bmp280_init_default_params(&params);
-    
-    memset(&dev, 0, sizeof(bmp280_t));
+      memset(&dev, 0, sizeof(bmp280_t));
 
-    err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
-      return err;
-    }
-    err = bmp280_init(&dev, &params);
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
-      return err;
-    }
+      err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
+      if(err != ESP_OK) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
+        return err;
+      }
+      err = bmp280_init(&dev, &params);
+      if(err != ESP_OK) {
+        ESP_LOGE(TAG_MULTI_SENSOR, "bmp280_init failed: %s", esp_err_to_name(err));
+        return err;
+      }
 
-    bme280p = dev.id == BME280_CHIP_ID;
+      bme280p = dev.id == BME280_CHIP_ID;
+    #else
+      bme280p = true;
+    #endif
     ESP_LOGI(TAG_MULTI_SENSOR, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
 
     return err;
@@ -36,17 +38,23 @@ esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pre
 {
     float temp, hum, press;
 
-    if (bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
-    {
+    #if !MOCK_SENSORS_BEHAVIOR
+      if(bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
+      {
         ESP_LOGE(TAG_MULTI_SENSOR, "Temperature/pressure reading failed!");
         //continue;
         return ESP_OK;
-    }
+      }
+    #else
+      temp  = 26.61;
+      hum   = 41.83;
+      press = 101123.45;
+    #endif
 
     #if DO_DEBUG
-        ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
+      ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);
     #else
-        ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa", temp, hum, press);
+      ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);
     #endif
 
     // Matter ожидает 0.01°C, 0.01%, Па

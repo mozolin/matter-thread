@@ -8,15 +8,17 @@
 #include <button_gpio.h>
 #include "driver_reset_button.h"
 
-#define DO_DEBUG true
+#define MOCK_SENSORS_BEHAVIOR                 true
 
-#define TAG_MULTI_SENSOR   "MIKE MULTICLIMATE H2"
-#define CONFIG_NUM_SENSORS 8
+#define DO_DEBUG                              true
+
+#define TAG_MULTI_SENSOR                      "MIKE MULTICLIMATE H2"
+#define CONFIG_NUM_SENSORS                    8
 
 //-- Sensors configuration
 #define CONFIG_BME280_ENABLED                 true
-#define CONFIG_BME680_ENABLED                 true
-#define CONFIG_DS18B20_ENABLED                true
+#define CONFIG_BME680_ENABLED                 false
+#define CONFIG_DS18B20_ENABLED                false
 #define CONFIG_DHT11_ENABLED                  true
 #define CONFIG_SENSOR_POLL_PERIOD_MS          4500
 
@@ -43,33 +45,33 @@
 
 // Sensor types
 typedef enum {
-    SENSOR_TYPE_BME280  = 0,
-    SENSOR_TYPE_BME680  = 1,
-    SENSOR_TYPE_DS18B20 = 2,
-    SENSOR_TYPE_DHT11   = 3,
-    SENSOR_TYPE_MAX
+  SENSOR_TYPE_BME280  = 0,
+  SENSOR_TYPE_BME680  = 1,
+  SENSOR_TYPE_DS18B20 = 2,
+  SENSOR_TYPE_DHT11   = 3,
+  SENSOR_TYPE_MAX
 } sensor_type_t;
 
 // Sensor data structure
 typedef struct {
-    sensor_type_t config;
-    float last_temperature;
-    float last_humidity;
-    float last_pressure;
-    float last_gas_resistance;  // For BME680
-    uint64_t last_read_time;
+  sensor_type_t config;
+  float last_temperature;
+  float last_humidity;
+  float last_pressure;
+  float last_gas_resistance;  // For BME680
+  uint64_t last_read_time;
 } sensor_data_t;
 
 // Endpoint-sensor mapping
 typedef struct {
-    uint16_t endpoint_id;
-    sensor_type_t sensor_type;
-    gpio_num_t primary_gpio;
-    gpio_num_t secondary_gpio;
+  uint16_t endpoint_id;
+  sensor_type_t sensor_type;
+  gpio_num_t primary_gpio;
+  gpio_num_t secondary_gpio;
 } sensor_endpoint_mapping_t;
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
-#include "esp_openthread_types.h"
+  #include "esp_openthread_types.h"
 #endif
 
 extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
