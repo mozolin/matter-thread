@@ -6,9 +6,12 @@
 #include "driver/gpio.h"
 #include <driver/i2c.h>
 #include <button_gpio.h>
+//#include "driver_led_indicator.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 true
+#define MOCK_SENSORS_BEHAVIOR                 false
+
+#define USE_SSD1306_DRIVER                    true
 
 #define DO_DEBUG                              true
 
@@ -42,6 +45,25 @@
 
 #define CONFIG_BME280_I2C_PORT                I2C_NUM_0
 #define CONFIG_BME680_I2C_PORT                I2C_NUM_1
+
+#define LIVE_BLINK_TIME_MS                    0
+
+#if USE_SSD1306_DRIVER
+  #include "driver_ssd1306.h"
+  #include "ssd1306.h"
+  
+  //-- SSD1306
+  #define CONFIG_SCL_GPIO        13
+  #define CONFIG_SDA_GPIO        14
+  #define CONFIG_RESET_GPIO      -1
+  
+  //#define CONFIG_I2C_INTERFACE   true
+  //#define CONFIG_SSD1306_128x64  true
+  
+  extern bool ssd1306_initialized;
+  extern SSD1306_t ssd1306dev;
+#endif
+
 
 // Sensor types
 typedef enum {
@@ -141,3 +163,7 @@ void app_driver_log_sensor_statistics(void);
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
 #endif
+
+/*
+extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
+*/

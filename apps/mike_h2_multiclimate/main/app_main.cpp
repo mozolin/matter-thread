@@ -34,6 +34,73 @@ uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
+#if USE_SSD1306_DRIVER
+  //-- SSD1306 device instance
+  SSD1306_t ssd1306dev;
+  //-- Is SSD1306 initialized?
+  bool ssd1306_initialized = false;
+#endif
+
+/*********************
+ *                   *
+ *   LED INDICATOR   *
+ *                   *
+ *********************/
+/*
+led_indicator_handle_t led_handle;
+
+blink_step_t const *led_mode[] = {
+  [BLINK_ON_YELLOW] = yellow_on,
+  [BLINK_ON_ORANGE] = orange_on,
+  [BLINK_DOUBLE_RED] = double_red_blink,
+  [BLINK_TRIPLE_GREEN] = triple_green_blink,
+  [BLINK_ONCE_RED] = red_once_blink,
+  [BLINK_ONCE_GREEN] = green_once_blink,
+  [BLINK_ONCE_BLUE] = blue_once_blink,
+  [BLINK_ONCE_LIVE] = live_once_blink,
+  [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
+  [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
+  [BLINK_BLUE_BREATH] = breath_blue_blink,
+  [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
+  [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
+  #if LED_NUMBERS > 1
+    [BLINK_FLOWING] = flowing_blink,
+  #endif
+  [BLINK_MAX] = NULL,
+};
+
+uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
+{
+  uint8_t idx = 255;
+  
+  int size = sizeof(led_mode)/sizeof(led_mode[0]);
+
+  auto item = led_mode[blink_type];
+  for(int i=0; i<size; i++) {
+    if(led_mode[i] == item) {
+      //ESP_LOGW(TAG_MULTI_SENSOR, "~~~ ###!!!@@@ FOUND: %d", i);
+      idx = i;
+
+      if(start_delay > 0) {
+        led_indicator_start(led_handle, idx);
+        //vTaskDelay(pdMS_TO_TICKS(start_delay));
+        vTaskDelay(start_delay / portTICK_PERIOD_MS);
+
+        led_indicator_stop(led_handle, idx);
+        if(stop_delay > 0) {
+          //vTaskDelay(pdMS_TO_TICKS(stop_delay));
+          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
+        }
+      }
+
+      break;
+    }
+  }
+
+  return idx;
+}
+*/
+
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
@@ -363,70 +430,83 @@ void set_basic_attributes_esp_matter()
 
 extern "C" void app_main()
 {
-    esp_err_t err = ESP_OK;
+  esp_err_t err = ESP_OK;
 
-    // Start reboot button task
-    xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
-    
-    /* Initialize the ESP NVS layer */
-    nvs_flash_init();
+  // Start reboot button task
+  xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
 
-    /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
-    node::config_t node_config;
-    node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-    ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create Matter node"));
-    
-
-    if (CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
-        ESP_ERROR_CHECK(i2cdev_init());
+  #if USE_SSD1306_DRIVER
+    //-- Init LCD SSD1306
+    err = ssd1306_init();
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_SENSOR, "~~~ Error initialize SSD1306!");
+      //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+    } else {
+      ssd1306_initialized = true;
+      ESP_LOGW(TAG_MULTI_SENSOR, "~~~ SSD1306 Initialized!");
     }
+    ssd1306_show_title();
+  #endif
+    
+  /* Initialize the ESP NVS layer */
+  nvs_flash_init();
+
+  /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
+  node::config_t node_config;
+  node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create Matter node"));
+  
+
+  if(CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
+    ESP_ERROR_CHECK(i2cdev_init());
+  }
 
 
-    // Create sensor endpoints based on configuration
-    if (CONFIG_BME280_ENABLED) {
-        create_sensor_endpoint(SENSOR_TYPE_BME280, node);
-    }
-    
-    if (CONFIG_BME680_ENABLED) {
-        create_sensor_endpoint(SENSOR_TYPE_BME680, node);
-    }
-    
-    if (CONFIG_DS18B20_ENABLED) {
-        create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
-    }
-    
-    if (CONFIG_DHT11_ENABLED) {
-        create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
-    }
+  // Create sensor endpoints based on configuration
+  if(CONFIG_BME280_ENABLED) {
+    create_sensor_endpoint(SENSOR_TYPE_BME280, node);
+  }
+  
+  if(CONFIG_BME680_ENABLED) {
+    create_sensor_endpoint(SENSOR_TYPE_BME680, node);
+  }
+  
+  if(CONFIG_DS18B20_ENABLED) {
+    create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
+  }
+  
+  if(CONFIG_DHT11_ENABLED) {
+    create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
+  }
 
-    #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
-      //-- Set OpenThread platform config
-      esp_openthread_platform_config_t config = {
-          .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
-          .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
-          .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
-      };
-      set_openthread_platform_config(&config);
+  #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
+    //-- Set OpenThread platform config
+    esp_openthread_platform_config_t config = {
+      .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
+      .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
+      .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
+    };
+    set_openthread_platform_config(&config);
+  #endif
+
+  //-- Matter start
+  err = esp_matter::start(app_event_cb);
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to start Matter, err:%d", err));
+
+  //-- Setting BasicInformationCluster attributes
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  set_basic_attributes_esp_matter();
+
+  //-- Start sensor polling task
+  xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
+
+  #if CONFIG_ENABLE_CHIP_SHELL
+    esp_matter::console::diagnostics_register_commands();
+    esp_matter::console::wifi_register_commands();
+    esp_matter::console::factoryreset_register_commands();
+    #if CONFIG_OPENTHREAD_CLI
+      esp_matter::console::otcli_register_commands();
     #endif
-
-    //-- Matter start
-    err = esp_matter::start(app_event_cb);
-    ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to start Matter, err:%d", err));
-
-    //-- Setting BasicInformationCluster attributes
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    set_basic_attributes_esp_matter();
-
-    //-- Start sensor polling task
-    xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
-
-    #if CONFIG_ENABLE_CHIP_SHELL
-      esp_matter::console::diagnostics_register_commands();
-      esp_matter::console::wifi_register_commands();
-      esp_matter::console::factoryreset_register_commands();
-      #if CONFIG_OPENTHREAD_CLI
-        esp_matter::console::otcli_register_commands();
-      #endif
-      esp_matter::console::init();
-    #endif
+    esp_matter::console::init();
+  #endif
 }

@@ -73,6 +73,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 sensor->last_humidity = humidity;
                 sensor->last_pressure = pressure;
                 sensor->last_read_time = esp_timer_get_time();
+
+                ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0);
             }
             break;
         }
@@ -90,6 +92,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_pressure = pressure;
               sensor->last_gas_resistance = gas;
               sensor->last_read_time = esp_timer_get_time();
+
+              ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas);
             }
             break;
         }
@@ -97,9 +101,11 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         case SENSOR_TYPE_DS18B20: {
             int16_t temperature;
             err = ds18b20_read(&temperature);
-            if (err == ESP_OK) {
-                sensor->last_temperature = temperature;
-                sensor->last_read_time = esp_timer_get_time();
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_read_time = esp_timer_get_time();
+
+              ssd1306_show_sensor_data(4, temperature, 0, 0, 0);
             }
             break;
         }
@@ -108,10 +114,12 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             int16_t temperature;
             uint16_t humidity;
             err = dht11_read(&temperature, &humidity);
-            if (err == ESP_OK) {
-                sensor->last_temperature = temperature;
-                sensor->last_humidity = humidity;
-                sensor->last_read_time = esp_timer_get_time();
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_humidity = humidity;
+              sensor->last_read_time = esp_timer_get_time();
+
+              ssd1306_show_sensor_data(5, temperature, humidity, 0, 0);
             }
             break;
         }
