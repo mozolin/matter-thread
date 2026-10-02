@@ -36,7 +36,9 @@ sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
 #if USE_SSD1306_DRIVER
   //-- SSD1306 device instance
-  SSD1306_t ssd1306dev;
+  //SSD1306_t ssd1306dev;
+  ssd1306_config_t ssd1306_config = SSD1306_128x64_CONFIG_DEFAULT;
+  ssd1306_handle_t ssd1306_handle;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
 #endif
@@ -437,7 +439,7 @@ extern "C" void app_main()
 
   #if USE_SSD1306_DRIVER
     //-- Init LCD SSD1306
-    err = ssd1306_init();
+    err = ssd1306_i2c_init();
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_SENSOR, "~~~ Error initialize SSD1306!");
       //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);

@@ -61,7 +61,9 @@
   //#define CONFIG_SSD1306_128x64  true
   
   extern bool ssd1306_initialized;
-  extern SSD1306_t ssd1306dev;
+  //extern SSD1306_t ssd1306dev;
+  extern ssd1306_config_t ssd1306_config;
+  extern ssd1306_handle_t ssd1306_handle;
 #endif
 
 
