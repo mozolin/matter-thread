@@ -37,7 +37,7 @@ sensor_data_t sensors[CONFIG_NUM_SENSORS];
 #if USE_SSD1306_DRIVER
   //-- SSD1306 device instance
   //SSD1306_t ssd1306dev;
-  ssd1306_config_t ssd1306_config = SSD1306_128x64_CONFIG_DEFAULT;
+  ssd1306_config_t ssd1306_config; // = SSD1306_128x64_CONFIG_DEFAULT;
   ssd1306_handle_t ssd1306_handle;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;

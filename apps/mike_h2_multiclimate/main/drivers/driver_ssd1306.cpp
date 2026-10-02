@@ -15,6 +15,11 @@
 
 #include <type_traits>
 
+#define I2C_ADDRESS 0x3C
+#define I2C_MASTER_FREQ_HZ 400000 // I2C clock of SSD1306 can run at 400 kHz max.
+#define I2C_TICKS_TO_WAIT 100	  // Maximum ticks to wait before issuing a timeout.
+
+
 #if USE_SSD1306_DRIVER
   const uint8_t degree_symbol[] = {
     0b00110000,
@@ -37,21 +42,35 @@
     ESP_LOGW(TAG_MULTI_SENSOR, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
     
     // 1. Configure I2C bus with your desired GPIO pins
-    i2c_master_bus_config_t i2c_bus_config = {
+    i2c_master_bus_config_t i2c_mst_config = {
         .i2c_port = I2C_NUM_0,           // Choose I2C port (0 or 1)
-        .sda_io_num = CONFIG_SCL_GPIO,       // <-- SET YOUR SDA GPIO HERE
-        .scl_io_num = CONFIG_SCL_GPIO,       // <-- SET YOUR SCL GPIO HERE
+        .sda_io_num = (gpio_num_t)CONFIG_SDA_GPIO,       // <-- SET YOUR SDA GPIO HERE
+        .scl_io_num = (gpio_num_t)CONFIG_SCL_GPIO,       // <-- SET YOUR SCL GPIO HERE
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
-        .flags.enable_internal_pullup = true,  // Enable internal pull-ups
+        .flags {
+            .enable_internal_pullup = true,  // Enable internal pull-ups
+        },
     };
 
     // 2. Create the I2C master bus
     i2c_master_bus_handle_t i2c_bus_handle;
-    err = i2c_new_master_bus(&i2c_bus_config, &i2c_bus_handle);
+    err = i2c_new_master_bus(&i2c_mst_config, &i2c_bus_handle);
     if(err != ESP_OK) {
       ESP_LOGW(TAG_MULTI_SENSOR, "~~~ i2c_master_init() failed!");
       return err;
+    }
+    i2c_device_config_t dev_cfg = {
+    		.dev_addr_length = I2C_ADDR_BIT_LEN_7,
+    		.device_address = I2C_ADDRESS,
+    		.scl_speed_hz = I2C_MASTER_FREQ_HZ,
+    	};
+    	i2c_master_dev_handle_t i2c_dev_handle;
+    	//ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &dev_cfg, &i2c_dev_handle));
+    	err = i2c_master_bus_add_device(i2c_bus_handle, &dev_cfg, &i2c_dev_handle);
+    	if(err != ESP_OK) {
+    		ESP_LOGW(TAG_MULTI_SENSOR, "~~~ i2c_master_bus_add_device() failed! %d (%s)", err, esp_err_to_name(err));
+    		return err;
     }
 
     // 3. Initialize SSD1306 with default config
@@ -65,7 +84,7 @@
       return err;
     }
     if(ssd1306_handle == NULL) {
-      ESP_LOGE(APP_TAG, "ssd1306 handle init failed");
+      ESP_LOGE(TAG_MULTI_SENSOR, "ssd1306 handle init failed");
       assert(ssd1306_handle);
     }
     
@@ -92,7 +111,7 @@
     }
 
     ssd1306_clear_display(ssd1306_handle, false);
-    ssd1306_set_display_contrast(ssd1306_handle, 0xff);
+    ssd1306_set_contrast(ssd1306_handle, 0xff);
     ssd1306_display_text(ssd1306_handle, 0, " MATTER/THREAD  ", false);
   }
 
