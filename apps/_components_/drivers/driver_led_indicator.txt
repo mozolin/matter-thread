@@ -1,0 +1,2 @@
+
+Uses: "led_strip_config_t" for "led_model = LED_MODEL_WS2812"
