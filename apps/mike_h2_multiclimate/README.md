@@ -16,4 +16,4 @@
 ![](images/ha.jpg)  
 
 ### ESP-IDF Log
-![](images/MULTICLIMATE_ESP32H2.jpg)  
+![](images/MultiClimate_ESP32H2.jpg)  

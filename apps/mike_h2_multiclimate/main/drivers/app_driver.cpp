@@ -18,6 +18,8 @@ typedef struct {
     bool reset_in_progress;
 } sensor_reset_tracker_t;
 
+i2c_master_bus_handle_t bus_handle;
+
 static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 
 // Reset interval constants
@@ -43,7 +45,7 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
             err = dht11_init();
             break;
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg);
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
             err = ESP_ERR_INVALID_ARG;
             break;
     }
@@ -54,7 +56,7 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
 esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
 {
     if (sensor_idx >= configured_sensors) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Invalid sensor index: %d", sensor_idx);
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Invalid sensor index: %d", sensor_idx);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -74,7 +76,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 sensor->last_pressure = pressure;
                 sensor->last_read_time = esp_timer_get_time();
 
-                ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0);
+                #if USE_SSD1306_DRIVER
+                  ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0);
+                #endif
             }
             break;
         }
@@ -93,7 +97,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_gas_resistance = gas;
               sensor->last_read_time = esp_timer_get_time();
 
-              ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas);
+              #if USE_SSD1306_DRIVER
+                ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas);
+              #endif
             }
             break;
         }
@@ -105,7 +111,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_temperature = temperature;
               sensor->last_read_time = esp_timer_get_time();
 
-              ssd1306_show_sensor_data(4, temperature, 0, 0, 0);
+              #if USE_SSD1306_DRIVER
+                ssd1306_show_sensor_data(4, temperature, 0, 0, 0);
+              #endif
             }
             break;
         }
@@ -119,7 +127,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_humidity = humidity;
               sensor->last_read_time = esp_timer_get_time();
 
-              ssd1306_show_sensor_data(5, temperature, humidity, 0, 0);
+              #if USE_SSD1306_DRIVER
+                ssd1306_show_sensor_data(5, temperature, humidity, 0, 0);
+              #endif
             }
             break;
         }
@@ -130,7 +140,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     }
 
     if (err != ESP_OK) {
-        ESP_LOGW(TAG_MULTI_SENSOR, "Failed to read sensor %d: %d", sensor_idx, err);
+        ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
     }
 
     return err;
@@ -150,7 +160,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     }
     
     sensor_data_t *sensor = &sensors[sensor_idx];
-    ESP_LOGW(TAG_MULTI_SENSOR, "Performing soft reset for sensor %d (%d)", 
+    ESP_LOGW(TAG_MULTI_CLIMATE, "Performing soft reset for sensor %d (%d)", 
             sensor_idx, sensor->config);
     
     esp_err_t err = ESP_OK;
@@ -169,7 +179,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
             err = dht11_reset();
             break;
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type for reset: %d", sensor->config);
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type for reset: %d", sensor->config);
             err = ESP_ERR_NOT_SUPPORTED;
             break;
     }
@@ -177,10 +187,10 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     if (err == ESP_OK) {
         sensor_reset_tracker[sensor_idx].reset_count++;
         sensor_reset_tracker[sensor_idx].last_reset_time = esp_timer_get_time() / 1000;
-        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %d reset successful (total resets: %lu)", 
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor %d reset successful (total resets: %lu)", 
                 sensor_idx, sensor_reset_tracker[sensor_idx].reset_count);
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to reset sensor %d: %d", sensor_idx, err);
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to reset sensor %d: %d", sensor_idx, err);
     }
     
     return err;
@@ -202,7 +212,7 @@ void sensor_polling_task(void *pvParameters)
     const uint32_t RESET_CHECK_INTERVAL = 100;
     //const uint32_t STATS_LOG_INTERVAL = 5000;
     
-    ESP_LOGI(TAG_MULTI_SENSOR, "Sensor polling task started with %d sensors", configured_sensors);
+    ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor polling task started with %d sensors", configured_sensors);
     
     while (true) {
         
@@ -220,7 +230,7 @@ void sensor_polling_task(void *pvParameters)
                 uint64_t time_since_last_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
                 
                 if (time_since_last_reset >= RESET_INTERVAL_MS) {
-                    ESP_LOGI(TAG_MULTI_SENSOR, 
+                    ESP_LOGI(TAG_MULTI_CLIMATE, 
                             "Scheduled reset for sensor %d (%d): %llu ms since last reset", 
                             i, sensors[i].config, time_since_last_reset);
                     
@@ -229,7 +239,7 @@ void sensor_polling_task(void *pvParameters)
                     sensor_reset_tracker[i].reset_in_progress = false;
                     
                     if (reset_err == ESP_OK) {
-                        ESP_LOGI(TAG_MULTI_SENSOR, "Scheduled reset completed for sensor %d", i);
+                        ESP_LOGI(TAG_MULTI_CLIMATE, "Scheduled reset completed for sensor %d", i);
                     }
                     
                     vTaskDelay(pdMS_TO_TICKS(200));
@@ -268,10 +278,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #endif
                         }
@@ -287,10 +297,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #endif
                         }
@@ -307,9 +317,9 @@ void sensor_polling_task(void *pvParameters)
                             
                             if (err == ESP_OK) {
                                 #if DO_DEBUG
-                                    ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
+                                    ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
                                 #else
-                                    ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
+                                    ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
                                 #endif
                             }
                         }
@@ -328,10 +338,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #endif
                         }
@@ -347,10 +357,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #endif
                         }
@@ -367,10 +377,10 @@ void sensor_polling_task(void *pvParameters)
                             
                             if (err == ESP_OK) {
                                 #if DO_DEBUG
-                                    ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                    ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
                                 #else
-                                    ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Pressure = %.2f hPa", 
+                                    ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
                                 #endif
                             }
@@ -387,10 +397,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Gas Resistance = %.0f Ohm", 
                                     i, sensor->last_gas_resistance);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Gas Resistance = %.0f Ohm", 
                                     i, sensor->last_gas_resistance);
                             #endif
                         } else {
@@ -417,10 +427,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #endif
                         }
@@ -439,10 +449,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Temperature = %.2f°C", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #endif
                         }
@@ -458,10 +468,10 @@ void sensor_polling_task(void *pvParameters)
                         
                         if (err == ESP_OK) {
                             #if DO_DEBUG
-                                ESP_LOGW(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else
-                                ESP_LOGD(TAG_MULTI_SENSOR, "Sensor %d: Humidity = %.2f %%", 
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #endif
                         }
@@ -541,4 +551,47 @@ void app_driver_log_sensor_statistics(void)
     ESP_LOGW("", "");
     ESP_LOGW("", "===========================================================================");
     ESP_LOGW("", "");
+}
+
+// Инициализация I2C шины
+void i2c_master_init(void)
+{
+  i2c_master_bus_config_t bus_cfg = {
+    .i2c_port = I2C_NUM_1,
+    .sda_io_num = (gpio_num_t)CONFIG_BME280_SDA_GPIO,
+    .scl_io_num = (gpio_num_t)CONFIG_BME280_SCL_GPIO,
+    .clk_source = I2C_CLK_SRC_DEFAULT,
+    .glitch_ignore_cnt = 7,
+    .flags = {
+      .enable_internal_pullup = true,  // Включаем внутренние подтяжки
+    },
+  };
+  
+  ESP_ERROR_CHECK(i2c_new_master_bus(&bus_cfg, &bus_handle));
+  ESP_LOGI(TAG_MULTI_CLIMATE, "I2C master bus initialized");
+}
+
+// Добавление устройства на шину
+i2c_master_dev_handle_t add_device(uint16_t address, const char *name)
+{
+  i2c_device_config_t dev_cfg = {
+    .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+    .device_address = address,
+    .scl_speed_hz = I2C_MASTER_BUS_FREQ_HZ,
+  };
+  
+  i2c_master_dev_handle_t dev_handle;
+  esp_err_t ret = i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle);
+  if(ret != ESP_OK) {
+    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to add %s (0x%02X): %s", name, address, esp_err_to_name(ret));
+    return NULL;
+  }
+  ESP_LOGI(TAG_MULTI_CLIMATE, "%s added at 0x%02X", name, address);
+  return dev_handle;
+}
+
+// Проверка наличия устройства на шине
+bool probe_device(uint16_t address)
+{
+  return i2c_master_probe(bus_handle, address, 100) == ESP_OK;
 }

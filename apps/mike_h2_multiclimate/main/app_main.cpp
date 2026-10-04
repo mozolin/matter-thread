@@ -36,9 +36,7 @@ sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
 #if USE_SSD1306_DRIVER
   //-- SSD1306 device instance
-  //SSD1306_t ssd1306dev;
-  ssd1306_config_t ssd1306_config; // = SSD1306_128x64_CONFIG_DEFAULT;
-  ssd1306_handle_t ssd1306_handle;
+  SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
 #endif
@@ -80,7 +78,7 @@ uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int sto
   auto item = led_mode[blink_type];
   for(int i=0; i<size; i++) {
     if(led_mode[i] == item) {
-      //ESP_LOGW(TAG_MULTI_SENSOR, "~~~ ###!!!@@@ FOUND: %d", i);
+      //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ ###!!!@@@ FOUND: %d", i);
       idx = i;
 
       if(start_delay > 0) {
@@ -107,35 +105,35 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Interface IP Address changed");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Interface IP Address changed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning complete");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning complete");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning failed, fail safe timer expired");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning failed, fail safe timer expired");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning session started");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning session started");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning session stopped");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning session stopped");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning window opened");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning window opened");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning window closed");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning window closed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric removed successfully");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric removed successfully");
         if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
             chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
             constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -143,7 +141,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
                 CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
                                                                             chip::CommissioningWindowAdvertisement::kDnssdOnly);
                 if (err != CHIP_NO_ERROR) {
-                    ESP_LOGE(TAG_MULTI_SENSOR, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
                 }
             }
         }
@@ -151,19 +149,19 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric will be removed");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric will be removed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric is updated");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric is updated");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric is committed");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric is committed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-        ESP_LOGI(TAG_MULTI_SENSOR, "BLE deinitialized and memory reclaimed");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "BLE deinitialized and memory reclaimed");
         break;
 
     default:
@@ -174,7 +172,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id,
                                        uint8_t effect_variant, void *priv_data)
 {
-    ESP_LOGI(TAG_MULTI_SENSOR, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+    ESP_LOGI(TAG_MULTI_CLIMATE, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
     return ESP_OK;
 }
 
@@ -203,7 +201,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     // Check if sensor is already configured
     for(int i = 0; i < configured_sensors; i++) {
       if(sensor_mapping_list[i].sensor_type == sensor_cfg) {
-        ESP_LOGW(TAG_MULTI_SENSOR, "Sensor type %d already configured", sensor_cfg);
+        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor type %d already configured", sensor_cfg);
         return ESP_ERR_INVALID_STATE;
       }
     }
@@ -226,7 +224,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME280");
+              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for BME280");
               return ESP_FAIL;
             }
 
@@ -263,7 +261,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for BME680");
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for BME680");
                 return ESP_FAIL;
             }
 
@@ -313,7 +311,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                 );
                 */
             } else {
-                ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create TVOC cluster");
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create TVOC cluster");
             }
 
             break;
@@ -351,7 +349,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create endpoint for DHT11");
+              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for DHT11");
               return ESP_FAIL;
             }
 
@@ -366,19 +364,19 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
 
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg);
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
             return ESP_ERR_INVALID_ARG;
     }
 
     if(!endpoint) {
-      ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
       return ESP_FAIL;
     }
 
     // Initialize sensor hardware
     err = app_driver_sensor_init(sensor_cfg);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to initialize sensor type: %d", sensor_cfg);
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize sensor type: %d", sensor_cfg);
         return err;
     }
 
@@ -399,10 +397,10 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         
         configured_sensors++;
         
-        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %d created with endpoint_id %d", 
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor %d created with endpoint_id %d", 
                 sensor_cfg, endpoint::get_id(endpoint));
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Maximum sensors configuration limit exceeded!");
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
     }
 
@@ -424,9 +422,9 @@ void set_basic_attributes_esp_matter()
     );
     
     if(err == ESP_OK) {
-        ESP_LOGI(TAG_MULTI_SENSOR, "NodeLabel set via ESP-Matter API");
+        ESP_LOGI(TAG_MULTI_CLIMATE, "NodeLabel set via ESP-Matter API");
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set NodeLabel: %d", err);
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to set NodeLabel: %d", err);
     }
 }
 
@@ -439,13 +437,13 @@ extern "C" void app_main()
 
   #if USE_SSD1306_DRIVER
     //-- Init LCD SSD1306
-    err = ssd1306_i2c_init();
+    err = ssd1306_init();
     if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_SENSOR, "~~~ Error initialize SSD1306!");
+      ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
       //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     } else {
       ssd1306_initialized = true;
-      ESP_LOGW(TAG_MULTI_SENSOR, "~~~ SSD1306 Initialized!");
+      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306 Initialized!");
     }
     ssd1306_show_title();
   #endif
@@ -456,11 +454,15 @@ extern "C" void app_main()
   /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create Matter node"));
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create Matter node"));
   
 
   if(CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
-    ESP_ERROR_CHECK(i2cdev_init());
+    err = i2cdev_init();
+    if(err != ESP_OK) {
+    	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev");
+    }
+    //ESP_ERROR_CHECK(i2cdev_init());
   }
 
 
@@ -493,7 +495,7 @@ extern "C" void app_main()
 
   //-- Matter start
   err = esp_matter::start(app_event_cb);
-  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to start Matter, err:%d", err));
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to start Matter, err:%d", err));
 
   //-- Setting BasicInformationCluster attributes
   vTaskDelay(pdMS_TO_TICKS(3000));

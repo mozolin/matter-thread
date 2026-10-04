@@ -44,18 +44,18 @@ esp_err_t ds18b20_read(int16_t *temperature)
       res = ds18x20_scan_devices(SENSOR_GPIO, addrs, MAX_SENSORS, &sensor_count);
       if(res != ESP_OK)
       {
-        ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
+        ESP_LOGE(TAG_MULTI_CLIMATE, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
         return ESP_OK;
       }
       
       if(!sensor_count)
       {
-        ESP_LOGE(TAG_MULTI_SENSOR, "DS18B20: No sensors detected!");
+        ESP_LOGE(TAG_MULTI_CLIMATE, "DS18B20: No sensors detected!");
         return ESP_OK;
       }
       
       #if DO_DEBUG
-        ESP_LOGW(TAG_MULTI_SENSOR, "DS18B20: %d sensors detected", sensor_count);
+        ESP_LOGW(TAG_MULTI_CLIMATE, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
       // If there were more sensors found than we have space to handle,
@@ -65,12 +65,12 @@ esp_err_t ds18b20_read(int16_t *temperature)
       }
       
       // Do a number of temperature samples, and print the results.
-      //ESP_LOGI(TAG_MULTI_SENSOR, "Measuring...");
+      //ESP_LOGI(TAG_MULTI_CLIMATE, "Measuring...");
       
       res = ds18x20_measure_and_read_multi(SENSOR_GPIO, addrs, sensor_count, temps);
       if(res != ESP_OK)
       {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Sensors read error %d (%s)", res, esp_err_to_name(res));
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Sensors read error %d (%s)", res, esp_err_to_name(res));
         return ESP_OK;
       }
       
@@ -92,7 +92,7 @@ esp_err_t ds18b20_read(int16_t *temperature)
       temp = 26.12;
       
       #if DO_DEBUG
-        ESP_LOGW(TAG_MULTI_SENSOR, "DS18B20: %d sensors detected", sensor_count);
+        ESP_LOGW(TAG_MULTI_CLIMATE, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
       #if DO_DEBUG

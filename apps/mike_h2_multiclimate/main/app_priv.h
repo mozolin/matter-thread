@@ -4,18 +4,19 @@
 #include <esp_matter.h>
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
-#include <driver/i2c.h>
+//#include <driver/i2c.h>
+#include "driver/i2c_master.h"
 #include <button_gpio.h>
 //#include "driver_led_indicator.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 true
+#define MOCK_SENSORS_BEHAVIOR                 false
 
-#define USE_SSD1306_DRIVER                    true
+#define USE_SSD1306_DRIVER                    false
 
 #define DO_DEBUG                              true
 
-#define TAG_MULTI_SENSOR                      "MIKE MULTICLIMATE H2"
+#define TAG_MULTI_CLIMATE                     "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS                    8
 
 //-- Sensors configuration
@@ -23,7 +24,7 @@
 #define CONFIG_BME680_ENABLED                 true
 #define CONFIG_DS18B20_ENABLED                true
 #define CONFIG_DHT11_ENABLED                  true
-#define CONFIG_SENSOR_POLL_PERIOD_MS          4500
+#define CONFIG_SENSOR_POLL_PERIOD_MS          5000
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY      5
@@ -47,6 +48,7 @@
 #define CONFIG_BME680_I2C_PORT                I2C_NUM_1
 
 #define LIVE_BLINK_TIME_MS                    0
+#define I2C_MASTER_BUS_FREQ_HZ                100000
 
 #if USE_SSD1306_DRIVER
   #include "driver_ssd1306.h"
@@ -56,14 +58,14 @@
   #define CONFIG_SCL_GPIO        13
   #define CONFIG_SDA_GPIO        14
   #define CONFIG_RESET_GPIO      -1
+  #define CONFIG_I2C_ADDRESS     0x3C
+  #define I2C_MASTER_FREQ_HZ     400000 // I2C clock of SSD1306 can run at 400 kHz max.
   
   //#define CONFIG_I2C_INTERFACE   true
   //#define CONFIG_SSD1306_128x64  true
   
   extern bool ssd1306_initialized;
-  //extern SSD1306_t ssd1306dev;
-  extern ssd1306_config_t ssd1306_config;
-  extern ssd1306_handle_t ssd1306_handle;
+  extern SSD1306_t ssd1306dev;
 #endif
 
 
@@ -97,6 +99,24 @@ typedef struct {
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include "esp_openthread_types.h"
 #endif
+
+
+//!!! I2C !!!
+typedef struct {
+    i2c_master_bus_handle_t bus_handle;
+    i2c_master_dev_handle_t dev_handle;
+} i2c_bus_dev_t;
+
+esp_err_t i2c_init_bus_and_device(i2c_port_num_t port, gpio_num_t sda, gpio_num_t scl, uint8_t dev_addr, i2c_bus_dev_t *out_dev);
+// Инициализация I2C шины
+extern void i2c_master_init(void);
+// Добавление устройства на шину
+extern i2c_master_dev_handle_t add_device(uint16_t address, const char *name);
+// Проверка наличия устройства на шине
+extern bool probe_device(uint16_t address);
+
+//!!! I2C !!!
+
 
 extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 extern uint16_t configured_sensors;

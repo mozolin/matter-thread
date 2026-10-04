@@ -1,9 +1,10 @@
 dependencies:
   espressif/esp_matter: ^1.4.0
   idf: '>=5.4.1'
-  espressif/button: ^4.2.1
+  espressif/button: ^4.1.5
   esp-idf-lib/bmp280: ^1.0.7
   esp-idf-lib/bme680: ^1.0.7
+  #k0i05/esp_bmp280: ^1.2.7
+  #k0i05/esp_bme680: ^1.2.7
   esp-idf-lib/ds18x20: ^1.2.8
   esp-idf-lib/dht: ^1.2.0
-  k0i05/esp_ssd1306: ^1.2.7
