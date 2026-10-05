@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 esp_err_t ds18b20_init();
-esp_err_t ds18b20_read(int16_t *temperature);
+esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)l
 esp_err_t ds18b20_reset();
 
 #ifdef __cplusplus

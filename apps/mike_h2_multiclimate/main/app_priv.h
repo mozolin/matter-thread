@@ -85,6 +85,7 @@ typedef struct {
   float last_pressure;
   float last_gas_resistance;  // For BME680
   uint64_t last_read_time;
+  uint8_t num_sensors;        // For DS18B20
 } sensor_data_t;
 
 // Endpoint-sensor mapping

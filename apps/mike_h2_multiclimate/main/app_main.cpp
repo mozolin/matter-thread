@@ -398,6 +398,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         sensors[configured_sensors].last_pressure = 0;
         sensors[configured_sensors].last_gas_resistance = 0;
         sensors[configured_sensors].last_read_time = 0;
+        sensors[configured_sensors].num_sensors = 1;
         
         configured_sensors++;
         

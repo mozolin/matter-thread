@@ -30,7 +30,7 @@ esp_err_t ds18b20_init()
     return ESP_OK;
 }
 
-esp_err_t ds18b20_read(int16_t *temperature)
+esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
 {
     float temp;
 
@@ -109,6 +109,7 @@ esp_err_t ds18b20_read(int16_t *temperature)
     #endif
     
     *temperature = (int16_t)(temp * 100.0f);  // 0.01°C
+    *num_sensors = (uint8_t)sensor_count;
     return ESP_OK;
 }
 
