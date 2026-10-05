@@ -71,13 +71,18 @@ Usage:
 #define OLED_CMD_ACTIVE_SCROLL          0x2F
 #define OLED_CMD_VERTICAL               0xA3
 
-#define I2C_ADDRESS 0x3C
-#define SPI_ADDRESS 0xFF
+#define SSD1306_I2C_ADDRESS             0x3C
+#ifdef CONFIG_I2C_MASTER_PORT_NUM
+  #define SSD1306_I2C_NUM               CONFIG_I2C_MASTER_PORT_NUM
+#else
+  #define SSD1306_I2C_NUM               I2C_NUM_1
+#endif
+#define SSD1306_SPI_ADDRESS             0xFF
 
-#define OLED_DRAW_UPPER_RIGHT 0x01
-#define OLED_DRAW_UPPER_LEFT  0x02
-#define OLED_DRAW_LOWER_LEFT  0x04
-#define OLED_DRAW_LOWER_RIGHT 0x08
+#define OLED_DRAW_UPPER_RIGHT           0x01
+#define OLED_DRAW_UPPER_LEFT            0x02
+#define OLED_DRAW_LOWER_LEFT            0x04
+#define OLED_DRAW_LOWER_RIGHT           0x08
 #define OLED_DRAW_ALL (OLED_DRAW_UPPER_RIGHT|OLED_DRAW_UPPER_LEFT|OLED_DRAW_LOWER_RIGHT|OLED_DRAW_LOWER_LEFT)
 
 typedef enum {
@@ -160,7 +165,7 @@ void ssd1306_display_rotate_text(SSD1306_t * dev, int seg, const char * text, in
 void ssd1306_dump(SSD1306_t dev);
 void ssd1306_dump_page(SSD1306_t * dev, int page, int seg);
 
-esp_err_t i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t reset);
+esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t scl, int16_t reset);
 esp_err_t i2c_device_add(SSD1306_t * dev, i2c_port_t i2c_num, int16_t reset, uint16_t i2c_address);
 esp_err_t i2c_init(SSD1306_t * dev, int width, int height);
 void i2c_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * images, int width);

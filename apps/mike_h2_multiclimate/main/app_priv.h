@@ -4,13 +4,12 @@
 #include <esp_matter.h>
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
-//#include <driver/i2c.h>
 #include "driver/i2c_master.h"
 #include <button_gpio.h>
 //#include "driver_led_indicator.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 true
+#define MOCK_SENSORS_BEHAVIOR                 false
 #define DO_DEBUG                              true
 
 
@@ -23,45 +22,47 @@
 #define CONFIG_BME680_ENABLED                 true
 #define CONFIG_DS18B20_ENABLED                true
 #define CONFIG_DHT11_ENABLED                  true
-#define CONFIG_SENSOR_POLL_PERIOD_MS          5000
+
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY      5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY    4
 
-//-- I2C Configuration
-#define CONFIG_BME280_I2C_BUS                 0
-#define CONFIG_BME280_I2C_ADDR                0x76
-#define CONFIG_BME680_I2C_BUS                 0
-#define CONFIG_BME680_I2C_ADDR                0x77
-
-//-- GPIO Configuration
+//-- BMP280 sensor
+//#define CONFIG_BME280_I2C_BUS                 0
+//#define CONFIG_BME280_I2C_ADDR                0x76
 #define CONFIG_BME280_SDA_GPIO                1
 #define CONFIG_BME280_SCL_GPIO                2
+#define CONFIG_BME280_I2C_PORT                I2C_NUM_0
+//-- BME680 sensor
+//#define CONFIG_BME680_I2C_BUS                 0
+//#define CONFIG_BME680_I2C_ADDR                0x77
 #define CONFIG_BME680_SDA_GPIO                3
 #define CONFIG_BME680_SCL_GPIO                5
+#define CONFIG_BME680_I2C_PORT                I2C_NUM_1
+//-- DS18B20 sensor
 #define CONFIG_DS18B20_GPIO                   10
+//-- DHT11 sensor
 #define CONFIG_DHT11_GPIO                     11
 
-#define CONFIG_BME280_I2C_PORT                I2C_NUM_0
-#define CONFIG_BME680_I2C_PORT                I2C_NUM_1
 
 #define LIVE_BLINK_TIME_MS                    0
-#define I2C_MASTER_BUS_FREQ_HZ                100000
+//#define I2C_MASTER_BUS_FREQ_HZ                100000
+#define CONFIG_SENSOR_POLL_PERIOD_MS          5000
+
 
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
   
-  //-- SSD1306
-  #define CONFIG_SCL_GPIO        13
-  #define CONFIG_SDA_GPIO        14
-  #define CONFIG_RESET_GPIO      -1
-  #define CONFIG_I2C_ADDRESS     0x3C
-  #define I2C_MASTER_FREQ_HZ     400000 // I2C clock of SSD1306 can run at 400 kHz max.
-  
-  //#define CONFIG_I2C_INTERFACE   true
-  //#define CONFIG_SSD1306_128x64  true
+  //-- SSD1306:
+  //-- the same SDA and SCL GPIOs as the BMP280,
+  //-- which means the I2C port will be the same)
+  #define CONFIG_SSD1306_SDA_GPIO             1
+  #define CONFIG_SSD1306_SCL_GPIO             2
+  #define CONFIG_SSD1306_RESET_GPIO           -1
+  #define CONFIG_SSD1306_I2C_ADDRESS          0x3C
+  #define CONFIG_SSD1306_I2C_PORT             I2C_NUM_0
   
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
@@ -99,23 +100,6 @@ typedef struct {
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include "esp_openthread_types.h"
 #endif
-
-
-//!!! I2C !!!
-typedef struct {
-    i2c_master_bus_handle_t bus_handle;
-    i2c_master_dev_handle_t dev_handle;
-} i2c_bus_dev_t;
-
-esp_err_t i2c_init_bus_and_device(i2c_port_num_t port, gpio_num_t sda, gpio_num_t scl, uint8_t dev_addr, i2c_bus_dev_t *out_dev);
-// Инициализация I2C шины
-extern void i2c_master_init(void);
-// Добавление устройства на шину
-extern i2c_master_dev_handle_t add_device(uint16_t address, const char *name);
-// Проверка наличия устройства на шине
-extern bool probe_device(uint16_t address);
-
-//!!! I2C !!!
 
 
 extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];

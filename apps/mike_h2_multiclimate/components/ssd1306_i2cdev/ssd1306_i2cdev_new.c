@@ -33,7 +33,7 @@ static i2c_dev_t ssd1306_i2c_dev;
  * но инициализирует статический ssd1306_i2c_dev и сохраняет его в dev->_i2c_dev_handle для
  * использования в других функциях.
  */
-esp_err_t i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t reset)
+esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t scl, int16_t reset)
 {
     esp_err_t err = ESP_OK;
     
@@ -50,8 +50,8 @@ esp_err_t i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t res
 
     // ДОБАВЛЕНО: Настройка дескриптора i2cdev
     memset(&ssd1306_i2c_dev, 0, sizeof(i2c_dev_t));
-    ssd1306_i2c_dev.port = I2C_NUM_1; // ИЗМЕНЕНО: Используем порт 1 (как в оригинале)
-    ssd1306_i2c_dev.addr = I2C_ADDRESS; // 0x3C
+    ssd1306_i2c_dev.port = port;//SSD1306_I2C_NUM; // ИЗМЕНЕНО: Используем порт 1 (как в оригинале)
+    ssd1306_i2c_dev.addr = SSD1306_I2C_ADDRESS; // 0x3C
     ssd1306_i2c_dev.cfg.sda_io_num = sda;
     ssd1306_i2c_dev.cfg.scl_io_num = scl;
     ssd1306_i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
@@ -76,9 +76,9 @@ esp_err_t i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t res
 
     // ИЗМЕНЕНО: Сохраняем указатель на статический дескриптор в SSD1306_t.
     // Это позволяет другим функциям (i2c_init, i2c_display_image) использовать i2cdev.
-    dev->_address = I2C_ADDRESS;
+    dev->_address = SSD1306_I2C_ADDRESS;
     dev->_flip = false;
-    dev->_i2c_num = I2C_NUM_1;
+    dev->_i2c_num = port;//SSD1306_I2C_NUM;
     // Приводим указатель к типу i2c_master_dev_handle_t (который в i2cdev может быть просто void* или i2c_dev_t*)
     // ВАЖНО: В оригинальном коде _i2c_dev_handle использовался для i2c_master_transmit.
     // Теперь мы будем использовать ssd1306_i2c_dev напрямую, но сохраним его для передачи.

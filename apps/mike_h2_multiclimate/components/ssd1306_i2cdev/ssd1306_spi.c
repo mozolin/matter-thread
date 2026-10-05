@@ -77,7 +77,7 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 	assert(ret==ESP_OK);
 
 	dev->_dc = dc;
-	dev->_address = SPI_ADDRESS;
+	dev->_address = SSD1306_SPI_ADDRESS;
 	dev->_flip = false;
 	dev->_spi_device_handle = spi_device_handle;
 }
@@ -133,7 +133,7 @@ void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 	assert(ret==ESP_OK);
 
 	dev->_dc = dc;
-	dev->_address = SPI_ADDRESS;
+	dev->_address = SSD1306_SPI_ADDRESS;
 	dev->_flip = false;
 	dev->_spi_device_handle = spi_device_handle;
 }
