@@ -4,7 +4,7 @@
 #include <driver/gpio.h>
 #include "dht.h"
 
-#if CONFIG_DHT11_ENABLED
+//#if CONFIG_DHT11_ENABLED
 
   #ifdef __cplusplus
     extern "C" {
@@ -18,4 +18,4 @@
     }
   #endif
 
-#endif
+//#endif
