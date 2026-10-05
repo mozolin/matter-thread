@@ -269,67 +269,7 @@
     ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
     ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
   }
-
-  void ssd1306_show_plug_status(uint8_t plug_num, bool state)
-  {
-    //-- if not initialized
-    if(!ssd1306_initialized) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Unable to show plug status: SSD1306 is not initialized!");
-      return;
-    }
-    
-    /*
-    //-- if wrong plug number
-    if(plug_num > CONFIG_NUM_VIRTUAL_PLUGS) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Unable to show plug status: Wrong plug number (%d)!", plug_num);
-      return;
-    }
-    */
-    
-    //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ Plug %d state (ESP NVS): %s", plug_num, state ? "ON " : "OFF");
-    
-    ssd1306_show_square(plug_num - 1, state);
-  }
   
-  void ssd1306_show_square(int idx, bool state)
-  {
-    uint8_t image[24];
-    
-    int top = (idx < 4) ? 2 : 5;
-    int left = (idx < 4) ? ((idx*3)+2)*8 : ((idx-4)*3+2)*8;
-
-    /*
-      SSD1306 128x64
-    ##################
-    #     MATTER     #
-    #   OVER THREAD  #
-    #                #
-    #   1  2  3  4   #
-    #                #
-    #                #
-    #   5  6  7  8   #
-    #                #
-    ##################
-    */
-
-    //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ !SQUARE: TOP=%d, LEFT=%d", top, left);
-
-    memset(image, 0, sizeof(image));
-    if(state) {
-      ssd1306_invert(image, 24);
-    }
-    ssd1306_display_image(&ssd1306dev, top,   left, image, sizeof(image));
-    ssd1306_display_image(&ssd1306dev, top+1, left, image, sizeof(image));
-    ssd1306_display_image(&ssd1306dev, top+2, left, image, sizeof(image));
-
-    int font = 0x30 + idx + 1;
-    memcpy(image, font8x8_basic_tr[font], 8);
-    if(state) {
-      ssd1306_invert(image, 8);
-    }
-    ssd1306_display_image(&ssd1306dev, top+1, left+8, image, 8);
-  }
-
   #if USE_TIME_DRIVER
     bool ssd1306_show_datetime(const tm& timeinfo)
     {
@@ -361,68 +301,7 @@
     ssd1306_bitmaps(&ssd1306dev, x, y, (uint8_t*)degree_symbol, 8, 8, false);
   }
 
-	void ssd1306_show_matter_updates(float temp, float volt, char* short_uptime_buf, const tm& timeinfo)
-	{
-		//-- if not initialized
-    if(!ssd1306_initialized) {
-		  return;
-		}
-  
-    uint8_t x_pos = 0;
-    char buf[32];
-		
-		#if USE_INTERNAL_UPTIME
-			char buf2[32];
-		#endif
-		
-		
-  
-    if(temp > 0) {
-      //-- temperature
-      snprintf(buf, sizeof(buf), " %.0f C", temp);
-      //-- save position for degree symbol (between the numeric part and the letter C), 8px per symbol
-      x_pos = (strlen(buf) - 2) * 8;
-    }
-    
-    #if USE_INTERNAL_VOLTAGE
-      if(volt > 0) {
-      	//-- voltage
-      	if(temp > 0) {
-        	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
-		      //-- temperature + voltage
-		      strcat(buf, buf2);
-      	} else {
-      		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
-      	}
-      }
-    #endif
-    
-    #if USE_INTERNAL_UPTIME
-      if(temp > 0) {
-      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-			  //-- temperature + uptime
-			  strcat(buf, buf2);
-      } else {
-      	snprintf(buf, sizeof(buf), " %s", short_uptime_buf);
-      }
-    #endif
-    
-
-    #if USE_TIME_DRIVER
-		  //-- Displaying time on the display (row = 0)
-			ssd1306_show_datetime(timeinfo);
-		#endif
-    
-    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
-    
-    if(temp > 0) {
-    	//-- put degree symbol at saved position (y = 8 => line 1)
-      ssd1306_draw_degree_symbol(x_pos, 8);
-    }
-	}
-
-
-	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas)
+	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, uint8_t extra)
 	{
 		//-- if not initialized
     if(!ssd1306_initialized) {
@@ -452,6 +331,12 @@
     	char buf4[32];
     	snprintf(buf4, sizeof(buf4), " %.0f", gas);
     	strcat(buf, buf4);
+    }
+
+    if(extra > 1) {
+    	char buf5[32];
+    	snprintf(buf5, sizeof(buf4), " (%d)", extra);
+    	strcat(buf, buf5);
     }
 
     //snprintf(buf, sizeof(buf), ",%.1f", hum/100.0f);
