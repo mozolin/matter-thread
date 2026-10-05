@@ -11,19 +11,18 @@
 #include "driver_reset_button.h"
 
 #define MOCK_SENSORS_BEHAVIOR                 false
-
-#define USE_SSD1306_DRIVER                    false
-
 #define DO_DEBUG                              true
+
 
 #define TAG_MULTI_CLIMATE                     "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS                    8
 
 //-- Sensors configuration
+#define USE_SSD1306_DRIVER                    true
 #define CONFIG_BME280_ENABLED                 true
 #define CONFIG_BME680_ENABLED                 true
-#define CONFIG_DS18B20_ENABLED                true
-#define CONFIG_DHT11_ENABLED                  true
+#define CONFIG_DS18B20_ENABLED                false
+#define CONFIG_DHT11_ENABLED                  false
 #define CONFIG_SENSOR_POLL_PERIOD_MS          5000
 
 //-- task priorities

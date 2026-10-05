@@ -15,7 +15,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#include "ssd1306.h"
+#include "ssd1306_i2cdev.h"
 #include "i2cdev.h" // ДОБАВЛЕНО: Заголовок компонента i2cdev
 
 #define TAG_MIKE_APP "Mike's App"
