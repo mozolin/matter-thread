@@ -266,6 +266,8 @@
     ssd1306_contrast(&ssd1306dev, 0xff);
     ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
     ssd1306_display_text(&ssd1306dev, 1, " ESP-IDF 5.4.1  ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
+    ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
   }
 
   void ssd1306_show_plug_status(uint8_t plug_num, bool state)

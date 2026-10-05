@@ -81,7 +81,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 sensor->last_read_time = esp_timer_get_time();
 
                 #if CONFIG_SSD1306_ENABLED
-                  ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0);
+                  ssd1306_show_sensor_data(3, temperature, humidity, pressure, 0);
                 #endif
             }
             break;
@@ -102,7 +102,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas);
+                ssd1306_show_sensor_data(4, temperature, humidity, pressure, gas);
               #endif
             }
             break;
@@ -116,7 +116,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(4, temperature, 0, 0, 0);
+                ssd1306_show_sensor_data(5, temperature, 0, 0, 0);
               #endif
             }
             break;
@@ -133,7 +133,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(5, temperature, humidity, 0, 0);
+                ssd1306_show_sensor_data(6, temperature, humidity, 0, 0);
               #endif
             }
             break;
