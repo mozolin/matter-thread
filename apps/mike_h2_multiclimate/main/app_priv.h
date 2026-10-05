@@ -10,7 +10,7 @@
 //#include "driver_led_indicator.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 false
+#define MOCK_SENSORS_BEHAVIOR                 true
 #define DO_DEBUG                              true
 
 
@@ -21,8 +21,8 @@
 #define CONFIG_SSD1306_ENABLED                true
 #define CONFIG_BME280_ENABLED                 true
 #define CONFIG_BME680_ENABLED                 true
-#define CONFIG_DS18B20_ENABLED                false
-#define CONFIG_DHT11_ENABLED                  false
+#define CONFIG_DS18B20_ENABLED                true
+#define CONFIG_DHT11_ENABLED                  true
 #define CONFIG_SENSOR_POLL_PERIOD_MS          5000
 
 //-- task priorities
