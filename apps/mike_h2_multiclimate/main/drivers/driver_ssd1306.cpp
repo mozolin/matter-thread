@@ -9,7 +9,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
-#include "ssd1306.h"
+#include "ssd1306_i2cdev.h"
 #include "font8x8_basic.h"
 
 #include <type_traits>
@@ -31,7 +31,7 @@
     esp_err_t err = ESP_OK;
     
     #if CONFIG_I2C_INTERFACE
-      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ INTERFACE is i2c");
+      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ INTERFACE is i2c (via i2cdev)");
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SDA_GPIO);
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SCL_GPIO);
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);

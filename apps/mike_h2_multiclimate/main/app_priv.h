@@ -52,7 +52,7 @@
 
 #if USE_SSD1306_DRIVER
   #include "driver_ssd1306.h"
-  #include "ssd1306.h"
+  #include "ssd1306_i2cdev.h"
   
   //-- SSD1306
   #define CONFIG_SCL_GPIO        13

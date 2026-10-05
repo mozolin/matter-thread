@@ -432,6 +432,14 @@ extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
 
+  // ДОБАВЛЕНО: Глобальная инициализация подсистемы i2cdev.
+  // Должна быть вызвана до инициализации любых I2C устройств (SSD1306, BME280, BME680).
+  err = i2cdev_init();
+  if(err != ESP_OK) {
+    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
+    // Можно продолжить, но I2C устройства не будут работать.
+  }
+
   // Start reboot button task
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
 
@@ -457,13 +465,13 @@ extern "C" void app_main()
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create Matter node"));
   
 
-  if(CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
-    err = i2cdev_init();
-    if(err != ESP_OK) {
-    	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev");
-    }
-    //ESP_ERROR_CHECK(i2cdev_init());
-  }
+  // ИЗМЕНЕНО: Удален вызов i2cdev_init() отсюда, так как он теперь вызывается в начале app_main.
+  // if(CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
+  //   err = i2cdev_init();
+  //   if(err != ESP_OK) {
+  //    	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev");
+  //   }
+  // }
 
 
   // Create sensor endpoints based on configuration
