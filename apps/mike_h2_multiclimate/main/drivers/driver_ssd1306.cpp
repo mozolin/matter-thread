@@ -14,7 +14,7 @@
 
 #include <type_traits>
 
-#if USE_SSD1306_DRIVER
+#if CONFIG_SSD1306_ENABLED
   const uint8_t degree_symbol[] = {
     0b00110000,
     0b01001000,

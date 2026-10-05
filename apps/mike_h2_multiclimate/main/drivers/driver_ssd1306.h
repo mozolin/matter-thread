@@ -2,7 +2,7 @@
 
 #include <app_priv.h>
 
-#if USE_SSD1306_DRIVER
+#if CONFIG_SSD1306_ENABLED
 
   //-- Custom Degree Symbol (8x8px)
   extern const uint8_t degree_symbol[];

@@ -4,14 +4,18 @@
 #include <driver/gpio.h>
 #include "dht.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#if CONFIG_DHT11_ENABLED
 
-esp_err_t dht11_init();
-esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity);
-esp_err_t dht11_reset();
+  #ifdef __cplusplus
+    extern "C" {
+  #endif
 
-#ifdef __cplusplus
-}
+  esp_err_t dht11_init();
+  esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity);
+  esp_err_t dht11_reset();
+
+  #ifdef __cplusplus
+    }
+  #endif
+
 #endif

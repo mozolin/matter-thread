@@ -22,7 +22,9 @@
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
-#include "sensor_driver_dht11.h"
+#if CONFIG_DHT11_ENABLED
+  #include "sensor_driver_dht11.h"
+#endif
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -34,7 +36,7 @@ uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
-#if USE_SSD1306_DRIVER
+#if CONFIG_SSD1306_ENABLED
   //-- SSD1306 device instance
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
@@ -334,6 +336,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             break;
         }
 
+        #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
             // Create endpoint with multiple clusters
             ESP_LOGW("", "");
@@ -362,6 +365,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             break;
         }
+        #endif
 
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
@@ -443,7 +447,7 @@ extern "C" void app_main()
   // Start reboot button task
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
 
-  #if USE_SSD1306_DRIVER
+  #if CONFIG_SSD1306_ENABLED
     //-- Init LCD SSD1306
     err = ssd1306_init();
     if(err != ESP_OK) {
@@ -487,9 +491,9 @@ extern "C" void app_main()
     create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
   }
   
-  if(CONFIG_DHT11_ENABLED) {
+  #if CONFIG_DHT11_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
-  }
+  #endif
 
   #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     //-- Set OpenThread platform config

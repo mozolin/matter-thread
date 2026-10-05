@@ -1,5 +1,8 @@
+
 #include "sensor_driver_dht11.h"
 #include "app_priv.h"
+
+#if CONFIG_DHT11_ENABLED
 
 float temperature, humidity;
 
@@ -47,3 +50,4 @@ esp_err_t dht11_reset()
     */
     return ESP_OK;
 }
+#endif

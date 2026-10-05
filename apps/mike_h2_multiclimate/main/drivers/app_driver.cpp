@@ -7,7 +7,9 @@
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
-#include "sensor_driver_dht11.h"
+#if CONFIG_DHT11_ENABLED
+  #include "sensor_driver_dht11.h"
+#endif
 
 using namespace chip::app::Clusters;
 using namespace esp_matter;
@@ -41,9 +43,11 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         case SENSOR_TYPE_DS18B20:
             err = ds18b20_init();
             break;
+        #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11:
             err = dht11_init();
             break;
+        #endif
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
             err = ESP_ERR_INVALID_ARG;
@@ -76,7 +80,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 sensor->last_pressure = pressure;
                 sensor->last_read_time = esp_timer_get_time();
 
-                #if USE_SSD1306_DRIVER
+                #if CONFIG_SSD1306_ENABLED
                   ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0);
                 #endif
             }
@@ -97,7 +101,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_gas_resistance = gas;
               sensor->last_read_time = esp_timer_get_time();
 
-              #if USE_SSD1306_DRIVER
+              #if CONFIG_SSD1306_ENABLED
                 ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas);
               #endif
             }
@@ -111,13 +115,14 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_temperature = temperature;
               sensor->last_read_time = esp_timer_get_time();
 
-              #if USE_SSD1306_DRIVER
+              #if CONFIG_SSD1306_ENABLED
                 ssd1306_show_sensor_data(4, temperature, 0, 0, 0);
               #endif
             }
             break;
         }
         
+        #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
             int16_t temperature;
             uint16_t humidity;
@@ -127,13 +132,14 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_humidity = humidity;
               sensor->last_read_time = esp_timer_get_time();
 
-              #if USE_SSD1306_DRIVER
+              #if CONFIG_SSD1306_ENABLED
                 ssd1306_show_sensor_data(5, temperature, humidity, 0, 0);
               #endif
             }
             break;
         }
-        
+        #endif
+
         default:
             err = ESP_ERR_NOT_SUPPORTED;
             break;
@@ -175,9 +181,11 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
         case SENSOR_TYPE_DS18B20:
             err = ds18b20_reset();
             break;
+        #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11:
             err = dht11_reset();
             break;
+        #endif
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type for reset: %d", sensor->config);
             err = ESP_ERR_NOT_SUPPORTED;
@@ -437,6 +445,7 @@ void sensor_polling_task(void *pvParameters)
                         break;
                     }
                     
+                    #if CONFIG_DHT11_ENABLED
                     case SENSOR_TYPE_DHT11: {
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
@@ -477,7 +486,8 @@ void sensor_polling_task(void *pvParameters)
                         }
                         break;
                     }
-                    
+                    #endif
+
                     default:
                         break;
                 }
@@ -536,6 +546,7 @@ void app_driver_log_sensor_statistics(void)
                 sensor->last_temperature / 100.0f);
                 break;
             }
+            #if CONFIG_DHT11_ENABLED
             case SENSOR_TYPE_DHT11: {
                 ESP_LOGW("", "DHT11   (%d) | Temp: %.2f °C, Hum: %.2f %%",
                 i,
@@ -543,6 +554,7 @@ void app_driver_log_sensor_statistics(void)
                 sensor->last_humidity / 100.0f);
                 break;
             }
+            #endif
             default: {
                 break;
             }

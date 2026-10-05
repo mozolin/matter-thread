@@ -18,7 +18,7 @@
 #define CONFIG_NUM_SENSORS                    8
 
 //-- Sensors configuration
-#define USE_SSD1306_DRIVER                    true
+#define CONFIG_SSD1306_ENABLED                true
 #define CONFIG_BME280_ENABLED                 true
 #define CONFIG_BME680_ENABLED                 true
 #define CONFIG_DS18B20_ENABLED                false
@@ -49,7 +49,7 @@
 #define LIVE_BLINK_TIME_MS                    0
 #define I2C_MASTER_BUS_FREQ_HZ                100000
 
-#if USE_SSD1306_DRIVER
+#if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
   
