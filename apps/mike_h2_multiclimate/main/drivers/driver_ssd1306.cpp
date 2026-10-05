@@ -265,13 +265,7 @@
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
     ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 1, "1", 1, false);
-    ssd1306_display_text(&ssd1306dev, 2, "2", 1, false);
-    ssd1306_display_text(&ssd1306dev, 3, "3", 1, false);
-    ssd1306_display_text(&ssd1306dev, 4, "4", 1, false);
-    ssd1306_display_text(&ssd1306dev, 5, "5", 1, false);
-    ssd1306_display_text(&ssd1306dev, 6, "6", 1, false);
-    ssd1306_display_text(&ssd1306dev, 7, "7", 1, false);
+    ssd1306_display_text(&ssd1306dev, 1, " ESP-IDF 5.4.1  ", 16, false);
   }
 
   void ssd1306_show_plug_status(uint8_t plug_num, bool state)
