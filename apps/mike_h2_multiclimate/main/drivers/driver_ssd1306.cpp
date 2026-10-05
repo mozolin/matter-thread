@@ -335,7 +335,7 @@
 
     if(extra > 1) {
     	char buf5[32];
-    	snprintf(buf5, sizeof(buf4), " (%d)", extra);
+    	snprintf(buf5, sizeof(buf5), " (%d)", extra);
     	strcat(buf, buf5);
     }
 
