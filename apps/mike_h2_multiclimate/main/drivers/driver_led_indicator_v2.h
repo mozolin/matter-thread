@@ -1,4 +1,4 @@
-// driver_led_indicator.h
+// driver_led_indicator_v2.h
 #pragma once
 
 #include <led_config.h>

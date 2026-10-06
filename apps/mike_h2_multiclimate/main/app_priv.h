@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
 #include <button_gpio.h>
-#include "driver_led_indicator_v2.h"
+//#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
 
 #define MOCK_SENSORS_BEHAVIOR                 true
@@ -75,12 +75,6 @@
 //#define I2C_MASTER_BUS_FREQ_HZ                100000
 #define CONFIG_SENSOR_POLL_PERIOD_MS          5000
 
-
-#include "led_config.h"
-#if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator.h"
-  led_indicator_handle_t led_handle;
-#endif
 
 // Sensor types
 typedef enum {
@@ -182,5 +176,3 @@ void app_driver_log_sensor_statistics(void);
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
 #endif
-
-extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);

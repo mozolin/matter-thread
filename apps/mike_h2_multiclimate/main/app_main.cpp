@@ -48,13 +48,11 @@ sensor_data_t sensors[CONFIG_NUM_SENSORS];
  *   LED INDICATOR   *
  *                   *
  *********************/
-/*
 #include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator.h"
+  #include "driver_led_indicator_v2.h"
   led_indicator_handle_t led_handle;
 #endif
-*/
 
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
@@ -491,4 +489,46 @@ extern "C" void app_main()
     #endif
     esp_matter::console::init();
   #endif
+
+  //ESP_LOGW(TAG_H2, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
+
+  #if USE_DRIVER_LED_INDICATOR
+    //-- at least one LED must not be an RGB LED
+    #if USE_ORDINARY_LED
+      //--> UART RX/TX Blinking Simulator
+      #if LED_MODE == 1
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_H2, "~~~ BLINK: 1. Simple version with random intervals");
+        #endif
+        xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
+      #endif
+    
+      #if LED_MODE == 2
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_H2, "~~~ BLINK: 2. Realistic version with UART patterns");
+        #endif
+        xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
+      #endif
+    
+      #if LED_MODE == 3
+        #if DEBUG_MODE
+           ESP_LOGW(TAG_H2, "~~~ BLINK: 3. Version with different activity modes");
+         #endif
+         xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
+      #endif
+      //<-- UART RX/TX Blinking Simulator
+    #endif //-- USE_ORDINARY_LED
+  
+    //-- at least one LED must be an RGB LED
+    #if USE_RGB_LED
+      //--> RGB LED indicator
+      led_handle = configure_indicator();
+      while(1) {
+        //ESP_LOGW(TAG_H2, "~~~ BLINK RGB: BLINK_ONCE_RED");
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+      }
+      //<-- RGB LED indicator
+    #endif //-- USE_RGB_LED
+  #endif //-- USE_DRIVER_LED_INDICATOR
 }
