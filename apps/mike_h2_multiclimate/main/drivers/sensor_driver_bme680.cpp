@@ -72,11 +72,11 @@ esp_err_t bme680_read_all(int16_t *temperature, uint16_t *humidity,
           // get the results and do something with them
           if (bme680_get_results_float(&sensor, &values) == ESP_OK) {
               #if DEBUG_MODE
-                  ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa, Gas: %.2f Ohm",
-                     values.temperature, values.humidity, values.pressure, values.gas_resistance);
+                  ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
+                     values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
               #else
-                  ESP_LOGD("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa, Gas: %.2f Ohm",
-                     values.temperature, values.humidity, values.pressure, values.gas_resistance);
+                  ESP_LOGD("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
+                     values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
               #endif
           }
       }
@@ -85,14 +85,22 @@ esp_err_t bme680_read_all(int16_t *temperature, uint16_t *humidity,
       vTaskDelay(duration);
       values.temperature    = 26.48;
       values.humidity       = 47.95;
-      values.pressure       = 0.00;
+      values.pressure       = 991.00;
       values.gas_resistance = 40275.00;
+
+      #if DEBUG_MODE
+        ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
+           values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
+      #else
+        ESP_LOGD("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
+           values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
+      #endif
+
     #endif
 
     *temperature = (int16_t)(values.temperature * 100.0f);
     *humidity = (uint16_t)(values.humidity * 100.0f);
-    //*pressure = (int16_t)values.pressure;
-    *pressure = (int16_t)(values.pressure / 100.0f);  // Па
+    *pressure = (int16_t)(values.pressure);
     *gas_resistance = (uint32_t)values.gas_resistance;
     return ESP_OK;
 }

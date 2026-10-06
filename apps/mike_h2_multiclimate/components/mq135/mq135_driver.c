@@ -1,3 +1,7 @@
+//#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "mq135_driver.h"
 #include "esp_log.h"
 #include "math.h"

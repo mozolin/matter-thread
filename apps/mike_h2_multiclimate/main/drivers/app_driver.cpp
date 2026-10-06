@@ -391,10 +391,10 @@ void sensor_polling_task(void *pvParameters)
                             if (err == ESP_OK) {
                                 #if DEBUG_MODE
                                     ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
-                                        i, sensor->last_pressure / 100.0f);
+                                        i, sensor->last_pressure);
                                 #else
                                     ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
-                                        i, sensor->last_pressure / 100.0f);
+                                        i, sensor->last_pressure);
                                 #endif
                             }
                         //}

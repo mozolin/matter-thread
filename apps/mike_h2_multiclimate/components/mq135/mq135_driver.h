@@ -7,7 +7,7 @@
 
 #include "mq135_types.h"
 #include "esp_err.h"
-#include "driver/adc.h"
+//#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 
