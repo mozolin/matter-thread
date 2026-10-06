@@ -265,12 +265,12 @@
 
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
-    ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
-    //ssd1306_display_text(&ssd1306dev, 1, " ESP-IDF 5.4.1  ", 16, false);
-    //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
-    //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
+    ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
+    ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
 
-
+    /*
     char buf[32];
     uint8_t idx = 0;
     snprintf(buf, sizeof(buf), " SSD1306: %d %d %d", CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO);
@@ -288,6 +288,7 @@
       idx++;
       ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
     #endif
+    */
   }
   
   #if USE_TIME_DRIVER
