@@ -9,24 +9,24 @@
 //#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 true
-#define DO_DEBUG                              true
+#define MOCK_SENSORS_BEHAVIOR                true
+#define DEBUG_MODE                           true
 
 
-#define TAG_MULTI_CLIMATE                     "MIKE MULTICLIMATE H2"
-#define CONFIG_NUM_SENSORS                    8
+#define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
+#define CONFIG_NUM_SENSORS                   8
 
 //-- Sensors configuration
-#define CONFIG_SSD1306_ENABLED                true
-#define CONFIG_BME280_ENABLED                 true
-#define CONFIG_BME680_ENABLED                 true
-#define CONFIG_DS18B20_ENABLED                true
-#define CONFIG_DHT11_ENABLED                  true
+#define CONFIG_SSD1306_ENABLED               true
+#define CONFIG_BME280_ENABLED                true
+#define CONFIG_BME680_ENABLED                true
+#define CONFIG_DS18B20_ENABLED               true
+#define CONFIG_DHT11_ENABLED                 true
 
 
 //-- task priorities
-#define CONFIG_SENSOR_POLL_TASK_PRIORITY      5
-#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY    4
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY     5
+#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
 
 
 #if CONFIG_SSD1306_ENABLED
@@ -41,11 +41,11 @@
    *  if they use this port.
    *
    **********************************************************/
-  #define CONFIG_SSD1306_SDA_GPIO             1
-  #define CONFIG_SSD1306_SCL_GPIO             2
-  #define CONFIG_SSD1306_RESET_GPIO           -1
-  #define CONFIG_SSD1306_I2C_ADDRESS          0x3C
-  #define CONFIG_SSD1306_I2C_PORT             I2C_NUM_0
+  #define CONFIG_SSD1306_SDA_GPIO            1
+  #define CONFIG_SSD1306_SCL_GPIO            2
+  #define CONFIG_SSD1306_RESET_GPIO          -1
+  #define CONFIG_SSD1306_I2C_ADDRESS         0x3C
+  #define CONFIG_SSD1306_I2C_PORT            I2C_NUM_0
   
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
@@ -54,26 +54,26 @@
 
 
 //-- BMP280 sensor
-//#define CONFIG_BME280_I2C_BUS                 0
-//#define CONFIG_BME280_I2C_ADDR                0x76
-#define CONFIG_BME280_SDA_GPIO                1
-#define CONFIG_BME280_SCL_GPIO                2
-#define CONFIG_BME280_I2C_PORT                I2C_NUM_0
+//#define CONFIG_BME280_I2C_BUS                0
+//#define CONFIG_BME280_I2C_ADDR               0x76
+#define CONFIG_BME280_SDA_GPIO               1
+#define CONFIG_BME280_SCL_GPIO               2
+#define CONFIG_BME280_I2C_PORT               I2C_NUM_0
 //-- BME680 sensor
-//#define CONFIG_BME680_I2C_BUS                 0
-//#define CONFIG_BME680_I2C_ADDR                0x77
-#define CONFIG_BME680_SDA_GPIO                3
-#define CONFIG_BME680_SCL_GPIO                5
-#define CONFIG_BME680_I2C_PORT                I2C_NUM_1
+//#define CONFIG_BME680_I2C_BUS                0
+//#define CONFIG_BME680_I2C_ADDR               0x77
+#define CONFIG_BME680_SDA_GPIO               3
+#define CONFIG_BME680_SCL_GPIO               5
+#define CONFIG_BME680_I2C_PORT               I2C_NUM_1
 //-- DS18B20 sensor
-#define CONFIG_DS18B20_GPIO                   10
+#define CONFIG_DS18B20_GPIO                  10
 //-- DHT11 sensor
-#define CONFIG_DHT11_GPIO                     11
+#define CONFIG_DHT11_GPIO                    11
 
 
-#define LIVE_BLINK_TIME_MS                    0
-//#define I2C_MASTER_BUS_FREQ_HZ                100000
-#define CONFIG_SENSOR_POLL_PERIOD_MS          5000
+#define LIVE_BLINK_TIME_MS                   0
+//#define I2C_MASTER_BUS_FREQ_HZ               100000
+#define CONFIG_SENSOR_POLL_PERIOD_MS         5000
 
 
 // Sensor types

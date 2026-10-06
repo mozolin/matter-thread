@@ -494,21 +494,21 @@ extern "C" void app_main()
     #if USE_ORDINARY_LED
       //--> UART RX/TX Blinking Simulator
       #if LED_MODE == 1
-        #if DO_DEBUG
+        #if DEBUG_MODE
           ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 1. Simple version with random intervals");
         #endif
         xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
       #endif
     
       #if LED_MODE == 2
-        #if DO_DEBUG
+        #if DEBUG_MODE
           ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 2. Realistic version with UART patterns");
         #endif
         xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
       #endif
     
       #if LED_MODE == 3
-        #if DO_DEBUG
+        #if DEBUG_MODE
            ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 3. Version with different activity modes");
         #endif
         xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
@@ -521,7 +521,7 @@ extern "C" void app_main()
     //-- at least one LED must be an RGB LED
     #if USE_RGB_LED
       //--> RGB LED indicator
-      #if DO_DEBUG
+      #if DEBUG_MODE
           ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 4. USE_RGB_LED!");
       #endif
       led_handle = configure_indicator();

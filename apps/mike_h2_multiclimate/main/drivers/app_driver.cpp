@@ -290,7 +290,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
@@ -309,7 +309,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else
@@ -329,7 +329,7 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                #if DO_DEBUG
+                                #if DEBUG_MODE
                                     ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
                                 #else
                                     ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
@@ -350,7 +350,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
@@ -369,7 +369,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else
@@ -389,7 +389,7 @@ void sensor_polling_task(void *pvParameters)
                             );
                             
                             if (err == ESP_OK) {
-                                #if DO_DEBUG
+                                #if DEBUG_MODE
                                     ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
                                         i, sensor->last_pressure / 100.0f);
                                 #else
@@ -409,7 +409,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Gas Resistance = %.0f Ohm", 
                                     i, sensor->last_gas_resistance);
                             #else
@@ -417,7 +417,7 @@ void sensor_polling_task(void *pvParameters)
                                     i, sensor->last_gas_resistance);
                             #endif
                         } else {
-                        	#if DO_DEBUG
+                        	#if DEBUG_MODE
                         		ESP_LOGE("", "");
                         		ESP_LOGE("", "*******************************");
                         		ESP_LOGE("", " BME680 Gas Resistance: WRONG!");
@@ -439,7 +439,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
@@ -462,7 +462,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
                                     i, sensor->last_temperature / 100.0f);
                             #else
@@ -481,7 +481,7 @@ void sensor_polling_task(void *pvParameters)
                         );
                         
                         if (err == ESP_OK) {
-                            #if DO_DEBUG
+                            #if DEBUG_MODE
                                 ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
                                     i, sensor->last_humidity / 100.0f);
                             #else

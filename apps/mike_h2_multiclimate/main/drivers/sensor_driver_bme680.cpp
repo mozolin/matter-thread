@@ -70,7 +70,7 @@ esp_err_t bme680_read_all(int16_t *temperature, uint16_t *humidity,
       
           // get the results and do something with them
           if (bme680_get_results_float(&sensor, &values) == ESP_OK) {
-              #if DO_DEBUG
+              #if DEBUG_MODE
                   ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa, Gas: %.2f Ohm",
                      values.temperature, values.humidity, values.pressure, values.gas_resistance);
               #else

@@ -54,7 +54,7 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
         return ESP_OK;
       }
       
-      #if DO_DEBUG
+      #if DEBUG_MODE
         ESP_LOGW(TAG_MULTI_CLIMATE, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
@@ -81,7 +81,7 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
       
         temp = temp_c;
       
-        #if DO_DEBUG
+        #if DEBUG_MODE
           ESP_LOGW("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")", temp_c, (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
         #else
           ESP_LOGD("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")", temp_c, (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
@@ -91,11 +91,11 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
       sensor_count = 4;
       temp = 26.12;
       
-      #if DO_DEBUG
+      #if DEBUG_MODE
         ESP_LOGW(TAG_MULTI_CLIMATE, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
-      #if DO_DEBUG
+      #if DEBUG_MODE
         ESP_LOGW("| DS18B20", "Temp: 26.06 °C (35b7464e0b646128)");
         ESP_LOGW("| DS18B20", "Temp: 26.75 °C (ffa80a4e5f646328)");
         ESP_LOGW("| DS18B20", "Temp: 26.56 °C (f5e1ab495f646328)");

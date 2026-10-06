@@ -21,7 +21,7 @@ esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity)
     
     #if !MOCK_SENSORS_BEHAVIOR
       if (dht_read_float_data(DHT_TYPE_DHT11, (gpio_num_t)CONFIG_DHT11_GPIO, &hum, &temp) == ESP_OK)
-        #if DO_DEBUG
+        #if DEBUG_MODE
             ESP_LOGW("|   DHT11", "Temp: %.2f °C, Hum: %.2f %%", temp, hum);
         #else
             ESP_LOGD("|   DHT11", "Temp: %.2f °C, Hum: %.2f %%", temp, hum);

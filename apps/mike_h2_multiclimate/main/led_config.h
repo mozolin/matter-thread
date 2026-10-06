@@ -3,9 +3,6 @@
 //-- whether or not to use "driver_led_indicator"
 #define USE_DRIVER_LED_INDICATOR true
 
-//-- whether or not to output to the UART console
-//#define DEBUG_MODE               true
-
 /*
 1. Simple version with random intervals
 2. Realistic version with UART patterns
@@ -33,3 +30,9 @@ GPIO_NUM_13 //-- blue
 #define ESP32_GPIO_LED_2         GPIO_NUM_13
 //-- is LED #2 an RGB LED or not
 #define ESP32_RGB_LED_2          false
+
+/*********************************************************
+ * Для встроенного WS2812 на ESP32-H2 SuperMini (GPIO 8)
+ * правильный порядок компонентов — GRB, а не RGB.
+ *********************************************************/
+#define LED_STRIP_COLOR_COMPONENT_FMT LED_STRIP_COLOR_COMPONENT_FMT_GRB

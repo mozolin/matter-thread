@@ -59,7 +59,7 @@ esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pre
       press = 101123.45;
     #endif
 
-    #if DO_DEBUG
+    #if DEBUG_MODE
       ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);
     #else
       ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);

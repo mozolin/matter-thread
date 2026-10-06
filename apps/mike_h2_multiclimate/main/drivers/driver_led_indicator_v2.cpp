@@ -176,7 +176,11 @@
         .strip_gpio_num = LED_BLINK_GPIO,
         .max_leds = LED_NUMBERS,
         .led_model = LED_MODEL_WS2812,
-        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+        /*********************************************************
+         * Для встроенного WS2812 на ESP32-H2 SuperMini (GPIO 8)
+         * правильный порядок компонентов — GRB, а не RGB.
+         *********************************************************/
+        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT,
         .flags = {
           .invert_out = false,
         },
