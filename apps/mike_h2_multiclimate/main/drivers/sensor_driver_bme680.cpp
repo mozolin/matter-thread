@@ -27,7 +27,8 @@ esp_err_t bme680_init()
     
       // Changes the oversampling rates to 4x oversampling for temperature
       // and 2x oversampling for humidity. Pressure measurement is skipped.
-      bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
+      //bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
+      bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_4X, BME680_OSR_2X);
     
       // Change the IIR filter size for temperature and pressure to 7.
       bme680_set_filter_size(&sensor, BME680_IIR_SIZE_7);
