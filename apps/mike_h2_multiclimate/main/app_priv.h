@@ -29,6 +29,8 @@
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
 
 
+#include "mq135_driver.h"
+
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
