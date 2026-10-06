@@ -4,7 +4,7 @@
 #define USE_DRIVER_LED_INDICATOR true
 
 //-- whether or not to output to the UART console
-#define DEBUG_MODE               false
+//#define DEBUG_MODE               true
 
 /*
 1. Simple version with random intervals

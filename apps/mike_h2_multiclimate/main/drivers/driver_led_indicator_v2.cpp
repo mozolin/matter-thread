@@ -64,9 +64,9 @@
     //-- Blinking once in green
     const blink_step_t green_once_blink[] = {
       //-- Set color to green
-      //{LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+      {LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
       //-- Set color to purple
-      {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
+      //{LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
@@ -176,7 +176,7 @@
         .strip_gpio_num = LED_BLINK_GPIO,
         .max_leds = LED_NUMBERS,
         .led_model = LED_MODEL_WS2812,
-        .led_pixel_format = LED_STRIP_COLOR_COMPONENT_FMT_RGB,
+        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
         .flags = {
           .invert_out = false,
         },

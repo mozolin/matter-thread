@@ -10,6 +10,7 @@
 #if CONFIG_DHT11_ENABLED
   #include "sensor_driver_dht11.h"
 #endif
+#include "driver_led_indicator_v2.h"
 
 using namespace chip::app::Clusters;
 using namespace esp_matter;
@@ -149,6 +150,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
 
     if (err != ESP_OK) {
         ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
+    } else {
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
     }
 
     return err;
