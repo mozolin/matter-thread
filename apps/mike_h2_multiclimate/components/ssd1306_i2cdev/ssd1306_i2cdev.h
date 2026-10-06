@@ -72,11 +72,6 @@ Usage:
 #define OLED_CMD_VERTICAL               0xA3
 
 #define SSD1306_I2C_ADDRESS             0x3C
-#ifdef CONFIG_I2C_MASTER_PORT_NUM
-  #define SSD1306_I2C_NUM               CONFIG_I2C_MASTER_PORT_NUM
-#else
-  #define SSD1306_I2C_NUM               I2C_NUM_1
-#endif
 #define SSD1306_SPI_ADDRESS             0xFF
 
 #define OLED_DRAW_UPPER_RIGHT           0x01

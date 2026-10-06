@@ -44,6 +44,14 @@ esp_err_t bme680_init()
     #endif
     
     last_wakeup = xTaskGetTickCount();
+
+    ESP_LOGI("", "");
+    ESP_LOGI("", "###############################");
+    ESP_LOGI("", "#                             #");
+    ESP_LOGI("", "#     BME680: initialized     #");
+    ESP_LOGI("", "#                             #");
+    ESP_LOGI("", "###############################");
+    ESP_LOGI("", "");
     
     return err;
 }

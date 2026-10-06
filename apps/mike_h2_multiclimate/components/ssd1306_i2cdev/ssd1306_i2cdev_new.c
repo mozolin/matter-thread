@@ -50,7 +50,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
 
     // ДОБАВЛЕНО: Настройка дескриптора i2cdev
     memset(&ssd1306_i2c_dev, 0, sizeof(i2c_dev_t));
-    ssd1306_i2c_dev.port = port;//SSD1306_I2C_NUM; // ИЗМЕНЕНО: Используем порт 1 (как в оригинале)
+    ssd1306_i2c_dev.port = port;
     ssd1306_i2c_dev.addr = SSD1306_I2C_ADDRESS; // 0x3C
     ssd1306_i2c_dev.cfg.sda_io_num = sda;
     ssd1306_i2c_dev.cfg.scl_io_num = scl;
@@ -78,11 +78,19 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     // Это позволяет другим функциям (i2c_init, i2c_display_image) использовать i2cdev.
     dev->_address = SSD1306_I2C_ADDRESS;
     dev->_flip = false;
-    dev->_i2c_num = port;//SSD1306_I2C_NUM;
+    dev->_i2c_num = port;
     // Приводим указатель к типу i2c_master_dev_handle_t (который в i2cdev может быть просто void* или i2c_dev_t*)
     // ВАЖНО: В оригинальном коде _i2c_dev_handle использовался для i2c_master_transmit.
     // Теперь мы будем использовать ssd1306_i2c_dev напрямую, но сохраним его для передачи.
     dev->_i2c_dev_handle = (i2c_master_dev_handle_t)&ssd1306_i2c_dev;
+
+    ESP_LOGI("", "");
+    ESP_LOGI("", "################################");
+    ESP_LOGI("", "#                              #");
+    ESP_LOGI("", "#     SSD1306: initialized     #");
+    ESP_LOGI("", "#                              #");
+    ESP_LOGI("", "################################");
+    ESP_LOGI("", "");
 
     return err;
 }

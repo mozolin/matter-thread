@@ -31,6 +31,14 @@ esp_err_t bme280_init()
     #endif
     ESP_LOGI(TAG_MULTI_CLIMATE, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
 
+    ESP_LOGI("", "");
+    ESP_LOGI("", "###############################");
+    ESP_LOGI("", "#                             #");
+    ESP_LOGI("", "#     BME280: initialized     #");
+    ESP_LOGI("", "#                             #");
+    ESP_LOGI("", "###############################");
+    ESP_LOGI("", "");
+
     return err;
 }
 

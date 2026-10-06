@@ -20,7 +20,7 @@ typedef struct {
     bool reset_in_progress;
 } sensor_reset_tracker_t;
 
-i2c_master_bus_handle_t bus_handle;
+//i2c_master_bus_handle_t bus_handle;
 
 static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 
