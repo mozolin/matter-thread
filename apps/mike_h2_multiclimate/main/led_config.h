@@ -31,8 +31,8 @@ GPIO_NUM_13 //-- blue
 //-- is LED #2 an RGB LED or not
 #define ESP32_RGB_LED_2          false
 
-/*********************************************************
- * Для встроенного WS2812 на ESP32-H2 SuperMini (GPIO 8)
- * правильный порядок компонентов — GRB, а не RGB.
- *********************************************************/
+/**************************************************************
+ * For the built-in WS2812 on the ESP32-H2 SuperMini (GPIO 8),
+ * the correct component order is GRB, not RGB.
+ **************************************************************/
 #define LED_STRIP_COLOR_COMPONENT_FMT LED_STRIP_COLOR_COMPONENT_FMT_GRB
