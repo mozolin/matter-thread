@@ -1,5 +1,8 @@
 // driver_led_indicator.cpp
 #include "driver_led_indicator_v2.h"
+#include "led_indicator.h"
+#include <app_priv.h>
+
 
 #if USE_DRIVER_LED_INDICATOR
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
