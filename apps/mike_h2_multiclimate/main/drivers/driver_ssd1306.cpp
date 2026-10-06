@@ -266,9 +266,32 @@
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
     ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 1, " ESP-IDF 5.4.1  ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
-    ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 1, " ESP-IDF 5.4.1  ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
+
+
+    ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_I2C_PORT=%d",CONFIG_SSD1306_I2C_PORT);
+    ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
+    ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
+    
+    char buf[32];
+    uint8_t idx = 0;
+    snprintf(buf, sizeof(buf), "SSD1306: %d %d %d", CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO);
+    idx = 1;
+    ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    
+    #if CONFIG_BME280_ENABLED
+      snprintf(buf, sizeof(buf), "BME280: %d %d %d", CONFIG_BME280_I2C_PORT, CONFIG_BME280_SDA_GPIO, CONFIG_BME280_SCL_GPIO);
+      idx++;
+      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    #endif
+
+    #if CONFIG_BME680_ENABLED
+      snprintf(buf, sizeof(buf), "BME680: %d %d %d", CONFIG_BME680_I2C_PORT, CONFIG_BME680_SDA_GPIO, CONFIG_BME680_SCL_GPIO);
+      idx++;
+      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    #endif
   }
   
   #if USE_TIME_DRIVER
