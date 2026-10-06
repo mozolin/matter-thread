@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
 #include <button_gpio.h>
-//#include "driver_led_indicator.h"
+#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
 
 #define MOCK_SENSORS_BEHAVIOR                 true
@@ -27,6 +27,31 @@
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY      5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY    4
+
+
+#if CONFIG_SSD1306_ENABLED
+  #include "driver_ssd1306.h"
+  #include "ssd1306_i2cdev.h"
+  /**********************************************************
+   *
+   *  This driver initializes the I2C bus
+   *  on port CONFIG_SSD1306_I2C_PORT;
+   *  therefore, any sensors using the I2C interface
+   *  must be connected to the same GPIO pins (SDA and SCL)
+   *  if they use this port.
+   *
+   **********************************************************/
+  #define CONFIG_SSD1306_SDA_GPIO             1
+  #define CONFIG_SSD1306_SCL_GPIO             2
+  #define CONFIG_SSD1306_RESET_GPIO           -1
+  #define CONFIG_SSD1306_I2C_ADDRESS          0x3C
+  #define CONFIG_SSD1306_I2C_PORT             I2C_NUM_0
+  
+  extern bool ssd1306_initialized;
+  extern SSD1306_t ssd1306dev;
+#endif
+
+
 
 //-- BMP280 sensor
 //#define CONFIG_BME280_I2C_BUS                 0
@@ -51,23 +76,11 @@
 #define CONFIG_SENSOR_POLL_PERIOD_MS          5000
 
 
-#if CONFIG_SSD1306_ENABLED
-  #include "driver_ssd1306.h"
-  #include "ssd1306_i2cdev.h"
-  
-  //-- SSD1306:
-  //-- the same SDA and SCL GPIOs as the BMP280,
-  //-- which means the I2C port will be the same)
-  #define CONFIG_SSD1306_SDA_GPIO             1
-  #define CONFIG_SSD1306_SCL_GPIO             2
-  #define CONFIG_SSD1306_RESET_GPIO           -1
-  #define CONFIG_SSD1306_I2C_ADDRESS          0x3C
-  #define CONFIG_SSD1306_I2C_PORT             I2C_NUM_0
-  
-  extern bool ssd1306_initialized;
-  extern SSD1306_t ssd1306dev;
+#include "led_config.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator.h"
+  led_indicator_handle_t led_handle;
 #endif
-
 
 // Sensor types
 typedef enum {
@@ -170,6 +183,4 @@ void app_driver_log_sensor_statistics(void);
     }
 #endif
 
-/*
 extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
-*/

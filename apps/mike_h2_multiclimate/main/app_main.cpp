@@ -49,59 +49,13 @@ sensor_data_t sensors[CONFIG_NUM_SENSORS];
  *                   *
  *********************/
 /*
-led_indicator_handle_t led_handle;
-
-blink_step_t const *led_mode[] = {
-  [BLINK_ON_YELLOW] = yellow_on,
-  [BLINK_ON_ORANGE] = orange_on,
-  [BLINK_DOUBLE_RED] = double_red_blink,
-  [BLINK_TRIPLE_GREEN] = triple_green_blink,
-  [BLINK_ONCE_RED] = red_once_blink,
-  [BLINK_ONCE_GREEN] = green_once_blink,
-  [BLINK_ONCE_BLUE] = blue_once_blink,
-  [BLINK_ONCE_LIVE] = live_once_blink,
-  [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
-  [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
-  [BLINK_BLUE_BREATH] = breath_blue_blink,
-  [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
-  [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
-  #if LED_NUMBERS > 1
-    [BLINK_FLOWING] = flowing_blink,
-  #endif
-  [BLINK_MAX] = NULL,
-};
-
-uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
-{
-  uint8_t idx = 255;
-  
-  int size = sizeof(led_mode)/sizeof(led_mode[0]);
-
-  auto item = led_mode[blink_type];
-  for(int i=0; i<size; i++) {
-    if(led_mode[i] == item) {
-      //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ ###!!!@@@ FOUND: %d", i);
-      idx = i;
-
-      if(start_delay > 0) {
-        led_indicator_start(led_handle, idx);
-        //vTaskDelay(pdMS_TO_TICKS(start_delay));
-        vTaskDelay(start_delay / portTICK_PERIOD_MS);
-
-        led_indicator_stop(led_handle, idx);
-        if(stop_delay > 0) {
-          //vTaskDelay(pdMS_TO_TICKS(stop_delay));
-          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
-        }
-      }
-
-      break;
-    }
-  }
-
-  return idx;
-}
+#include "led_config.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator.h"
+  led_indicator_handle_t led_handle;
+#endif
 */
+
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -445,6 +399,12 @@ extern "C" void app_main()
     // Можно продолжить, но I2C устройства не будут работать.
   }
 
+  // ДОБАВЛЕНО: Инициализация LED-индикатора (требуется для работы led_indicator_start/stop)
+  led_handle = configure_indicator();
+  if(!led_handle) {
+    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
+  }
+
   // Start reboot button task
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
 
@@ -453,10 +413,15 @@ extern "C" void app_main()
     err = ssd1306_init();
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
-      //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     } else {
       ssd1306_initialized = true;
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306 Initialized!");
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
     }
     ssd1306_show_title();
   #endif

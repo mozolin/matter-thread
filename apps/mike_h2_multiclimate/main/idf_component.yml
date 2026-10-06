@@ -8,3 +8,4 @@ dependencies:
   #k0i05/esp_bme680: ^1.2.7
   esp-idf-lib/ds18x20: ^1.2.8
   esp-idf-lib/dht: ^1.2.0
+  espressif/led_indicator: ^2.1.2

@@ -329,38 +329,39 @@
 		  return;
 		}
 
-    char buf[32];
+    char buf[96];
     //-- temperature
-    //snprintf(buf, sizeof(buf), "%.1f,%.1f,%.0f", temp/100.0f, hum/100.0f, pres);
-    
     snprintf(buf, sizeof(buf), "%.1f", temp/100.0f);
     ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
 
+    //-- humidity
     if(hum > 0) {
-    	char buf2[32];
+    	char buf2[16];
     	snprintf(buf2, sizeof(buf2), " %.1f", hum/100.0f);
     	strcat(buf, buf2);
     }
     
+    //-- pressure
     if(pres > 0) {
-    	char buf3[32];
+    	char buf3[16];
     	snprintf(buf3, sizeof(buf3), " %.0f", pres);
     	strcat(buf, buf3);
     }
     
+    //-- gas resistance
     if(gas > 0) {
-    	char buf4[32];
+    	char buf4[16];
     	snprintf(buf4, sizeof(buf4), " %.0f", gas);
     	strcat(buf, buf4);
     }
 
+    //-- just 1 byte of extra info
     if(extra > 1) {
-    	char buf5[32];
+    	char buf5[16];
     	snprintf(buf5, sizeof(buf5), " (%d)", extra);
     	strcat(buf, buf5);
     }
 
-    //snprintf(buf, sizeof(buf), ",%.1f", hum/100.0f);
     ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
 	}
 
