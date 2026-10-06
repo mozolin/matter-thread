@@ -3,6 +3,7 @@
 
 #include <led_config.h>
 #include "led_indicator.h"
+#include "led_indicator_strips.h"
 // *ДОБАВЛЕНО*: Явное включение для работы с типами данных новой версии.
 #include "led_types.h"
 
