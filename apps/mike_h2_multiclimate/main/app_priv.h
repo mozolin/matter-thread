@@ -9,7 +9,7 @@
 //#include "driver_led_indicator.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                 false
+#define MOCK_SENSORS_BEHAVIOR                 true
 #define DO_DEBUG                              true
 
 
