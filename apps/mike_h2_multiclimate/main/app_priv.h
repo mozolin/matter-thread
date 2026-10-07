@@ -9,27 +9,65 @@
 //#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
 
-#define MOCK_SENSORS_BEHAVIOR                false
-#define DEBUG_MODE                           true
+
+#define MOCK_SENSORS_BEHAVIOR                true
+#define DEBUG_MODE                           false
 
 
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS                   8
 
 //-- Sensors configuration
-#define CONFIG_SSD1306_ENABLED               true
+#define CONFIG_SSD1306_ENABLED               false
 #define CONFIG_BME280_ENABLED                true
 #define CONFIG_BME680_ENABLED                true
 #define CONFIG_DS18B20_ENABLED               true
 #define CONFIG_DHT11_ENABLED                 true
+#define CONFIG_MQ135_ENABLED                 true
 
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY     5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
 
+//-- BMP280 sensor
+//#define CONFIG_BME280_I2C_BUS                0
+//#define CONFIG_BME280_I2C_ADDR               0x76
+#define CONFIG_BME280_SDA_GPIO               1
+#define CONFIG_BME280_SCL_GPIO               2
+#define CONFIG_BME280_I2C_PORT               I2C_NUM_0
+//-- BME680 sensor
+//#define CONFIG_BME680_I2C_BUS                0
+//#define CONFIG_BME680_I2C_ADDR               0x77
+#define CONFIG_BME680_SDA_GPIO               3
+#define CONFIG_BME680_SCL_GPIO               5
+#define CONFIG_BME680_I2C_PORT               I2C_NUM_1
+//-- DS18B20 sensor
+#define CONFIG_DS18B20_GPIO                  10
+//-- DHT11 sensor
+#define CONFIG_DHT11_GPIO                    11
+//-- MQ135 sensor
+#define CONFIG_MQ135_GPIO                    4
+#define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
+#define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3 // GPIO4 ESP32-H2
 
-#include "mq135_driver.h"
+
+#define LIVE_BLINK_TIME_MS                   0
+#define CONFIG_SENSOR_POLL_PERIOD_MS         5000
+
+
+#if CONFIG_MQ135_ENABLED
+  #include <esp_matter.h>
+  using namespace esp_matter;
+  
+  #include "mq135_driver.h"
+  
+  extern mq135_handle_t s_mq135_handle;
+  extern cluster_t *s_co2_cluster;
+  extern cluster_t *s_co_cluster;
+  extern cluster_t *s_tvoc_cluster;
+#endif
+
 
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306.h"
@@ -54,36 +92,13 @@
 #endif
 
 
-
-//-- BMP280 sensor
-//#define CONFIG_BME280_I2C_BUS                0
-//#define CONFIG_BME280_I2C_ADDR               0x76
-#define CONFIG_BME280_SDA_GPIO               1
-#define CONFIG_BME280_SCL_GPIO               2
-#define CONFIG_BME280_I2C_PORT               I2C_NUM_0
-//-- BME680 sensor
-//#define CONFIG_BME680_I2C_BUS                0
-//#define CONFIG_BME680_I2C_ADDR               0x77
-#define CONFIG_BME680_SDA_GPIO               3
-#define CONFIG_BME680_SCL_GPIO               5
-#define CONFIG_BME680_I2C_PORT               I2C_NUM_1
-//-- DS18B20 sensor
-#define CONFIG_DS18B20_GPIO                  10
-//-- DHT11 sensor
-#define CONFIG_DHT11_GPIO                    11
-
-
-#define LIVE_BLINK_TIME_MS                   0
-//#define I2C_MASTER_BUS_FREQ_HZ               100000
-#define CONFIG_SENSOR_POLL_PERIOD_MS         5000
-
-
 // Sensor types
 typedef enum {
   SENSOR_TYPE_BME280  = 0,
   SENSOR_TYPE_BME680  = 1,
   SENSOR_TYPE_DS18B20 = 2,
   SENSOR_TYPE_DHT11   = 3,
+  SENSOR_TYPE_MQ135   = 4,
   SENSOR_TYPE_MAX
 } sensor_type_t;
 
@@ -94,6 +109,9 @@ typedef struct {
   float last_humidity;
   float last_pressure;
   float last_gas_resistance;  // For BME680
+  float last_co2;             // For MQ135
+  float last_co;              // For MQ135
+  float last_tvoc;            // For MQ135
   uint64_t last_read_time;
   uint8_t num_sensors;        // For DS18B20
 } sensor_data_t;

@@ -25,6 +25,19 @@
 #if CONFIG_DHT11_ENABLED
   #include "sensor_driver_dht11.h"
 #endif
+#if CONFIG_MQ135_ENABLED
+  #include "mq135_driver.h"
+  
+  // Глобальный дескриптор драйвера
+  mq135_handle_t s_mq135_handle;
+  // Глобальные указатели на кластеры для быстрого доступа при обновлении
+  cluster_t *s_co2_cluster = NULL;
+  cluster_t *s_co_cluster = NULL;
+  cluster_t *s_tvoc_cluster = NULL;
+ 
+  // Хэндл для задачи, которая будет обновлять данные
+  TaskHandle_t s_update_task_handle = NULL;
+#endif
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -237,6 +250,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             //-- Add Gas Resistance Measurement cluster
             cluster::total_volatile_organic_compounds_concentration_measurement::config_t tvoc_config;
+            tvoc_config.measurement_medium = 0; // 0 = Air
             cluster_t *tvoc_cluster = cluster::total_volatile_organic_compounds_concentration_measurement::create(endpoint, &tvoc_config, CLUSTER_FLAG_SERVER);
             if (tvoc_cluster) {
                 // MeasuredValue (обязательный)
@@ -319,8 +333,85 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
         #endif
 
+        #if CONFIG_MQ135_ENABLED
+        case SENSOR_TYPE_MQ135: {
+            ESP_LOGW("", "");
+            ESP_LOGW("", "***********************************");
+            ESP_LOGW("", " Start creating endpoint for MQ135");
+            ESP_LOGW("", "***********************************");
+            ESP_LOGW("", "");
+            // Создание endpoint с типом Air Quality Sensor
+            // Это стандартный тип устройства, который подходит для нашего датчика.
+            air_quality_sensor::config_t sensor_config;
+            
+            endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+            
+            if (!endpoint) {
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for MQ135");
+                return ESP_FAIL;
+            }
+            
+            // === 1. Кластер Carbon Dioxide Concentration Measurement (0x040D) ===
+            cluster::carbon_dioxide_concentration_measurement::config_t co2_config;
+            co2_config.measurement_medium = 0; // 0 = Air
+            s_co2_cluster = cluster::carbon_dioxide_concentration_measurement::create(endpoint, &co2_config, CLUSTER_FLAG_SERVER);
+            if (s_co2_cluster) {
+                // Включение функции NumericMeasurement (обязательна для MeasuredValue)
+                cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::config_t co2_feature_cfg;
+                co2_feature_cfg.measured_value = 400.0f; // Начальное значение (примерно атмосферный уровень)
+                co2_feature_cfg.min_measured_value = 0.0f;
+                co2_feature_cfg.max_measured_value = 5000.0f;
+                co2_feature_cfg.measurement_unit = 0; // 0 = PPM (согласно MeasurementUnitEnum)
+                //co2_feature_cfg.measurement_medium = 0; // 0 = Air
+                    
+                esp_err_t err = cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::add(s_co2_cluster, &co2_feature_cfg);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                }
+            }
+            
+            // === 2. Кластер Carbon Monoxide Concentration Measurement (0x040C) ===
+            cluster::carbon_monoxide_concentration_measurement::config_t co_config;
+            co_config.measurement_medium = 0; // 0 = Air
+            s_co_cluster = cluster::carbon_monoxide_concentration_measurement::create(endpoint, &co_config, CLUSTER_FLAG_SERVER);
+            if (s_co_cluster) {
+                cluster::carbon_monoxide_concentration_measurement::feature::numeric_measurement::config_t co_feature_cfg;
+                co_feature_cfg.measured_value = 0.0f;
+                co_feature_cfg.min_measured_value = 0.0f;
+                co_feature_cfg.max_measured_value = 1000.0f;
+                co_feature_cfg.measurement_unit = 0; // PPM
+                //co_feature_cfg.measurement_medium = 0; // Air
+                    
+                esp_err_t err = cluster::carbon_monoxide_concentration_measurement::feature::numeric_measurement::add(s_co_cluster, &co_feature_cfg);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер CO: %s", esp_err_to_name(err));
+                }
+            }
+            
+            // === 3. Кластер Total Volatile Organic Compounds Concentration Measurement (0x041E) ===
+            cluster::total_volatile_organic_compounds_concentration_measurement::config_t tvoc_config;
+            tvoc_config.measurement_medium = 0; // 0 = Air
+            s_tvoc_cluster = cluster::total_volatile_organic_compounds_concentration_measurement::create(endpoint, &tvoc_config, CLUSTER_FLAG_SERVER);
+            if (s_tvoc_cluster) {
+                cluster::total_volatile_organic_compounds_concentration_measurement::feature::numeric_measurement::config_t tvoc_feature_cfg;
+                tvoc_feature_cfg.measured_value = 0.0f;
+                tvoc_feature_cfg.min_measured_value = 0.0f;
+                tvoc_feature_cfg.max_measured_value = 5000.0f;
+                tvoc_feature_cfg.measurement_unit = 0; // PPM
+                //tvoc_feature_cfg.measurement_medium = 0; // Air
+                    
+                esp_err_t err = cluster::total_volatile_organic_compounds_concentration_measurement::feature::numeric_measurement::add(s_tvoc_cluster, &tvoc_feature_cfg);
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер TVOC: %s", esp_err_to_name(err));
+                }
+            }
+            
+            break;
+        }
+        #endif
+
         default:
-            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
             return ESP_ERR_INVALID_ARG;
     }
 
@@ -349,6 +440,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         sensors[configured_sensors].last_humidity = 0;
         sensors[configured_sensors].last_pressure = 0;
         sensors[configured_sensors].last_gas_resistance = 0;
+        sensors[configured_sensors].last_co2 = 0;
+        sensors[configured_sensors].last_co = 0;
+        sensors[configured_sensors].last_tvoc = 0;
         sensors[configured_sensors].last_read_time = 0;
         sensors[configured_sensors].num_sensors = 1;
         
@@ -439,20 +533,24 @@ extern "C" void app_main()
 
 
   // Create sensor endpoints based on configuration
-  if(CONFIG_BME280_ENABLED) {
+  #if CONFIG_BME280_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME280, node);
-  }
+  #endif
   
-  if(CONFIG_BME680_ENABLED) {
+  #if CONFIG_BME680_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME680, node);
-  }
+  #endif
   
-  if(CONFIG_DS18B20_ENABLED) {
+  #if CONFIG_DS18B20_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
-  }
+  #endif
   
   #if CONFIG_DHT11_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
+  #endif
+
+  #if CONFIG_MQ135_ENABLED
+    create_sensor_endpoint(SENSOR_TYPE_MQ135, node);
   #endif
 
   #if CHIP_DEVICE_CONFIG_ENABLE_THREAD

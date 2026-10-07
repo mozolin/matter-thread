@@ -10,6 +10,9 @@
 #if CONFIG_DHT11_ENABLED
   #include "sensor_driver_dht11.h"
 #endif
+#if CONFIG_MQ135_ENABLED
+  #include "mq135_driver.h"
+#endif
 #include "driver_led_indicator_v2.h"
 
 using namespace chip::app::Clusters;
@@ -35,24 +38,45 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
     esp_err_t err = ESP_OK;
 
     switch (sensor_cfg) {
-        case SENSOR_TYPE_BME280:
+        case SENSOR_TYPE_BME280: {
             err = bme280_init();
             break;
-        case SENSOR_TYPE_BME680:
+        }
+        
+        case SENSOR_TYPE_BME680: {
             err = bme680_init();
             break;
-        case SENSOR_TYPE_DS18B20:
+        }
+        
+        case SENSOR_TYPE_DS18B20: {
             err = ds18b20_init();
             break;
+        }
+        
         #if CONFIG_DHT11_ENABLED
-        case SENSOR_TYPE_DHT11:
+        case SENSOR_TYPE_DHT11: {
             err = dht11_init();
             break;
+        }
         #endif
-        default:
-            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d", sensor_cfg);
+        
+        #if CONFIG_MQ135_ENABLED
+        case SENSOR_TYPE_MQ135: {
+            adc_unit_t adc_unit = CONFIG_MQ135_ADC_UNIT;
+            adc_channel_t adc_channel = CONFIG_MQ135_ADC_CHANNEL;
+            
+            ESP_LOGI(TAG_MULTI_CLIMATE, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
+                (uint16_t)CONFIG_MQ135_GPIO, (uint16_t)CONFIG_MQ135_ADC_CHANNEL);
+            err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
+            break;
+        }
+        #endif
+        
+        default: {
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
             err = ESP_ERR_INVALID_ARG;
             break;
+        }
     }
 
     return err;
@@ -139,6 +163,30 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 ssd1306_show_sensor_data(6, temperature, humidity, 0, 0, 0);
               #endif
             }
+            break;
+        }
+        #endif
+        
+        #if CONFIG_MQ135_ENABLED
+        case SENSOR_TYPE_MQ135: {
+            mq135_data_t sensor_data;
+            esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
+                //vTaskDelay(pdMS_TO_TICKS(5000));
+                //continue;
+            } else {
+              sensor->last_co2 = sensor_data.co2.ppm;
+              sensor->last_co = sensor_data.co.ppm;
+              sensor->last_tvoc = sensor_data.tvoc.ppm;
+              sensor->last_read_time = esp_timer_get_time();
+              
+              #if CONFIG_SSD1306_ENABLED
+                ssd1306_show_sensor_data(7, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, 0);
+              #endif
+            }
+        
+            //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ Данные MQ-135 -> CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm", sensor_data.co2.ppm, sensor_data.co.ppm, sensor_data.tvoc.ppm);
             break;
         }
         #endif
@@ -493,6 +541,86 @@ void sensor_polling_task(void *pvParameters)
                     }
                     #endif
 
+                    #if CONFIG_MQ135_ENABLED
+                    case SENSOR_TYPE_MQ135: {
+                        esp_err_t err = ESP_OK;
+                        // 2. Обновление атрибута MeasuredValue для кластера CO2
+                        if (s_co2_cluster) {
+                            attribute_t *attr = attribute::get(s_co2_cluster, CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_co2);
+                                
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      CarbonDioxideConcentrationMeasurement::Id,
+                                      CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                                    #endif
+                                }
+                            }
+                        }
+                        
+                        // 3. Обновление атрибута MeasuredValue для кластера CO
+                        if (s_co_cluster) {
+                            attribute_t *attr = attribute::get(s_co_cluster, CarbonMonoxideConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_co);
+                                
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      CarbonMonoxideConcentrationMeasurement::Id,
+                                      CarbonMonoxideConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: CO = %.2f ppm", i, sensor->last_co);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: CO = %.2f ppm", i, sensor->last_co);
+                                    #endif
+                                }
+                            }
+                        }
+                        
+                        // 4. Обновление атрибута MeasuredValue для кластера TVOC
+                        if (s_tvoc_cluster) {
+                            attribute_t *attr = attribute::get(s_tvoc_cluster, TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_tvoc);
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Id,
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: TVOC = %.2f ppm", i, sensor->last_tvoc);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: TVOC = %.2f ppm", i, sensor->last_tvoc);
+                                    #endif
+                                }
+
+                                /*
+                                esp_err_t err = attribute::update(endpoint::get_id(endpoint), TotalVolatileOrganicCompoundsConcentrationMeasurement::Id, 
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id, &val);
+                                if (err != ESP_OK) {
+                                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка обновления атрибута TVOC MeasuredValue: %s", esp_err_to_name(err));
+                                }
+                                */
+                            }
+                        }
+
+                        break;
+                    }
+                    #endif
+
                     default:
                         break;
                 }
@@ -557,6 +685,16 @@ void app_driver_log_sensor_statistics(void)
                 i,
                 sensor->last_temperature / 100.0f,
                 sensor->last_humidity / 100.0f);
+                break;
+            }
+            #endif
+            #if CONFIG_MQ135_ENABLED
+            case SENSOR_TYPE_MQ135: {
+                ESP_LOGW("", "MQ135   (%d) | CO2: %.2f ppm, CO: %.2f ppm, TVOC: %.2f ppm",
+                i,
+                sensor->last_co2,
+                sensor->last_co,
+                sensor->last_tvoc);
                 break;
             }
             #endif
