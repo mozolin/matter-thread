@@ -11,7 +11,11 @@
   #include "sensor_driver_dht11.h"
 #endif
 #if CONFIG_MQ135_ENABLED
-  #include "mq135_driver.h"
+  #if CONFIG_MQ135_3V3_CIRCUIT
+    #include "mq135_driver_3v3.h"
+  #else
+    #include "mq135_driver.h"
+  #endif
 #endif
 #include "driver_led_indicator_v2.h"
 
@@ -68,6 +72,24 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
             ESP_LOGI(TAG_MULTI_CLIMATE, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
                 (uint16_t)CONFIG_MQ135_GPIO, (uint16_t)CONFIG_MQ135_ADC_CHANNEL);
             err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
+
+            #if CONFIG_MQ135_3V3_CIRCUIT
+              /* ============================================================
+               *  ОПЦИОНАЛЬНО: КАЛИБРОВКА R0
+               * ============================================================
+               *  ИЗМЕНЕНО ДЛЯ 3.3V: при питании 3.3В R0 существенно отличается
+               *  от паспортного (5В), поэтому калибровка крайне рекомендуется.
+               *  Раскомментируйте блок ниже ПОСЛЕ 24-48 часов прогрева в чистом воздухе.
+               */
+              /*
+              ESP_LOGW(TAG, "Калибровка R0 для 3.3В. Датчик должен быть в чистом воздухе!");
+              err = mq135_calibrate_r0(&s_mq135_handle, 100);
+              if (err != ESP_OK) {
+                  ESP_LOGE(TAG, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
+              }
+              */
+            #endif
+
             break;
         }
         #endif
@@ -176,13 +198,13 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 //vTaskDelay(pdMS_TO_TICKS(5000));
                 //continue;
             } else {
-              sensor->last_co2 = sensor_data.co2.ppm;
-              sensor->last_co = sensor_data.co.ppm;
-              sensor->last_tvoc = sensor_data.tvoc.ppm;
+              sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
+              sensor->last_co   = (int16_t)sensor_data.co.ppm;
+              sensor->last_tvoc = (int16_t)sensor_data.tvoc.ppm;
               sensor->last_read_time = esp_timer_get_time();
               
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(7, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, 0);
+                ssd1306_show_sensor_data(7, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, -1);
               #endif
             }
         
@@ -544,6 +566,43 @@ void sensor_polling_task(void *pvParameters)
                     #if CONFIG_MQ135_ENABLED
                     case SENSOR_TYPE_MQ135: {
                         esp_err_t err = ESP_OK;
+                        // 1. Обновление атрибута AirQuality для кластера AirQuality
+                        if (s_air_quality_cluster) {
+                            // Логика: выбираем уровень на основе ppm CO2 (или комбинации газов)
+                            uint8_t level = 1; // Good по умолчанию
+                            /*
+                            0 = Unknown / Неизвестно
+                            1 = Good / Хорошее
+                            2 = Fair / Удовлетворительное
+                            3 = Moderate / Умеренное
+                            4 = Poor / Плохое
+                            5 = VeryPoor / Очень плохое
+                            6 = ExtremelyPoor / Крайне плохое
+                            */
+                            if(sensor->last_co2 > CONFIG_MQ135_AQ6_EXTREMELYPOOR) {
+                              level = 6;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ5_VERYPOOR) {
+                            	level = 5;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ4_POOR) {
+                            	level = 4;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ3_MODERATE) {
+                            	level = 3;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ2_FAIR) {
+                            	level = 2;
+                            }
+                            
+                            esp_matter_attr_val_t val = esp_matter_enum8(level);
+                            esp_err_t err = attribute::update(
+                                endpoint_id,
+                                AirQuality::Id,
+                                AirQuality::Attributes::AirQuality::Id,
+                                &val
+                            );
+                            if (err != ESP_OK) {
+                                ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка обновления AirQuality: %s", esp_err_to_name(err));
+                            }
+                        }
+                        
                         // 2. Обновление атрибута MeasuredValue для кластера CO2
                         if (s_co2_cluster) {
                             attribute_t *attr = attribute::get(s_co2_cluster, CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id);

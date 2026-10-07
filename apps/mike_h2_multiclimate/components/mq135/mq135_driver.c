@@ -1,4 +1,3 @@
-//#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -7,12 +6,6 @@
 #include "math.h"
 
 static const char *TAG = "MQ135_DRIVER";
-
-// Значения по умолчанию для калибровки (требуется уточнение для конкретного датчика и условий)
-#define MQ135_DEFAULT_R0           10000.0f  // 10 кОм
-#define MQ135_DEFAULT_LOAD_RES     10000.0f  // 10 кОм
-#define MQ135_DEFAULT_SUPPLY_V     5.0f      // 5 В (типично для MQ-135, но может быть 3.3В)
-#define MQ135_DEFAULT_VREF         3.3f      // Опорное напряжение ADC ESP32-H2
 
 esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config) {
     if (handle == NULL) {
@@ -72,14 +65,14 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
         // Отсюда: ppm = 10 ^ ((log10(Rs/R0) - b) / m)
         // Значения m и b взяты из типовых даташитов, но могут сильно варьироваться.
         // CO2
-        handle->config.slope[0] = -0.42f;
-        handle->config.offset[0] = 1.75f;
+        handle->config.slope[0]  = MQ135_CO2_SLOPE;
+        handle->config.offset[0] = MQ135_CO2_OFFSET;
         // CO
-        handle->config.slope[1] = -0.48f;
-        handle->config.offset[1] = 1.95f;
+        handle->config.slope[1]  = MQ135_CO_SLOPE;
+        handle->config.offset[1] = MQ135_CO_OFFSET;
         // TVOC (усредненно)
-        handle->config.slope[2] = -0.35f;
-        handle->config.offset[2] = 1.60f;
+        handle->config.slope[2]  = MQ135_TVOC_SLOPE;
+        handle->config.offset[2] = MQ135_TVOC_OFFSET;
     }
 
     ESP_LOGI(TAG, "Драйвер MQ-135 инициализирован (канал: %d)", adc_channel);

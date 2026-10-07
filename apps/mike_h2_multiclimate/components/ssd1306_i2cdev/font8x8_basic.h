@@ -1,3 +1,4 @@
+#pragma once
 /*
  * font8x8_basic.h
  *
@@ -170,5 +171,3 @@
 	};
 
 #endif /* MAIN_FONT8X8_BASIC_H_ */
-
-

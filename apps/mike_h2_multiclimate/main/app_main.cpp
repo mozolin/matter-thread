@@ -26,15 +26,18 @@
   #include "sensor_driver_dht11.h"
 #endif
 #if CONFIG_MQ135_ENABLED
-  #include "mq135_driver.h"
-  
+  #if CONFIG_MQ135_3V3_CIRCUIT
+    #include "mq135_driver_3v3.h"
+  #else
+    #include "mq135_driver.h"
+  #endif
   // Глобальный дескриптор драйвера
   mq135_handle_t s_mq135_handle;
   // Глобальные указатели на кластеры для быстрого доступа при обновлении
+  cluster_t *s_air_quality_cluster = NULL;
   cluster_t *s_co2_cluster = NULL;
   cluster_t *s_co_cluster = NULL;
   cluster_t *s_tvoc_cluster = NULL;
- 
   // Хэндл для задачи, которая будет обновлять данные
   TaskHandle_t s_update_task_handle = NULL;
 #endif
@@ -250,7 +253,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             //-- Add Gas Resistance Measurement cluster
             cluster::total_volatile_organic_compounds_concentration_measurement::config_t tvoc_config;
-            tvoc_config.measurement_medium = 0; // 0 = Air
+            //tvoc_config.measurement_medium = 0; // 0 = Air
             cluster_t *tvoc_cluster = cluster::total_volatile_organic_compounds_concentration_measurement::create(endpoint, &tvoc_config, CLUSTER_FLAG_SERVER);
             if (tvoc_cluster) {
                 // MeasuredValue (обязательный)
@@ -345,15 +348,27 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             air_quality_sensor::config_t sensor_config;
             
             endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
-            
             if (!endpoint) {
                 ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for MQ135");
                 return ESP_FAIL;
             }
+
+            s_air_quality_cluster = cluster::get(endpoint, AirQuality::Id);
+            if (s_air_quality_cluster == NULL) {
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Не удалось получить Air Quality Cluster");
+            }
+            // Включить все доступные уровни (FAIR | MOD | VPOOR | XPOOR)
+            attribute_t *fm_attr = attribute::get(s_air_quality_cluster, AirQuality::Attributes::FeatureMap::Id);
+            if (fm_attr) {
+                esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
+                attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
+                              AirQuality::Attributes::FeatureMap::Id, &fm_val);
+                ESP_LOGW(TAG_MULTI_CLIMATE, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+            }
             
             // === 1. Кластер Carbon Dioxide Concentration Measurement (0x040D) ===
             cluster::carbon_dioxide_concentration_measurement::config_t co2_config;
-            co2_config.measurement_medium = 0; // 0 = Air
+            //co2_config.measurement_medium = 0; // 0 = Air
             s_co2_cluster = cluster::carbon_dioxide_concentration_measurement::create(endpoint, &co2_config, CLUSTER_FLAG_SERVER);
             if (s_co2_cluster) {
                 // Включение функции NumericMeasurement (обязательна для MeasuredValue)
@@ -372,7 +387,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             // === 2. Кластер Carbon Monoxide Concentration Measurement (0x040C) ===
             cluster::carbon_monoxide_concentration_measurement::config_t co_config;
-            co_config.measurement_medium = 0; // 0 = Air
+            //co_config.measurement_medium = 0; // 0 = Air
             s_co_cluster = cluster::carbon_monoxide_concentration_measurement::create(endpoint, &co_config, CLUSTER_FLAG_SERVER);
             if (s_co_cluster) {
                 cluster::carbon_monoxide_concentration_measurement::feature::numeric_measurement::config_t co_feature_cfg;
@@ -390,7 +405,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             // === 3. Кластер Total Volatile Organic Compounds Concentration Measurement (0x041E) ===
             cluster::total_volatile_organic_compounds_concentration_measurement::config_t tvoc_config;
-            tvoc_config.measurement_medium = 0; // 0 = Air
+            //tvoc_config.measurement_medium = 0; // 0 = Air
             s_tvoc_cluster = cluster::total_volatile_organic_compounds_concentration_measurement::create(endpoint, &tvoc_config, CLUSTER_FLAG_SERVER);
             if (s_tvoc_cluster) {
                 cluster::total_volatile_organic_compounds_concentration_measurement::feature::numeric_measurement::config_t tvoc_feature_cfg;

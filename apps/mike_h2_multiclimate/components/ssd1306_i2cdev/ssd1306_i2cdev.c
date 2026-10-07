@@ -8,6 +8,8 @@
 #include "ssd1306_i2cdev.h"
 #include "font8x8_basic.h"
 
+
+
 #define PACK8 __attribute__((aligned( __alignof__( uint8_t ) ), packed ))
 
 typedef union out_column_t {
@@ -293,7 +295,7 @@ void ssd1306_display_text_x2(SSD1306_t * dev, int page, const char * text, int t
 		// render character in 8 column high pieces, making them 3x as wide
 		for (int yy = 0; yy < 2; yy++)	{ // for each group of 8 pixels high (y-direction)
 
-			uint8_t image[16];
+			uint8_t image[17];
 			for (int xx = 0; xx < 8; xx++) { // for each column (x-direction)
 				image[xx*2+0] = 
 				image[xx*2+1] = 
@@ -938,4 +940,3 @@ void ssd1306_dump_page(SSD1306_t * dev, int page, int seg)
 {
 	ESP_LOGI(__FUNCTION__, "dev->_page[%d]._segs[%d]=%02x", page, seg, dev->_page[page]._segs[seg]);
 }
-

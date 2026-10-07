@@ -10,7 +10,7 @@
 #include "driver_reset_button.h"
 
 
-#define MOCK_SENSORS_BEHAVIOR                true
+#define MOCK_SENSORS_BEHAVIOR                false
 #define DEBUG_MODE                           false
 
 
@@ -18,7 +18,7 @@
 #define CONFIG_NUM_SENSORS                   8
 
 //-- Sensors configuration
-#define CONFIG_SSD1306_ENABLED               false
+#define CONFIG_SSD1306_ENABLED               true
 #define CONFIG_BME280_ENABLED                true
 #define CONFIG_BME680_ENABLED                true
 #define CONFIG_DS18B20_ENABLED               true
@@ -50,6 +50,7 @@
 #define CONFIG_MQ135_GPIO                    4
 #define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
 #define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3 // GPIO4 ESP32-H2
+#define CONFIG_MQ135_3V3_CIRCUIT             true
 
 
 #define LIVE_BLINK_TIME_MS                   0
@@ -60,12 +61,35 @@
   #include <esp_matter.h>
   using namespace esp_matter;
   
-  #include "mq135_driver.h"
+  #if CONFIG_MQ135_3V3_CIRCUIT
+    #include "mq135_driver_3v3.h"
+  #else
+    #include "mq135_driver.h"
+  #endif
   
   extern mq135_handle_t s_mq135_handle;
+  extern cluster_t *s_air_quality_cluster;
   extern cluster_t *s_co2_cluster;
   extern cluster_t *s_co_cluster;
   extern cluster_t *s_tvoc_cluster;
+
+  /*
+  AirQuality:
+  0 = Unknown / Неизвестно
+  1 = Good / Хорошее
+  2 = Fair / Удовлетворительное
+  3 = Moderate / Умеренное
+  4 = Poor / Плохое
+  5 = VeryPoor / Очень плохое
+  6 = ExtremelyPoor / Крайне плохое
+  */
+  #define CONFIG_MQ135_AQ0_UNKNOWN           -1
+  #define CONFIG_MQ135_AQ1_GOOD              0
+  #define CONFIG_MQ135_AQ2_FAIR              800
+  #define CONFIG_MQ135_AQ3_MODERATE          1000
+  #define CONFIG_MQ135_AQ4_POOR              1500
+  #define CONFIG_MQ135_AQ5_VERYPOOR          2000
+  #define CONFIG_MQ135_AQ6_EXTREMELYPOOR     3500
 #endif
 
 

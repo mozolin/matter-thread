@@ -14,6 +14,6 @@
   #endif
   extern void ssd1306_draw_degree_symbol(uint8_t x, uint8_t y);
   
-  extern void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, uint8_t extra);
+  extern void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra);
 
 #endif

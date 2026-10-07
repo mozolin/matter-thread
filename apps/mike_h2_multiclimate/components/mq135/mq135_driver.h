@@ -11,6 +11,25 @@
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 
+
+// Значения по умолчанию для калибровки (требуется уточнение для конкретного датчика и условий)
+#define MQ135_DEFAULT_R0           10000.0f  // 10 кОм
+#define MQ135_DEFAULT_LOAD_RES     10000.0f  // 10 кОм
+#define MQ135_DEFAULT_SUPPLY_V     5.0f      // 5 В (типично для MQ-135, но может быть 3.3В)
+#define MQ135_DEFAULT_VREF         3.3f      // Опорное напряжение ADC ESP32-H2
+
+//-- КОЭФФИЦИЕНТЫ КРИВОЙ ЧУВСТВИТЕЛЬНОСТИ
+// CO2: Наклон и смещение
+#define MQ135_CO2_SLOPE     (-0.42f)
+#define MQ135_CO2_OFFSET    ( 1.75f)
+// CO: Наклон и смещение
+#define MQ135_CO_SLOPE      (-0.48f)
+#define MQ135_CO_OFFSET     ( 1.95f)
+// TVOC (усреднённая кривая)
+#define MQ135_TVOC_SLOPE    (-0.35f)
+#define MQ135_TVOC_OFFSET   ( 1.60f)
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

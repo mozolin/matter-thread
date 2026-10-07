@@ -322,7 +322,7 @@
     ssd1306_bitmaps(&ssd1306dev, x, y, (uint8_t*)degree_symbol, 8, 8, false);
   }
 
-	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, uint8_t extra)
+	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra)
 	{
 		//-- if not initialized
     if(!ssd1306_initialized) {
@@ -331,20 +331,36 @@
 
     char buf[96];
     //-- temperature
-    snprintf(buf, sizeof(buf), "%.1f", temp/100.0f);
+    if(extra == -1) {
+    	//-- MQ135 parameters (temp => co2)
+    	snprintf(buf, sizeof(buf), "%.0f", temp);
+    } else {
+    	snprintf(buf, sizeof(buf), "%.1f", temp/100.0f);
+    }
+    
     ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
 
     //-- humidity
     if(hum > 0) {
     	char buf2[16];
-    	snprintf(buf2, sizeof(buf2), " %.1f", hum/100.0f);
+    	if(extra == -1) {
+    		//-- MQ135 parameters (temp => co2)
+	    	snprintf(buf2, sizeof(buf2), " %.0f", hum);
+  	  } else {
+	    	snprintf(buf2, sizeof(buf2), " %.1f", hum/100.0f);
+	    }
     	strcat(buf, buf2);
     }
     
     //-- pressure
     if(pres > 0) {
     	char buf3[16];
-    	snprintf(buf3, sizeof(buf3), " %.0f", pres);
+    	if(extra == -1) {
+    		//-- MQ135 parameters (pres => tvoc)
+	    	snprintf(buf3, sizeof(buf3), " %.0f", pres);
+  	  } else {
+	    	snprintf(buf3, sizeof(buf3), " %.0f", pres);
+	    }
     	strcat(buf, buf3);
     }
     
