@@ -20,7 +20,7 @@
 #define CONFIG_NUM_SENSORS                   8
 
 //-- Sensors configuration
-#define CONFIG_SSD1306_ENABLED               false
+#define CONFIG_SSD1306_ENABLED               true
 #define CONFIG_BME280_ENABLED                true
 #define CONFIG_BME680_ENABLED                true
 #define CONFIG_DS18B20_ENABLED               true
