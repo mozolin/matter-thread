@@ -77,10 +77,11 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
               err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
             #endif
 
+            /*
             #if CONFIG_MQ135_CALIBRATE
-              /*============================================================
-                 ОПЦИОНАЛЬНО: КАЛИБРОВКА R0
-              ============================================================*/
+              //================================//
+              //   ОПЦИОНАЛЬНО: КАЛИБРОВКА R0   //
+              //================================//
               #if CONFIG_MQ135_3V3_CIRCUIT
                 ESP_LOGW(TAG_MULTI_CLIMATE, "Калибровка R0 для 3.3V. Датчик должен быть в чистом воздухе!");
               #else
@@ -97,7 +98,7 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
                 ESP_LOGE(TAG_MULTI_CLIMATE, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
               }
             #endif
-
+            */
             break;
         }
         #endif
@@ -205,10 +206,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             #else
               esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
             #endif
-            if (err != ESP_OK) {
-                ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
-                //vTaskDelay(pdMS_TO_TICKS(5000));
-                //continue;
+            if(err != ESP_OK) {
+              ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
             } else {
               sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
               sensor->last_co   = (int16_t)sensor_data.co.ppm;

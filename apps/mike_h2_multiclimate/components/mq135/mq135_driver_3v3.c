@@ -2,7 +2,7 @@
  * @file mq135_driver_3v3.c
  * @brief Реализация драйвера MQ-135 для питания от 3.3В.
  *
- * ИЗМЕНЕНО ДЛЯ 3.3V:
+ * ДЛЯ 3.3V:
  *  - Питание датчика: 3.3В вместо 5В.
  *  - Опорное напряжение ADC: 3.3В (совпадает с питанием).
  *  - Напряжение на выходе AOUT не может превысить 3.3В, поэтому делитель напряжения НЕ требуется.
@@ -22,7 +22,7 @@ static const char *TAG = "MQ135_DRIVER_3V3";
 /**
  * @brief Внутренняя функция: чтение напряжения с ADC и расчёт Rs.
  * 
- * ИЗМЕНЕНО ДЛЯ 3.3V: формула расчёта Rs осталась той же, но с учётом того,
+ * ДЛЯ 3.3V: формула расчёта Rs осталась той же, но с учётом того,
  * что supply_voltage = vref = 3.3В, а делитель не используется.
  */
 static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_out, float *rs_out) {
@@ -47,13 +47,13 @@ static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_
             voltage_mv = (float)calibrated_mv;
         }
     } else {
-        // ИЗМЕНЕНО ДЛЯ 3.3V: линейное преобразование с опорным напряжением 3.3В
+        // ДЛЯ 3.3V: линейное преобразование с опорным напряжением 3.3В
         voltage_mv = ((float)raw / 4095.0f) * handle->config.vref * 1000.0f;
     }
 
     float voltage = voltage_mv / 1000.0f; // В вольтах
 
-    // ИЗМЕНЕНО ДЛЯ 3.3V: при питании от 3.3В и отсутствии делителя
+    // ДЛЯ 3.3V: при питании от 3.3В и отсутствии делителя
     // формула Rs = RL * (VCC - V_adc) / V_adc остаётся той же,
     // где VCC = 3.3В. Максимум V_adc ~3.3В (при Rs -> 0), минимум ~0В (при Rs -> ∞).
     float rs = 0.0f;
@@ -85,7 +85,7 @@ esp_err_t mq135_driver_init_3v3(mq135_handle_t *handle, adc_unit_t adc_unit, adc
     }
 
     // Конфигурация канала ADC
-    // ИЗМЕНЕНО ДЛЯ 3.3V: аттенюация 12 дБ даёт полный диапазон до ~3.3В,
+    // ДЛЯ 3.3V: аттенюация 12 дБ даёт полный диапазон до ~3.3В,
     // что идеально соответствует питанию датчика 3.3В.
     adc_oneshot_chan_cfg_t chan_config = {
         .atten = ADC_ATTEN_DB_12,          // Полный диапазон ~0..3.3В
@@ -118,14 +118,14 @@ esp_err_t mq135_driver_init_3v3(mq135_handle_t *handle, adc_unit_t adc_unit, adc
         handle->config = *config;
     } else {
         /* ============================================================
-         *  ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ (ИЗМЕНЕНО ДЛЯ 3.3V)
+         *  ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ (ДЛЯ 3.3V)
          * ============================================================ */
         handle->config.r0             = MQ135_DEFAULT_R0;       // 15 кОм
         handle->config.load_resistor  = MQ135_DEFAULT_LOAD_RES; // 10 кОм
         handle->config.supply_voltage = MQ135_DEFAULT_SUPPLY_V; // 3.3 В
         handle->config.vref           = MQ135_DEFAULT_VREF;     // 3.3 В
 
-        // ИЗМЕНЕНО ДЛЯ 3.3V: коэффициенты для CO2, CO, TVOC
+        // ДЛЯ 3.3V: коэффициенты для CO2, CO, TVOC
         handle->config.slope[0]  = MQ135_CO2_SLOPE;
         handle->config.offset[0] = MQ135_CO2_OFFSET;
 
@@ -209,7 +209,7 @@ esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data) {
 /**
  * @brief Калибровка R0 в чистом воздухе.
  * 
- * ИЗМЕНЕНО ДЛЯ 3.3V: функция добавлена специально для варианта питания 3.3В,
+ * ДЛЯ 3.3V: функция добавлена специально для варианта питания 3.3В,
  * так как при меньшем напряжении R0 датчика отличается от паспортного (для 5В)
  * и требует обязательной калибровки на месте.
  * 
@@ -223,7 +223,7 @@ esp_err_t mq135_calibrate_r0_3v3(mq135_handle_t *handle, uint16_t sample_count) 
         return ESP_ERR_INVALID_ARG;
     }
 
-    ESP_LOGI(TAG, "Начало калибровки R0 (ИЗМЕНЕНО ДЛЯ 3.3V). Выборок: %d", sample_count);
+    ESP_LOGI(TAG, "Начало калибровки R0 (ДЛЯ 3.3V). Выборок: %d", sample_count);
     
     float sum_rs = 0.0f;
     uint16_t valid_samples = 0;
@@ -249,7 +249,7 @@ esp_err_t mq135_calibrate_r0_3v3(mq135_handle_t *handle, uint16_t sample_count) 
     float rs_avg = sum_rs / (float)valid_samples;
 
     /* ============================================================
-     *  ИЗМЕНЕНО ДЛЯ 3.3V:
+     *  ДЛЯ 3.3V:
      *  В чистом воздухе Rs ≈ R0 * (коэффициент для чистого воздуха).
      *  Для MQ-135 в чистом воздухе Rs/R0 ≈ 3.6 (по даташиту).
      *  Поэтому R0 = Rs_avg / 3.6.

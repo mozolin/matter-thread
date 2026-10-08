@@ -25,7 +25,7 @@
 // CO: Наклон и смещение
 #define MQ135_CO_SLOPE      (-0.48f)
 #define MQ135_CO_OFFSET     ( 1.95f)
-// TVOC (усреднённая кривая)
+// TVOC: усреднённая кривая
 #define MQ135_TVOC_SLOPE    (-0.35f)
 #define MQ135_TVOC_OFFSET   ( 1.60f)
 

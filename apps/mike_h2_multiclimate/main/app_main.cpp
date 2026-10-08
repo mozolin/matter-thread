@@ -599,9 +599,12 @@ extern "C" void app_main()
     esp_matter::console::init();
   #endif
   
-  //if(node) {
-  //  log_device_structure(node);
-  //}
+  #if SHOW_DEVICE_LOG
+    if(node) {
+      log_device_structure(node);
+      //vTaskDelay(pdMS_TO_TICKS(5000));
+    }
+  #endif
 
   //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
 

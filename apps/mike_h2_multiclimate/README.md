@@ -17,3 +17,4 @@
 
 ### ESP-IDF Log
 ![](images/MultiClimate_ESP32H2.jpg)  
+![](images/log_device_structure.jpg)  

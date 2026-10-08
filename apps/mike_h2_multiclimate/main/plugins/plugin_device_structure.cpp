@@ -9,12 +9,12 @@
 #include "esp_matter.h"
 #include "esp_matter_core.h"
 #include "esp_matter_attribute.h"
-#include <esp_matter_endpoint.h>
+
 
 #include "esp_log.h"
 #include "esp_timer.h"
 
-//#include "matter_ids_endpoint.h"
+#include "matter_ids_endpoint.h"
 #include "matter_ids_cluster.h"
 #include "matter_ids_attribute.h"
 
@@ -26,84 +26,9 @@ using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 
-
-std::string get_endpoint_name(uint16_t endpoint_id)
-{
-    switch (endpoint_id) {
-        case 0x000A: return "Door Lock";
-        case 0x000B: return "Door Lock Controller";
-        case 0x000E: return "Aggregator";
-        case 0x0013: return "Bridged Node";
-        case 0x0015: return "Contact Sensor";
-        case 0x0017: return "Solar Power";
-        case 0x0018: return "Battery Storage";
-        case 0x0022: return "Speaker";
-        case 0x0023: return "Casting Video Player";
-        case 0x0024: return "Content App";
-        case 0x0028: return "Basic Video Player";
-        case 0x0029: return "Casting Video Client";
-        case 0x002B: return "Fan";
-        case 0x002C: return "Air Quality Sensor";
-        case 0x002D: return "Air Purifier";
-        case 0x0041: return "Water Freeze Detector";
-        case 0x0042: return "Water Valve";
-        case 0x0043: return "Water Leak Detector";
-        case 0x0044: return "Rain Sensor";
-        case 0x0070: return "Refrigerator";
-        case 0x0072: return "Room Air Conditioner";
-        case 0x0073: return "Laundry Washer";
-        case 0x0074: return "Robotic Vacuum Cleaner";
-        case 0x0075: return "Dishwasher";
-        case 0x0076: return "Smoke CO Alarm";
-        case 0x0077: return "Cook Surface";
-        case 0x0078: return "Cooktop";
-        case 0x0079: return "Microwave Oven";
-        case 0x007A: return "Extractor Hood";
-        case 0x007B: return "Oven";
-        case 0x007C: return "Laundry Dryer";
-        case 0x0100: return "On/Off Light";
-        case 0x0101: return "Dimmable Light";
-        case 0x0104: return "Dimmer Switch";
-        case 0x0105: return "Color Dimmer Switch";
-        case 0x010A: return "On/Off Plug-in Unit";
-        case 0x010B: return "Dimmable Plug-in Unit";
-        case 0x010C: return "Color Temperature Light";
-        case 0x010D: return "Extended Color Light";
-        case 0x010F: return "Mounted On/Off Control";
-        case 0x0110: return "Mounted Dimmable Load Control";
-        case 0x0141: return "Audio Doorbell";
-        case 0x0142: return "Camera";
-        case 0x0146: return "Chime";
-        case 0x0147: return "Camera Controller";
-        case 0x0148: return "Doorbell";
-        case 0x0202: return "Window Covering";
-        case 0x0203: return "Window Covering Controller";
-        case 0x0230: return "Closure";
-        case 0x0231: return "Closure Panel";
-        case 0x023E: return "Closure Controller";
-        case 0x0301: return "Thermostat";
-        case 0x0302: return "Temperature Sensor";
-        case 0x0303: return "Pump";
-        case 0x0304: return "Pump Controller";
-        case 0x0305: return "Pressure Sensor";
-        case 0x0306: return "Flow Sensor";
-        case 0x0307: return "Humidity Sensor";
-        case 0x0309: return "Heat Pump";
-        case 0x050C: return "Energy EVSE";
-        case 0x050D: return "Device Energy Management";
-        case 0x050F: return "Water Heater";
-        case 0x0510: return "Electrical Sensor";
-        case 0x0511: return "Electrical Utility Meter";
-        case 0x0513: return "Electrical Energy Tariff";
-        case 0x0514: return "Electrical Meter";
-        case 0x0840: return "Control Bridge";
-        case 0x0850: return "On/Off Sensor";
-        default: return "Unknown";
-    }
-}
+#include <esp_matter_endpoint.h>
 
 
-/*
 std::string get_endpoint_name(uint32_t endpoint_id)
 {
   auto it = ENDPOINT_NAMES.find(endpoint_id);
@@ -112,7 +37,6 @@ std::string get_endpoint_name(uint32_t endpoint_id)
   }
   return "Unknown";
 }
-*/
 
 std::string get_cluster_name(uint32_t cluster_id)
 {
@@ -329,35 +253,16 @@ void log_device_structure(node_t *node)
     endpoint = endpoint::get_next(endpoint);
   }
 
+  ESP_LOGE("", "");
+  ESP_LOGE("", "--------------------------------------------------------------------------------------------");
+  
   for(uint16_t endpoint_id : endpoint_ids) {
     endpoint = endpoint::get(node, endpoint_id);
     
     if(!endpoint) {
     	continue;
     }
-    
-    // Получаем количество device types, привязанных к endpoint
-    size_t device_type_count = endpoint::get_device_type_count(endpoint);
-    ESP_LOGI("APP", "Endpoint %d имеет %d device type(s)", endpoint_id, device_type_count);
-    
-    // Перебираем все device types
-    for (size_t i = 0; i < device_type_count; i++) {
-        uint32_t device_type_id = 0;
-        uint8_t device_type_version = 0;
-        
-        esp_err_t err = endpoint::get_device_type_at_index(endpoint, i, device_type_id, device_type_version);
-        if (err == ESP_OK) {
-            ESP_LOGI("APP", "  [%d] Device Type ID: 0x%04" PRIX16 " (десятичное: %d), версия: %d",
-                     i, device_type_id, device_type_id, device_type_version);
-            
-            // Сравниваем с известными device type ID
-            if (device_type_id == ESP_MATTER_AIR_QUALITY_SENSOR_DEVICE_TYPE_ID) {
-                ESP_LOGI("APP", "  -> Это Air Quality Sensor (0x002C)");
-            }
-            // Можно добавить другие проверки по ESP_MATTER_*_DEVICE_TYPE_ID
-        }
-    }
-    
+
     #ifdef SHOW_DEVICE_LOG_ONE_CLUSTER
       #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
 	    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
@@ -368,9 +273,13 @@ void log_device_structure(node_t *node)
     #endif
     
     #if SHOW_DEVICE_LOG
-		  print_all_attributes(endpoint_id);
+		  endpoint_t *ep = endpoint;
+		  print_all_attributes(endpoint_id, ep);
 		#endif
   }
+
+  ESP_LOGE("", "--------------------------------------------------------------------------------------------");
+  ESP_LOGE("", "");
 }
 
 
@@ -401,11 +310,8 @@ bool check_attribute_existence(uint32_t cluster_id, uint32_t attribute_id)
     return metadata != nullptr;
 }
 
-void print_all_attributes(uint16_t endpoint_id)
+void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
 {
-  ESP_LOGE("", "");
-  ESP_LOGE("", "############################################################################################");
-  
   const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(endpoint_id);
   if(!endpoint_type) {
     ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
@@ -415,15 +321,37 @@ void print_all_attributes(uint16_t endpoint_id)
   int level = 0;
   std::string indent(level * 2, ' ');
 
-  ESP_LOGE("", "# %sENDPOINT 0x%04" PRIX16, indent.c_str(), endpoint_id);
+  //endpoint_t *ep = endpoint;
+	uint8_t device_type_count = 0;
+
+	// Функция возвращает указатель на внутренний массив ID
+	uint32_t *device_type_ids = endpoint::get_device_type_ids(ep, &device_type_count);
+
+	if (device_type_ids == NULL) {
+    //ESP_LOGE("APP", "Не удалось получить device type IDs (endpoint или count_ptr == NULL)");
+    ESP_LOGE("", "# %sENDPOINT %d", indent.c_str(), (uint8_t)endpoint_id);
+	} else {
+    //ESP_LOGI("APP", "Endpoint содержит %d device type(s):", device_type_count);
+
+    if(device_type_count > 0) {
+    
+    	//uint32_t dev_id = device_type_ids[0];
+
+    	for (uint8_t i = 0; i < device_type_count; i++) {
+        //ESP_LOGI("APP", "  [%d] ID: 0x%08" PRIX32, i, device_type_ids[i]);
+        
+        uint32_t dev_id = device_type_ids[i];
+        std::string endpoint_name = get_endpoint_name(dev_id);
+      	ESP_LOGE("", "| %sENDPOINT %d: 0x%04" PRIX16 " (%s)", 
+          indent.c_str(),
+          (uint8_t)endpoint_id,
+          (uint16_t)dev_id,
+          endpoint_name.c_str());
+    	}
+    }
+	}
+
   
-  /*
-  std::string endpoint_name = get_endpoint_name(endpoint_id);
-  ESP_LOGW("", "# %sENDPOINT 0x%04" PRIX16 " (%s)", 
-      indent.c_str(),
-      endpoint_id,
-      endpoint_name.c_str());
-  */
   #if SHOW_DEVICE_LOG_CLUSTERS
     for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
       const EmberAfCluster *cluster = &endpoint_type->cluster[cluster_idx];
@@ -431,10 +359,10 @@ void print_all_attributes(uint16_t endpoint_id)
       uint32_t cluster_id = cluster->clusterId;
 
       std::string cluster_name = get_cluster_name(cluster->clusterId);
-      ESP_LOGW("", "# %s  Cluster 0x%08" PRIX32 " (%s)", 
-               indent.c_str(),
-               cluster_id,
-               cluster_name.c_str());
+      ESP_LOGW("", "| %s  Cluster 0x%08" PRIX32 " (%s)", 
+        indent.c_str(),
+        cluster_id,
+        cluster_name.c_str());
       
       #if SHOW_DEVICE_LOG_ATTRIBUTES
         for(size_t attr_idx = 0; attr_idx < cluster->attributeCount; ++attr_idx) {
@@ -457,15 +385,15 @@ void print_all_attributes(uint16_t endpoint_id)
 							//-- new value of attribute!
 							attribute_value = get_attribute_value(val);
 						}
-            ESP_LOGW("", "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Size: %d, Value: %s, Mask: 0x%02x, Flags: %s", 
-                     indent.c_str(), 
-                     attribute_id, 
-                     get_attribute_name(cluster_id, attribute_id).c_str(),
-                     attribute_type.c_str(),
-                     attr->size,
-                     attribute_value.c_str(),
-                     attr->mask,
-                     get_attribute_flags_string(flags).c_str());
+            ESP_LOGW("", "| %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Size: %d, Value: %s, Mask: 0x%02x, Flags: %s", 
+              indent.c_str(), 
+              attribute_id, 
+              get_attribute_name(cluster_id, attribute_id).c_str(),
+              attribute_type.c_str(),
+              attr->size,
+              attribute_value.c_str(),
+              attr->mask,
+              get_attribute_flags_string(flags).c_str());
           }
         }
       #endif
@@ -476,15 +404,12 @@ void print_all_attributes(uint16_t endpoint_id)
         while(command) {
           uint32_t command_id = command::get_id(command);
           uint16_t flags = command::get_flags(command);
-          ESP_LOGW("", "# %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
+          ESP_LOGW("", "| %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
           command = command::get_next(command);
         }
       #endif
     }
   #endif
-
-  ESP_LOGE("", "############################################################################################");
-  ESP_LOGE("", "");
 }
 
 /*

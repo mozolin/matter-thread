@@ -53,7 +53,7 @@
 #define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
 #define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3 // GPIO4 ESP32-H2
 #define CONFIG_MQ135_3V3_CIRCUIT             true
-#define CONFIG_MQ135_CALIBRATE               false
+#define CONFIG_MQ135_CALIBRATE               true
 
 
 #define LIVE_BLINK_TIME_MS                   0

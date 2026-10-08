@@ -2,7 +2,7 @@
 
 using namespace esp_matter;
 
-//extern std::string get_endpoint_name(uint32_t endpoint_id);
+extern std::string get_endpoint_name(uint32_t endpoint_id);
 
 extern std::string get_cluster_name(uint32_t cluster_id);
 
@@ -23,7 +23,7 @@ bool is_attribute_present(uint16_t endpoint_id, uint32_t cluster_id, uint32_t at
 //-- 2. Проверка через ZAP-generated код
 bool check_attribute_existence(uint32_t cluster_id, uint32_t attribute_id);
 //-- 3. Получение списка всех атрибутов endpoint
-void print_all_attributes(uint16_t endpoint_id);
+void print_all_attributes(uint16_t endpoint_id, endpoint_t *endpoint);
 //-- 4. Проверка через Matter API
 //bool matter_attribute_exists(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id);
 //-- 5. Комплексная проверка с валидацией типа

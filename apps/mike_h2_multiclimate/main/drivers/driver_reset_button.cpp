@@ -64,13 +64,12 @@ void reboot_button_task(void *pvParameter)
           ESP_LOGW("Reset Button", "*                          *");
           ESP_LOGW("Reset Button", "****************************");
           //-- Get Matter node
-          //esp_matter::node_t *node = esp_matter::node::get();
           node_t *node = node::get();
           if(node) {
             ESP_LOGI("Reset Button", "Matter Node created!");
           	//-- Device structure log
 	          log_device_structure(node);
-          	vTaskDelay(pdMS_TO_TICKS(10000));
+          	//vTaskDelay(pdMS_TO_TICKS(10000));
           } else {
             ESP_LOGE("Reset Button", "Matter Node not created!");
           }
