@@ -8,17 +8,19 @@
 #include <button_gpio.h>
 //#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
+#include "plugin_device_structure.h"
 
-
-#define MOCK_SENSORS_BEHAVIOR                false
+//-- Debug options
+#define MOCK_SENSORS_BEHAVIOR                true
 #define DEBUG_MODE                           false
+#define SHOW_DEVICE_LOG                      true
 
 
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS                   8
 
 //-- Sensors configuration
-#define CONFIG_SSD1306_ENABLED               true
+#define CONFIG_SSD1306_ENABLED               false
 #define CONFIG_BME280_ENABLED                true
 #define CONFIG_BME680_ENABLED                true
 #define CONFIG_DS18B20_ENABLED               true
@@ -51,10 +53,19 @@
 #define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
 #define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3 // GPIO4 ESP32-H2
 #define CONFIG_MQ135_3V3_CIRCUIT             true
+#define CONFIG_MQ135_CALIBRATE               false
 
 
 #define LIVE_BLINK_TIME_MS                   0
 #define CONFIG_SENSOR_POLL_PERIOD_MS         5000
+
+#if SHOW_DEVICE_LOG
+	//-- what part of tree to show (-1 means: SHOW ALL)
+	#define SHOW_DEVICE_LOG_ONE_CLUSTER   -1
+	#define SHOW_DEVICE_LOG_CLUSTERS      true
+	#define SHOW_DEVICE_LOG_ATTRIBUTES    false
+	#define SHOW_DEVICE_LOG_COMMANDS      false
+#endif
 
 
 #if CONFIG_MQ135_ENABLED
@@ -151,7 +162,6 @@ typedef struct {
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include "esp_openthread_types.h"
 #endif
-
 
 extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 extern uint16_t configured_sensors;

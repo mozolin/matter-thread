@@ -84,14 +84,14 @@ typedef struct {
  *      - ESP_ERR_INVALID_ARG: Неверные аргументы
  *      - Другие коды ошибок ESP-IDF
  */
-esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config);
+esp_err_t mq135_driver_init_3v3(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config);
 
 /**
  * @brief Освобождение ресурсов драйвера.
  * 
  * @param handle Дескриптор драйвера.
  */
-void mq135_driver_deinit(mq135_handle_t *handle);
+void mq135_driver_deinit_3v3(mq135_handle_t *handle);
 
 /**
  * @brief Выполняет измерение и рассчитывает концентрацию для всех газов.
@@ -103,7 +103,7 @@ void mq135_driver_deinit(mq135_handle_t *handle);
  *      - ESP_ERR_INVALID_STATE: Драйвер не инициализирован
  *      - Другие коды ошибок
  */
-esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data);
+esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data);
 
 /**
  * @brief Выполняет калибровку R0 в чистом воздухе.
@@ -119,7 +119,7 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data);
  *      - ESP_ERR_INVALID_ARG: Неверные аргументы
  *      - Другие коды ошибок
  */
-esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count);
+esp_err_t mq135_calibrate_r0_3v3(mq135_handle_t *handle, uint16_t sample_count);
 
 #ifdef __cplusplus
 }

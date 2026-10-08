@@ -497,7 +497,7 @@ void set_basic_attributes_esp_matter()
 extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
-
+  
   // ДОБАВЛЕНО: Глобальная инициализация подсистемы i2cdev.
   // Должна быть вызвана до инициализации любых I2C устройств (SSD1306, BME280, BME680).
   err = i2cdev_init();
@@ -598,6 +598,10 @@ extern "C" void app_main()
     #endif
     esp_matter::console::init();
   #endif
+  
+  //if(node) {
+  //  log_device_structure(node);
+  //}
 
   //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
 

@@ -5,7 +5,7 @@
 #include "esp_log.h"
 #include "math.h"
 
-static const char *TAG = "MQ135_DRIVER";
+static const char *TAG = "MQ135_DRIVER_5V";
 
 esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config) {
     if (handle == NULL) {
@@ -167,6 +167,104 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
 
     ESP_LOGD(TAG, "Напряжение: %.3f В, Rs: %.1f Ом, CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm",
              voltage, rs, data->co2.ppm, data->co.ppm, data->tvoc.ppm);
+
+    return ESP_OK;
+}
+
+/**
+ * @brief Калибровка R0 в чистом воздухе для варианта питания 5В.
+ *
+ * ВАЖНО (5В): при питании от 5В выход AOUT может превышать 3.3В,
+ * поэтому ОБЯЗАТЕЛЬНО должен использоваться делитель напряжения.
+ * Значения handle->config.supply_voltage и handle->config.vref
+ * должны быть заданы при инициализации с учётом делителя.
+ *
+ * Процедура:
+ *  1. Поместите датчик в чистый воздух (улица, проветренное помещение).
+ *  2. Прогрейте датчик 24-48 часов (обязательно для MQ-135!).
+ *  3. Вызовите эту функцию.
+ *
+ * @param[in] handle Дескриптор драйвера.
+ * @param[in] sample_count Количество выборок для усреднения (рекомендуется 50-100).
+ * @return
+ *      - ESP_OK: Успешно
+ *      - ESP_ERR_INVALID_ARG: Неверные аргументы
+ *      - ESP_FAIL: Нет валидных выборок
+ */
+esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count)
+{
+    if (handle == NULL || sample_count == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    ESP_LOGI(TAG, "Начало калибровки R0 (вариант 5V). Выборок: %d", sample_count);
+
+    float sum_rs = 0.0f;
+    uint16_t valid_samples = 0;
+
+    for (uint16_t i = 0; i < sample_count; i++) {
+        // --- Чтение сырого значения ADC ---
+        int raw = 0;
+        esp_err_t ret = adc_oneshot_read(handle->adc_handle, handle->adc_channel, &raw);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Ошибка чтения ADC: %s", esp_err_to_name(ret));
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+
+        // --- Конвертация в напряжение (мВ) ---
+        float voltage_mv = 0.0f;
+        if (handle->cali_handle) {
+            int calibrated_mv = 0;
+            ret = adc_cali_raw_to_voltage(handle->cali_handle, raw, &calibrated_mv);
+            if (ret == ESP_OK) {
+                voltage_mv = (float)calibrated_mv;
+            } else {
+                voltage_mv = ((float)raw / 4095.0f) * handle->config.vref * 1000.0f;
+            }
+        } else {
+            voltage_mv = ((float)raw / 4095.0f) * handle->config.vref * 1000.0f;
+        }
+
+        float voltage = voltage_mv / 1000.0f; // В вольтах
+
+        // --- Расчёт Rs ---
+        // Rs = RL * (VCC - V_adc) / V_adc
+        // Для 5В-варианта VCC = handle->config.supply_voltage (5.0),
+        // V_adc — напряжение, восстановленное с учётом делителя.
+        float rs = 0.0f;
+        if (voltage > 0.01f && voltage < handle->config.supply_voltage) {
+            rs = handle->config.load_resistor *
+                 (handle->config.supply_voltage - voltage) / voltage;
+        } else {
+            rs = 1000000.0f; // отбраковка
+        }
+
+        if (rs > 0.0f && rs < 1000000.0f) {
+            sum_rs += rs;
+            valid_samples++;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    if (valid_samples == 0) {
+        ESP_LOGE(TAG, "Калибровка не удалась: нет валидных выборок");
+        return ESP_FAIL;
+    }
+
+    float rs_avg = sum_rs / (float)valid_samples;
+
+    /* ============================================================
+     *  ВАРИАНТ 5V:
+     *  В чистом воздухе Rs/R0 ≈ 3.6 (по даташиту для MQ-135).
+     *  R0 = Rs_avg / 3.6
+     * ============================================================ */
+    const float RS_R0_RATIO_CLEAN_AIR = 3.6f;
+    handle->config.r0 = rs_avg / RS_R0_RATIO_CLEAN_AIR;
+
+    ESP_LOGI(TAG, "Калибровка завершена. Среднее Rs: %.1f Ом, новый R0: %.1f Ом",
+             rs_avg, handle->config.r0);
 
     return ESP_OK;
 }

@@ -71,23 +71,31 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
             
             ESP_LOGI(TAG_MULTI_CLIMATE, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
                 (uint16_t)CONFIG_MQ135_GPIO, (uint16_t)CONFIG_MQ135_ADC_CHANNEL);
-            err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
-
             #if CONFIG_MQ135_3V3_CIRCUIT
-              /* ============================================================
-               *  ОПЦИОНАЛЬНО: КАЛИБРОВКА R0
-               * ============================================================
-               *  ИЗМЕНЕНО ДЛЯ 3.3V: при питании 3.3В R0 существенно отличается
-               *  от паспортного (5В), поэтому калибровка крайне рекомендуется.
-               *  Раскомментируйте блок ниже ПОСЛЕ 24-48 часов прогрева в чистом воздухе.
-               */
-              /*
-              ESP_LOGW(TAG, "Калибровка R0 для 3.3В. Датчик должен быть в чистом воздухе!");
-              err = mq135_calibrate_r0(&s_mq135_handle, 100);
-              if (err != ESP_OK) {
-                  ESP_LOGE(TAG, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
+              err = mq135_driver_init_3v3(&s_mq135_handle, adc_unit, adc_channel, NULL);
+            #else
+              err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
+            #endif
+
+            #if CONFIG_MQ135_CALIBRATE
+              /*============================================================
+                 ОПЦИОНАЛЬНО: КАЛИБРОВКА R0
+              ============================================================*/
+              #if CONFIG_MQ135_3V3_CIRCUIT
+                ESP_LOGW(TAG_MULTI_CLIMATE, "Калибровка R0 для 3.3V. Датчик должен быть в чистом воздухе!");
+              #else
+                ESP_LOGW(TAG_MULTI_CLIMATE, "Калибровка R0 для 5V. Датчик должен быть в чистом воздухе!");
+              #endif
+              
+              #if CONFIG_MQ135_3V3_CIRCUIT
+                err = mq135_calibrate_r0_3v3(&s_mq135_handle, 100);
+              #else
+                err = mq135_calibrate_r0(&s_mq135_handle, 100);
+              #endif
+              
+              if(err != ESP_OK) {
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
               }
-              */
             #endif
 
             break;
@@ -192,7 +200,11 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         #if CONFIG_MQ135_ENABLED
         case SENSOR_TYPE_MQ135: {
             mq135_data_t sensor_data;
-            esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
+            #if CONFIG_MQ135_3V3_CIRCUIT
+              esp_err_t err = mq135_read_3v3(&s_mq135_handle, &sensor_data);
+            #else
+              esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
+            #endif
             if (err != ESP_OK) {
                 ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
                 //vTaskDelay(pdMS_TO_TICKS(5000));

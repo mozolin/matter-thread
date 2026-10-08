@@ -25,7 +25,7 @@ static const char *TAG = "MQ135_DRIVER_3V3";
  * ИЗМЕНЕНО ДЛЯ 3.3V: формула расчёта Rs осталась той же, но с учётом того,
  * что supply_voltage = vref = 3.3В, а делитель не используется.
  */
-static esp_err_t mq135_read_internal(mq135_handle_t *handle, float *voltage_out, float *rs_out) {
+static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_out, float *rs_out) {
     if (handle == NULL || voltage_out == NULL || rs_out == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -68,7 +68,7 @@ static esp_err_t mq135_read_internal(mq135_handle_t *handle, float *voltage_out,
     return ESP_OK;
 }
 
-esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config) {
+esp_err_t mq135_driver_init_3v3(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config) {
     if (handle == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -141,7 +141,7 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
     return ESP_OK;
 }
 
-void mq135_driver_deinit(mq135_handle_t *handle) {
+void mq135_driver_deinit_3v3(mq135_handle_t *handle) {
     if (handle == NULL) return;
 
     if (handle->cali_handle) {
@@ -155,7 +155,7 @@ void mq135_driver_deinit(mq135_handle_t *handle) {
     ESP_LOGI(TAG, "Драйвер MQ-135 деинициализирован");
 }
 
-esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
+esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data) {
     if (handle == NULL || data == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -163,7 +163,7 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
     float voltage = 0.0f;
     float rs = 0.0f;
 
-    esp_err_t ret = mq135_read_internal(handle, &voltage, &rs);
+    esp_err_t ret = mq135_read_internal_3v3(handle, &voltage, &rs);
     if (ret != ESP_OK) {
         return ret;
     }
@@ -218,13 +218,13 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
  *  2. Прогрейте датчик 24-48 часов (обязательно для MQ-135!).
  *  3. Вызовите эту функцию. Она усреднит N выборок Rs и запишет результат в config.r0.
  */
-esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count) {
+esp_err_t mq135_calibrate_r0_3v3(mq135_handle_t *handle, uint16_t sample_count) {
     if (handle == NULL || sample_count == 0) {
         return ESP_ERR_INVALID_ARG;
     }
 
     ESP_LOGI(TAG, "Начало калибровки R0 (ИЗМЕНЕНО ДЛЯ 3.3V). Выборок: %d", sample_count);
-
+    
     float sum_rs = 0.0f;
     uint16_t valid_samples = 0;
 
@@ -232,17 +232,18 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count) {
         float voltage = 0.0f;
         float rs = 0.0f;
 
-        esp_err_t ret = mq135_read_internal(handle, &voltage, &rs);
-        if (ret == ESP_OK && rs > 0.0f && rs < 1000000.0f) {
-            sum_rs += rs;
-            valid_samples++;
+        esp_err_t ret = mq135_read_internal_3v3(handle, &voltage, &rs);
+        if(ret == ESP_OK && rs > 0.0f && rs < 1000000.0f) {
+          sum_rs += rs;
+          valid_samples++;
         }
+        
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
-    if (valid_samples == 0) {
-        ESP_LOGE(TAG, "Калибровка не удалась: нет валидных выборок");
-        return ESP_FAIL;
+    if(valid_samples == 0) {
+      ESP_LOGE(TAG, "Калибровка не удалась: нет валидных выборок");
+      return ESP_FAIL;
     }
 
     float rs_avg = sum_rs / (float)valid_samples;
@@ -258,8 +259,15 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count) {
     const float RS_R0_RATIO_CLEAN_AIR = 3.6f;
     handle->config.r0 = rs_avg / RS_R0_RATIO_CLEAN_AIR;
 
-    ESP_LOGI(TAG, "Калибровка завершена. Среднее Rs: %.1f Ом, новый R0: %.1f Ом",
-             rs_avg, handle->config.r0);
+    ESP_LOGW("", "");
+    ESP_LOGW("", "=====================================================================");
+    ESP_LOGW("", "");
+    ESP_LOGW("", " Калибровка завершена. Среднее Rs: %.1f Ом, новый R0: %.1f Ом", rs_avg, handle->config.r0);
+    ESP_LOGW("", "");
+    ESP_LOGW("", "=====================================================================");
+    ESP_LOGW("", "");
 
+    vTaskDelay(pdMS_TO_TICKS(10000));
+    
     return ESP_OK;
 }
