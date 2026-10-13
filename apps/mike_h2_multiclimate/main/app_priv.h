@@ -4,7 +4,6 @@
 #include <esp_matter.h>
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
-//#include "driver/i2c_master.h"
 #include <button_gpio.h>
 //#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
@@ -12,7 +11,7 @@
 
 //-- Debug options
 #define MOCK_SENSORS_BEHAVIOR                true
-#define DEBUG_MODE                           true
+#define DEBUG_MODE                           false
 #define SHOW_DEVICE_LOG                      true
 
 
@@ -166,9 +165,11 @@ typedef struct {
   #include "esp_openthread_types.h"
 #endif
 
-extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
+//extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
+extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 extern uint16_t configured_sensors;
-extern sensor_data_t sensors[CONFIG_NUM_SENSORS];
+//extern sensor_data_t sensors[CONFIG_NUM_SENSORS];
+extern sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 typedef void *app_driver_handle_t;
 

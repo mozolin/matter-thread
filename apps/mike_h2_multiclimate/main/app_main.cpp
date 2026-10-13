@@ -52,8 +52,12 @@ using namespace chip::app::Clusters;
 
 constexpr auto k_timeout_seconds = 300;
 uint16_t configured_sensors = 0;
-sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
-sensor_data_t sensors[CONFIG_NUM_SENSORS];
+//sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
+//sensor_data_t sensors[CONFIG_NUM_SENSORS];
+sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
+sensor_data_t sensors[SENSOR_TYPE_MAX];
+
+
 
 #if CONFIG_SSD1306_ENABLED
   //-- SSD1306 device instance
@@ -477,7 +481,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     }
 
     // Store mapping
-    if (configured_sensors < CONFIG_NUM_SENSORS) {
+    //if (configured_sensors < CONFIG_NUM_SENSORS) {
+    if (configured_sensors < SENSOR_TYPE_MAX) {
         sensor_mapping_list[configured_sensors].endpoint_id = endpoint::get_id(endpoint);
         sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg;
         //sensor_mapping_list[configured_sensors].primary_gpio = sensor_cfg->sda_pin;
@@ -572,6 +577,15 @@ extern "C" void app_main()
   /* Initialize the ESP NVS layer */
   nvs_flash_init();
 
+  #if CONFIG_ENABLE_CHIP_SHELL
+    esp_matter::console::diagnostics_register_commands();
+    esp_matter::console::wifi_register_commands();
+    esp_matter::console::factoryreset_register_commands();
+    #if CONFIG_OPENTHREAD_CLI
+      esp_matter::console::otcli_register_commands();
+    #endif
+  #endif
+
   /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
@@ -624,22 +638,33 @@ extern "C" void app_main()
   //-- Start sensor polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
+  #if SHOW_DEVICE_LOG
+    if(node) {
+      vTaskDelay(pdMS_TO_TICKS(3000));
+      log_device_structure(node);
+    }
+  #endif
+
   #if CONFIG_ENABLE_CHIP_SHELL
-    esp_matter::console::diagnostics_register_commands();
-    esp_matter::console::wifi_register_commands();
-    esp_matter::console::factoryreset_register_commands();
-    #if CONFIG_OPENTHREAD_CLI
-      esp_matter::console::otcli_register_commands();
-    #endif
-    esp_matter::console::init();
+    ESP_LOGE("", "");
+    ESP_LOGE("", "--------------------------------------");
+    ESP_LOGE("", "Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    ESP_LOGE("", "--------------------------------------");
+    ESP_LOGE("", "");
+    err = esp_matter::console::init();
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Console init failed: %d", err);
+    }
   #endif
   
+  /*
   #if SHOW_DEVICE_LOG
     if(node) {
       log_device_structure(node);
       //vTaskDelay(pdMS_TO_TICKS(5000));
     }
   #endif
+  */
 
   //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
 

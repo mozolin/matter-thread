@@ -331,6 +331,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 // Sensor polling task implementation
 void sensor_polling_task(void *pvParameters)
 {
+    printf("sensor_polling_task...\n");
     const TickType_t poll_period_ms = CONFIG_SENSOR_POLL_PERIOD_MS / portTICK_PERIOD_MS;
     
     // Initialize reset trackers

@@ -2,7 +2,6 @@
 
 #include <esp_err.h>
 #include <driver/gpio.h>
-//#include <driver/i2c_master.h>
 #include "bmp280.h"
 
 #ifdef __cplusplus
