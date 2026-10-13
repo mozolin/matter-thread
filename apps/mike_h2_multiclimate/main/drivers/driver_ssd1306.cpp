@@ -267,7 +267,7 @@
     ssd1306_contrast(&ssd1306dev, 0xff);
     ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
     ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
     //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
 
     /*

@@ -2,7 +2,7 @@
 
 #include <esp_err.h>
 #include <driver/gpio.h>
-#include <driver/i2c_master.h>
+//#include <driver/i2c_master.h>
 #include "bme680.h"
 
 #ifdef __cplusplus

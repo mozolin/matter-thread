@@ -4,7 +4,7 @@
 #include <esp_matter.h>
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
-#include "driver/i2c_master.h"
+//#include "driver/i2c_master.h"
 #include <button_gpio.h>
 //#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
@@ -26,21 +26,18 @@
 #define CONFIG_DS18B20_ENABLED               true
 #define CONFIG_DHT11_ENABLED                 true
 #define CONFIG_MQ135_ENABLED                 true
+#define CONFIG_SHT41_ENABLED                 true
 
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY     5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
 
-//-- BMP280 sensor
-//#define CONFIG_BME280_I2C_BUS                0
-//#define CONFIG_BME280_I2C_ADDR               0x76
+//-- BMP280 sensor (i2c bus=0,i2c_addr=0x76)
 #define CONFIG_BME280_SDA_GPIO               1
 #define CONFIG_BME280_SCL_GPIO               2
 #define CONFIG_BME280_I2C_PORT               I2C_NUM_0
-//-- BME680 sensor
-//#define CONFIG_BME680_I2C_BUS                0
-//#define CONFIG_BME680_I2C_ADDR               0x77
+//-- BME680 sensor (i2c bus=1,i2c_addr=0x77)
 #define CONFIG_BME680_SDA_GPIO               3
 #define CONFIG_BME680_SCL_GPIO               5
 #define CONFIG_BME680_I2C_PORT               I2C_NUM_1
@@ -48,12 +45,16 @@
 #define CONFIG_DS18B20_GPIO                  10
 //-- DHT11 sensor
 #define CONFIG_DHT11_GPIO                    11
-//-- MQ135 sensor
+//-- MQ135 sensor (ESP32-H2:GPIO4,ADC_UNIT_1,ADC_CHANNEL_3)
 #define CONFIG_MQ135_GPIO                    4
 #define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
-#define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3 // GPIO4 ESP32-H2
+#define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3
 #define CONFIG_MQ135_3V3_CIRCUIT             true
 #define CONFIG_MQ135_CALIBRATE               true
+//-- SHT41 sensor (i2c bus=1,i2c_addr=0x44)
+#define CONFIG_SHT41_SDA_GPIO                3
+#define CONFIG_SHT41_SCL_GPIO                5
+#define CONFIG_SHT41_I2C_PORT                I2C_NUM_1
 
 
 #define LIVE_BLINK_TIME_MS                   0
@@ -134,6 +135,7 @@ typedef enum {
   SENSOR_TYPE_DS18B20 = 2,
   SENSOR_TYPE_DHT11   = 3,
   SENSOR_TYPE_MQ135   = 4,
+  SENSOR_TYPE_SHT41   = 5,
   SENSOR_TYPE_MAX
 } sensor_type_t;
 

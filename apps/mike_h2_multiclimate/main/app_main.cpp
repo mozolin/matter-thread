@@ -41,6 +41,7 @@
   // Хэндл для задачи, которая будет обновлять данные
   TaskHandle_t s_update_task_handle = NULL;
 #endif
+#include "sensor_driver_sht41.h"
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -425,6 +426,35 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
         #endif
 
+        case SENSOR_TYPE_SHT41: {
+            // Create endpoint with multiple clusters
+            ESP_LOGW("", "");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", " Start creating endpoint for SHT41");
+            ESP_LOGW("", "************************************");
+            ESP_LOGW("", "");
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);  // 20.00°C
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
+            
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+            
+            if(!endpoint) {
+              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for SHT41");
+              return ESP_FAIL;
+            }
+
+            //-- Add Humidity Measurement cluster
+            cluster::relative_humidity_measurement::config_t hum_config;
+            hum_config.measured_value = nullable<uint16_t>(5000); // 50.00%
+            hum_config.min_measured_value = nullable<uint16_t>(0); // 0.00%
+            hum_config.max_measured_value = nullable<uint16_t>(10000); // 100.00%
+            cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
+
+            break;
+        }
+
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
             return ESP_ERR_INVALID_ARG;
@@ -499,7 +529,7 @@ extern "C" void app_main()
   esp_err_t err = ESP_OK;
   
   // ДОБАВЛЕНО: Глобальная инициализация подсистемы i2cdev.
-  // Должна быть вызвана до инициализации любых I2C устройств (SSD1306, BME280, BME680).
+  // Должна быть вызвана до инициализации любых I2C устройств (SSD1306, BME280, BME680, SHT41).
   err = i2cdev_init();
   if(err != ESP_OK) {
     ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
@@ -538,15 +568,6 @@ extern "C" void app_main()
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create Matter node"));
   
 
-  // ИЗМЕНЕНО: Удален вызов i2cdev_init() отсюда, так как он теперь вызывается в начале app_main.
-  // if(CONFIG_BME280_ENABLED || CONFIG_BME680_ENABLED) {
-  //   err = i2cdev_init();
-  //   if(err != ESP_OK) {
-  //    	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev");
-  //   }
-  // }
-
-
   // Create sensor endpoints based on configuration
   #if CONFIG_BME280_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME280, node);
@@ -566,6 +587,10 @@ extern "C" void app_main()
 
   #if CONFIG_MQ135_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_MQ135, node);
+  #endif
+
+  #if CONFIG_SHT41_ENABLED
+    create_sensor_endpoint(SENSOR_TYPE_SHT41, node);
   #endif
 
   #if CHIP_DEVICE_CONFIG_ENABLE_THREAD

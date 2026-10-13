@@ -17,6 +17,7 @@
     #include "mq135_driver.h"
   #endif
 #endif
+#include "sensor_driver_sht41.h"
 #include "driver_led_indicator_v2.h"
 
 using namespace chip::app::Clusters;
@@ -27,8 +28,6 @@ typedef struct {
     uint32_t reset_count;
     bool reset_in_progress;
 } sensor_reset_tracker_t;
-
-//i2c_master_bus_handle_t bus_handle;
 
 static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 
@@ -103,6 +102,11 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         }
         #endif
         
+        case SENSOR_TYPE_SHT41: {
+            err = sht41_init();
+            break;
+        }
+        
         default: {
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
             err = ESP_ERR_INVALID_ARG;
@@ -137,7 +141,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
                 sensor->last_read_time = esp_timer_get_time();
 
                 #if CONFIG_SSD1306_ENABLED
-                  ssd1306_show_sensor_data(3, temperature, humidity, pressure, 0, 0);
+                  ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0, 0);
                 #endif
             }
             break;
@@ -158,7 +162,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(4, temperature, humidity, pressure, gas, 0);
+                ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas, 0);
               #endif
             }
             break;
@@ -174,7 +178,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->num_sensors = num_sensors;
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(5, temperature, 0, 0, 0, num_sensors);
+                ssd1306_show_sensor_data(4, temperature, 0, 0, 0, num_sensors);
               #endif
             }
             break;
@@ -191,7 +195,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
 
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(6, temperature, humidity, 0, 0, 0);
+                ssd1306_show_sensor_data(5, temperature, humidity, 0, 0, 0);
               #endif
             }
             break;
@@ -215,7 +219,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               sensor->last_read_time = esp_timer_get_time();
               
               #if CONFIG_SSD1306_ENABLED
-                ssd1306_show_sensor_data(7, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, -1);
+                ssd1306_show_sensor_data(6, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, -1);
               #endif
             }
         
@@ -224,6 +228,23 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         }
         #endif
 
+        case SENSOR_TYPE_SHT41: {
+            int16_t temperature;
+            uint16_t humidity;
+            
+            err = sht41_read_all(&temperature, &humidity);
+            if (err == ESP_OK) {
+                sensor->last_temperature = temperature;
+                sensor->last_humidity = humidity;
+                sensor->last_read_time = esp_timer_get_time();
+
+                #if CONFIG_SSD1306_ENABLED
+                  ssd1306_show_sensor_data(7, temperature, humidity, 0, 0, 0);
+                #endif
+            }
+            break;
+        }
+        
         default:
             err = ESP_ERR_NOT_SUPPORTED;
             break;
@@ -272,6 +293,9 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
             err = dht11_reset();
             break;
         #endif
+        case SENSOR_TYPE_SHT41:
+            err = sht41_reset();
+            break;
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type for reset: %d", sensor->config);
             err = ESP_ERR_NOT_SUPPORTED;
@@ -691,6 +715,47 @@ void sensor_polling_task(void *pvParameters)
                     }
                     #endif
 
+                    case SENSOR_TYPE_SHT41: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        break;
+                    }
+
                     default:
                         break;
                 }
@@ -768,6 +833,13 @@ void app_driver_log_sensor_statistics(void)
                 break;
             }
             #endif
+            case SENSOR_TYPE_SHT41: {
+                ESP_LOGW("", "SHT41  (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f);
+                break;
+            }
             default: {
                 break;
             }
