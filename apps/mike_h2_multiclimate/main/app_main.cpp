@@ -540,11 +540,13 @@ extern "C" void app_main()
     // Можно продолжить, но I2C устройства не будут работать.
   }
 
-  // ДОБАВЛЕНО: Инициализация LED-индикатора (требуется для работы led_indicator_start/stop)
-  led_handle = configure_indicator();
-  if(!led_handle) {
-    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
-  }
+  #if USE_DRIVER_LED_INDICATOR
+    // ДОБАВЛЕНО: Инициализация LED-индикатора (требуется для работы led_indicator_start/stop)
+    led_handle = configure_indicator();
+    if(!led_handle) {
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
+    }
+  #endif
 
   // Start reboot button task
   xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
@@ -554,11 +556,15 @@ extern "C" void app_main()
     err = ssd1306_init();
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
-      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #endif
     } else {
       ssd1306_initialized = true;
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306 Initialized!");
-      //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #if USE_DRIVER_LED_INDICATOR
+        //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #endif
     }
     ssd1306_show_title();
   #endif

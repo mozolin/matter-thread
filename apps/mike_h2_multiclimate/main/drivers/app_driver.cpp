@@ -20,7 +20,9 @@
 #if CONFIG_SHT41_ENABLED
   #include "sensor_driver_sht41.h"
 #endif
-#include "driver_led_indicator_v2.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator_v2.h"
+#endif
 
 using namespace chip::app::Clusters;
 using namespace esp_matter;
@@ -259,7 +261,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     if (err != ESP_OK) {
         ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
     } else {
-      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #endif
     }
 
     return err;
@@ -846,7 +850,7 @@ void app_driver_log_sensor_statistics(void)
             }
             #endif
             case SENSOR_TYPE_SHT41: {
-                ESP_LOGW("", "SHT41  (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                ESP_LOGW("", "SHT41   (%d) | Temp: %.2f °C, Hum: %.2f %%",
                 i,
                 sensor->last_temperature / 100.0f,
                 sensor->last_humidity / 100.0f);

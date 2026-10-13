@@ -12,15 +12,16 @@
 
 //-- Debug options
 #define MOCK_SENSORS_BEHAVIOR                true
-#define DEBUG_MODE                           false
+#define DEBUG_MODE                           true
 #define SHOW_DEVICE_LOG                      true
 
 
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
 #define CONFIG_NUM_SENSORS                   8
 
-//-- Sensors configuration
 #define CONFIG_SSD1306_ENABLED               true
+
+//-- Sensors configuration
 #define CONFIG_BME280_ENABLED                true
 #define CONFIG_BME680_ENABLED                true
 #define CONFIG_DS18B20_ENABLED               true
@@ -136,7 +137,7 @@ typedef enum {
   SENSOR_TYPE_DHT11   = 3,
   SENSOR_TYPE_MQ135   = 4,
   SENSOR_TYPE_SHT41   = 5,
-  SENSOR_TYPE_MAX
+  SENSOR_TYPE_MAX     = 6,
 } sensor_type_t;
 
 // Sensor data structure
