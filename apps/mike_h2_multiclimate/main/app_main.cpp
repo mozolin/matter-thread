@@ -584,6 +584,15 @@ extern "C" void app_main()
     #if CONFIG_OPENTHREAD_CLI
       esp_matter::console::otcli_register_commands();
     #endif
+    ESP_LOGW("", "");
+    ESP_LOGW("", "--------------------------------------");
+    ESP_LOGW("", "Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    ESP_LOGW("", "--------------------------------------");
+    ESP_LOGW("", "");
+    err = esp_matter::console::init();
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Console init failed: %d", err);
+    }
   #endif
 
   /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
@@ -645,18 +654,6 @@ extern "C" void app_main()
     }
   #endif
 
-  #if CONFIG_ENABLE_CHIP_SHELL
-    ESP_LOGE("", "");
-    ESP_LOGE("", "--------------------------------------");
-    ESP_LOGE("", "Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-    ESP_LOGE("", "--------------------------------------");
-    ESP_LOGE("", "");
-    err = esp_matter::console::init();
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Console init failed: %d", err);
-    }
-  #endif
-  
   /*
   #if SHOW_DEVICE_LOG
     if(node) {
