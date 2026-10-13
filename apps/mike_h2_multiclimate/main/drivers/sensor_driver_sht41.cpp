@@ -2,7 +2,7 @@
 #include "app_priv.h"
 
 // Дескриптор устройства SHT41
-sht4x_t dev;
+sht4x_t s_dev;
 // Флаг инициализации
 bool s_initialized = false;
 
@@ -24,7 +24,7 @@ esp_err_t sht41_init(void)
     #if !MOCK_SENSORS_BEHAVIOR
     // Инициализация дескриптора устройства SHT41
     // Библиотека sht4x сама создаёт I2C мастер и добавляет устройство
-    esp_err_t err = sht4x_init_desc(&dev, 
+    esp_err_t err = sht4x_init_desc(&s_dev, 
                                      CONFIG_SHT41_I2C_PORT,
                                      CONFIG_SHT41_SDA_GPIO,
                                      CONFIG_SHT41_SCL_GPIO);
@@ -35,11 +35,11 @@ esp_err_t sht41_init(void)
     }
 
     // Установка частоты I2C
-    err = sht4x_init(&dev);
+    err = sht4x_init(&s_dev);
     if (err != ESP_OK) {
         ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка инициализации датчика SHT41: %s", 
                  esp_err_to_name(err));
-        sht4x_free_desc(&dev);
+        sht4x_free_desc(&s_dev);
         return err;
     }
     #else
@@ -79,7 +79,7 @@ esp_err_t sht41_read_all(int16_t *temperature, uint16_t *humidity)
         return ESP_ERR_INVALID_ARG;
     }
 
-    esp_err_t err = sht4x_measure(&dev, &temp, &hum);
+    esp_err_t err = sht4x_measure(&s_dev, &temp, &hum);
     if (err != ESP_OK) {
         ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка измерения SHT41: %s", esp_err_to_name(err));
         return err;
@@ -99,7 +99,7 @@ esp_err_t sht41_read_all(int16_t *temperature, uint16_t *humidity)
     ESP_LOGD("|  SHT41", "Temp: %.2f °C, Hum: %.2f %%", temp, hum);
   #endif
 
-  return ESP_OK;
+  return err;
 }
 
 /**
@@ -111,7 +111,7 @@ esp_err_t sht41_driver_deinit(void)
         return ESP_OK;
     }
 
-    sht4x_free_desc(&dev);
+    sht4x_free_desc(&s_dev);
     s_initialized = false;
     ESP_LOGI(TAG_MULTI_CLIMATE, "Драйвер SHT41 освобождён");
 
