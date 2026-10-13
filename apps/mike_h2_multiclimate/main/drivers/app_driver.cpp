@@ -17,7 +17,9 @@
     #include "mq135_driver.h"
   #endif
 #endif
-#include "sensor_driver_sht41.h"
+#if CONFIG_SHT41_ENABLED
+  #include "sensor_driver_sht41.h"
+#endif
 #include "driver_led_indicator_v2.h"
 
 using namespace chip::app::Clusters;
@@ -102,10 +104,12 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         }
         #endif
         
+        #if CONFIG_SHT41_ENABLED
         case SENSOR_TYPE_SHT41: {
             err = sht41_init();
             break;
         }
+        #endif
         
         default: {
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
@@ -228,6 +232,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         }
         #endif
 
+        #if CONFIG_SHT41_ENABLED
         case SENSOR_TYPE_SHT41: {
             int16_t temperature;
             uint16_t humidity;
@@ -244,6 +249,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             }
             break;
         }
+        #endif
         
         default:
             err = ESP_ERR_NOT_SUPPORTED;
@@ -288,14 +294,18 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
         case SENSOR_TYPE_DS18B20:
             err = ds18b20_reset();
             break;
+        
         #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11:
             err = dht11_reset();
             break;
         #endif
+        
+        #if CONFIG_SHT41_ENABLED
         case SENSOR_TYPE_SHT41:
             err = sht41_reset();
             break;
+        #endif
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type for reset: %d", sensor->config);
             err = ESP_ERR_NOT_SUPPORTED;
@@ -715,6 +725,7 @@ void sensor_polling_task(void *pvParameters)
                     }
                     #endif
 
+                    #if CONFIG_SHT41_ENABLED
                     case SENSOR_TYPE_SHT41: {
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
@@ -755,6 +766,7 @@ void sensor_polling_task(void *pvParameters)
                         }
                         break;
                     }
+                    #endif
 
                     default:
                         break;

@@ -41,7 +41,9 @@
   // Хэндл для задачи, которая будет обновлять данные
   TaskHandle_t s_update_task_handle = NULL;
 #endif
-#include "sensor_driver_sht41.h"
+#if CONFIG_SHT41_ENABLED
+  #include "sensor_driver_sht41.h"
+#endif
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -426,6 +428,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
         #endif
 
+        #if CONFIG_SHT41_ENABLED
         case SENSOR_TYPE_SHT41: {
             // Create endpoint with multiple clusters
             ESP_LOGW("", "");
@@ -454,6 +457,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
             break;
         }
+        #endif
 
         default:
             ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
