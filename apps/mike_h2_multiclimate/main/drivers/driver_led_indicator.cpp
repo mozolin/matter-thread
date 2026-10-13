@@ -1,17 +1,63 @@
-// driver_led_indicator_v2.cpp
-#include "driver_led_indicator_v2.h"
+
+#include "driver_led_indicator.h"
 
 #if USE_DRIVER_LED_INDICATOR
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
 
-  // *ИЗМЕНЕНО*: Глобальный хэндл для совместимости с существующим кодом.
-  // В идеале его следует передавать через аргументы, но для минимальных изменений оставляем так.
-  static led_indicator_handle_t led_handle = NULL;
-
   //-- use it, if there is at least one RGB LED
   #if USE_RGB_LED
-    // *БЕЗ ИЗМЕНЕНИЙ*: Все определения blink_step_t остаются абсолютно такими же.
-    // Версия 2.x полностью совместима с форматом blink_step_t из v1.x.
+    blink_step_t const *led_mode[] = {
+      [BLINK_ON_YELLOW] = yellow_on,
+      [BLINK_ON_ORANGE] = orange_on,
+      [BLINK_DOUBLE_RED] = double_red_blink,
+      [BLINK_TRIPLE_GREEN] = triple_green_blink,
+      [BLINK_ONCE_RED] = red_once_blink,
+      [BLINK_ONCE_GREEN] = green_once_blink,
+      [BLINK_ONCE_PURPLE] = purple_once_blink,
+      [BLINK_ONCE_ORANGE] = orange_once_blink,
+      [BLINK_ONCE_BLUE] = blue_once_blink,
+      [BLINK_ONCE_LIVE] = live_once_blink,
+      [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
+      [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
+      [BLINK_BLUE_BREATH] = breath_blue_blink,
+      [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
+      [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
+      #if LED_NUMBERS > 1
+        [BLINK_FLOWING] = flowing_blink,
+      #endif
+      [BLINK_MAX] = NULL,
+    };
+  
+    uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
+    {
+      uint8_t idx = 255;
+      
+      int size = sizeof(led_mode)/sizeof(led_mode[0]);
+    
+      auto item = led_mode[blink_type];
+      for(int i=0; i<size; i++) {
+        if(led_mode[i] == item) {
+          idx = i;
+    
+          if(start_delay > 0) {
+            led_indicator_start(led_handle, idx);
+            //vTaskDelay(pdMS_TO_TICKS(start_delay));
+            vTaskDelay(start_delay / portTICK_PERIOD_MS);
+    
+            led_indicator_stop(led_handle, idx);
+            if(stop_delay > 0) {
+              //vTaskDelay(pdMS_TO_TICKS(stop_delay));
+              vTaskDelay(stop_delay / portTICK_PERIOD_MS);
+            }
+          }
+    
+          break;
+        }
+      }
+    
+      return idx;
+    }
+  
     //-- Just turn on the yellow color
     const blink_step_t yellow_on[] = {
       //-- Set color to yellow
@@ -23,7 +69,7 @@
     //-- Just turn on the orange color
     const blink_step_t orange_on[] = {
       //-- Set color to orange
-      {LED_BLINK_RGB, SET_RGB(128, 64, 0), 0},
+      {LED_BLINK_RGB, SET_RGB(255, 128, 0), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 15000},
       {LED_BLINK_STOP, 0, 0},
     };
@@ -65,13 +111,28 @@
     const blink_step_t green_once_blink[] = {
       //-- Set color to green
       {LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_ON, 40},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 40},
+      //{LED_BLINK_LOOP, 0, 0},
+    };
+
+    //-- Blinking once in purple
+    const blink_step_t purple_once_blink[] = {
       //-- Set color to purple
-      //{LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
+      {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
     };
   
+    //-- Blinking once in orange
+    const blink_step_t orange_once_blink[] = {
+      //-- Set color to orange
+      {LED_BLINK_RGB, SET_RGB(64, 32, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_ON, 40},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 40},
+      //{LED_BLINK_LOOP, 0, 0},
+    };
   
     //-- Blinking once in blue
     const blink_step_t blue_once_blink[] = {
@@ -143,50 +204,21 @@
         {LED_BLINK_LOOP, 0, 0},
       };
     #endif
-
-    // *ИЗМЕНЕНО*: Массив указателей на blink_step_t теперь является частью конфигурации,
-    // но мы сохраняем его для внутреннего использования в get_led_indicator_blink_idx.
-    blink_step_t const *led_mode[] = {
-      [BLINK_ON_YELLOW] = yellow_on,
-      [BLINK_ON_ORANGE] = orange_on,
-      [BLINK_DOUBLE_RED] = double_red_blink,
-      [BLINK_TRIPLE_GREEN] = triple_green_blink,
-      [BLINK_ONCE_RED] = red_once_blink,
-      [BLINK_ONCE_GREEN] = green_once_blink,
-      [BLINK_ONCE_BLUE] = blue_once_blink,
-      [BLINK_ONCE_LIVE] = live_once_blink,
-      [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
-      [BLINK_WHITE_BREATHE_FAST] = breath_white_fast_blink,
-      [BLINK_BLUE_BREATH] = breath_blue_blink,
-      [BLINK_COLOR_HSV_RING] = color_hsv_ring_blink,
-      [BLINK_COLOR_RGB_RING] = color_rgb_ring_blink,
-      #if LED_NUMBERS > 1
-        [BLINK_FLOWING] = flowing_blink,
-      #endif
-      [BLINK_MAX] = NULL,
-    };
   
-    // *ПОЛНОСТЬЮ ПЕРЕПИСАНО*: Функция создания индикатора.
-    // Теперь использует заводской API версии 2.x.
     led_indicator_handle_t configure_indicator(void)
     {
-      // *ДОБАВЛЕНО*: Конфигурация для ленты (WS2812).
-      // В v2.x используется отдельная структура для каждого типа драйвера.
+      //-- LED strip general initialization, according to your led board design
       led_strip_config_t strip_config = {
         .strip_gpio_num = LED_BLINK_GPIO,
         .max_leds = LED_NUMBERS,
+        .led_pixel_format = LED_PIXEL_FORMAT_GRB,
         .led_model = LED_MODEL_WS2812,
-        /*********************************************************
-         * Для встроенного WS2812 на ESP32-H2 SuperMini (GPIO 8)
-         * правильный порядок компонентов — GRB, а не RGB.
-         *********************************************************/
-        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT,
-        .flags = {
+        {
           .invert_out = false,
         },
       };
     
-      // *ДОБАВЛЕНО*: Конфигурация RMT для ленты.
+      //-- LED strip backend configuration: RMT
       led_strip_rmt_config_t rmt_config = {
         .clk_src = RMT_CLK_SRC_DEFAULT,
         .resolution_hz = LED_RMT_RES_HZ,
@@ -196,57 +228,24 @@
         },
       };
     
-      // *ИЗМЕНЕНО*: Структура конфигурации ленты для v2.x.
       led_indicator_strips_config_t strips_config = {
         .led_strip_cfg = strip_config,
         .led_strip_driver = LED_STRIP_RMT,
         .led_strip_rmt_cfg = rmt_config,
       };
     
-      // *ДОБАВЛЕНО*: Основная конфигурация индикатора для v2.x.
-      // Она больше не содержит union с разными типами конфигураций.
       const led_indicator_config_t config = {
-        .blink_lists = led_mode,      // Передаем массив анимаций
-        .blink_list_num = BLINK_MAX,  // Передаем количество анимаций
+        .mode = LED_STRIPS_MODE,
+        .led_indicator_strips_config = &strips_config,
+        .blink_lists = led_mode,
+        .blink_list_num = BLINK_MAX,
       };
     
-      // *ИЗМЕНЕНО*: Вызов фабричной функции для создания устройства на светодиодной ленте.
-      // Вместо led_indicator_create используем led_indicator_new_strips_device.
-      // Обратите внимание на порядок аргументов: (config, hardware_config, handle).
-      esp_err_t ret = led_indicator_new_strips_device(&config, &strips_config, &led_handle);
+      led_indicator_handle_t led_handle_cfg = NULL;
+      led_handle_cfg = led_indicator_create(&config);
+      assert(led_handle_cfg != NULL);
   
-      // *ДОБАВЛЕНО*: Проверка ошибки создания.
-      assert(ret == ESP_OK);
-      assert(led_handle != NULL);
-  
-      return led_handle;
-    }
-  
-    // *ИЗМЕНЕНО*: Логика функции получения индекса.
-    // В v2.x нет необходимости перебирать массив для поиска индекса,
-    // так как blink_type напрямую соответствует индексу в перечислении.
-    uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
-    {
-      // Проверяем, что тип анимации корректен.
-      if (blink_type >= BLINK_MAX) {
-        return 255;
-      }
-  
-      // *УДАЛЕНО*: Сложная логика поиска индекса через сравнение указателей.
-      // В v2.x индекс анимации (blink_type) напрямую используется в API start/stop.
-      // Мы просто возвращаем его.
-  
-      if(start_delay > 0) {
-        led_indicator_start(led_handle, blink_type);
-        vTaskDelay(start_delay / portTICK_PERIOD_MS);
-  
-        led_indicator_stop(led_handle, blink_type);
-        if(stop_delay > 0) {
-          vTaskDelay(stop_delay / portTICK_PERIOD_MS);
-        }
-      }
-  
-      return blink_type;
+      return led_handle_cfg;
     }
   
     #if LIVE_BLINK_TIME_MS > 0
@@ -270,8 +269,6 @@
   
   #endif //-- USE_RGB_LED
 
-  // *БЕЗ ИЗМЕНЕНИЙ*: Код для обычных LED (USE_ORDINARY_LED) остается нетронутым,
-  // так как он использует прямые вызовы GPIO и не зависит от API led_indicator.
   #if USE_ORDINARY_LED
     /**********************************************
      *                                            *

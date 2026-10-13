@@ -4,6 +4,7 @@
 #include <esp_matter.h>
 #include <app_priv.h>
 
+
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
@@ -20,8 +21,10 @@
 #if CONFIG_SHT41_ENABLED
   #include "sensor_driver_sht41.h"
 #endif
+
+#include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator_v2.h"
+  #include "driver_led_indicator.h"
 #endif
 
 using namespace chip::app::Clusters;
@@ -262,7 +265,10 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
     } else {
       #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        //ESP_LOGW("", "-------\n|     |\n| LED |\n|     |\n-------");
+      #else
+      	//ESP_LOGE("", "-------\n|     |\n| NOT |\n|     |\n-------");
       #endif
     }
 

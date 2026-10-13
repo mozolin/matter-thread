@@ -5,20 +5,19 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
-//#include "driver_led_indicator_v2.h"
 #include "driver_reset_button.h"
 #include "plugin_device_structure.h"
 
+
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                true
+#define MOCK_SENSORS_BEHAVIOR                false
 #define DEBUG_MODE                           false
-#define SHOW_DEVICE_LOG                      true
-
-
+#define SHOW_DEVICE_LOG                      false
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
-#define CONFIG_NUM_SENSORS                   8
 
+//-- SSD1306 LED Display
 #define CONFIG_SSD1306_ENABLED               true
+
 
 //-- Sensors configuration
 #define CONFIG_BME280_ENABLED                true
@@ -26,7 +25,7 @@
 #define CONFIG_DS18B20_ENABLED               true
 #define CONFIG_DHT11_ENABLED                 true
 #define CONFIG_MQ135_ENABLED                 true
-#define CONFIG_SHT41_ENABLED                 true
+#define CONFIG_SHT41_ENABLED                 false
 
 
 //-- task priorities
@@ -97,11 +96,11 @@
   */
   #define CONFIG_MQ135_AQ0_UNKNOWN           -1
   #define CONFIG_MQ135_AQ1_GOOD              0
-  #define CONFIG_MQ135_AQ2_FAIR              800
-  #define CONFIG_MQ135_AQ3_MODERATE          1000
-  #define CONFIG_MQ135_AQ4_POOR              1500
-  #define CONFIG_MQ135_AQ5_VERYPOOR          2000
-  #define CONFIG_MQ135_AQ6_EXTREMELYPOOR     3500
+  #define CONFIG_MQ135_AQ2_FAIR              1000
+  #define CONFIG_MQ135_AQ3_MODERATE          2000
+  #define CONFIG_MQ135_AQ4_POOR              3000
+  #define CONFIG_MQ135_AQ5_VERYPOOR          4000
+  #define CONFIG_MQ135_AQ6_EXTREMELYPOOR     5000
 #endif
 
 
@@ -165,10 +164,8 @@ typedef struct {
   #include "esp_openthread_types.h"
 #endif
 
-//extern sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 extern uint16_t configured_sensors;
-//extern sensor_data_t sensors[CONFIG_NUM_SENSORS];
 extern sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 typedef void *app_driver_handle_t;

@@ -1,7 +1,7 @@
 #pragma once
 
 //-- whether or not to use "driver_led_indicator"
-#define USE_DRIVER_LED_INDICATOR false
+#define USE_DRIVER_LED_INDICATOR true
 
 /*
 1. Simple version with random intervals

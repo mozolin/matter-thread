@@ -52,11 +52,8 @@ using namespace chip::app::Clusters;
 
 constexpr auto k_timeout_seconds = 300;
 uint16_t configured_sensors = 0;
-//sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
-//sensor_data_t sensors[CONFIG_NUM_SENSORS];
 sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 sensor_data_t sensors[SENSOR_TYPE_MAX];
-
 
 
 #if CONFIG_SSD1306_ENABLED
@@ -73,10 +70,9 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
  *********************/
 #include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator_v2.h"
+  #include "driver_led_indicator.h"
   led_indicator_handle_t led_handle;
 #endif
-
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -481,7 +477,6 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     }
 
     // Store mapping
-    //if (configured_sensors < CONFIG_NUM_SENSORS) {
     if (configured_sensors < SENSOR_TYPE_MAX) {
         sensor_mapping_list[configured_sensors].endpoint_id = endpoint::get_id(endpoint);
         sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg;
@@ -550,6 +545,17 @@ extern "C" void app_main()
     led_handle = configure_indicator();
     if(!led_handle) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
+    } else {
+    	/*
+    	ESP_LOGE("", "");
+    	ESP_LOGE("", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    	ESP_LOGE("", "~~~ USE_DRIVER_LED_INDICATOR = OK!");
+    	#if USE_RGB_LED
+    	  ESP_LOGE("", "~~~ USE_RGB_LED");
+    	#endif
+    	ESP_LOGE("", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    	ESP_LOGE("", "");
+    	*/
     }
   #endif
 
@@ -562,7 +568,7 @@ extern "C" void app_main()
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
       #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
     } else {
       ssd1306_initialized = true;
@@ -654,15 +660,6 @@ extern "C" void app_main()
     }
   #endif
 
-  /*
-  #if SHOW_DEVICE_LOG
-    if(node) {
-      log_device_structure(node);
-      //vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-  #endif
-  */
-
   //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
 
   #if USE_DRIVER_LED_INDICATOR
@@ -694,7 +691,7 @@ extern "C" void app_main()
     #endif //-- USE_ORDINARY_LED
     */
   
-    /*  
+    /*
     //-- at least one LED must be an RGB LED
     #if USE_RGB_LED
       //--> RGB LED indicator
@@ -713,4 +710,5 @@ extern "C" void app_main()
     #endif //-- USE_RGB_LED
     */
   #endif //-- USE_DRIVER_LED_INDICATOR
+
 }
