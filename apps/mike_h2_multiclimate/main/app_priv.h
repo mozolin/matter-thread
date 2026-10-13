@@ -137,7 +137,7 @@ typedef enum {
   SENSOR_TYPE_DHT11   = 3,
   SENSOR_TYPE_MQ135   = 4,
   SENSOR_TYPE_SHT41   = 5,
-  SENSOR_TYPE_MAX     = 6,
+  SENSOR_TYPE_MAX,
 } sensor_type_t;
 
 // Sensor data structure
