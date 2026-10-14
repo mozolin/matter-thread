@@ -281,6 +281,10 @@ If a fatal error occurs (e.g. "no response from https://git.gitlab.arm.com/"), t
   
 .bashrc:
 ~~~
+green=$'\033[92m'
+yellow=$'\033[1;33m'
+reset=$'\033[0m'
+
 #-- Alias for setting up the ESP-IDF environment
 alias get_idf='. ~/esp-idf/export.sh'
 
@@ -290,13 +294,14 @@ alias get_matter='. ~/esp-matter/export.sh'
 #-- Alias for setting up the ConnectedHomeIP environment
 alias get_chip='cd ~/esp-matter/connectedhomeip/connectedhomeip;. scripts/activate.sh'
 
+#-- Alias for getting the ESP-IDF version
+alias show_version='echo $yellow; idf.py --version; echo $reset; echo ""'
+
 #-- Enable ccache to speed up compilation (green color output)
-green=$'\033[92m'
-reset=$'\033[0m'
 alias set_cache='echo $green; echo -e "Enable Ccache to speed up IDF compilation!\n"; echo $reset; export IDF_CCACHE_ENABLE=1'
 
 #-- Alias for setting up all necessary environments
-alias set_env='set savePath=$PWD; get_idf; get_matter; get_chip; set_cache; cd $savePath'
+alias set_env='set savePath=$PWD; get_idf; get_matter; set_cache; show_version; cd $savePath'
 ~~~
 Launch ESP environment:
 ~~~
