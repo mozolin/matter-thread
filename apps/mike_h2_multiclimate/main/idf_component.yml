@@ -8,6 +8,6 @@ dependencies:
   esp-idf-lib/dht: ^1.2.0
   esp-idf-lib/sht4x: ^1.0.7
   espressif/led_indicator: ^2.1.2
-  #-- ESP-IDF works with led_strip v3.0.x only!
+  #-- ESP-IDF works ONLY with led_strip v3.0.x!
   espressif/led_strip: ~3.0.3
   

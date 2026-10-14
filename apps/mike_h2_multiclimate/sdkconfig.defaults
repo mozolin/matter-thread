@@ -33,9 +33,6 @@ CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y
 # disable softap by default
 CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n
 
-# Enable OTA Requestor
-CONFIG_ENABLE_OTA_REQUESTOR=y
-
 # Enable HKDF in mbedtls
 CONFIG_MBEDTLS_HKDF_C=y
 
@@ -78,7 +75,7 @@ CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED=y
 CONFIG_ENABLE_MATTER_OVER_THREAD=y
 
 # Device Identification Options
-CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=2
+CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=15
 
 
 # Настройки watchdog
@@ -89,3 +86,23 @@ CONFIG_FREERTOS_HZ=1000
 
 # SSD1306
 CONFIG_I2C_PORT_1=y
+
+
+##########################################
+#                                        #
+#        OTA Requestor (ESP32-H2)        #
+#                                        #
+##########################################
+
+#CONFIG_ENABLE_OTA_REQUESTOR=y
+
+#-- Генерация OTA-образа
+CONFIG_CHIP_OTA_IMAGE_BUILD=y
+CONFIG_DEVICE_SOFTWARE_VERSION_NUMBER=15
+
+
+#-- Разделы (два OTA-слота)
+#CONFIG_PARTITION_TABLE_TWO_OTA=y
+
+#-- Автоматический откат при неудаче
+#CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y

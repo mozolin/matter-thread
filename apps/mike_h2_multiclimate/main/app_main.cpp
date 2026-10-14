@@ -656,17 +656,28 @@ extern "C" void app_main()
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to start Matter, err:%d", err));
 
+
+  /*
+  // 10. Init OTA Requestor
+  #if CONFIG_ENABLE_OTA_REQUESTOR
+    // OTA Requestor инициализируется автоматически через стек ESP-Matter,
+    // но можно добавить явный старт для уверенности
+    esp_matter_ota_requestor_start();
+    ESP_LOGW(TAG_MULTI_CLIMATE, "OTA Requestor started!");
+  #endif
+  */
+
   
-  // 10. Basic attributes (лучше — по событию)
+  // 11. Basic attributes (лучше — по событию)
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
 
   
-  // 11. Polling task
+  // 12. Polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
   
-  // 12. Log
+  // 13. Log
   #if SHOW_DEVICE_LOG
     if(node) {
       vTaskDelay(pdMS_TO_TICKS(3000));
