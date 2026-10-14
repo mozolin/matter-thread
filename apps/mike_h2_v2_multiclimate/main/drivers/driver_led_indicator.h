@@ -1,7 +1,11 @@
 #pragma once
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <led_config.h>
 #include "led_indicator.h"
+#include "led_indicator_gpio.h"
+#include "led_indicator_strips.h"
 #include "led_types.h"
 
 #if USE_DRIVER_LED_INDICATOR

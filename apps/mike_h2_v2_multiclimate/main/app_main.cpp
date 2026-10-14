@@ -562,12 +562,12 @@ extern "C" void app_main()
       ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
     } else {
     	ESP_LOGE("", "");
-    	ESP_LOGE("", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    	ESP_LOGE("", "~~~ USE_DRIVER_LED_INDICATOR = OK!");
+    	ESP_LOGE("", "==============================");
+    	ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
     	#if USE_RGB_LED
-    	  ESP_LOGE("", "~~~ USE_RGB_LED");
+    	  ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
     	#endif
-    	ESP_LOGE("", "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    	ESP_LOGE("", "==============================");
     	ESP_LOGE("", "");
     }
   #endif
@@ -580,13 +580,13 @@ extern "C" void app_main()
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
       #if USE_DRIVER_LED_INDICATOR
-        //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
     } else {
       ssd1306_initialized = true;
       ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306 Initialized!");
       #if USE_DRIVER_LED_INDICATOR
-        //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       #endif
     }
     ssd1306_show_title();
@@ -605,16 +605,17 @@ extern "C" void app_main()
     #if CONFIG_OPENTHREAD_CLI
       esp_matter::console::otcli_register_commands();
     #endif
-    ESP_LOGW("", "");
-    ESP_LOGW("", "--------------------------------------");
-    ESP_LOGW("", "Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-    ESP_LOGW("", "--------------------------------------");
-    ESP_LOGW("", "");
+    ESP_LOGE("", "");
+    ESP_LOGE("", "===========================================");
+    ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    ESP_LOGE("", "===========================================");
+    ESP_LOGE("", "");
     err = esp_matter::console::init();
     if(err != ESP_OK) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "Console init failed: %d", err);
     }
   #endif
+
 
   // 7. Matter node + endpoints
   node::config_t node_config;
@@ -672,52 +673,4 @@ extern "C" void app_main()
       log_device_structure(node);
     }
   #endif
-
-  /*
-  //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ USE_DRIVER_LED_INDICATOR: %d", USE_DRIVER_LED_INDICATOR);
-  #if USE_DRIVER_LED_INDICATOR
-    //-- at least one LED must not be an RGB LED
-    #if USE_ORDINARY_LED
-      //--> UART RX/TX Blinking Simulator
-      #if LED_MODE == 1
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 1. Simple version with random intervals");
-        #endif
-        xTaskCreate(random_blink_task, "uart_sim", 4096, NULL, 1, NULL);
-      #endif
-    
-      #if LED_MODE == 2
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 2. Realistic version with UART patterns");
-        #endif
-        xTaskCreate(simulate_uart_activity, "uart_pattern", 4096, NULL, 1, NULL);
-      #endif
-    
-      #if LED_MODE == 3
-        #if DEBUG_MODE
-           ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 3. Version with different activity modes");
-        #endif
-        xTaskCreate(uart_simulation_task, "uart_sim", 4096, NULL, 1, NULL);
-      #endif
-      //<-- UART RX/TX Blinking Simulator
-    #endif //-- USE_ORDINARY_LED
-  
-    //-- at least one LED must be an RGB LED
-    #if USE_RGB_LED
-      //--> RGB LED indicator
-      #if DEBUG_MODE
-          ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ BLINK: 4. USE_RGB_LED!");
-      #endif
-      led_handle = configure_indicator();
-      while(1) {
-        //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ BLINK RGB: BLINK_ONCE_RED");
-        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-        //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
-        //get_led_indicator_blink_idx(BLINK_ONCE_BLUE, 60, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-      }
-      //<-- RGB LED indicator
-    #endif //-- USE_RGB_LED
-  #endif //-- USE_DRIVER_LED_INDICATOR
-  */
 }

@@ -39,6 +39,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     
     ESP_LOGW(TAG_MIKE_APP, "~~~ Инициализация i2cdev для SSD1306");
 
+    /*
     // ДОБАВЛЕНО: Инициализация подсистемы i2cdev (мьютексы, внутреннее состояние)
     // Должна вызываться один раз перед созданием любых устройств.
     // Если i2cdev_init() уже был вызван в app_main, повторный вызов безопасен (он идемпотентен).
@@ -47,6 +48,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
         ESP_LOGE(TAG_MIKE_APP, "~~~ i2cdev_init() failed! %d (%s)", err, esp_err_to_name(err));
         return err;
     }
+    */
 
     // ДОБАВЛЕНО: Настройка дескриптора i2cdev
     memset(&ssd1306_i2c_dev, 0, sizeof(i2c_dev_t));

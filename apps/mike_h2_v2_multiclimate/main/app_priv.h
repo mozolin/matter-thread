@@ -10,7 +10,7 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                false
+#define MOCK_SENSORS_BEHAVIOR                true
 #define DEBUG_MODE                           false
 #define SHOW_DEVICE_LOG                      false
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"

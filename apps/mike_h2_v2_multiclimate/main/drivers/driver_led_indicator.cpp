@@ -207,24 +207,45 @@
   
     led_indicator_handle_t configure_indicator(void)
     {
-      led_indicator_gpio_config_t led_indicator_gpio_config = {
-        .is_active_level_high = 0,
-        .gpio_num = LED_BLINK_GPIO,
+      led_strip_config_t strip_config = {
+          .strip_gpio_num = LED_BLINK_GPIO,
+          .max_leds = LED_NUMBERS,
+        .led_model = LED_MODEL_WS2812,
+        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT,
+        {
+          .invert_out = false,
+        },
       };
     
-      led_indicator_config_t config = {
-        .blink_lists = led_mode,
-        .blink_list_num = BLINK_MAX,
+      led_strip_rmt_config_t rmt_config = {
+        .clk_src = RMT_CLK_SRC_DEFAULT,
+        .resolution_hz = LED_RMT_RES_HZ,
+        .mem_block_symbols = 0,
+        {
+          .with_dma = false,
+        },
       };
     
-      led_indicator_handle_t led_handle_0 = NULL;
-      esp_err_t ret = led_indicator_new_gpio_device(&config, &led_indicator_gpio_config, &led_handle_0);
-      if(ret != ESP_OK) {
-      	return NULL;
-      }
+      led_indicator_strips_config_t strips_config = {
+        .led_strip_cfg = strip_config,
+        .led_strip_driver = LED_STRIP_RMT,
+        .led_strip_rmt_cfg = rmt_config,
+      };
+    
+      const led_indicator_config_t config = {
+        .blink_lists = led_mode,      // Передаем массив анимаций
+        .blink_list_num = BLINK_MAX,  // Передаем количество анимаций
+      };
+    
+      esp_err_t ret = led_indicator_new_strips_device(&config, &strips_config, &led_handle);
   
-      return led_handle_0;
+      // Проверка ошибки создания.
+      assert(ret == ESP_OK);
+      assert(led_handle != NULL);
+  
+      return led_handle;
     }
+    
   
     #if LIVE_BLINK_TIME_MS > 0
       void init_indicator_task(void *pvParameter)
