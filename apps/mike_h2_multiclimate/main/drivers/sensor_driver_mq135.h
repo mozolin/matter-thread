@@ -1,11 +1,11 @@
 /**
- * @file mq135_driver.h
+ * @file sensor_driver_mq135.h
  * @brief Драйвер для аналогового датчика качества воздуха MQ-135.
  */
 
 #pragma once
 
-#include "mq135_types.h"
+#include "sensor_driver_mq135_types.h"
 #include "esp_err.h"
 //#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"

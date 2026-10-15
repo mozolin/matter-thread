@@ -1,5 +1,5 @@
 /**
- * @file mq135_types.h
+ * @file sensor_driver_mq135_types.h
  * @brief Типы данных и структуры для датчика MQ-135.
  */
 

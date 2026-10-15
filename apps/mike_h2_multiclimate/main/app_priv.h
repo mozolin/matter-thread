@@ -73,9 +73,9 @@
   using namespace esp_matter;
   
   #if CONFIG_MQ135_3V3_CIRCUIT
-    #include "mq135_driver_3v3.h"
+    #include "sensor_driver_mq135_3v3.h"
   #else
-    #include "mq135_driver.h"
+    #include "sensor_driver_mq135.h"
   #endif
   
   extern mq135_handle_t s_mq135_handle;

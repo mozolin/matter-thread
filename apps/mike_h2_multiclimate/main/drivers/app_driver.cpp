@@ -13,9 +13,9 @@
 #endif
 #if CONFIG_MQ135_ENABLED
   #if CONFIG_MQ135_3V3_CIRCUIT
-    #include "mq135_driver_3v3.h"
+    #include "sensor_driver_mq135_3v3.h"
   #else
-    #include "mq135_driver.h"
+    #include "sensor_driver_mq135.h"
   #endif
 #endif
 #if CONFIG_SHT41_ENABLED
