@@ -34,12 +34,6 @@
       
       int size = sizeof(led_mode)/sizeof(led_mode[0]);
 
-      if(blink_type == BLINK_ONCE_ORANGE) {
-      	// Устанавливаем яркость на 10% от максимума (255 * 0.1 ≈ 25)
-      	led_indicator_set_brightness(led_handle, 25);
-      	//get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
-      }
-    
       auto item = led_mode[blink_type];
       for(int i=0; i<size; i++) {
         if(led_mode[i] == item) {
@@ -134,7 +128,8 @@
     //-- Blinking once in orange
     const blink_step_t orange_once_blink[] = {
       //-- Set color to orange
-      {LED_BLINK_RGB, SET_RGB(64, 32, 0), 0},
+      {LED_BLINK_RGB, SET_RGB(255, 128, 0), 0},
+      //{LED_BLINK_BRIGHTNESS, 5, 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
