@@ -6,6 +6,12 @@
 
 using namespace esp_matter;
 
+//=== ДОБАВЛЕНО: работа с SSD1306 ===
+#if CONFIG_SSD1306_ENABLED
+  #include "driver_ssd1306.h"
+#endif
+//=== /ДОБАВЛЕНО ===
+
 /********************
  *                  *
  *   RESET BUTTON   *
@@ -27,6 +33,22 @@ void reboot_button_task(void *pvParameter)
   gpio_config(&io_conf);
 
   while(1) {
+    //=== ДОБАВЛЕНО: авто-выключение экрана через 5 минут ===
+    #if CONFIG_SSD1306_ENABLED
+      if(ssd1306_display_enabled && ssd1306_last_on_time_ms != 0) {
+        uint32_t now_ms = esp_log_timestamp();
+        if((now_ms - ssd1306_last_on_time_ms) >= SSD1306_AUTO_OFF_TIMEOUT_MS) {
+          ESP_LOGW("Reset Button", "SSD1306 auto-off after 5 min");
+          ssd1306_set_display_enabled(false);
+        } else {
+          //=== ДОБАВЛЕНО: пока экран ещё включён — рисуем оставшееся время ===
+          ssd1306_update_timeout_line();
+          //=== /ДОБАВЛЕНО ===
+        }
+      }
+    #endif
+    //=== /ДОБАВЛЕНО ===
+    
     //-- Reset button pressed
     if(gpio_get_level((gpio_num_t)REBOOT_BUTTON_GPIO) == 0) {
       if(!button_pressed) {
@@ -63,6 +85,21 @@ void reboot_button_task(void *pvParameter)
           ESP_LOGW("Reset Button", "*   Reset button pressed   *");
           ESP_LOGW("Reset Button", "*                          *");
           ESP_LOGW("Reset Button", "****************************");
+          
+          //=== ИЗМЕНЕНО: короткое нажатие переключает экран ===
+          // Было: только вывод структуры Matter-узла.
+          // Стало: переключаем дисплей SSD1306 (ON <-> OFF).
+          #if CONFIG_SSD1306_ENABLED
+            if(ssd1306_initialized) {
+              // инвертируем текущее состояние
+              ssd1306_set_display_enabled(!ssd1306_display_enabled);
+            } else {
+              ESP_LOGW("Reset Button", "SSD1306 not initialized, skip toggle");
+            }
+          #endif
+          //=== /ИЗМЕНЕНО ===
+          
+          /*
           //-- Get Matter node
           node_t *node = node::get();
           if(node) {
@@ -73,6 +110,7 @@ void reboot_button_task(void *pvParameter)
           } else {
             ESP_LOGE("Reset Button", "Matter Node not created!");
           }
+          */
         }
       }
       button_pressed = false;

@@ -61,6 +61,10 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
+  //=== ДОБАВЛЕНО: состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  bool ssd1306_display_enabled = false;
+  uint64_t ssd1306_last_on_time_ms = 0;
+  //=== /ДОБАВЛЕНО ===
 #endif
 
 /*********************
@@ -589,7 +593,13 @@ extern "C" void app_main()
         get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       #endif
     }
-    ssd1306_show_title();
+    //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
+    //ssd1306_show_title();                 // было: сразу показываем заголовок
+    ssd1306_display_enabled = false;        // стало: экран выключен
+    ssd1306_clear_screen(&ssd1306dev, false);
+    //ssd1306_display_off(&ssd1306dev);       // гасим панель
+    ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
+    //=== /ИЗМЕНЕНО ===
   #endif
 
   

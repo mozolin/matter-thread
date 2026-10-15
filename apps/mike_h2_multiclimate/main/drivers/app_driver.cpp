@@ -222,9 +222,15 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             if(err != ESP_OK) {
               ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
             } else {
-              sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
-              sensor->last_co   = (int16_t)sensor_data.co.ppm;
-              sensor->last_tvoc = (int16_t)sensor_data.tvoc.ppm;
+              #if !MOCK_SENSORS_BEHAVIOR
+                sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
+                sensor->last_co   = (int16_t)sensor_data.co.ppm;
+                sensor->last_tvoc = (int16_t)sensor_data.tvoc.ppm;
+              #else
+                sensor->last_co2  = 1945.0;
+                sensor->last_co   = 2375.0;
+                sensor->last_tvoc = 2649.0;
+              #endif
               sensor->last_read_time = esp_timer_get_time();
               
               #if CONFIG_SSD1306_ENABLED

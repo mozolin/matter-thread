@@ -265,10 +265,11 @@
 
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
-    ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
     //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
     //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
+    ssd1306_display_text(&ssd1306dev, 0, "  MULTICLIMATE  ", 16, false);
 
     /*
     char buf[32];
@@ -328,6 +329,12 @@
     if(!ssd1306_initialized) {
 		  return;
 		}
+		
+		//=== ИЗМЕНЕНО: если экран выключен — не рисуем ===
+		if(!ssd1306_display_enabled) {
+		  return;
+		}
+		//=== /ИЗМЕНЕНО ===
 
     char buf[96];
     //-- temperature
@@ -380,6 +387,66 @@
 
     ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
 	}
+	
+	  //=== ДОБАВЛЕНО: управление питанием/видимостью дисплея ===
+  void ssd1306_set_display_enabled(bool enabled)
+  {
+    //-- если дисплей не был инициализирован — ничего не делаем
+    if(!ssd1306_initialized) {
+      return;
+    }
+
+    if(enabled) {
+      //-- ВКЛЮЧАЕМ: подаём питание на панель, чистим и рисуем заголовок
+      //ssd1306_display_on(&ssd1306dev);           // аппаратное включение панели
+      ssd1306_clear_screen(&ssd1306dev, false);
+      ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
+      ssd1306_show_title();                       // заголовок
+      ssd1306_display_enabled  = true;
+      ssd1306_last_on_time_ms  = esp_log_timestamp(); // запоминаем момент включения
+      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306: display ON");
+    } else {
+      //-- ВЫКЛЮЧАЕМ: чистим и гасим панель
+      ssd1306_clear_screen(&ssd1306dev, false);
+      //ssd1306_display_off(&ssd1306dev);           // аппаратное выключение панели
+      ssd1306_contrast(&ssd1306dev, 0x00);          // программное выключение панели
+      ssd1306_display_enabled  = false;
+      ssd1306_last_on_time_ms  = 0;
+      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306: display OFF");
+    }
+  }
+  //=== /ДОБАВЛЕНО ===
+  
+    //=== ДОБАВЛЕНО: вывод оставшегося времени до авто-отключения ===
+  // Формат: "OFF in MM:SS" во второй строке (y_pos = 1).
+  void ssd1306_update_timeout_line(void)
+  {
+    //-- если не инициализирован или экран выключен — не рисуем
+    if(!ssd1306_initialized || !ssd1306_display_enabled) {
+      return;
+    }
+
+    //-- считаем оставшееся время
+    uint32_t now_ms    = esp_log_timestamp();
+    uint32_t elapsed   = now_ms - (uint32_t)ssd1306_last_on_time_ms;
+    int32_t  remaining = (int32_t)(SSD1306_AUTO_OFF_TIMEOUT_MS - elapsed);
+    if(remaining < 0) {
+      remaining = 0;
+    }
+
+    uint32_t secs  = (uint32_t)remaining / 1000U;
+    uint32_t mins  = secs / 60U;
+    secs          %= 60U;
+
+    //-- формируем строку и выводим во ВТОРУЮ строку экрана
+    char buf[24];
+    snprintf(buf, sizeof(buf), "  OFF in %02lu:%02lu",
+             (unsigned long)mins, (unsigned long)secs);
+
+    //-- строка фиксированной длины 16 символов (128px / 8px)
+    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
+  }
+  //=== /ДОБАВЛЕНО ===
 
 #endif
 

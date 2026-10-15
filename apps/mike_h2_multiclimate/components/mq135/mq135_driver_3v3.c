@@ -25,7 +25,9 @@ static const char *TAG = "MQ135_DRIVER_3V3";
  * ДЛЯ 3.3V: формула расчёта Rs осталась той же, но с учётом того,
  * что supply_voltage = vref = 3.3В, а делитель не используется.
  */
-static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_out, float *rs_out) {
+static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_out, float *rs_out)
+{
+    #if !MOCK_SENSORS_BEHAVIOR
     if (handle == NULL || voltage_out == NULL || rs_out == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -65,6 +67,7 @@ static esp_err_t mq135_read_internal_3v3(mq135_handle_t *handle, float *voltage_
 
     *voltage_out = voltage;
     *rs_out = rs;
+    #endif
     return ESP_OK;
 }
 
@@ -155,14 +158,16 @@ void mq135_driver_deinit_3v3(mq135_handle_t *handle) {
     ESP_LOGI(TAG, "Драйвер MQ-135 деинициализирован");
 }
 
-esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data) {
+esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data)
+{
+    float voltage = 0.0f;
+    float rs = 0.0f;
+    
+    #if !MOCK_SENSORS_BEHAVIOR
     if (handle == NULL || data == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
-
-    float voltage = 0.0f;
-    float rs = 0.0f;
-
+    
     esp_err_t ret = mq135_read_internal_3v3(handle, &voltage, &rs);
     if (ret != ESP_OK) {
         return ret;
@@ -199,6 +204,13 @@ esp_err_t mq135_read_3v3(mq135_handle_t *handle, mq135_data_t *data) {
     }
 
     data->timestamp_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    #else
+      voltage = 0.0;
+      rs = 0.0;
+      data->co2.ppm  = 1945.0;
+      data->co.ppm   = 2375.0;
+      data->tvoc.ppm = 2649.0;
+    #endif
 
     ESP_LOGD(TAG, "Напряжение: %.3f В, Rs: %.1f Ом, CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm",
              voltage, rs, data->co2.ppm, data->co.ppm, data->tvoc.ppm);
