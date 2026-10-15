@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #ifndef MAIN_FONT8X8_BASIC_H_
 #define MAIN_FONT8X8_BASIC_H_
 
