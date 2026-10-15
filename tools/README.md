@@ -1,5 +1,7 @@
 # Tools
 
+- [OTA firmware image to upload via the Matter Server app](esp-matter-make-ota)  
+  
 - [ESP Flash Download Tool](flash_download_tool)  
   
 - [Python scripts to generate and parse Manual Pairing Code and QR Code](setup-payload)  

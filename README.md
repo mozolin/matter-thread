@@ -11,6 +11,15 @@
 - [Installation guides](install)
 
 - [Some tools and utils](tools)
+  - [OTA firmware image to upload via the Matter Server app](tools/esp-matter-make-ota)  
+  - [ESP Flash Download Tool](tools/flash_download_tool)  
+  - [Python scripts to generate and parse Manual Pairing Code and QR Code](tools/setup-payload)  
+  - [Python/PHP scripts to parse and assembly of dataset](tools/tlv-parser)  
+  - [Working with the CHIP Tool](tools/CHIP-TOOL.md)  
+  - [Matter Manufacturing Partitions Generator Utility](tools/esp-matter-mfg-tool.md)  
+  - [ESP Thread BR WEB-GUI + Form Thread Network](tools/esp-thread-br-web-gui.md)  
+  - [RLOC16](tools/RLOC16.md)  
+  
 
 - [Example tree for shared drive in WSL](U)
 
