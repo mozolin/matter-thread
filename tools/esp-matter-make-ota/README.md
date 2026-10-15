@@ -1,11 +1,11 @@
 
 # Matter Server: Firmware Update
 
-### 1) Configure Matter Server app
-To accept test VID/PID values there should be "Enable test-net DCL usage" option switched ON.  
+### 1) Configure the Matter Server app
+To allow the system to accept test VID/PID values, you must enable the "Enable test-net DCL usage" option.  
 ![](images/matter_server-firmware_update_01.png)  
   
-### 2) Change version in the CMakeLists.txt file:
+### 2) Change the version in the CMakeLists.txt file:
 > #-- BasicInformationCluster (ClusterId 40, 0x0028), Endpoint 0  
 > #-- AttributeId 9: SoftwareVersion  
 > set(PROJECT_VER_NUMBER **1**)  
@@ -13,14 +13,16 @@ To accept test VID/PID values there should be "Enable test-net DCL usage" option
 > set(PROJECT_VER "1.1.1")  
 >  
   
-The value of PROJECT_VER_NUMBER must be greater than existing (for example, was **1**, the new one **2**). 
+The "PROJECT_VER_NUMBER" value must be higher than the current one (for example, if it was **1**, the new value should be **2**). 
 > set(PROJECT_VER_NUMBER **2**)  
 >  
+Otherwise, the update will not take effect.  
+![](images/matter_server-firmware_update_wrong.png)  
   
-Any other parameters are not used for the update process and do not matter for it.  
+Other parameters are not used during the update process and have no impact on it.  
 
 ### 3) Set the version for creating the OTA-file
-When the project building starts, in the *build* folder will be created the file *build/args-ota-image.tmp*:  
+When building the project, a file named *build/args-ota-image.tmp* is generated in the *build* directory:  
 >  
 > --vendor-id  
 > 0xfff1  
@@ -34,7 +36,7 @@ When the project building starts, in the *build* folder will be created the file
 > sha256  
 >  
 
-The same values must be set in the _ota.sh script to make OTA firmware file:
+These same values ​​must be specified in the *ota.sh* script to create the firmware OTA file:
 > python3 "\${OTA_SCRIPT_PATH}/ota_image_tool.py" create \  
 >     -v 0xFFF1 \  
 >     -p 0x8000 \  
@@ -45,18 +47,20 @@ The same values must be set in the _ota.sh script to make OTA firmware file:
 >     "\$OTA_FILE"  
 >  
 
-As a result of execution of this script will be the OTA file **PROJECTNAME.ota** generated.  
+Executing this script will generate an OTA file named **PROJECTNAME.ota**.  
   
-Moreover, if the parameter **CONFIG_CHIP_OTA_IMAGE_BUILD=y** set in *sdkconfig.default*, there will be the OTA file **PROJECTNAME-ota.bin** generated in the *build* folder automatically.
+Additionally, if the parameter **CONFIG_CHIP_OTA_IMAGE_BUILD=y** is set in the *sdkconfig.default* file, an OTA file named **PROJECTNAME-ota.bin** will be automatically created in the *build* directory.  
 
 ### 4) Upload firmware
-This file should be used for "Upload Firmware" for the node with VID (0xFFF1) and PID (0x8000).  
+This file should be used for the "Upload Firmware" operation on a node with the corresponding VID (0xFFF1) and PID (0x8000) identifiers.  
   
-***If there are more than one node with the same VID/PID, the first one will be updated!***  
+***If there are multiple nodes with the same VID/PID, the update will be applied to the first one!***  
 
 ![](images/matter_server-firmware_update_02.png)  
   
 ![](images/matter_server-firmware_update_03.png)  
   
 ![](images/matter_server-firmware_update_04.png)  
+  
+![](images/matter_server-firmware_update_05.png)  
   
