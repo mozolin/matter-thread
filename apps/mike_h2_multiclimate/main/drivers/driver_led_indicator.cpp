@@ -33,6 +33,12 @@
       uint8_t idx = 255;
       
       int size = sizeof(led_mode)/sizeof(led_mode[0]);
+
+      if(blink_type == BLINK_ONCE_ORANGE) {
+      	// Устанавливаем яркость на 10% от максимума (255 * 0.1 ≈ 25)
+      	led_indicator_set_brightness(led_handle, 25);
+      	//get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+      }
     
       auto item = led_mode[blink_type];
       for(int i=0; i<size; i++) {
