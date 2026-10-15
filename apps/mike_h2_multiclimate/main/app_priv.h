@@ -10,7 +10,7 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                true
+#define MOCK_SENSORS_BEHAVIOR                false
 #define DEBUG_MODE                           false
 #define SHOW_DEVICE_LOG                      false
 #define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
@@ -25,7 +25,7 @@
 #define CONFIG_DS18B20_ENABLED               true
 #define CONFIG_DHT11_ENABLED                 true
 #define CONFIG_MQ135_ENABLED                 true
-#define CONFIG_SHT41_ENABLED                 false
+#define CONFIG_SHT41_ENABLED                 true
 
 
 //-- task priorities

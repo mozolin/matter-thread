@@ -21,7 +21,7 @@ set(EXTRA_COMPONENT_DIRS
 #-- AttributeId 1: VendorName
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
-set(DEVICE_PRODUCT_NAME "Mike_MultiClimate")
+set(DEVICE_PRODUCT_NAME "Mike_0x8000_MultiClimate")
 #-- AttributeId 5: NodeLabel
 set(DEVICE_NODE_LABEL "MultiClimate_ESP32H2")
 #-- AttributeId 6: Location

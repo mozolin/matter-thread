@@ -271,7 +271,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
     } else {
       #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        //get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
         //ESP_LOGW("", "-------\n|     |\n| LED |\n|     |\n-------");
       #else
       	//ESP_LOGE("", "-------\n|     |\n| NOT |\n|     |\n-------");

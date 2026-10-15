@@ -119,7 +119,7 @@
     //-- Blinking once in purple
     const blink_step_t purple_once_blink[] = {
       //-- Set color to purple
-      {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
+      {LED_BLINK_RGB, SET_RGB(128, 0, 128), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
@@ -128,8 +128,8 @@
     //-- Blinking once in orange
     const blink_step_t orange_once_blink[] = {
       //-- Set color to orange
-      {LED_BLINK_RGB, SET_RGB(255, 128, 0), 0},
-      //{LED_BLINK_BRIGHTNESS, 5, 0},
+      //{LED_BLINK_HSV, SET_HSV(30, 255, 10), 0},  // H=30° (оранжевый), S=255, V=10 (очень тускло)
+      {LED_BLINK_RGB, SET_RGB(64, 32, 0), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
