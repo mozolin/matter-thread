@@ -21,19 +21,19 @@ set(EXTRA_COMPONENT_DIRS
 #-- AttributeId 1: VendorName
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
-set(DEVICE_PRODUCT_NAME "Mike_On_Off")
+set(DEVICE_PRODUCT_NAME "Mike_0x8002_8Relays")
 #-- AttributeId 5: NodeLabel
-set(DEVICE_NODE_LABEL "8_Relays_ESP32H2")
+set(DEVICE_NODE_LABEL "8Relays_ESP32H2")
 #-- AttributeId 6: Location
 set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
 set(CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION "See: sdkconfig.default")
 #-- AttributeId 8: HardwareVersionString
-set(DEVICE_HARDWARE_VERSION_STRING "2.2.2")
+set(DEVICE_HARDWARE_VERSION_STRING "2.0.0")
 #-- AttributeId 9: SoftwareVersion
-set(PROJECT_VER_NUMBER 1)
+set(PROJECT_VER_NUMBER 2)
 #-- AttributeId 10: SoftwareVersionString
-set(PROJECT_VER "1.1.1")
+set(PROJECT_VER "2.0.0")
 
 #-- Define custom options for the compiler
 add_compile_definitions(
@@ -46,7 +46,7 @@ idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME=
 idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME=\"${DEVICE_PRODUCT_NAME}\"" APPEND)
 idf_build_set_property(COMPILE_OPTIONS "-DCHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING=\"${DEVICE_HARDWARE_VERSION_STRING}\"" APPEND)
 
-project(mike_on_off)
+project(mike_h2_8relays)
 
 idf_build_set_property(CXX_COMPILE_OPTIONS "-std=gnu++17;-Os;-DCHIP_HAVE_CONFIG_H;-Wno-overloaded-virtual" APPEND)
 idf_build_set_property(C_COMPILE_OPTIONS "-Os" APPEND)
