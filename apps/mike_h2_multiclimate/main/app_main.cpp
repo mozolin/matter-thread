@@ -72,9 +72,14 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
  *   LED INDICATOR   *
  *                   *
  *********************/
+/*
 #include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
   #include "driver_led_indicator.h"
+  led_indicator_handle_t led_handle;
+#endif
+*/
+#if USE_DRIVER_LED_INDICATOR
   led_indicator_handle_t led_handle;
 #endif
 
@@ -560,19 +565,33 @@ extern "C" void app_main()
 
   
   // 3. LED indicator
-  #if USE_DRIVER_LED_INDICATOR
+    #if USE_DRIVER_LED_INDICATOR
     led_handle = configure_indicator();
     if(!led_handle) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
     } else {
-    	ESP_LOGE("", "");
-    	ESP_LOGE("", "==============================");
-    	ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
-    	#if USE_RGB_LED
-    	  ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
-    	#endif
-    	ESP_LOGE("", "==============================");
-    	ESP_LOGE("", "");
+      //=== ДОБАВЛЕНО: при старте LED выключен ===
+      //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
+      //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
+      //-- поэтому любые попытки мигнуть будут игнорироваться.
+      extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+      led_indicator_locked = true;
+
+      //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
+      //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
+      //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
+      led_indicator_start(led_handle, BLINK_OFF);
+
+      ESP_LOGE("", "");
+      ESP_LOGE("", "==============================");
+      ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
+      #if USE_RGB_LED
+        ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
+      #endif
+      ESP_LOGE("", " LED state at boot: OFF (locked)");
+      ESP_LOGE("", "==============================");
+      ESP_LOGE("", "");
+      //=== /ДОБАВЛЕНО ===
     }
   #endif
 
@@ -604,7 +623,9 @@ extern "C" void app_main()
 
   
   // 5. Reboot button
-  xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
+  #if CONFIG_REBOOT_BUTTON_ENABLED
+    xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
+  #endif
 
     
   // 6. Console
@@ -667,27 +688,16 @@ extern "C" void app_main()
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to start Matter, err:%d", err));
 
 
-  /*
-  // 10. Init OTA Requestor
-  #if CONFIG_ENABLE_OTA_REQUESTOR
-    // OTA Requestor инициализируется автоматически через стек ESP-Matter,
-    // но можно добавить явный старт для уверенности
-    esp_matter_ota_requestor_start();
-    ESP_LOGW(TAG_MULTI_CLIMATE, "OTA Requestor started!");
-  #endif
-  */
-
-  
-  // 11. Basic attributes (лучше — по событию)
+  // 10. Basic attributes (лучше — по событию)
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
 
   
-  // 12. Polling task
+  // 11. Polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
   
-  // 13. Log
+  // 12. Log
   #if SHOW_DEVICE_LOG
     if(node) {
       vTaskDelay(pdMS_TO_TICKS(3000));

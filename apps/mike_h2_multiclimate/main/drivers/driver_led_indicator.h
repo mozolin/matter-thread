@@ -57,8 +57,18 @@
       #if LED_NUMBERS > 1
         BLINK_FLOWING,
       #endif
+      //=== ДОБАВЛЕНО: шаг "выключить LED" для принудительного гашения ===
+      //-- Используется, чтобы корректно погасить RGB-ленту через публичный API
+      //-- led_indicator_start(BLINK_OFF) без выхода за границы массива blink_list.
+      BLINK_OFF,
+      //=== /ДОБАВЛЕНО ===
       BLINK_MAX,
     };
+    
+    //=== ДОБАВЛЕНО: объявление шага "выключить LED" ===
+    extern const blink_step_t led_off_blink[];
+    //=== /ДОБАВЛЕНО ===
+    
     //-- Just turn on the yellow color
     extern const blink_step_t yellow_on[];
     //-- Just turn on the orange color
@@ -101,6 +111,16 @@
     #endif
   
     extern led_indicator_handle_t led_handle;
+    
+    //=== ДОБАВЛЕНО: глобальный флаг блокировки функции get_led_indicator_blink_idx ===
+    //-- true  = функция get_led_indicator_blink_idx заблокирована (мигание запрещено)
+    //-- false = функция работает штатно
+    //-- При старте LED выключен => флаг = true.
+    extern bool led_indicator_locked;
+    //=== /ДОБАВЛЕНО ===
+    
+    //-- Переключение блокировки/разблокировки функции get_led_indicator_blink_idx
+    extern void toggle_led_indicator_lock(void);
   
     extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
   #endif //-- USE_RGB_LED

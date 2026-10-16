@@ -1,8 +1,14 @@
 
+#include <app_priv.h>
 #include "driver_led_indicator.h"
 
 #if USE_DRIVER_LED_INDICATOR
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
+  
+  //=== ДОБАВЛЕНО: флаг блокировки индикатора ===
+  //-- При запуске LED выключен, поэтому функция мигания заблокирована.
+  bool led_indicator_locked = true;
+  //=== /ДОБАВЛЕНО ===
 
   //-- use it, if there is at least one RGB LED
   #if USE_RGB_LED
@@ -25,11 +31,66 @@
       #if LED_NUMBERS > 1
         [BLINK_FLOWING] = flowing_blink,
       #endif
+      //=== ДОБАВЛЕНО: регистрация шага "выключить LED" ===
+      [BLINK_OFF] = led_off_blink,
+      //=== /ДОБАВЛЕНО ===
       [BLINK_MAX] = NULL,
     };
   
+    //-- Переключение блокировки/разблокировки функции get_led_indicator_blink_idx
+    void toggle_led_indicator_lock(void)
+    {
+      #if USE_DRIVER_LED_INDICATOR
+        extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+        led_indicator_locked = !led_indicator_locked;
+    
+        if(led_indicator_locked) {
+          //=== ИЗМЕНЕНО: корректное гашение LED без BLINK_MAX ===
+          //-- led_indicator_stop(handle, idx) останавливает КОНКРЕТНУЮ анимацию
+          //-- по её индексу. BLINK_MAX — это НЕ индекс, а маркер конца массива,
+          //-- поэтому раньше лог сыпал "blink_type out of range".
+          //
+          //-- Правильный путь:
+          //--   1) остановить все известные анимации по их реальным индексам
+          //--      (0 .. BLINK_MAX-1), кроме BLINK_OFF;
+          //--   2) запустить BLINK_OFF, который выставит RGB=(0,0,0)
+          //--      и остановится.
+          if(led_handle) {
+            //-- 1. Останавливаем все ранее запущенные анимации
+            for(int i = 0; i < BLINK_MAX; i++) {
+              if(i == BLINK_OFF) {
+                continue; //-- его не трогаем, чтобы не мешать гашению
+              }
+              led_indicator_stop(led_handle, (uint8_t)i);
+            }
+            //-- 2. Гасим LED через штатный шаг BLINK_OFF
+            led_indicator_start(led_handle, BLINK_OFF);
+          }
+          ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
+          //=== /ИЗМЕНЕНО ===
+        } else {
+          //-- При разблокировке просто останавливаем "гасящий" шаг,
+          //-- чтобы LED не удерживался в состоянии OFF.
+          if(led_handle) {
+            led_indicator_stop(led_handle, BLINK_OFF);
+          }
+          ESP_LOGW("Reset Button", "LED indicator UNLOCKED (on)");
+        }
+      #else
+        ESP_LOGW("Reset Button", "LED indicator not compiled in");
+      #endif
+    }
+    
     uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
     {
+      //=== ДОБАВЛЕНО: если индикатор заблокирован — ничего не делаем ===
+      //-- Это позволяет полностью "погасить" RGB LED и запретить любые мигания,
+      //-- например по двойному клику кнопки Reset.
+      if(led_indicator_locked) {
+        return 255;
+      }
+      //=== /ДОБАВЛЕНО ===
+      
       uint8_t idx = 255;
       
       int size = sizeof(led_mode)/sizeof(led_mode[0]);
@@ -57,6 +118,17 @@
     
       return idx;
     }
+    
+    //=== ДОБАВЛЕНО: шаг "просто выключить LED" ===
+    //-- Устанавливает цвет в 0,0,0 и останавливается. Используется
+    //-- для принудительного гашения индикатора (например, при блокировке
+    //-- по двойному клику кнопки Reset).
+    const blink_step_t led_off_blink[] = {
+      {LED_BLINK_RGB, SET_RGB(0, 0, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 10},
+      {LED_BLINK_STOP, 0, 0},
+    };
+    //=== /ДОБАВЛЕНО ===
   
     //-- Just turn on the yellow color
     const blink_step_t yellow_on[] = {

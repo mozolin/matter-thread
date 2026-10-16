@@ -5,66 +5,94 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
-#include "driver_reset_button.h"
 #include "plugin_device_structure.h"
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                false
-#define DEBUG_MODE                           false
-#define SHOW_DEVICE_LOG                      false
-#define TAG_MULTI_CLIMATE                    "MIKE MULTICLIMATE H2"
+#define MOCK_SENSORS_BEHAVIOR                  true
+#define DEBUG_MODE                             false
+#define SHOW_DEVICE_LOG                        false
+#define TAG_MULTI_CLIMATE                      "MIKE MULTICLIMATE H2"
 
 //-- SSD1306 LED Display
-#define CONFIG_SSD1306_ENABLED               true
+#define CONFIG_SSD1306_ENABLED                 true
 
 
 //-- Sensors configuration
-#define CONFIG_BME280_ENABLED                true
-#define CONFIG_BME680_ENABLED                true
-#define CONFIG_DS18B20_ENABLED               true
-#define CONFIG_DHT11_ENABLED                 true
-#define CONFIG_MQ135_ENABLED                 true
-#define CONFIG_SHT41_ENABLED                 true
+#define CONFIG_BME280_ENABLED                  true
+#define CONFIG_BME680_ENABLED                  true
+#define CONFIG_DS18B20_ENABLED                 true
+#define CONFIG_DHT11_ENABLED                   true
+#define CONFIG_MQ135_ENABLED                   true
+#define CONFIG_SHT41_ENABLED                   true
 
+//-- Reboot button handlers
+#define CONFIG_REBOOT_BUTTON_ENABLED           true
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  //-- Single-click: toggle SSD1306
+  //-- Double-click: toggle LED Indicator
+  #define REBOOT_BUTTON_GPIO                   9
+  //-- Hold to reboot
+  #define REBOOT_HOLD_TIME_MS                  3000
+  //-- Hold to factory reset
+  #define FACTORY_RESET_HOLD_TIME_MS           10000
+#endif
+
+//-- LED Indicator
+#include "led_config.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator.h"
+  extern led_indicator_handle_t led_handle;
+#endif
 
 //-- task priorities
-#define CONFIG_SENSOR_POLL_TASK_PRIORITY     5
-#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
+#endif
 
 //-- BMP280 sensor (i2c bus=0,i2c_addr=0x76)
-#define CONFIG_BME280_SDA_GPIO               1
-#define CONFIG_BME280_SCL_GPIO               2
-#define CONFIG_BME280_I2C_PORT               I2C_NUM_0
+#define CONFIG_BME280_SDA_GPIO                 1
+#define CONFIG_BME280_SCL_GPIO                 2
+#define CONFIG_BME280_I2C_PORT                 I2C_NUM_0
 //-- BME680 sensor (i2c bus=1,i2c_addr=0x77)
-#define CONFIG_BME680_SDA_GPIO               3
-#define CONFIG_BME680_SCL_GPIO               5
-#define CONFIG_BME680_I2C_PORT               I2C_NUM_1
+#define CONFIG_BME680_SDA_GPIO                 3
+#define CONFIG_BME680_SCL_GPIO                 5
+#define CONFIG_BME680_I2C_PORT                 I2C_NUM_1
 //-- DS18B20 sensor
-#define CONFIG_DS18B20_GPIO                  10
+#define CONFIG_DS18B20_GPIO                    10
 //-- DHT11 sensor
-#define CONFIG_DHT11_GPIO                    11
+#define CONFIG_DHT11_GPIO                      11
 //-- MQ135 sensor (ESP32-H2:GPIO4,ADC_UNIT_1,ADC_CHANNEL_3)
-#define CONFIG_MQ135_GPIO                    4
-#define CONFIG_MQ135_ADC_UNIT                ADC_UNIT_1
-#define CONFIG_MQ135_ADC_CHANNEL             ADC_CHANNEL_3
-#define CONFIG_MQ135_3V3_CIRCUIT             true
-#define CONFIG_MQ135_CALIBRATE               true
+#define CONFIG_MQ135_GPIO                      4
+#define CONFIG_MQ135_ADC_UNIT                  ADC_UNIT_1
+#define CONFIG_MQ135_ADC_CHANNEL               ADC_CHANNEL_3
+#define CONFIG_MQ135_3V3_CIRCUIT               true
+#define CONFIG_MQ135_CALIBRATE                 true
 //-- SHT41 sensor (i2c bus=1,i2c_addr=0x44)
-#define CONFIG_SHT41_SDA_GPIO                3
-#define CONFIG_SHT41_SCL_GPIO                5
-#define CONFIG_SHT41_I2C_PORT                I2C_NUM_1
+#define CONFIG_SHT41_SDA_GPIO                  3
+#define CONFIG_SHT41_SCL_GPIO                  5
+#define CONFIG_SHT41_I2C_PORT                  I2C_NUM_1
 
-
-#define LIVE_BLINK_TIME_MS                   0
-#define CONFIG_SENSOR_POLL_PERIOD_MS         5000
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  #include "driver_reboot_button.h"
+  
+  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
+  //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+  #define DOUBLE_CLICK_INTERVAL_MS             400
+  //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+  #define SHORT_CLICK_MAX_MS                   350
+  //=== /ДОБАВЛЕНО ===
+#endif
+#define LIVE_BLINK_TIME_MS                     0
+#define CONFIG_SENSOR_POLL_PERIOD_MS           5000
 
 #if SHOW_DEVICE_LOG
 	//-- what part of tree to show (-1 means: SHOW ALL)
-	#define SHOW_DEVICE_LOG_ONE_CLUSTER   -1
-	#define SHOW_DEVICE_LOG_CLUSTERS      true
-	#define SHOW_DEVICE_LOG_ATTRIBUTES    false
-	#define SHOW_DEVICE_LOG_COMMANDS      false
+  #define SHOW_DEVICE_LOG_ONE_CLUSTER   -      1
+  #define SHOW_DEVICE_LOG_CLUSTERS             true
+  #define SHOW_DEVICE_LOG_ATTRIBUTES           false
+  #define SHOW_DEVICE_LOG_COMMANDS             false
 #endif
 
 
@@ -84,23 +112,21 @@
   extern cluster_t *s_co_cluster;
   extern cluster_t *s_tvoc_cluster;
 
-  /*
-  AirQuality:
-  0 = Unknown / Неизвестно
-  1 = Good / Хорошее
-  2 = Fair / Удовлетворительное
-  3 = Moderate / Умеренное
-  4 = Poor / Плохое
-  5 = VeryPoor / Очень плохое
-  6 = ExtremelyPoor / Крайне плохое
-  */
-  #define CONFIG_MQ135_AQ0_UNKNOWN           -1
-  #define CONFIG_MQ135_AQ1_GOOD              0
-  #define CONFIG_MQ135_AQ2_FAIR              1000
-  #define CONFIG_MQ135_AQ3_MODERATE          2000
-  #define CONFIG_MQ135_AQ4_POOR              3000
-  #define CONFIG_MQ135_AQ5_VERYPOOR          4000
-  #define CONFIG_MQ135_AQ6_EXTREMELYPOOR     5000
+  //-- AirQuality:
+  //-- 0 = Unknown / Неизвестно
+  #define CONFIG_MQ135_AQ0_UNKNOWN             -1
+  //-- 1 = Good / Хорошее
+  #define CONFIG_MQ135_AQ1_GOOD                0
+  //-- 2 = Fair / Удовлетворительное
+  #define CONFIG_MQ135_AQ2_FAIR                1000
+  //-- 3 = Moderate / Умеренное
+  #define CONFIG_MQ135_AQ3_MODERATE            2000
+  //-- 4 = Poor / Плохое
+  #define CONFIG_MQ135_AQ4_POOR                3000
+  //-- 5 = VeryPoor / Очень плохое
+  #define CONFIG_MQ135_AQ5_VERYPOOR            4000
+  //-- 6 = ExtremelyPoor / Крайне плохое
+  #define CONFIG_MQ135_AQ6_EXTREMELYPOOR       5000
 #endif
 
 
@@ -116,11 +142,11 @@
    *  if they use this port.
    *
    **********************************************************/
-  #define CONFIG_SSD1306_SDA_GPIO            1
-  #define CONFIG_SSD1306_SCL_GPIO            2
-  #define CONFIG_SSD1306_RESET_GPIO          -1
-  #define CONFIG_SSD1306_I2C_ADDRESS         0x3C
-  #define CONFIG_SSD1306_I2C_PORT            I2C_NUM_0
+  #define CONFIG_SSD1306_SDA_GPIO              1
+  #define CONFIG_SSD1306_SCL_GPIO              2
+  #define CONFIG_SSD1306_RESET_GPIO            -1
+  #define CONFIG_SSD1306_I2C_ADDRESS           0x3C
+  #define CONFIG_SSD1306_I2C_PORT              I2C_NUM_0
   
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
@@ -128,7 +154,7 @@
   //=== ДОБАВЛЕНО: флаг состояния дисплея и таймер авто-выключения ===
   extern bool ssd1306_display_enabled;       // true = экран включён
   extern uint64_t ssd1306_last_on_time_ms;   // момент последнего включения (ms)
-  #define SSD1306_AUTO_OFF_TIMEOUT_MS        (5 * 60 * 1000)  // 5 минут
+  #define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
   // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
   //extern void ssd1306_update_timeout_line(void);
   //=== /ДОБАВЛЕНО ===
