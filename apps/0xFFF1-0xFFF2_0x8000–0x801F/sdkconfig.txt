@@ -1,0 +1,13 @@
+﻿
+CONFIG_DEVICE_VENDOR_ID=0xFFF1
+...
+CONFIG_DEVICE_VENDOR_ID=0xFFF2
+-------------------------------
+2 values
+
+
+CONFIG_DEVICE_PRODUCT_ID=0x8000
+...
+CONFIG_DEVICE_PRODUCT_ID=0x801F
+-------------------------------
+32 values

@@ -23,7 +23,7 @@ set(EXTRA_COMPONENT_DIRS
 #-- AttributeId 1: VendorName
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
-set(DEVICE_PRODUCT_NAME "Mike_Tiny")
+set(DEVICE_PRODUCT_NAME "Mike_0x8000_Tiny")
 #-- AttributeId 5: NodeLabel
 set(DEVICE_NODE_LABEL "Minimal_Thread_ESP32H2")
 #-- AttributeId 6: Location
@@ -31,11 +31,11 @@ set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
 set(CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION "See: sdkconfig.default")
 #-- AttributeId 8: HardwareVersionString
-set(DEVICE_HARDWARE_VERSION_STRING "2.2.2")
+set(DEVICE_HARDWARE_VERSION_STRING "1.0.0")
 #-- AttributeId 9: SoftwareVersion
 set(PROJECT_VER_NUMBER 1)
 #-- AttributeId 10: SoftwareVersionString
-set(PROJECT_VER "1.1.1")
+set(PROJECT_VER "1.0.0")
 
 #-- Define custom options for the compiler
 add_compile_definitions(
