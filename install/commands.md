@@ -2,6 +2,8 @@
 
 - **1. DOCKER**  
 - **2. PYTHON**  
+- **3. GIT**  
+- **4. OT-CTL commands in the Home Assistant**  
   
 ### 1. DOCKER
 
@@ -33,3 +35,7 @@ To ignore changes to file permissions (chmod), use the command in the current re
 ~~~
 git config core.fileMode false
 ~~~
+
+
+### 4. Using OT-CTL commands in the Home Assistant terminal
+- [HA-OTCTL_commands.md](HA-OTCTL_commands.md)  
