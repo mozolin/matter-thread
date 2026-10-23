@@ -115,7 +115,12 @@ void reboot_button_task(void *pvParameter)
           ESP_LOGE("Reset Button", "*   Factory reset triggered   *");
           ESP_LOGE("Reset Button", "*                             *");
           ESP_LOGE("Reset Button", "*******************************");
-          vTaskDelay(pdMS_TO_TICKS(5000));
+          //vTaskDelay(pdMS_TO_TICKS(5000));
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
           esp_matter::factory_reset();
           esp_restart();
         } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
@@ -124,52 +129,28 @@ void reboot_button_task(void *pvParameter)
           ESP_LOGW("Reset Button", "*   Reboot triggered   *");
           ESP_LOGW("Reset Button", "*                      *");
           ESP_LOGW("Reset Button", "************************");
-          vTaskDelay(pdMS_TO_TICKS(5000));
+          //vTaskDelay(pdMS_TO_TICKS(5000));
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
           esp_restart();
         } else {
-        	
-          
-          //=== ИЗМЕНЕНО: различаем одиночный и двойной клик ===
-                    //
-                    // Логика:
-                    //   • Если это первый короткий клик — запускаем одноразовый esp_timer
-                    //     на DOUBLE_CLICK_INTERVAL_MS. Если за это время второго клика
-                    //     не будет — таймер вызовет single_click_timer_cb() и выполнит
-                    //     действие одиночного клика (переключение SSD1306).
-                    //   • Если во время окна приходит второй клик — останавливаем таймер
-                    //     и выполняем действие двойного клика (переключение блокировки LED).
-                    //
-                    if(pressed_duration <= SHORT_CLICK_MAX_MS) {
-                      if(!s_first_click_pending) {
-                        ESP_LOGW("Reset Button", "****************************");
-                        ESP_LOGW("Reset Button", "*                          *");
-                        ESP_LOGW("Reset Button", "*   Reset button pressed   *");
-                        ESP_LOGW("Reset Button", "*                          *");
-                        ESP_LOGW("Reset Button", "****************************");
-                        //-- Первый клик в окне: стартуем таймер ожидания второго
-                        s_first_click_pending = true;
-                        esp_timer_stop(s_single_click_timer);
-                        esp_timer_start_once(s_single_click_timer, (uint64_t)DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
-                      } else {
-                        ESP_LOGW("Reset Button", "*********************************");
-                        ESP_LOGW("Reset Button", "*                               *");
-                        ESP_LOGW("Reset Button", "*   Reset button double click   *");
-                        ESP_LOGW("Reset Button", "*                               *");
-                        ESP_LOGW("Reset Button", "*********************************");
-                        //-- Второй клик в окне: отменяем одиночное действие и делаем двойное
-                        s_first_click_pending = false;
-                        esp_timer_stop(s_single_click_timer);
-                        #if USE_DRIVER_LED_INDICATOR
-                          toggle_led_indicator_lock();
-                        #endif
-                      }
-                    } else {
-                      //-- Долгое нажатие (но меньше REBOOT_HOLD_TIME_MS) — не клик,
-                      //-- игнорируем, чтобы не сбивать окно двойного клика.
-                      ESP_LOGD("Reset Button", "Long-ish press (%lu ms), ignored",
-                               (unsigned long)pressed_duration);
-                    }
-                    //=== /ИЗМЕНЕНО ===
+          #if USE_DRIVER_LED_INDICATOR
+            ESP_LOGI("Reset Button", "*****************************");
+            ESP_LOGI("Reset Button", "*                           *");
+            ESP_LOGI("Reset Button", "*   LED indicator toggled   *");
+            ESP_LOGI("Reset Button", "*                           *");
+            ESP_LOGI("Reset Button", "*****************************");
+            get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+            get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+            get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+            get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+            get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+            toggle_led_indicator_lock();
+            //vTaskDelay(pdMS_TO_TICKS(5000));
+          #endif
         }
       }
       button_pressed = false;

@@ -5,7 +5,6 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
-#include "plugin_device_structure.h"
 
 
 //-- Debug options

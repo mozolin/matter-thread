@@ -11,7 +11,8 @@
 
 #include <common_macros.h>
 #include <app_priv.h>
-#include <app_reset.h>
+//#include <app_reset.h>
+#include "i2cdev.h"
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>
 #endif
@@ -47,34 +48,42 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Interface IP Address changed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning complete");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning failed, fail safe timer expired");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning session started");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning session stopped");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning window opened");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning window closed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Fabric removed successfully");
         if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
             chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
@@ -83,6 +92,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
                 CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
                                                                             chip::CommissioningWindowAdvertisement::kDnssdOnly);
                 if (err != CHIP_NO_ERROR) {
+                    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
                     ESP_LOGE(TAG_TINY2, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
                 }
             }
@@ -91,18 +101,22 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Fabric will be removed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Fabric is updated");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ Fabric is committed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
+        get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         ESP_LOGW(TAG_TINY2, "~~~ BLE deinitialized and memory reclaimed");
         break;
 
@@ -122,6 +136,7 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   esp_err_t err = ESP_OK;
 
   if(type == PRE_UPDATE) {
+    get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
     ESP_LOGW(TAG_TINY2, "~~~ Attribute pre-update");
   }
 
@@ -143,15 +158,24 @@ void set_basic_attributes_esp_matter()
     );
     
     if(err == ESP_OK) {
-        ESP_LOGW(TAG_TINY2, "~~~ NodeLabel set via ESP-Matter API");
+      get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+      ESP_LOGW(TAG_TINY2, "~~~ NodeLabel set via ESP-Matter API");
     } else {
-        ESP_LOGE(TAG_TINY2, "~~~ Failed to set NodeLabel: %d", err);
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      ESP_LOGE(TAG_TINY2, "~~~ Failed to set NodeLabel: %d", err);
     }
 }
 
 extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
+  
+  // Устанавливаем уровень DEBUG для всех модулей (осторожно, может быть очень много логов)
+  // esp_log_level_set("*", ESP_LOG_DEBUG); 
+  
+  // Либо устанавливаем уровень DEBUG только для интересующих вас тегов
+  esp_log_level_set("chip", ESP_LOG_DEBUG);       // Логи стека CHIP
+  esp_log_level_set("esp_matter", ESP_LOG_DEBUG); // Логи esp-matter
 
   // 1. NVS — первым делом
   err = nvs_flash_init();
@@ -163,6 +187,7 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
+  	get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
   	ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
   	return;
   }
@@ -171,6 +196,7 @@ extern "C" void app_main()
   // 2. i2cdev — до I2C устройств
   err = i2cdev_init();
   if(err != ESP_OK) {
+    get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
     ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
     // Можно продолжить, но I2C устройства не будут работать.
   }
@@ -180,6 +206,7 @@ extern "C" void app_main()
     #if USE_DRIVER_LED_INDICATOR
     led_handle = configure_indicator();
     if(!led_handle) {
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       ESP_LOGE(TAG_TINY2, "~~~ Failed to configure LED indicator");
     } else {
       //=== ДОБАВЛЕНО: при старте LED выключен ===
@@ -187,13 +214,14 @@ extern "C" void app_main()
       //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
       //-- поэтому любые попытки мигнуть будут игнорироваться.
       extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
-      led_indicator_locked = true;
+      led_indicator_locked = false;
 
       //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
       //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
       //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
       led_indicator_start(led_handle, BLINK_OFF);
 
+      /*
       ESP_LOGE("", "");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
@@ -203,34 +231,9 @@ extern "C" void app_main()
       ESP_LOGE("", " LED state at boot: OFF (locked)");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", "");
+      */
       //=== /ДОБАВЛЕНО ===
     }
-  #endif
-
-  
-  // 4. SSD1306
-  #if CONFIG_SSD1306_ENABLED
-    //-- Init LCD SSD1306
-    err = ssd1306_init();
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_TINY2, "~~~ ~~~ Error initialize SSD1306!");
-      #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-      #endif
-    } else {
-      ssd1306_initialized = true;
-      ESP_LOGW(TAG_TINY2, "~~~ SSD1306 Initialized!");
-      #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
-      #endif
-    }
-    //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
-    //ssd1306_show_title();                 // было: сразу показываем заголовок
-    ssd1306_display_enabled = false;        // стало: экран выключен
-    ssd1306_clear_screen(&ssd1306dev, false);
-    //ssd1306_display_off(&ssd1306dev);       // гасим панель
-    ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
-    //=== /ИЗМЕНЕНО ===
   #endif
 
   
@@ -255,6 +258,7 @@ extern "C" void app_main()
     ESP_LOGE("", "");
     err = esp_matter::console::init();
     if(err != ESP_OK) {
+      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       ESP_LOGE(TAG_TINY2, "~~~ Console init failed: %d", err);
     }
   #endif
@@ -286,4 +290,12 @@ extern "C" void app_main()
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
   
+  #if USE_DRIVER_LED_INDICATOR
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  #endif
+
 }
