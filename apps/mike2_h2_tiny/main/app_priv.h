@@ -53,43 +53,27 @@
 
 //-- task priorities
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
-
-extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
-extern uint16_t configured_sensors;
-extern sensor_data_t sensors[SENSOR_TYPE_MAX];
+#define CONFIG_SENSOR_POLL_PERIOD_MS           5000
 
 // Sensor types
 typedef enum {
-  //SENSOR_TYPE_BME280  = 0,
-  //SENSOR_TYPE_BME680  = 1,
   SENSOR_TYPE_TEMP = 0,
-  //SENSOR_TYPE_DHT11   = 3,
-  //SENSOR_TYPE_MQ135   = 4,
-  //SENSOR_TYPE_SHT41   = 5,
   SENSOR_TYPE_MAX,
 } sensor_type_t;
 
 // Sensor data structure
 typedef struct {
-  //sensor_type_t config;
   float last_temperature;
-  //float last_humidity;
-  //float last_pressure;
-  //float last_gas_resistance;  // For BME680
-  //float last_co2;             // For MQ135
-  //float last_co;              // For MQ135
-  //float last_tvoc;            // For MQ135
-  //uint64_t last_read_time;
-  //uint8_t num_sensors;        // For DS18B20
 } sensor_data_t;
 
 // Endpoint-sensor mapping
 typedef struct {
   uint16_t endpoint_id;
-  sensor_type_t sensor_type;
-  gpio_num_t primary_gpio;
-  gpio_num_t secondary_gpio;
 } sensor_endpoint_mapping_t;
+
+extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
+extern uint16_t configured_sensors;
+extern sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 
 

@@ -34,7 +34,7 @@ esp_err_t app_driver_read_sensor_data()
     }
 
     if (err != ESP_OK) {
-        ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor: %d", err);
+        ESP_LOGW(TAG_TINY2, "Failed to read sensor: %d", err);
     } else {
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
@@ -58,11 +58,11 @@ void sensor_polling_task(void *pvParameters)
     printf("sensor_polling_task...\n");
     const TickType_t poll_period_ms = CONFIG_SENSOR_POLL_PERIOD_MS / portTICK_PERIOD_MS;
     
-    ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor polling task started with %d sensors", configured_sensors);
+    ESP_LOGI(TAG_TINY2, "Sensor polling task started with %d sensors", configured_sensors);
     
     while (true) {
         
-        sensor_data_t *sensor = &sensors;
+        sensor_data_t *sensor = &sensors[0];
         uint16_t endpoint_id = sensor_mapping_list[0].endpoint_id;
         
         esp_err_t read_err = app_driver_read_sensor_data();
@@ -80,11 +80,9 @@ void sensor_polling_task(void *pvParameters)
             
             if (err == ESP_OK) {
                 #if DEBUG_MODE
-                    ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
-                        i, sensor->last_temperature / 100.0f);
+                    ESP_LOGW(TAG_TINY2, "Temperature = %.2f°C", sensor->last_temperature / 100.0f);
                 #else
-                    ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
-                        i, sensor->last_temperature / 100.0f);
+                    ESP_LOGD(TAG_TINY2, "Temperature = %.2f°C", sensor->last_temperature / 100.0f);
                 #endif
             }
         }

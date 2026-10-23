@@ -1,6 +1,7 @@
 idf_component_register(
 	SRC_DIRS "." "./drivers"
   PRIV_INCLUDE_DIRS "." "./drivers" "${ESP_MATTER_PATH}/examples/common/utils"
+  REQUIRES i2cdev
 )
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)

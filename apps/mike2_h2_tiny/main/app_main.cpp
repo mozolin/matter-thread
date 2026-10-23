@@ -11,7 +11,7 @@
 
 #include <common_macros.h>
 #include <app_priv.h>
-#include <app_reset.h>
+#include "i2cdev.h"
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>
 #endif
@@ -32,18 +32,6 @@ sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 
-/*********************
- *                   *
- *   LED INDICATOR   *
- *                   *
- *********************/
-/*
-#include "led_config.h"
-#if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator.h"
-  led_indicator_handle_t led_handle;
-#endif
-*/
 #if USE_DRIVER_LED_INDICATOR
   led_indicator_handle_t led_handle;
 #endif
@@ -205,7 +193,7 @@ static esp_err_t create_sensor_endpoint(node_t* node)
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Matter endpoint creation failed for sensor!");
+      ESP_LOGE(TAG_TINY2, "~~~ Matter endpoint creation failed for sensor!");
       return ESP_FAIL;
     }
 
@@ -215,40 +203,26 @@ static esp_err_t create_sensor_endpoint(node_t* node)
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize sensor!");
+      ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize sensor!");
       return err;
     }
 
     // Store mapping
     if (configured_sensors < SENSOR_TYPE_MAX) {
         sensor_mapping_list[configured_sensors].endpoint_id = endpoint::get_id(endpoint);
-        //sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg;
-        //sensor_mapping_list[configured_sensors].primary_gpio = sensor_cfg->sda_pin;
-        //sensor_mapping_list[configured_sensors].secondary_gpio = sensor_cfg->scl_pin;
-        
-        // Store in sensors array
-        //sensors[configured_sensors].config = sensor_cfg;
         sensors[configured_sensors].last_temperature = 0;
-        //sensors[configured_sensors].last_humidity = 0;
-        //sensors[configured_sensors].last_pressure = 0;
-        //sensors[configured_sensors].last_gas_resistance = 0;
-        //sensors[configured_sensors].last_co2 = 0;
-        //sensors[configured_sensors].last_co = 0;
-        //sensors[configured_sensors].last_tvoc = 0;
-        //sensors[configured_sensors].last_read_time = 0;
-        //sensors[configured_sensors].num_sensors = 1;
         
         configured_sensors++;
         
         #if USE_DRIVER_LED_INDICATOR
           get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         #endif
-        ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ Sensor created with endpoint_id %d", endpoint::get_id(endpoint));
+        ESP_LOGW(TAG_TINY2, "~~~ Sensor created with endpoint_id %d", endpoint::get_id(endpoint));
     } else {
         #if USE_DRIVER_LED_INDICATOR
           get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
         #endif
-        ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Maximum sensors configuration limit exceeded!");
+        ESP_LOGE(TAG_TINY2, "~~~ Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
     }
 
@@ -296,9 +270,6 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
-  	//#if USE_DRIVER_LED_INDICATOR
-    //  get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-    //#endif
   	ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
   	return;
   }
@@ -307,9 +278,6 @@ extern "C" void app_main()
   // 2. i2cdev — до I2C устройств
   err = i2cdev_init();
   if(err != ESP_OK) {
-    //#if USE_DRIVER_LED_INDICATOR
-    //  get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-    //#endif
     ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
     // Можно продолжить, но I2C устройства не будут работать.
   }
@@ -375,10 +343,11 @@ extern "C" void app_main()
   #endif
 
 
-  // 7. Matter node + endpoints
+  // 7. Matter node + endpoint
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_TINY2, "~~~ Failed to create Matter node"));
+  create_sensor_endpoint(node);
 
   
   // 8. OpenThread config
