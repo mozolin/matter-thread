@@ -19,6 +19,7 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include "sensor_driver_temp.h"
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -26,6 +27,10 @@ using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
 constexpr auto k_timeout_seconds = 300;
+uint16_t configured_sensors = 0;
+sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
+sensor_data_t sensors[SENSOR_TYPE_MAX];
+
 
 /*********************
  *                   *
@@ -123,9 +128,77 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
 
   if(type == PRE_UPDATE) {
     ESP_LOGW(TAG_TINY2, "~~~ Attribute pre-update");
+    app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
+    err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
   }
 
   return err;
+}
+
+static esp_err_t create_sensor_endpoint(node_t* node)
+{
+    esp_err_t err = ESP_OK;
+
+    if(!node) {
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    endpoint_t *endpoint = NULL;
+    
+    // Create temperature sensor endpoint
+    ESP_LOGW("", "");
+    ESP_LOGW("", "*****************************************");
+    ESP_LOGW("", " Start creating endpoint for Temperature ");
+    ESP_LOGW("", "*****************************************");
+    ESP_LOGW("", "");
+    temperature_sensor::config_t sensor_config;
+    
+    sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
+    sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-5500); // -55.00°C
+    sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
+    
+    endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+
+    if(!endpoint) {
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Matter endpoint creation failed for sensor!");
+      return ESP_FAIL;
+    }
+
+    // Initialize sensor hardware
+    err = app_driver_sensor_init();
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize sensor!");
+      return err;
+    }
+
+    // Store mapping
+    if (configured_sensors < SENSOR_TYPE_MAX) {
+        sensor_mapping_list[configured_sensors].endpoint_id = endpoint::get_id(endpoint);
+        //sensor_mapping_list[configured_sensors].sensor_type = sensor_cfg;
+        //sensor_mapping_list[configured_sensors].primary_gpio = sensor_cfg->sda_pin;
+        //sensor_mapping_list[configured_sensors].secondary_gpio = sensor_cfg->scl_pin;
+        
+        // Store in sensors array
+        //sensors[configured_sensors].config = sensor_cfg;
+        sensors[configured_sensors].last_temperature = 0;
+        //sensors[configured_sensors].last_humidity = 0;
+        //sensors[configured_sensors].last_pressure = 0;
+        //sensors[configured_sensors].last_gas_resistance = 0;
+        //sensors[configured_sensors].last_co2 = 0;
+        //sensors[configured_sensors].last_co = 0;
+        //sensors[configured_sensors].last_tvoc = 0;
+        //sensors[configured_sensors].last_read_time = 0;
+        //sensors[configured_sensors].num_sensors = 1;
+        
+        configured_sensors++;
+        
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor created with endpoint_id %d", endpoint::get_id(endpoint));
+    } else {
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Maximum sensors configuration limit exceeded!");
+        return ESP_FAIL;
+    }
+
+    return err;
 }
 
 void set_basic_attributes_esp_matter()
@@ -286,4 +359,7 @@ extern "C" void app_main()
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
   
+  // 11. Polling task
+  xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
+
 }
