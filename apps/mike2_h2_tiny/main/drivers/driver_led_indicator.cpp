@@ -1,8 +1,14 @@
 
+#include <app_priv.h>
 #include "driver_led_indicator.h"
 
 #if USE_DRIVER_LED_INDICATOR
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
+  
+  //=== ДОБАВЛЕНО: флаг блокировки индикатора ===
+  //-- При запуске LED выключен, поэтому функция мигания заблокирована.
+  bool led_indicator_locked = true;
+  //=== /ДОБАВЛЕНО ===
 
   //-- use it, if there is at least one RGB LED
   #if USE_RGB_LED
@@ -13,6 +19,8 @@
       [BLINK_TRIPLE_GREEN] = triple_green_blink,
       [BLINK_ONCE_RED] = red_once_blink,
       [BLINK_ONCE_GREEN] = green_once_blink,
+      [BLINK_ONCE_PURPLE] = purple_once_blink,
+      [BLINK_ONCE_ORANGE] = orange_once_blink,
       [BLINK_ONCE_BLUE] = blue_once_blink,
       [BLINK_ONCE_LIVE] = live_once_blink,
       [BLINK_WHITE_BREATHE_SLOW] = breath_white_slow_blink,
@@ -23,15 +31,70 @@
       #if LED_NUMBERS > 1
         [BLINK_FLOWING] = flowing_blink,
       #endif
+      //=== ДОБАВЛЕНО: регистрация шага "выключить LED" ===
+      [BLINK_OFF] = led_off_blink,
+      //=== /ДОБАВЛЕНО ===
       [BLINK_MAX] = NULL,
     };
   
+    //-- Переключение блокировки/разблокировки функции get_led_indicator_blink_idx
+    void toggle_led_indicator_lock(void)
+    {
+      #if USE_DRIVER_LED_INDICATOR
+        extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+        led_indicator_locked = !led_indicator_locked;
+    
+        if(led_indicator_locked) {
+          //=== ИЗМЕНЕНО: корректное гашение LED без BLINK_MAX ===
+          //-- led_indicator_stop(handle, idx) останавливает КОНКРЕТНУЮ анимацию
+          //-- по её индексу. BLINK_MAX — это НЕ индекс, а маркер конца массива,
+          //-- поэтому раньше лог сыпал "blink_type out of range".
+          //
+          //-- Правильный путь:
+          //--   1) остановить все известные анимации по их реальным индексам
+          //--      (0 .. BLINK_MAX-1), кроме BLINK_OFF;
+          //--   2) запустить BLINK_OFF, который выставит RGB=(0,0,0)
+          //--      и остановится.
+          if(led_handle) {
+            //-- 1. Останавливаем все ранее запущенные анимации
+            for(int i = 0; i < BLINK_MAX; i++) {
+              if(i == BLINK_OFF) {
+                continue; //-- его не трогаем, чтобы не мешать гашению
+              }
+              led_indicator_stop(led_handle, (uint8_t)i);
+            }
+            //-- 2. Гасим LED через штатный шаг BLINK_OFF
+            led_indicator_start(led_handle, BLINK_OFF);
+          }
+          ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
+          //=== /ИЗМЕНЕНО ===
+        } else {
+          //-- При разблокировке просто останавливаем "гасящий" шаг,
+          //-- чтобы LED не удерживался в состоянии OFF.
+          if(led_handle) {
+            led_indicator_stop(led_handle, BLINK_OFF);
+          }
+          ESP_LOGW("Reset Button", "LED indicator UNLOCKED (on)");
+        }
+      #else
+        ESP_LOGW("Reset Button", "LED indicator not compiled in");
+      #endif
+    }
+    
     uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
     {
+      //=== ДОБАВЛЕНО: если индикатор заблокирован — ничего не делаем ===
+      //-- Это позволяет полностью "погасить" RGB LED и запретить любые мигания,
+      //-- например по двойному клику кнопки Reset.
+      if(led_indicator_locked) {
+        return 255;
+      }
+      //=== /ДОБАВЛЕНО ===
+      
       uint8_t idx = 255;
       
       int size = sizeof(led_mode)/sizeof(led_mode[0]);
-    
+
       auto item = led_mode[blink_type];
       for(int i=0; i<size; i++) {
         if(led_mode[i] == item) {
@@ -55,6 +118,17 @@
     
       return idx;
     }
+    
+    //=== ДОБАВЛЕНО: шаг "просто выключить LED" ===
+    //-- Устанавливает цвет в 0,0,0 и останавливается. Используется
+    //-- для принудительного гашения индикатора (например, при блокировке
+    //-- по двойному клику кнопки Reset).
+    const blink_step_t led_off_blink[] = {
+      {LED_BLINK_RGB, SET_RGB(0, 0, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 10},
+      {LED_BLINK_STOP, 0, 0},
+    };
+    //=== /ДОБАВЛЕНО ===
   
     //-- Just turn on the yellow color
     const blink_step_t yellow_on[] = {
@@ -67,7 +141,7 @@
     //-- Just turn on the orange color
     const blink_step_t orange_on[] = {
       //-- Set color to orange
-      {LED_BLINK_RGB, SET_RGB(128, 64, 0), 0},
+      {LED_BLINK_RGB, SET_RGB(255, 128, 0), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 15000},
       {LED_BLINK_STOP, 0, 0},
     };
@@ -108,14 +182,30 @@
     //-- Blinking once in green
     const blink_step_t green_once_blink[] = {
       //-- Set color to green
-      //{LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+      {LED_BLINK_RGB, SET_RGB(0, 32, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_ON, 40},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 40},
+      //{LED_BLINK_LOOP, 0, 0},
+    };
+
+    //-- Blinking once in purple
+    const blink_step_t purple_once_blink[] = {
       //-- Set color to purple
-      {LED_BLINK_RGB, SET_RGB(32, 0, 32), 0},
+      {LED_BLINK_RGB, SET_RGB(128, 0, 128), 0},
       {LED_BLINK_HOLD, LED_STATE_ON, 40},
       {LED_BLINK_HOLD, LED_STATE_OFF, 40},
       //{LED_BLINK_LOOP, 0, 0},
     };
   
+    //-- Blinking once in orange
+    const blink_step_t orange_once_blink[] = {
+      //-- Set color to orange
+      //{LED_BLINK_HSV, SET_HSV(30, 255, 10), 0},  // H=30° (оранжевый), S=255, V=10 (очень тускло)
+      {LED_BLINK_RGB, SET_RGB(64, 32, 0), 0},
+      {LED_BLINK_HOLD, LED_STATE_ON, 40},
+      {LED_BLINK_HOLD, LED_STATE_OFF, 40},
+      //{LED_BLINK_LOOP, 0, 0},
+    };
   
     //-- Blinking once in blue
     const blink_step_t blue_once_blink[] = {
@@ -190,18 +280,16 @@
   
     led_indicator_handle_t configure_indicator(void)
     {
-      //-- LED strip general initialization, according to your led board design
       led_strip_config_t strip_config = {
-        .strip_gpio_num = LED_BLINK_GPIO,
-        .max_leds = LED_NUMBERS,
-        .led_pixel_format = LED_PIXEL_FORMAT_GRB,
+          .strip_gpio_num = LED_BLINK_GPIO,
+          .max_leds = LED_NUMBERS,
         .led_model = LED_MODEL_WS2812,
+        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT,
         {
           .invert_out = false,
         },
       };
     
-      //-- LED strip backend configuration: RMT
       led_strip_rmt_config_t rmt_config = {
         .clk_src = RMT_CLK_SRC_DEFAULT,
         .resolution_hz = LED_RMT_RES_HZ,
@@ -218,18 +306,19 @@
       };
     
       const led_indicator_config_t config = {
-        .mode = LED_STRIPS_MODE,
-        .led_indicator_strips_config = &strips_config,
-        .blink_lists = led_mode,
-        .blink_list_num = BLINK_MAX,
+        .blink_lists = led_mode,      // Передаем массив анимаций
+        .blink_list_num = BLINK_MAX,  // Передаем количество анимаций
       };
     
-      led_indicator_handle_t led_handle_cfg = NULL;
-      led_handle_cfg = led_indicator_create(&config);
-      assert(led_handle_cfg != NULL);
+      esp_err_t ret = led_indicator_new_strips_device(&config, &strips_config, &led_handle);
   
-      return led_handle_cfg;
+      // Проверка ошибки создания.
+      assert(ret == ESP_OK);
+      assert(led_handle != NULL);
+  
+      return led_handle;
     }
+    
   
     #if LIVE_BLINK_TIME_MS > 0
       void init_indicator_task(void *pvParameter)

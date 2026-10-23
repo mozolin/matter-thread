@@ -1,0 +1,881 @@
+#include <stdlib.h>
+#include <string.h>
+#include <esp_log.h>
+#include <esp_matter.h>
+#include <app_priv.h>
+
+
+#include "sensor_driver_bme280.h"
+#include "sensor_driver_bme680.h"
+#include "sensor_driver_ds18b20.h"
+#if CONFIG_DHT11_ENABLED
+  #include "sensor_driver_dht11.h"
+#endif
+#if CONFIG_MQ135_ENABLED
+  #if CONFIG_MQ135_3V3_CIRCUIT
+    #include "sensor_driver_mq135_3v3.h"
+  #else
+    #include "sensor_driver_mq135.h"
+  #endif
+#endif
+#if CONFIG_SHT41_ENABLED
+  #include "sensor_driver_sht41.h"
+#endif
+
+#include "led_config.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator.h"
+#endif
+
+using namespace chip::app::Clusters;
+using namespace esp_matter;
+
+typedef struct {
+    uint64_t last_reset_time;
+    uint32_t reset_count;
+    bool reset_in_progress;
+} sensor_reset_tracker_t;
+
+static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
+
+// Reset interval constants
+#define RESET_INTERVAL_HOURS            24
+#define MS_PER_HOUR                     (3600 * 1000)
+#define RESET_INTERVAL_MS               (RESET_INTERVAL_HOURS * MS_PER_HOUR)
+
+esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
+{
+    esp_err_t err = ESP_OK;
+
+    switch (sensor_cfg) {
+        case SENSOR_TYPE_BME280: {
+            err = bme280_init();
+            break;
+        }
+        
+        case SENSOR_TYPE_BME680: {
+            err = bme680_init();
+            break;
+        }
+        
+        case SENSOR_TYPE_DS18B20: {
+            err = ds18b20_init();
+            break;
+        }
+        
+        #if CONFIG_DHT11_ENABLED
+        case SENSOR_TYPE_DHT11: {
+            err = dht11_init();
+            break;
+        }
+        #endif
+        
+        #if CONFIG_MQ135_ENABLED
+        case SENSOR_TYPE_MQ135: {
+            adc_unit_t adc_unit = CONFIG_MQ135_ADC_UNIT;
+            adc_channel_t adc_channel = CONFIG_MQ135_ADC_CHANNEL;
+            
+            ESP_LOGI(TAG_MULTI_CLIMATE, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
+                (uint16_t)CONFIG_MQ135_GPIO, (uint16_t)CONFIG_MQ135_ADC_CHANNEL);
+            #if CONFIG_MQ135_3V3_CIRCUIT
+              err = mq135_driver_init_3v3(&s_mq135_handle, adc_unit, adc_channel, NULL);
+            #else
+              err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
+            #endif
+
+            /*
+            #if CONFIG_MQ135_CALIBRATE
+              //================================//
+              //   ОПЦИОНАЛЬНО: КАЛИБРОВКА R0   //
+              //================================//
+              #if CONFIG_MQ135_3V3_CIRCUIT
+                ESP_LOGW(TAG_MULTI_CLIMATE, "Калибровка R0 для 3.3V. Датчик должен быть в чистом воздухе!");
+              #else
+                ESP_LOGW(TAG_MULTI_CLIMATE, "Калибровка R0 для 5V. Датчик должен быть в чистом воздухе!");
+              #endif
+              
+              #if CONFIG_MQ135_3V3_CIRCUIT
+                err = mq135_calibrate_r0_3v3(&s_mq135_handle, 100);
+              #else
+                err = mq135_calibrate_r0(&s_mq135_handle, 100);
+              #endif
+              
+              if(err != ESP_OK) {
+                ESP_LOGE(TAG_MULTI_CLIMATE, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
+              }
+            #endif
+            */
+            break;
+        }
+        #endif
+        
+        #if CONFIG_SHT41_ENABLED
+        case SENSOR_TYPE_SHT41: {
+            err = sht41_init();
+            break;
+        }
+        #endif
+        
+        default: {
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
+            err = ESP_ERR_INVALID_ARG;
+            break;
+        }
+    }
+
+    return err;
+}
+
+esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
+{
+    if (sensor_idx >= configured_sensors) {
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Invalid sensor index: %d", sensor_idx);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    sensor_data_t *sensor = &sensors[sensor_idx];
+    esp_err_t err = ESP_OK;
+
+    switch (sensor->config) {
+        case SENSOR_TYPE_BME280: {
+            int16_t temperature;
+            uint16_t humidity;
+            int16_t pressure;
+            
+            err = bme280_read_all(&temperature, &humidity, &pressure);
+            if (err == ESP_OK) {
+                sensor->last_temperature = temperature;
+                sensor->last_humidity = humidity;
+                sensor->last_pressure = pressure;
+                sensor->last_read_time = esp_timer_get_time();
+
+                #if CONFIG_SSD1306_ENABLED
+                  ssd1306_show_sensor_data(2, temperature, humidity, pressure, 0, 0);
+                #endif
+            }
+            break;
+        }
+        
+        case SENSOR_TYPE_BME680: {
+            int16_t temperature;
+            uint16_t humidity;
+            int16_t pressure;
+            uint32_t gas;
+            
+            err = bme680_read_all(&temperature, &humidity, &pressure, &gas);
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_humidity = humidity;
+              sensor->last_pressure = pressure;
+              sensor->last_gas_resistance = gas;
+              sensor->last_read_time = esp_timer_get_time();
+
+              #if CONFIG_SSD1306_ENABLED
+                ssd1306_show_sensor_data(3, temperature, humidity, pressure, gas, 0);
+              #endif
+            }
+            break;
+        }
+        
+        case SENSOR_TYPE_DS18B20: {
+            int16_t temperature;
+            uint8_t num_sensors;
+            err = ds18b20_read(&temperature, &num_sensors);
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_read_time = esp_timer_get_time();
+              sensor->num_sensors = num_sensors;
+
+              #if CONFIG_SSD1306_ENABLED
+                ssd1306_show_sensor_data(4, temperature, 0, 0, 0, num_sensors);
+              #endif
+            }
+            break;
+        }
+        
+        #if CONFIG_DHT11_ENABLED
+        case SENSOR_TYPE_DHT11: {
+            int16_t temperature;
+            uint16_t humidity;
+            err = dht11_read(&temperature, &humidity);
+            if(err == ESP_OK) {
+              sensor->last_temperature = temperature;
+              sensor->last_humidity = humidity;
+              sensor->last_read_time = esp_timer_get_time();
+
+              #if CONFIG_SSD1306_ENABLED
+                ssd1306_show_sensor_data(5, temperature, humidity, 0, 0, 0);
+              #endif
+            }
+            break;
+        }
+        #endif
+        
+        #if CONFIG_MQ135_ENABLED
+        case SENSOR_TYPE_MQ135: {
+            mq135_data_t sensor_data;
+            #if CONFIG_MQ135_3V3_CIRCUIT
+              esp_err_t err = mq135_read_3v3(&s_mq135_handle, &sensor_data);
+            #else
+              esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
+            #endif
+            if(err != ESP_OK) {
+              ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
+            } else {
+              #if !MOCK_SENSORS_BEHAVIOR
+                sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
+                sensor->last_co   = (int16_t)sensor_data.co.ppm;
+                sensor->last_tvoc = (int16_t)sensor_data.tvoc.ppm;
+              #else
+                sensor->last_co2  = 1945.0;
+                sensor->last_co   = 2375.0;
+                sensor->last_tvoc = 2649.0;
+              #endif
+              sensor->last_read_time = esp_timer_get_time();
+              
+              #if CONFIG_SSD1306_ENABLED
+                ssd1306_show_sensor_data(6, sensor->last_co2, sensor->last_co, sensor->last_tvoc, 0, -1);
+              #endif
+            }
+        
+            //ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ Данные MQ-135 -> CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm", sensor_data.co2.ppm, sensor_data.co.ppm, sensor_data.tvoc.ppm);
+            break;
+        }
+        #endif
+
+        #if CONFIG_SHT41_ENABLED
+        case SENSOR_TYPE_SHT41: {
+            int16_t temperature;
+            uint16_t humidity;
+            
+            err = sht41_read_all(&temperature, &humidity);
+            if (err == ESP_OK) {
+                sensor->last_temperature = temperature;
+                sensor->last_humidity = humidity;
+                sensor->last_read_time = esp_timer_get_time();
+
+                #if CONFIG_SSD1306_ENABLED
+                  ssd1306_show_sensor_data(7, temperature, humidity, 0, 0, 0);
+                #endif
+            }
+            break;
+        }
+        #endif
+        
+        default:
+            err = ESP_ERR_NOT_SUPPORTED;
+            break;
+    }
+
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG_MULTI_CLIMATE, "Failed to read sensor %d: %d", sensor_idx, err);
+    } else {
+      #if USE_DRIVER_LED_INDICATOR
+        //get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+        //ESP_LOGW("", "-------\n|     |\n| LED |\n|     |\n-------");
+      #else
+      	//ESP_LOGE("", "-------\n|     |\n| NOT |\n|     |\n-------");
+      #endif
+    }
+
+    return err;
+}
+
+esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
+                                      uint32_t attribute_id, esp_matter_attr_val_t *val)
+{
+    // Sensors are read-only in this implementation
+    return ESP_OK;
+}
+
+static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
+{
+    if (sensor_idx >= configured_sensors) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    sensor_data_t *sensor = &sensors[sensor_idx];
+    ESP_LOGW(TAG_MULTI_CLIMATE, "Performing soft reset for sensor %d (%d)", 
+            sensor_idx, sensor->config);
+    
+    esp_err_t err = ESP_OK;
+    
+    switch (sensor->config) {
+        case SENSOR_TYPE_BME280:
+            err = bme280_reset();
+            break;
+        case SENSOR_TYPE_BME680:
+            err = bme680_reset();
+            break;
+        case SENSOR_TYPE_DS18B20:
+            err = ds18b20_reset();
+            break;
+        
+        #if CONFIG_DHT11_ENABLED
+        case SENSOR_TYPE_DHT11:
+            err = dht11_reset();
+            break;
+        #endif
+        
+        #if CONFIG_SHT41_ENABLED
+        case SENSOR_TYPE_SHT41:
+            err = sht41_reset();
+            break;
+        #endif
+        default:
+            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type for reset: %d", sensor->config);
+            err = ESP_ERR_NOT_SUPPORTED;
+            break;
+    }
+    
+    if (err == ESP_OK) {
+        sensor_reset_tracker[sensor_idx].reset_count++;
+        sensor_reset_tracker[sensor_idx].last_reset_time = esp_timer_get_time() / 1000;
+        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor %d reset successful (total resets: %lu)", 
+                sensor_idx, sensor_reset_tracker[sensor_idx].reset_count);
+    } else {
+        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to reset sensor %d: %d", sensor_idx, err);
+    }
+    
+    return err;
+}
+
+// Sensor polling task implementation
+void sensor_polling_task(void *pvParameters)
+{
+    printf("sensor_polling_task...\n");
+    const TickType_t poll_period_ms = CONFIG_SENSOR_POLL_PERIOD_MS / portTICK_PERIOD_MS;
+    
+    // Initialize reset trackers
+    for (int i = 0; i < configured_sensors; i++) {
+        sensor_reset_tracker[i].last_reset_time = esp_timer_get_time() / 1000;
+        sensor_reset_tracker[i].reset_count = 0;
+        sensor_reset_tracker[i].reset_in_progress = false;
+    }
+    
+    uint32_t cycle_counter = 0;
+    const uint32_t RESET_CHECK_INTERVAL = 100;
+    //const uint32_t STATS_LOG_INTERVAL = 5000;
+    
+    ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor polling task started with %d sensors", configured_sensors);
+    
+    while (true) {
+        
+        cycle_counter++;
+        
+        // Check for periodic reset
+        if (cycle_counter % RESET_CHECK_INTERVAL == 0) {
+            uint64_t current_time_ms = esp_timer_get_time() / 1000;
+            
+            for (int i = 0; i < configured_sensors; i++) {
+                if (sensor_reset_tracker[i].reset_in_progress) {
+                    continue;
+                }
+                
+                uint64_t time_since_last_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
+                
+                if (time_since_last_reset >= RESET_INTERVAL_MS) {
+                    ESP_LOGI(TAG_MULTI_CLIMATE, 
+                            "Scheduled reset for sensor %d (%d): %llu ms since last reset", 
+                            i, sensors[i].config, time_since_last_reset);
+                    
+                    sensor_reset_tracker[i].reset_in_progress = true;
+                    esp_err_t reset_err = app_driver_sensor_soft_reset(i);
+                    sensor_reset_tracker[i].reset_in_progress = false;
+                    
+                    if (reset_err == ESP_OK) {
+                        ESP_LOGI(TAG_MULTI_CLIMATE, "Scheduled reset completed for sensor %d", i);
+                    }
+                    
+                    vTaskDelay(pdMS_TO_TICKS(200));
+                }
+            }
+        }
+        
+        // Log statistics
+        //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
+            app_driver_log_sensor_statistics();
+        //}
+        
+        // Read all sensors
+        for (int i = 0; i < configured_sensors; i++) {
+            if (sensor_reset_tracker[i].reset_in_progress) {
+                continue;
+            }
+            
+            sensor_data_t *sensor = &sensors[i];
+            uint16_t endpoint_id = sensor_mapping_list[i].endpoint_id;
+            
+            esp_err_t read_err = app_driver_read_sensor_data(i);
+            
+            if (read_err == ESP_OK) {
+                // Update Matter attributes based on sensor type
+                switch (sensor->config) {
+                    case SENSOR_TYPE_BME280: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Pressure (if available)
+                        if (sensor->last_pressure > 0) {
+                            esp_matter_attr_val_t press_val = esp_matter_int16((int16_t)sensor->last_pressure);
+                            err = esp_matter::attribute::update(
+                                endpoint_id,
+                                PressureMeasurement::Id,
+                                PressureMeasurement::Attributes::MeasuredValue::Id,
+                                &press_val
+                            );
+                            
+                            if (err == ESP_OK) {
+                                #if DEBUG_MODE
+                                    ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
+                                #else
+                                    ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", i, sensor->last_pressure);
+                                #endif
+                            }
+                        }
+                        break;
+                    }
+
+                    case SENSOR_TYPE_BME680: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Pressure (if available)
+                        //if (sensor->last_pressure > 0) {
+                            esp_matter_attr_val_t press_val = esp_matter_int16((int16_t)sensor->last_pressure);
+                            err = esp_matter::attribute::update(
+                                endpoint_id,
+                                PressureMeasurement::Id,
+                                PressureMeasurement::Attributes::MeasuredValue::Id,
+                                &press_val
+                            );
+                            
+                            if (err == ESP_OK) {
+                                #if DEBUG_MODE
+                                    ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
+                                        i, sensor->last_pressure);
+                                #else
+                                    ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Pressure = %.2f hPa", 
+                                        i, sensor->last_pressure);
+                                #endif
+                            }
+                        //}
+                        
+                        // Update Gas Resistance
+                        esp_matter_attr_val_t gas_val = esp_matter_float((float)sensor->last_gas_resistance);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TotalVolatileOrganicCompoundsConcentrationMeasurement::Id,
+                            TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                            &gas_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                    i, sensor->last_gas_resistance);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Gas Resistance = %.0f Ohm", 
+                                    i, sensor->last_gas_resistance);
+                            #endif
+                        } else {
+                        	#if DEBUG_MODE
+                        		ESP_LOGE("", "");
+                        		ESP_LOGE("", "*******************************");
+                        		ESP_LOGE("", " BME680 Gas Resistance: WRONG!");
+                        		ESP_LOGE("", "*******************************");
+                        		ESP_LOGE("", "");
+                        	#endif
+                        }
+                        
+                        break;
+                    }
+                    
+                    case SENSOR_TYPE_DS18B20: {
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        break;
+                    }
+                    
+                    #if CONFIG_DHT11_ENABLED
+                    case SENSOR_TYPE_DHT11: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        break;
+                    }
+                    #endif
+
+                    #if CONFIG_MQ135_ENABLED
+                    case SENSOR_TYPE_MQ135: {
+                        esp_err_t err = ESP_OK;
+                        // 1. Обновление атрибута AirQuality для кластера AirQuality
+                        if (s_air_quality_cluster) {
+                            // Логика: выбираем уровень на основе ppm CO2 (или комбинации газов)
+                            uint8_t level = 1; // Good по умолчанию
+                            /*
+                            0 = Unknown / Неизвестно
+                            1 = Good / Хорошее
+                            2 = Fair / Удовлетворительное
+                            3 = Moderate / Умеренное
+                            4 = Poor / Плохое
+                            5 = VeryPoor / Очень плохое
+                            6 = ExtremelyPoor / Крайне плохое
+                            */
+                            if(sensor->last_co2 > CONFIG_MQ135_AQ6_EXTREMELYPOOR) {
+                              level = 6;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ5_VERYPOOR) {
+                            	level = 5;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ4_POOR) {
+                            	level = 4;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ3_MODERATE) {
+                            	level = 3;
+                            } else if(sensor->last_co2 > CONFIG_MQ135_AQ2_FAIR) {
+                            	level = 2;
+                            }
+                            
+                            esp_matter_attr_val_t val = esp_matter_enum8(level);
+                            esp_err_t err = attribute::update(
+                                endpoint_id,
+                                AirQuality::Id,
+                                AirQuality::Attributes::AirQuality::Id,
+                                &val
+                            );
+                            if (err != ESP_OK) {
+                                ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка обновления AirQuality: %s", esp_err_to_name(err));
+                            }
+                        }
+                        
+                        // 2. Обновление атрибута MeasuredValue для кластера CO2
+                        if (s_co2_cluster) {
+                            attribute_t *attr = attribute::get(s_co2_cluster, CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_co2);
+                                
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      CarbonDioxideConcentrationMeasurement::Id,
+                                      CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                                    #endif
+                                }
+                            }
+                        }
+                        
+                        // 3. Обновление атрибута MeasuredValue для кластера CO
+                        if (s_co_cluster) {
+                            attribute_t *attr = attribute::get(s_co_cluster, CarbonMonoxideConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_co);
+                                
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      CarbonMonoxideConcentrationMeasurement::Id,
+                                      CarbonMonoxideConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: CO = %.2f ppm", i, sensor->last_co);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: CO = %.2f ppm", i, sensor->last_co);
+                                    #endif
+                                }
+                            }
+                        }
+                        
+                        // 4. Обновление атрибута MeasuredValue для кластера TVOC
+                        if (s_tvoc_cluster) {
+                            attribute_t *attr = attribute::get(s_tvoc_cluster, TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id);
+                            if (attr) {
+                                esp_matter_attr_val_t val = esp_matter_float(sensor->last_tvoc);
+                                err = esp_matter::attribute::update(
+                                      endpoint_id,
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Id,
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                                      &val
+                                );
+                                if (err == ESP_OK) {
+                                    #if DEBUG_MODE
+                                        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: TVOC = %.2f ppm", i, sensor->last_tvoc);
+                                    #else
+                                        ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: TVOC = %.2f ppm", i, sensor->last_tvoc);
+                                    #endif
+                                }
+
+                                /*
+                                esp_err_t err = attribute::update(endpoint::get_id(endpoint), TotalVolatileOrganicCompoundsConcentrationMeasurement::Id, 
+                                      TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id, &val);
+                                if (err != ESP_OK) {
+                                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка обновления атрибута TVOC MeasuredValue: %s", esp_err_to_name(err));
+                                }
+                                */
+                            }
+                        }
+
+                        break;
+                    }
+                    #endif
+
+                    #if CONFIG_SHT41_ENABLED
+                    case SENSOR_TYPE_SHT41: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Temperature = %.2f°C", 
+                                    i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                                ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #else
+                                ESP_LOGD(TAG_MULTI_CLIMATE, "Sensor %d: Humidity = %.2f %%", 
+                                    i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        break;
+                    }
+                    #endif
+
+                    default:
+                        break;
+                }
+            }
+        }
+        
+        vTaskDelay(poll_period_ms);
+    }
+}
+
+void app_driver_log_sensor_statistics(void)
+{
+    uint64_t current_time_ms = esp_timer_get_time() / 1000;
+    
+
+    ESP_LOGW("", "");
+    ESP_LOGW("", "=== SENSOR STATISTICS =====================================================");
+    ESP_LOGW("", "");
+    ESP_LOGW("", "Total sensors: %d", configured_sensors);
+    ESP_LOGW("", "Uptime: %llu minutes", current_time_ms / 60000);
+    ESP_LOGW("", "");
+    ESP_LOGW("", "===========================================================================");
+    ESP_LOGW("", "");
+    
+    for(int i = 0; i < configured_sensors; i++) {
+        sensor_data_t *sensor = &sensors[i];
+        
+        /*
+        ESP_LOGW("", 
+                "Sensor %d: %s (%s), Resets=%lu, Last reset %llu:%02llu ago",
+                i, sensor->config.name, type_str,
+                sensor_reset_tracker[i].reset_count,
+                hours_since_reset, minutes_since_reset);
+        */
+        switch(sensor->config) {
+            case SENSOR_TYPE_BME280: {
+                ESP_LOGW("", "BME280  (%d) | Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f,
+                sensor->last_pressure);
+                break;
+            }
+            case SENSOR_TYPE_BME680: {
+                ESP_LOGW("", "BME680  (%d) | Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f hPa, Gas: %d Ohm",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f,
+                sensor->last_pressure,
+                (uint16_t)sensor->last_gas_resistance);
+                break;
+            }
+            case SENSOR_TYPE_DS18B20: {
+                ESP_LOGW("", "DS18B20 (%d) | Temp: %.2f °C",
+                i,
+                sensor->last_temperature / 100.0f);
+                break;
+            }
+            #if CONFIG_DHT11_ENABLED
+            case SENSOR_TYPE_DHT11: {
+                ESP_LOGW("", "DHT11   (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f);
+                break;
+            }
+            #endif
+            #if CONFIG_MQ135_ENABLED
+            case SENSOR_TYPE_MQ135: {
+                ESP_LOGW("", "MQ135   (%d) | CO2: %.2f ppm, CO: %.2f ppm, TVOC: %.2f ppm",
+                i,
+                sensor->last_co2,
+                sensor->last_co,
+                sensor->last_tvoc);
+                break;
+            }
+            #endif
+            case SENSOR_TYPE_SHT41: {
+                ESP_LOGW("", "SHT41   (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+    ESP_LOGW("", "");
+    ESP_LOGW("", "===========================================================================");
+    ESP_LOGW("", "");
+}

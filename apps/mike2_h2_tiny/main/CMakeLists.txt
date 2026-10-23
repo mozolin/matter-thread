@@ -1,6 +1,6 @@
 idf_component_register(
-	SRC_DIRS "." "./drivers"
-  PRIV_INCLUDE_DIRS "." "./drivers" "${ESP_MATTER_PATH}/examples/common/utils"
+	SRC_DIRS "." "./drivers" "./plugins"
+  PRIV_INCLUDE_DIRS "." "./drivers" "./plugins" "${ESP_MATTER_PATH}/examples/common/utils"
 )
 
 set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)

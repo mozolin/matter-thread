@@ -1,7 +1,12 @@
 #pragma once
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <led_config.h>
 #include "led_indicator.h"
+#include "led_indicator_gpio.h"
+#include "led_indicator_strips.h"
+#include "led_types.h"
 
 #if USE_DRIVER_LED_INDICATOR
   /*********************
@@ -40,6 +45,8 @@
       BLINK_TRIPLE_GREEN,
       BLINK_ONCE_RED,
       BLINK_ONCE_GREEN,
+      BLINK_ONCE_PURPLE,
+      BLINK_ONCE_ORANGE,
       BLINK_ONCE_BLUE,
       BLINK_ONCE_LIVE,
       BLINK_WHITE_BREATHE_SLOW,
@@ -50,8 +57,18 @@
       #if LED_NUMBERS > 1
         BLINK_FLOWING,
       #endif
+      //=== ДОБАВЛЕНО: шаг "выключить LED" для принудительного гашения ===
+      //-- Используется, чтобы корректно погасить RGB-ленту через публичный API
+      //-- led_indicator_start(BLINK_OFF) без выхода за границы массива blink_list.
+      BLINK_OFF,
+      //=== /ДОБАВЛЕНО ===
       BLINK_MAX,
     };
+    
+    //=== ДОБАВЛЕНО: объявление шага "выключить LED" ===
+    extern const blink_step_t led_off_blink[];
+    //=== /ДОБАВЛЕНО ===
+    
     //-- Just turn on the yellow color
     extern const blink_step_t yellow_on[];
     //-- Just turn on the orange color
@@ -64,6 +81,10 @@
     extern const blink_step_t red_once_blink[];
     //-- Blinking once in green
     extern const blink_step_t green_once_blink[];
+    //-- Blinking once in purple
+    extern const blink_step_t purple_once_blink[];
+    //-- Blinking once in orange
+    extern const blink_step_t orange_once_blink[];
     //-- Blinking once in blue
     extern const blink_step_t blue_once_blink[];
     //-- Blinking once
@@ -90,6 +111,16 @@
     #endif
   
     extern led_indicator_handle_t led_handle;
+    
+    //=== ДОБАВЛЕНО: глобальный флаг блокировки функции get_led_indicator_blink_idx ===
+    //-- true  = функция get_led_indicator_blink_idx заблокирована (мигание запрещено)
+    //-- false = функция работает штатно
+    //-- При старте LED выключен => флаг = true.
+    extern bool led_indicator_locked;
+    //=== /ДОБАВЛЕНО ===
+    
+    //-- Переключение блокировки/разблокировки функции get_led_indicator_blink_idx
+    extern void toggle_led_indicator_lock(void);
   
     extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
   #endif //-- USE_RGB_LED
