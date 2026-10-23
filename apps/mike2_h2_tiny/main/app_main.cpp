@@ -52,34 +52,58 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Interface IP Address changed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning complete");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning failed, fail safe timer expired");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning session started");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning session stopped");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning window opened");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Commissioning window closed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Fabric removed successfully");
         if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
             chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
@@ -88,6 +112,9 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
                 CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
                                                                             chip::CommissioningWindowAdvertisement::kDnssdOnly);
                 if (err != CHIP_NO_ERROR) {
+                    #if USE_DRIVER_LED_INDICATOR
+                      get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+                    #endif
                     ESP_LOGE(TAG_TINY2, "~~~ Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
                 }
             }
@@ -96,18 +123,30 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Fabric will be removed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Fabric is updated");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ Fabric is committed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ BLE deinitialized and memory reclaimed");
         break;
 
@@ -127,6 +166,9 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   esp_err_t err = ESP_OK;
 
   if(type == PRE_UPDATE) {
+    #if USE_DRIVER_LED_INDICATOR
+      get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+    #endif
     ESP_LOGW(TAG_TINY2, "~~~ Attribute pre-update");
     app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
     err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
@@ -160,6 +202,9 @@ static esp_err_t create_sensor_endpoint(node_t* node)
     endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
 
     if(!endpoint) {
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #endif
       ESP_LOGE(TAG_MULTI_CLIMATE, "Matter endpoint creation failed for sensor!");
       return ESP_FAIL;
     }
@@ -167,6 +212,9 @@ static esp_err_t create_sensor_endpoint(node_t* node)
     // Initialize sensor hardware
     err = app_driver_sensor_init();
     if(err != ESP_OK) {
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #endif
       ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize sensor!");
       return err;
     }
@@ -192,9 +240,15 @@ static esp_err_t create_sensor_endpoint(node_t* node)
         
         configured_sensors++;
         
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor created with endpoint_id %d", endpoint::get_id(endpoint));
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
+        ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ Sensor created with endpoint_id %d", endpoint::get_id(endpoint));
     } else {
-        ESP_LOGE(TAG_MULTI_CLIMATE, "Maximum sensors configuration limit exceeded!");
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        #endif
+        ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
     }
 
@@ -216,8 +270,14 @@ void set_basic_attributes_esp_matter()
     );
     
     if(err == ESP_OK) {
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+        #endif
         ESP_LOGW(TAG_TINY2, "~~~ NodeLabel set via ESP-Matter API");
     } else {
+        #if USE_DRIVER_LED_INDICATOR
+          get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+        #endif
         ESP_LOGE(TAG_TINY2, "~~~ Failed to set NodeLabel: %d", err);
     }
 }
@@ -236,6 +296,9 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
+  	//#if USE_DRIVER_LED_INDICATOR
+    //  get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+    //#endif
   	ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
   	return;
   }
@@ -244,6 +307,9 @@ extern "C" void app_main()
   // 2. i2cdev — до I2C устройств
   err = i2cdev_init();
   if(err != ESP_OK) {
+    //#if USE_DRIVER_LED_INDICATOR
+    //  get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+    //#endif
     ESP_LOGE(TAG_TINY2, "~~~ Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
     // Можно продолжить, но I2C устройства не будут работать.
   }
@@ -260,13 +326,14 @@ extern "C" void app_main()
       //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
       //-- поэтому любые попытки мигнуть будут игнорироваться.
       extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
-      led_indicator_locked = true;
+      led_indicator_locked = false;
 
       //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
       //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
       //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
       led_indicator_start(led_handle, BLINK_OFF);
 
+      /*
       ESP_LOGE("", "");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
@@ -277,36 +344,11 @@ extern "C" void app_main()
       ESP_LOGE("", "==============================");
       ESP_LOGE("", "");
       //=== /ДОБАВЛЕНО ===
+      */
+      get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
     }
   #endif
 
-  
-  // 4. SSD1306
-  #if CONFIG_SSD1306_ENABLED
-    //-- Init LCD SSD1306
-    err = ssd1306_init();
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_TINY2, "~~~ ~~~ Error initialize SSD1306!");
-      #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-      #endif
-    } else {
-      ssd1306_initialized = true;
-      ESP_LOGW(TAG_TINY2, "~~~ SSD1306 Initialized!");
-      #if USE_DRIVER_LED_INDICATOR
-        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
-      #endif
-    }
-    //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
-    //ssd1306_show_title();                 // было: сразу показываем заголовок
-    ssd1306_display_enabled = false;        // стало: экран выключен
-    ssd1306_clear_screen(&ssd1306dev, false);
-    //ssd1306_display_off(&ssd1306dev);       // гасим панель
-    ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
-    //=== /ИЗМЕНЕНО ===
-  #endif
-
-  
   // 5. Reboot button
   #if CONFIG_REBOOT_BUTTON_ENABLED
     xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
@@ -361,5 +403,13 @@ extern "C" void app_main()
   
   // 11. Polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
+
+  #if USE_DRIVER_LED_INDICATOR
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+    get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  #endif
 
 }
