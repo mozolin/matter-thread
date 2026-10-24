@@ -10,6 +10,8 @@ using namespace esp_matter;
 //=== ДОБАВЛЕНО: esp_timer для отложенной обработки одиночного клика ===
 #include "esp_timer.h"
 
+#include <app/server/Server.h>
+
 //-- Флаг: был ли уже первый клик (ожидаем возможный второй)
 static bool s_first_click_pending = false;
 //-- Хэндл одноразового таймера, который "срабатывает", если второго клика не последовало
@@ -121,8 +123,16 @@ void reboot_button_task(void *pvParameter)
           get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
           get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
           get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
-          esp_matter::factory_reset();
+          //--> uses for CommissioningWindowOpen
+          //-- Schedule reset and open window in Matter thread
+          chip::DeviceLayer::PlatformMgr().ScheduleWork([](intptr_t context) {
+            esp_matter::factory_reset();
+            // Optional: open pairing window here or after reboot, open it in app_main
+          }, 0);
+          // A small delay to allow the task to complete (usually not required, but may help with debugging)
+          vTaskDelay(pdMS_TO_TICKS(1000));
           esp_restart();
+          //<-- uses for CommissioningWindowOpen
         } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
           ESP_LOGW("Reset Button", "************************");
           ESP_LOGW("Reset Button", "*                      *");

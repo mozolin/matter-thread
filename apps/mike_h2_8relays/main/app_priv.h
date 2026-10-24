@@ -22,6 +22,37 @@
 #define SHOW_DEVICE_LOG            false
 #define UART_MONITOR_DEBUG         false
 
+//-- Reboot button handlers
+#define CONFIG_REBOOT_BUTTON_ENABLED           true
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  //-- Single-click: toggle SSD1306
+  //-- Double-click: toggle LED Indicator
+  #define REBOOT_BUTTON_GPIO                   9
+  //-- Hold to reboot
+  #define REBOOT_HOLD_TIME_MS                  3000
+  //-- Hold to factory reset
+  #define FACTORY_RESET_HOLD_TIME_MS           10000
+
+  //--> uses for CommissioningWindowOpen
+  #include <app/server/CommissioningWindowManager.h>
+  #include <app/server/Server.h>
+  //-- Window opens for NNN seconds
+  #define CONFIG_COMMISSIONING_WINDOW_OPEN     300
+  #define CONFIG_COMMISSIONING_WINDOW_PRIORITY 6
+  //<-- uses for CommissioningWindowOpen
+  
+  #include "driver_reboot_button.h"
+
+  //-- task priorities
+  #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
+  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
+  //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+  #define DOUBLE_CLICK_INTERVAL_MS             400
+  //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+  #define SHORT_CLICK_MAX_MS                   350
+  //=== /ДОБАВЛЕНО ===
+#endif
+
 
 #if ADD_CUSTOM_CLUSTERS
 	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -48,12 +79,18 @@
 
 
 #include "driver_chip.h"
-#include "driver_led_indicator.h"
 #include "driver_relay.h"
-#include "driver_reset_button.h"
+#include "driver_reboot_button.h"
 #include "driver_ssd1306.h"
 #include "driver_time.h"
 #include "driver_uptime.h"
+
+//-- LED Indicator
+#include "led_config.h"
+#if USE_DRIVER_LED_INDICATOR
+  #include "driver_led_indicator.h"
+  extern led_indicator_handle_t led_handle;
+#endif
 
 #if ADD_CUSTOM_CLUSTERS
 	#include "plugin_custom_cluster.h"

@@ -1,9 +1,9 @@
 dependencies:
-  espressif/cmake_utilities:
-    version: "^1"
-    rules: # will add "optional_component" only when all if clauses are True
-      - if: "idf_version >=5.0"
-      - if: "target in [esp32c2]"
-  "espressif/led_indicator": "^1.1.1"
-  esp_bsp_devkit:
-    version: "^3"
+  espressif/esp_matter: ^1.4.0
+  idf: '>=5.4.1'
+  espressif/button: ^4.1.5
+  espressif/led_indicator: ^2.1.2
+  #-- ESP-IDF works ONLY with led_strip v3.0.x!
+  espressif/led_strip: ~3.0.3
+  esp-idf-lib/i2cdev: ^2.1.2
+  

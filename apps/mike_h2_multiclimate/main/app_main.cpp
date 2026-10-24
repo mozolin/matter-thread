@@ -565,7 +565,7 @@ extern "C" void app_main()
 
   
   // 3. LED indicator
-    #if USE_DRIVER_LED_INDICATOR
+  #if USE_DRIVER_LED_INDICATOR
     led_handle = configure_indicator();
     if(!led_handle) {
       ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");

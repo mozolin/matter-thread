@@ -29,11 +29,11 @@ set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
 set(CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION "See: sdkconfig.default")
 #-- AttributeId 8: HardwareVersionString
-set(DEVICE_HARDWARE_VERSION_STRING "2.0.0")
+set(DEVICE_HARDWARE_VERSION_STRING "1.0.0")
 #-- AttributeId 9: SoftwareVersion
-set(PROJECT_VER_NUMBER 2)
+set(PROJECT_VER_NUMBER 1)
 #-- AttributeId 10: SoftwareVersionString
-set(PROJECT_VER "2.0.0")
+set(PROJECT_VER "1.0.0")
 
 #-- Define custom options for the compiler
 add_compile_definitions(

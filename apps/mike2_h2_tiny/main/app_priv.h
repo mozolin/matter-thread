@@ -30,14 +30,19 @@
   extern led_indicator_handle_t led_handle;
 #endif
 
-//-- task priorities
 #if CONFIG_REBOOT_BUTTON_ENABLED
-  #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
-#endif
-
-#if CONFIG_REBOOT_BUTTON_ENABLED
-  #include "driver_reboot_button.h"
+  //--> uses for CommissioningWindowOpen
+  #include <app/server/CommissioningWindowManager.h>
+  #include <app/server/Server.h>
+  //-- Window opens for NNN seconds
+  #define CONFIG_COMMISSIONING_WINDOW_OPEN     60//300
+  #define CONFIG_COMMISSIONING_WINDOW_PRIORITY 6
+  //<-- uses for CommissioningWindowOpen
   
+  #include "driver_reboot_button.h"
+
+  //-- task priorities
+  #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
   //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
   //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
   #define DOUBLE_CLICK_INTERVAL_MS             400
@@ -45,6 +50,7 @@
   #define SHORT_CLICK_MAX_MS                   350
   //=== /ДОБАВЛЕНО ===
 #endif
+
 #define LIVE_BLINK_TIME_MS                     0
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD

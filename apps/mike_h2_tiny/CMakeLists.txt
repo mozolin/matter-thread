@@ -25,7 +25,7 @@ set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
 set(DEVICE_PRODUCT_NAME "Mike_0x8000_Tiny")
 #-- AttributeId 5: NodeLabel
-set(DEVICE_NODE_LABEL "Minimal_Thread_ESP32H2")
+set(DEVICE_NODE_LABEL "Tiny_ESP32H2")
 #-- AttributeId 6: Location
 set(DEVICE_LOCATION "Home")
 #-- AttributeId 7: HardwareVersion
