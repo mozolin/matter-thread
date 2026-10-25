@@ -50,7 +50,9 @@ using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
-constexpr auto k_timeout_seconds = 300;
+//--> uses for CommissioningWindowOpen
+constexpr auto k_timeout_seconds = CONFIG_COMMISSIONING_WINDOW_OPEN;
+//<-- uses for CommissioningWindowOpen
 uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 sensor_data_t sensors[SENSOR_TYPE_MAX];
@@ -87,35 +89,51 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Interface IP Address changed");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Interface IP Address changed");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning complete");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning complete");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning failed, fail safe timer expired");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning session started");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning session started");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning session stopped");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning session stopped");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning window opened");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning window opened");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Commissioning window closed");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Commissioning window closed");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric removed successfully");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Fabric removed successfully");
+        #endif
         if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
             chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
             constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -123,7 +141,9 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
                 CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
                                                                             chip::CommissioningWindowAdvertisement::kDnssdOnly);
                 if (err != CHIP_NO_ERROR) {
-                    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                    #if DEBUG_MODE
+                      ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                    #endif
                 }
             }
         }
@@ -131,19 +151,27 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric will be removed");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Fabric will be removed");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric is updated");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Fabric is updated");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Fabric is committed");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Fabric is committed");
+        #endif
         break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-        ESP_LOGI(TAG_MULTI_CLIMATE, "BLE deinitialized and memory reclaimed");
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
+        #endif
         break;
 
     default:
@@ -154,7 +182,9 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id,
                                        uint8_t effect_variant, void *priv_data)
 {
-    ESP_LOGI(TAG_MULTI_CLIMATE, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+    #endif
     return ESP_OK;
 }
 
@@ -183,7 +213,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     // Check if sensor is already configured
     for(int i = 0; i < configured_sensors; i++) {
       if(sensor_mapping_list[i].sensor_type == sensor_cfg) {
-        ESP_LOGW(TAG_MULTI_CLIMATE, "Sensor type %d already configured", sensor_cfg);
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg);
+        #endif
         return ESP_ERR_INVALID_STATE;
       }
     }
@@ -193,11 +225,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     switch (sensor_cfg) {
         case SENSOR_TYPE_BME280: {
             // Create endpoint with multiple clusters
-            ESP_LOGW("", "");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", " Start creating endpoint for BME280");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", " Start creating endpoint for BME280");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", "");
+            #endif
             esp_matter::endpoint::temperature_sensor::config_t sensor_config;
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
             sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
@@ -206,7 +240,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for BME280");
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for BME280");
+              #endif
               return ESP_FAIL;
             }
 
@@ -230,11 +266,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         case SENSOR_TYPE_BME680: {
             // Create endpoint with multiple clusters
-            ESP_LOGW("", "");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", " Start creating endpoint for BME680");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", " Start creating endpoint for BME680");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", "");
+            #endif
             esp_matter::endpoint::temperature_sensor::config_t sensor_config;
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
             sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
@@ -243,7 +281,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
-                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for BME680");
+                #if DEBUG_MODE
+                  ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for BME680");
+                #endif
                 return ESP_FAIL;
             }
 
@@ -294,7 +334,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                 );
                 */
             } else {
-                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create TVOC cluster");
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create TVOC cluster");
+              #endif
             }
 
             break;
@@ -302,11 +344,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         case SENSOR_TYPE_DS18B20: {
             // Create temperature sensor endpoint
-            ESP_LOGW("", "");
-            ESP_LOGW("", "*************************************");
-            ESP_LOGW("", " Start creating endpoint for DS18B20");
-            ESP_LOGW("", "*************************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "*************************************");
+              ESP_LOGW("", " Start creating endpoint for DS18B20");
+              ESP_LOGW("", "*************************************");
+              ESP_LOGW("", "");
+            #endif
             temperature_sensor::config_t sensor_config;
             
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
@@ -320,11 +364,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
             // Create endpoint with multiple clusters
-            ESP_LOGW("", "");
-            ESP_LOGW("", "***********************************");
-            ESP_LOGW("", " Start creating endpoint for DHT11");
-            ESP_LOGW("", "***********************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "***********************************");
+              ESP_LOGW("", " Start creating endpoint for DHT11");
+              ESP_LOGW("", "***********************************");
+              ESP_LOGW("", "");
+            #endif
             esp_matter::endpoint::temperature_sensor::config_t sensor_config;
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);
             sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000);
@@ -333,7 +379,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for DHT11");
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for DHT11");
+              #endif
               return ESP_FAIL;
             }
 
@@ -350,32 +398,40 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         #if CONFIG_MQ135_ENABLED
         case SENSOR_TYPE_MQ135: {
-            ESP_LOGW("", "");
-            ESP_LOGW("", "***********************************");
-            ESP_LOGW("", " Start creating endpoint for MQ135");
-            ESP_LOGW("", "***********************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "***********************************");
+              ESP_LOGW("", " Start creating endpoint for MQ135");
+              ESP_LOGW("", "***********************************");
+              ESP_LOGW("", "");
+            #endif
             // Создание endpoint с типом Air Quality Sensor
             // Это стандартный тип устройства, который подходит для нашего датчика.
             air_quality_sensor::config_t sensor_config;
             
             endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
-            if (!endpoint) {
-                ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for MQ135");
-                return ESP_FAIL;
+            if(!endpoint) {
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for MQ135");
+              #endif
+              return ESP_FAIL;
             }
 
             s_air_quality_cluster = cluster::get(endpoint, AirQuality::Id);
-            if (s_air_quality_cluster == NULL) {
-                ESP_LOGE(TAG_MULTI_CLIMATE, "Не удалось получить Air Quality Cluster");
+            if(s_air_quality_cluster == NULL) {
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
+              #endif
             }
             // Включить все доступные уровни (FAIR | MOD | VPOOR | XPOOR)
             attribute_t *fm_attr = attribute::get(s_air_quality_cluster, AirQuality::Attributes::FeatureMap::Id);
-            if (fm_attr) {
-                esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
-                attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
-                              AirQuality::Attributes::FeatureMap::Id, &fm_val);
-                ESP_LOGW(TAG_MULTI_CLIMATE, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+            if(fm_attr) {
+              esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
+              attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
+                            AirQuality::Attributes::FeatureMap::Id, &fm_val);
+              #if DEBUG_MODE
+                ESP_LOGW(TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+              #endif
             }
             
             // === 1. Кластер Carbon Dioxide Concentration Measurement (0x040D) ===
@@ -392,8 +448,10 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                 //co2_feature_cfg.measurement_medium = 0; // 0 = Air
                     
                 esp_err_t err = cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::add(s_co2_cluster, &co2_feature_cfg);
-                if (err != ESP_OK) {
-                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                if(err != ESP_OK) {
+                  #if DEBUG_MODE
+                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                  #endif
                 }
             }
             
@@ -410,8 +468,10 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                 //co_feature_cfg.measurement_medium = 0; // Air
                     
                 esp_err_t err = cluster::carbon_monoxide_concentration_measurement::feature::numeric_measurement::add(s_co_cluster, &co_feature_cfg);
-                if (err != ESP_OK) {
-                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер CO: %s", esp_err_to_name(err));
+                if(err != ESP_OK) {
+                  #if DEBUG_MODE
+                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO: %s", esp_err_to_name(err));
+                  #endif
                 }
             }
             
@@ -428,8 +488,10 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                 //tvoc_feature_cfg.measurement_medium = 0; // Air
                     
                 esp_err_t err = cluster::total_volatile_organic_compounds_concentration_measurement::feature::numeric_measurement::add(s_tvoc_cluster, &tvoc_feature_cfg);
-                if (err != ESP_OK) {
-                    ESP_LOGE(TAG_MULTI_CLIMATE, "Ошибка добавления фичи NumericMeasurement в кластер TVOC: %s", esp_err_to_name(err));
+                if(err != ESP_OK) {
+                  #if DEBUG_MODE
+                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер TVOC: %s", esp_err_to_name(err));
+                  #endif
                 }
             }
             
@@ -440,11 +502,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         #if CONFIG_SHT41_ENABLED
         case SENSOR_TYPE_SHT41: {
             // Create endpoint with multiple clusters
-            ESP_LOGW("", "");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", " Start creating endpoint for SHT41");
-            ESP_LOGW("", "************************************");
-            ESP_LOGW("", "");
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", " Start creating endpoint for SHT41");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", "");
+            #endif
             esp_matter::endpoint::temperature_sensor::config_t sensor_config;
             sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);  // 20.00°C
             sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
@@ -453,7 +517,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create endpoint for SHT41");
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SHT41");
+              #endif
               return ESP_FAIL;
             }
 
@@ -469,20 +535,26 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         #endif
 
         default:
-            ESP_LOGE(TAG_MULTI_CLIMATE, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
-            return ESP_ERR_INVALID_ARG;
+          #if DEBUG_MODE
+            ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
+          #endif
+          return ESP_ERR_INVALID_ARG;
     }
 
     if(!endpoint) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
+      #endif
       return ESP_FAIL;
     }
 
     // Initialize sensor hardware
     err = app_driver_sensor_init(sensor_cfg);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize sensor type: %d", sensor_cfg);
-        return err;
+    if(err != ESP_OK) {
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg);
+      #endif
+      return err;
     }
 
     // Store mapping
@@ -506,10 +578,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         
         configured_sensors++;
         
-        ESP_LOGI(TAG_MULTI_CLIMATE, "Sensor %d created with endpoint_id %d", 
-                sensor_cfg, endpoint::get_id(endpoint));
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Sensor %d created with endpoint_id %d", sensor_cfg, endpoint::get_id(endpoint));
+        #endif
     } else {
-        ESP_LOGE(TAG_MULTI_CLIMATE, "Maximum sensors configuration limit exceeded!");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
+        #endif
         return ESP_FAIL;
     }
 
@@ -531,11 +606,57 @@ void set_basic_attributes_esp_matter()
     );
     
     if(err == ESP_OK) {
-        ESP_LOGI(TAG_MULTI_CLIMATE, "NodeLabel set via ESP-Matter API");
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "NodeLabel set via ESP-Matter API");
+      #endif
     } else {
-        ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to set NodeLabel: %d", err);
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to set NodeLabel: %d", err);
+      #endif
     }
+    
 }
+
+//--- Задача: раз в секунду мигать, пока открыто окно сопряжения ---
+static void commissioning_window_blink_task(void *arg)
+{
+  uint32_t window_sec = (uint32_t)(uintptr_t)arg;
+  uint32_t elapsed = 0;
+
+  ESP_LOGW("#1# CommWindow", "");
+  ESP_LOGW("#1# CommWindow", "##############################");
+  ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
+  ESP_LOGW("#1# CommWindow", "##############################");
+  ESP_LOGW("#1# CommWindow", "");
+
+  while(elapsed < window_sec) {
+    // Проверяем, не закрылось ли окно раньше (например, устройство уже сопряжено)
+    auto &mgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+    if(!mgr.IsCommissioningWindowOpen()) {
+      ESP_LOGW("#2# CommWindow", "");
+      ESP_LOGW("#2# CommWindow", "##############################");
+      ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
+      ESP_LOGW("#2# CommWindow", "##############################");
+      ESP_LOGW("#2# CommWindow", "");
+      break;
+    }
+
+    #if USE_DRIVER_LED_INDICATOR
+      get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+    #endif
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    elapsed++;
+  }
+
+  ESP_LOGW("#3# CommWindow", "");
+  ESP_LOGW("#3# CommWindow", "##############################");
+  ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
+  ESP_LOGW("#3# CommWindow", "##############################");
+  ESP_LOGW("#3# CommWindow", "");
+  vTaskDelete(NULL);
+}
+
 
 extern "C" void app_main()
 {
@@ -551,7 +672,9 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
-  	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
+  	#endif
   	return;
   }
 
@@ -559,7 +682,9 @@ extern "C" void app_main()
   // 2. i2cdev — до I2C устройств
   err = i2cdev_init();
   if(err != ESP_OK) {
-    ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
+    #if DEBUG_MODE
+      ESP_LOGE(TAG_MIKE_APP, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
+    #endif
     // Можно продолжить, но I2C устройства не будут работать.
   }
 
@@ -568,14 +693,17 @@ extern "C" void app_main()
   #if USE_DRIVER_LED_INDICATOR
     led_handle = configure_indicator();
     if(!led_handle) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to configure LED indicator");
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
+      #endif
     } else {
       //=== ДОБАВЛЕНО: при старте LED выключен ===
       //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
       //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
       //-- поэтому любые попытки мигнуть будут игнорироваться.
       extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
-      led_indicator_locked = true;
+      //led_indicator_locked = true;
+      led_indicator_locked = false;
 
       //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
       //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
@@ -601,13 +729,17 @@ extern "C" void app_main()
     //-- Init LCD SSD1306
     err = ssd1306_init();
     if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "~~~ Error initialize SSD1306!");
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+      #endif
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
     } else {
       ssd1306_initialized = true;
-      ESP_LOGW(TAG_MULTI_CLIMATE, "~~~ SSD1306 Initialized!");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
+      #endif
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       #endif
@@ -643,7 +775,9 @@ extern "C" void app_main()
     ESP_LOGE("", "");
     err = esp_matter::console::init();
     if(err != ESP_OK) {
-      ESP_LOGE(TAG_MULTI_CLIMATE, "Console init failed: %d", err);
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Console init failed: %d", err);
+      #endif
     }
   #endif
 
@@ -651,7 +785,7 @@ extern "C" void app_main()
   // 7. Matter node + endpoints
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to create Matter node"));
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "Failed to create Matter node"));
   #if CONFIG_BME280_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME280, node);
   #endif
@@ -685,7 +819,50 @@ extern "C" void app_main()
   
   // 9. Matter start
   err = esp_matter::start(app_event_cb);
-  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to start Matter, err:%d", err));
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
+
+
+  // 9. Open commissioning windows after factory reset and reboot
+  #if CONFIG_REBOOT_BUTTON_ENABLED
+    //--> uses for CommissioningWindowOpen
+    chip::DeviceLayer::PlatformMgr().ScheduleWork([](intptr_t context) {
+      auto &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+      // Check if the pairing window is already open, avoid opening it again
+      if(!commissionMgr.IsCommissioningWindowOpen()) {
+        CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(
+          // Window opens for CONFIG_COMMISSIONING_WINDOW_OPEN seconds
+          chip::System::Clock::Seconds16(CONFIG_COMMISSIONING_WINDOW_OPEN)
+        );
+        if(err != CHIP_NO_ERROR) {
+          ESP_LOGE("", "");
+          ESP_LOGE("", "-------------------------------------------------");
+          ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
+          ESP_LOGE("", "-------------------------------------------------");
+          ESP_LOGE("", "");
+        } else {
+          ESP_LOGW("", "");
+          ESP_LOGW("", "------------------------------------------------------------");
+          ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
+          ESP_LOGW("", "------------------------------------------------------------");
+          ESP_LOGW("", "");
+        }
+      } else {
+      	// Запускаем задачу мигания (в стеке 2 KB достаточно)
+        xTaskCreate(commissioning_window_blink_task, "comm_blink", 2048, (void *)(uintptr_t)CONFIG_COMMISSIONING_WINDOW_OPEN, CONFIG_COMMISSIONING_WINDOW_PRIORITY, NULL);
+      }
+    }, 0);
+    //<-- uses for CommissioningWindowOpen
+  #endif
+  
+  // 10. Get FabricId & NodeId
+  ESP_LOGW("", "");
+  ESP_LOGW("", "===========================================");
+  chip::FabricTable &fabricTable = chip::Server::GetInstance().GetFabricTable();
+  for(auto iter = fabricTable.begin(); iter != fabricTable.end(); ++iter) {
+    ESP_LOGW("", "FabricId 0x%llx NodeId 0x%llx", iter->GetFabricId(), iter->GetNodeId());
+  }
+  ESP_LOGW("", "===========================================");
+  ESP_LOGW("", "");
 
 
   // 10. Basic attributes (лучше — по событию)

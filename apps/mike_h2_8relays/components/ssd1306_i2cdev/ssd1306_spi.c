@@ -6,9 +6,9 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#include "ssd1306.h"
+#include "ssd1306_i2cdev.h"
 
-#define TAG "SSD1306"
+//#define TAG "SSD1306"
 
 #if CONFIG_SPI2_HOST
 #define HOST_ID SPI2_HOST
@@ -25,7 +25,7 @@
 int clock_speed_hz = SPI_DEFAULT_FREQUENCY;
 
 void spi_clock_speed(int speed) {
-	ESP_LOGI(TAG, "SPI clock speed=%d MHz", speed/1000000);
+	ESP_LOGI(TAG_SSD1306, "SPI clock speed=%d MHz", speed/1000000);
 	clock_speed_hz = speed;
 }
 
@@ -59,9 +59,9 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 		.flags = 0
 	};
 
-	ESP_LOGI(TAG, "SPI HOST_ID=%d", HOST_ID);
+	ESP_LOGI(TAG_SSD1306, "SPI HOST_ID=%d", HOST_ID);
 	ret = spi_bus_initialize( HOST_ID, &spi_bus_config, SPI_DMA_CH_AUTO );
-	ESP_LOGI(TAG, "spi_bus_initialize=%d",ret);
+	ESP_LOGI(TAG_SSD1306, "spi_bus_initialize=%d",ret);
 	assert(ret==ESP_OK);
 
 	spi_device_interface_config_t devcfg;
@@ -73,18 +73,18 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 
 	spi_device_handle_t spi_device_handle;
 	ret = spi_bus_add_device( HOST_ID, &devcfg, &spi_device_handle);
-	ESP_LOGI(TAG, "spi_bus_add_device=%d",ret);
+	ESP_LOGI(TAG_SSD1306, "spi_bus_add_device=%d",ret);
 	assert(ret==ESP_OK);
 
 	dev->_dc = dc;
-	dev->_address = SPI_ADDRESS;
+	dev->_address = SSD1306_SPI_ADDRESS;
 	dev->_flip = false;
 	dev->_spi_device_handle = spi_device_handle;
 }
 
 void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 {
-	ESP_LOGW(TAG, "Will not install spi master driver");
+	ESP_LOGW(TAG_SSD1306, "Will not install spi master driver");
 	esp_err_t ret;
 
 	gpio_reset_pin( cs );
@@ -114,9 +114,9 @@ void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 		.flags = 0
 	};
 
-	ESP_LOGI(TAG, "SPI HOST_ID=%d", HOST_ID);
+	ESP_LOGI(TAG_SSD1306, "SPI HOST_ID=%d", HOST_ID);
 	ret = spi_bus_initialize( HOST_ID, &spi_bus_config, SPI_DMA_CH_AUTO );
-	ESP_LOGI(TAG, "spi_bus_initialize=%d",ret);
+	ESP_LOGI(TAG_SSD1306, "spi_bus_initialize=%d",ret);
 	assert(ret==ESP_OK);
 #endif
 
@@ -129,11 +129,11 @@ void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 
 	spi_device_handle_t spi_device_handle;
 	ret = spi_bus_add_device( HOST_ID, &devcfg, &spi_device_handle);
-	ESP_LOGI(TAG, "spi_bus_add_device=%d",ret);
+	ESP_LOGI(TAG_SSD1306, "spi_bus_add_device=%d",ret);
 	assert(ret==ESP_OK);
 
 	dev->_dc = dc;
-	dev->_address = SPI_ADDRESS;
+	dev->_address = SSD1306_SPI_ADDRESS;
 	dev->_flip = false;
 	dev->_spi_device_handle = spi_device_handle;
 }

@@ -10,9 +10,13 @@
 #include "esp_matter_core.h"
 #include "esp_matter_attribute.h"
 
+
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "matter_ids_decoder.h"
+
+#include "matter_ids_endpoint.h"
+#include "matter_ids_cluster.h"
+#include "matter_ids_attribute.h"
 
 //-- 3. Получение списка всех атрибутов endpoint
 #include <app/util/endpoint-config-api.h>
@@ -22,6 +26,17 @@ using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 
+#include <esp_matter_endpoint.h>
+
+
+std::string get_endpoint_name(uint32_t endpoint_id)
+{
+  auto it = ENDPOINT_NAMES.find(endpoint_id);
+  if (it != ENDPOINT_NAMES.end()) {
+    return it->second;
+  }
+  return "Unknown";
+}
 
 std::string get_cluster_name(uint32_t cluster_id)
 {
@@ -238,12 +253,16 @@ void log_device_structure(node_t *node)
     endpoint = endpoint::get_next(endpoint);
   }
 
+  ESP_LOGE("", "");
+  ESP_LOGE("", "--------------------------------------------------------------------------------------------");
+  
   for(uint16_t endpoint_id : endpoint_ids) {
     endpoint = endpoint::get(node, endpoint_id);
+    
     if(!endpoint) {
     	continue;
     }
-    
+
     #ifdef SHOW_DEVICE_LOG_ONE_CLUSTER
       #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
 	    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
@@ -252,12 +271,15 @@ void log_device_structure(node_t *node)
     		}
     	#endif
     #endif
-
+    
     #if SHOW_DEVICE_LOG
-		  print_all_attributes(endpoint_id);
+		  endpoint_t *ep = endpoint;
+		  print_all_attributes(endpoint_id, ep);
 		#endif
-	
   }
+
+  ESP_LOGE("", "--------------------------------------------------------------------------------------------");
+  ESP_LOGE("", "");
 }
 
 
@@ -288,65 +310,90 @@ bool check_attribute_existence(uint32_t cluster_id, uint32_t attribute_id)
     return metadata != nullptr;
 }
 
-void print_all_attributes(uint16_t endpoint_id)
+void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
 {
-  ESP_LOGW(TAG_EMPTY, "");
-  ESP_LOGW(TAG_EMPTY, "############################################################################################");
-  
   const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(endpoint_id);
   if(!endpoint_type) {
     ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
     return;
   }
-
+  
   int level = 0;
   std::string indent(level * 2, ' ');
 
-  ESP_LOGE(TAG_EMPTY, "# %sENDPOINT 0x%04" PRIX16, indent.c_str(), endpoint_id);
+  //endpoint_t *ep = endpoint;
+	uint8_t device_type_count = 0;
 
+	// Функция возвращает указатель на внутренний массив ID
+	uint32_t *device_type_ids = endpoint::get_device_type_ids(ep, &device_type_count);
+
+	if (device_type_ids == NULL) {
+    //ESP_LOGE("APP", "Не удалось получить device type IDs (endpoint или count_ptr == NULL)");
+    ESP_LOGE("", "# %sENDPOINT %d", indent.c_str(), (uint8_t)endpoint_id);
+	} else {
+    //ESP_LOGI("APP", "Endpoint содержит %d device type(s):", device_type_count);
+
+    if(device_type_count > 0) {
+    
+    	//uint32_t dev_id = device_type_ids[0];
+
+    	for (uint8_t i = 0; i < device_type_count; i++) {
+        //ESP_LOGI("APP", "  [%d] ID: 0x%08" PRIX32, i, device_type_ids[i]);
+        
+        uint32_t dev_id = device_type_ids[i];
+        std::string endpoint_name = get_endpoint_name(dev_id);
+      	ESP_LOGE("", "| %sENDPOINT %d: 0x%04" PRIX16 " (%s)", 
+          indent.c_str(),
+          (uint8_t)endpoint_id,
+          (uint16_t)dev_id,
+          endpoint_name.c_str());
+    	}
+    }
+	}
+
+  
   #if SHOW_DEVICE_LOG_CLUSTERS
-  	uint32_t attribute_id, cluster_id;
-
     for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
       const EmberAfCluster *cluster = &endpoint_type->cluster[cluster_idx];
       
-      cluster_id = cluster->clusterId;
+      uint32_t cluster_id = cluster->clusterId;
 
       std::string cluster_name = get_cluster_name(cluster->clusterId);
-      ESP_LOGW(TAG_EMPTY, "# %s  Cluster 0x%08" PRIX32 " (%s)", 
-               indent.c_str(),
-               cluster_id,
-               cluster_name.c_str());
+      ESP_LOGW("", "| %s  Cluster 0x%08" PRIX32 " (%s)", 
+        indent.c_str(),
+        cluster_id,
+        cluster_name.c_str());
       
       #if SHOW_DEVICE_LOG_ATTRIBUTES
         for(size_t attr_idx = 0; attr_idx < cluster->attributeCount; ++attr_idx) {
           const EmberAfAttributeMetadata *attr = &cluster->attributes[attr_idx];
 
-          attribute_id = attr->attributeId;
+          uint32_t attribute_id = attr->attributeId;
+          
           attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
           if(attribute) {
             std::string attribute_name = get_attribute_name(cluster_id, attribute_id);
+            
             uint16_t flags = attribute::get_flags(attribute);
               
             esp_matter_attr_val_t val = esp_matter_nullable_uint32(0);
+            
 						//-- if attribute size > 0 => get attribute value
 						std::string attribute_value = "";
 						std::string attribute_type = get_attribute_type_name(val.type);
 						if(attr->size > 0 && attribute::get_val(attribute, &val) == ESP_OK) {
 							//-- new value of attribute!
 							attribute_value = get_attribute_value(val);
-							
 						}
-					  
-            ESP_LOGI(TAG_EMPTY, "# %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Size: %d, Value: %s, Mask: 0x%02x, Flags: %s", 
-                     indent.c_str(), 
-                     attribute_id, 
-                     get_attribute_name(cluster_id, attribute_id).c_str(),
-                     attribute_type.c_str(),
-                     attr->size,
-                     attribute_value.c_str(),
-                     attr->mask,
-                     get_attribute_flags_string(flags).c_str());
+            ESP_LOGW("", "| %s    Attribute 0x%08" PRIX32 " (%s) Type: %s, Size: %d, Value: %s, Mask: 0x%02x, Flags: %s", 
+              indent.c_str(), 
+              attribute_id, 
+              get_attribute_name(cluster_id, attribute_id).c_str(),
+              attribute_type.c_str(),
+              attr->size,
+              attribute_value.c_str(),
+              attr->mask,
+              get_attribute_flags_string(flags).c_str());
           }
         }
       #endif
@@ -357,15 +404,12 @@ void print_all_attributes(uint16_t endpoint_id)
         while(command) {
           uint32_t command_id = command::get_id(command);
           uint16_t flags = command::get_flags(command);
-          ESP_LOGI(TAG_EMPTY, "# %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
+          ESP_LOGW("", "| %s    Command 0x%08" PRIX32 ", Flags: %d", indent.c_str(), command_id, flags);
           command = command::get_next(command);
         }
       #endif
     }
   #endif
-
-  ESP_LOGW(TAG_EMPTY, "############################################################################################");
-  ESP_LOGW(TAG_EMPTY, "");
 }
 
 /*

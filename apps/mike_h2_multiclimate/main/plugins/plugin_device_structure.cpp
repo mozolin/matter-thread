@@ -291,7 +291,7 @@ bool is_attribute_present(uint16_t endpoint_id, uint32_t cluster_id, uint32_t at
   //esp_matter_attr_val_t val;
   attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
   if(!attribute) {
-  	ESP_LOGE(TAG_MULTI_CLIMATE, "Failed to get attribute");
+  	ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
 	return false;
   }
   return true;

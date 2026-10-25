@@ -1,6 +1,5 @@
 idf_component_register(
-	SRC_DIRS "." "./drivers"
-	SRC_DIRS "." "./plugins"
+	SRC_DIRS "." "./drivers" "./plugins"
   PRIV_INCLUDE_DIRS "." "./drivers" "./plugins" "${ESP_MATTER_PATH}/examples/common/utils"
 )
 
