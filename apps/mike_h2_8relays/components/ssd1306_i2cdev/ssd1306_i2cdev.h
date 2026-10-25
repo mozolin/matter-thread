@@ -1,12 +1,14 @@
+#pragma once
+
 #ifndef MAIN_SSD1306_H_
 #define MAIN_SSD1306_H_
 
 #include "driver/spi_master.h"
-#if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 2, 0))
 #include "driver/i2c_master.h"
-#else
-#include "driver/i2c.h"
-#endif
+// ДОБАВЛЕНО: include для i2cdev
+#include "i2cdev.h"
+
+#define TAG_SSD1306 "SSD1306 I2CDEV"
 
 // Following definitions are bollowed from 
 // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html
@@ -73,13 +75,13 @@ Usage:
 #define OLED_CMD_ACTIVE_SCROLL          0x2F
 #define OLED_CMD_VERTICAL               0xA3
 
-#define I2C_ADDRESS 0x3C
-#define SPI_ADDRESS 0xFF
+#define SSD1306_I2C_ADDRESS             0x3C
+#define SSD1306_SPI_ADDRESS             0xFF
 
-#define OLED_DRAW_UPPER_RIGHT 0x01
-#define OLED_DRAW_UPPER_LEFT  0x02
-#define OLED_DRAW_LOWER_LEFT  0x04
-#define OLED_DRAW_LOWER_RIGHT 0x08
+#define OLED_DRAW_UPPER_RIGHT           0x01
+#define OLED_DRAW_UPPER_LEFT            0x02
+#define OLED_DRAW_LOWER_LEFT            0x04
+#define OLED_DRAW_LOWER_RIGHT           0x08
 #define OLED_DRAW_ALL (OLED_DRAW_UPPER_RIGHT|OLED_DRAW_UPPER_LEFT|OLED_DRAW_LOWER_RIGHT|OLED_DRAW_LOWER_LEFT)
 
 typedef enum {
@@ -110,12 +112,11 @@ typedef struct {
 	int _scDirection;
 	PAGE_t _page[8];
 	bool _flip;
-	i2c_port_t _i2c_num;
-	spi_device_handle_t _spi_device_handle;
-#if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 2, 0))
-	i2c_master_bus_handle_t _i2c_bus_handle;
-	i2c_master_dev_handle_t _i2c_dev_handle;
-#endif
+  i2c_port_t _i2c_num;
+  spi_device_handle_t _spi_device_handle;
+  i2c_master_bus_handle_t _i2c_bus_handle; // ОСТАВЛЕНО для совместимости, но не используется
+  // ИЗМЕНЕНО: _i2c_dev_handle теперь void*, так как мы используем i2cdev, а не прямой драйвер.
+  void* _i2c_dev_handle; 
 } SSD1306_t;
 
 #ifdef __cplusplus
@@ -163,7 +164,7 @@ void ssd1306_display_rotate_text(SSD1306_t * dev, int seg, const char * text, in
 void ssd1306_dump(SSD1306_t dev);
 void ssd1306_dump_page(SSD1306_t * dev, int page, int seg);
 
-esp_err_t i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t reset);
+esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t scl, int16_t reset);
 esp_err_t i2c_device_add(SSD1306_t * dev, i2c_port_t i2c_num, int16_t reset, uint16_t i2c_address);
 esp_err_t i2c_init(SSD1306_t * dev, int width, int height);
 void i2c_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * images, int width);

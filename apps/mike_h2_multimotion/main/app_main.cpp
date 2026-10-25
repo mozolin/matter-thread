@@ -26,44 +26,50 @@ using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
-constexpr auto k_timeout_seconds = 300;
+//--> uses for CommissioningWindowOpen
+constexpr auto k_timeout_seconds = CONFIG_COMMISSIONING_WINDOW_OPEN;
+//<-- uses for CommissioningWindowOpen
 uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 sensor_data_t sensors[CONFIG_NUM_SENSORS];
+
+#if USE_DRIVER_LED_INDICATOR
+  led_indicator_handle_t led_handle;
+#endif
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Interface IP Address changed");
+        ESP_LOGI(TAG_MIKE_APP, "Interface IP Address changed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning complete");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning complete");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning failed, fail safe timer expired");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning session started");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning session started");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning session stopped");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning session stopped");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning window opened");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning window opened");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Commissioning window closed");
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning window closed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric removed successfully");
+        ESP_LOGI(TAG_MIKE_APP, "Fabric removed successfully");
         if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
             chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
             constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
@@ -71,7 +77,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
                 CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
                                                                             chip::CommissioningWindowAdvertisement::kDnssdOnly);
                 if (err != CHIP_NO_ERROR) {
-                    ESP_LOGE(TAG_MULTI_SENSOR, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                    ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
                 }
             }
         }
@@ -79,19 +85,19 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric will be removed");
+        ESP_LOGI(TAG_MIKE_APP, "Fabric will be removed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric is updated");
+        ESP_LOGI(TAG_MIKE_APP, "Fabric is updated");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-        ESP_LOGI(TAG_MULTI_SENSOR, "Fabric is committed");
+        ESP_LOGI(TAG_MIKE_APP, "Fabric is committed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-        ESP_LOGI(TAG_MULTI_SENSOR, "BLE deinitialized and memory reclaimed");
+        ESP_LOGI(TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
         break;
 
     default:
@@ -102,7 +108,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id,
                                        uint8_t effect_variant, void *priv_data)
 {
-    ESP_LOGI(TAG_MULTI_SENSOR, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+    ESP_LOGI(TAG_MIKE_APP, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
     return ESP_OK;
 }
 
@@ -124,18 +130,18 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
     esp_err_t err = ESP_OK;
 
     if (!node) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Matter node cannot be NULL");
+        ESP_LOGE(TAG_MIKE_APP, "Matter node cannot be NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
     if (!sensor_cfg) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Sensor config cannot be NULL");
+        ESP_LOGE(TAG_MIKE_APP, "Sensor config cannot be NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
     for (int i = 0; i < configured_sensors; i++) {
         if (sensor_mapping_list[i].sensor_type == sensor_cfg->type) {
-            ESP_LOGW(TAG_MULTI_SENSOR, "Sensor type %d already configured", sensor_cfg->type);
+            ESP_LOGW(TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg->type);
             return ESP_ERR_INVALID_STATE;
         }
     }
@@ -172,7 +178,7 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             endpoint = occupancy_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
 
             if (!endpoint) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "Failed to create endpoint for ultrasonic sensor");
+                ESP_LOGW(TAG_MIKE_APP, "Failed to create endpoint for ultrasonic sensor");
                 return ESP_FAIL;
             }
             
@@ -192,7 +198,7 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
                 esp_matter::cluster::pressure_measurement::create(endpoint, &pressure_config, MATTER_CLUSTER_FLAG_SERVER);
             
             if (!pressure_cluster) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "Failed to create Pressure Measurement cluster");
+                ESP_LOGW(TAG_MIKE_APP, "Failed to create Pressure Measurement cluster");
             }
             
             /*
@@ -207,7 +213,7 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
                 esp_matter::cluster::occupancy_sensing::create(endpoint, &occupancy_config, MATTER_CLUSTER_FLAG_SERVER);
             
             if (!occupancy_cluster) {
-                ESP_LOGW(TAG_MULTI_SENSOR, "Failed to create Occupancy Sensing cluster");
+                ESP_LOGW(TAG_MIKE_APP, "Failed to create Occupancy Sensing cluster");
             }
             
             esp_matter::cluster::identify::config_t identify_config;
@@ -221,18 +227,18 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         }
 
         default:
-            ESP_LOGE(TAG_MULTI_SENSOR, "Unknown sensor type: %d", sensor_cfg->type);
+            ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d", sensor_cfg->type);
             return ESP_ERR_INVALID_ARG;
     }
 
     if (!endpoint) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
+        ESP_LOGE(TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
         return ESP_FAIL;
     }
 
     err = app_driver_sensor_init(sensor_cfg);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to initialize sensor type: %d", sensor_cfg->type);
+        ESP_LOGE(TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg->type);
         return err;
     }
 
@@ -249,10 +255,10 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         
         configured_sensors++;
         
-        ESP_LOGI(TAG_MULTI_SENSOR, "Sensor %s created with endpoint_id %d", 
+        ESP_LOGI(TAG_MIKE_APP, "Sensor %s created with endpoint_id %d", 
                 sensor_cfg->name, endpoint::get_id(endpoint));
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Maximum sensors configuration limit exceeded!");
+        ESP_LOGE(TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
         return ESP_FAIL;
     }
 
@@ -272,9 +278,9 @@ void set_basic_attributes_esp_matter()
         &node_label_val
     );
     if(err == ESP_OK) {
-        ESP_LOGI(TAG_MULTI_SENSOR, "NodeLabel set via ESP-Matter API");
+        ESP_LOGI(TAG_MIKE_APP, "NodeLabel set via ESP-Matter API");
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set NodeLabel: %d", err);
+        ESP_LOGE(TAG_MIKE_APP, "Failed to set NodeLabel: %d", err);
     }
   
     char location[] = CONFIG_CUSTOM_DEVICE_LOCATION;
@@ -287,99 +293,132 @@ void set_basic_attributes_esp_matter()
         &location_val
     );
     if(err == ESP_OK) {
-        ESP_LOGI(TAG_MULTI_SENSOR, "Location set via ESP-Matter API");
+        ESP_LOGI(TAG_MIKE_APP, "Location set via ESP-Matter API");
     } else {
-        ESP_LOGE(TAG_MULTI_SENSOR, "Failed to set Location: %d", err);
+        ESP_LOGE(TAG_MIKE_APP, "Failed to set Location: %d", err);
     }
 }
 
-/*
-#include <stdio.h>
-#include <stdbool.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <ultrasonic.h>
-#include <esp_err.h>
-
-#define MAX_DISTANCE_CM 5 // 5m max
-
-#define TRIGGER_GPIO    3
-#define ECHO_GPIO       5
-
-void ultrasonic_test(void *pvParameters)
+//--- Задача: раз в секунду мигать, пока открыто окно сопряжения ---
+static void commissioning_window_blink_task(void *arg)
 {
-    ultrasonic_sensor_t sensor =
-    {
-        .trigger_pin = (gpio_num_t)TRIGGER_GPIO,
-        .echo_pin = (gpio_num_t)ECHO_GPIO
-    };
+  uint32_t window_sec = (uint32_t)(uintptr_t)arg;
+  uint32_t elapsed = 0;
 
-    //ultrasonic_init(&sensor);
+  ESP_LOGW("#1# CommWindow", "");
+  ESP_LOGW("#1# CommWindow", "##############################");
+  ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
+  ESP_LOGW("#1# CommWindow", "##############################");
+  ESP_LOGW("#1# CommWindow", "");
 
-    gpio_num_t trigger_pin = (gpio_num_t)TRIGGER_GPIO;
-    gpio_num_t echo_pin = (gpio_num_t)ECHO_GPIO;
-
-    // Configure trigger pin as output
-    gpio_reset_pin(trigger_pin);
-    esp_err_t err = gpio_set_direction(trigger_pin, GPIO_MODE_OUTPUT);
-    if (err != ESP_OK) {
-        printf("Failed to set GPIO direction for HC-SR04 trigger\n");
-        return;
-    }
-    gpio_set_level(trigger_pin, 0);
-
-    // Configure echo pin as input
-    gpio_reset_pin(echo_pin);
-    err = gpio_set_direction(echo_pin, GPIO_MODE_INPUT);
-    if (err != ESP_OK) {
-        printf("Failed to set GPIO direction for HC-SR04 echo\n");
-        return;
+  while(elapsed < window_sec) {
+    // Проверяем, не закрылось ли окно раньше (например, устройство уже сопряжено)
+    auto &mgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+    if(!mgr.IsCommissioningWindowOpen()) {
+      ESP_LOGW("#2# CommWindow", "");
+      ESP_LOGW("#2# CommWindow", "##############################");
+      ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
+      ESP_LOGW("#2# CommWindow", "##############################");
+      ESP_LOGW("#2# CommWindow", "");
+      break;
     }
 
+    #if USE_DRIVER_LED_INDICATOR
+      get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+    #endif
 
-    while (true)
-    {
-        float distance;
-        esp_err_t res = ultrasonic_measure(&sensor, MAX_DISTANCE_CM, &distance);
-        if (res != ESP_OK)
-        {
-            printf("Error %d: ", res);
-            switch (res)
-            {
-                case ESP_ERR_ULTRASONIC_PING:
-                    printf("Cannot ping (device is in invalid state)\n");
-                    break;
-                case ESP_ERR_ULTRASONIC_PING_TIMEOUT:
-                    printf("Ping timeout (no device found)\n");
-                    break;
-                case ESP_ERR_ULTRASONIC_ECHO_TIMEOUT:
-                    printf("Echo timeout (i.e. distance too big)\n");
-                    break;
-                default:
-                    printf("%s\n", esp_err_to_name(res));
-            }
-        }
-        else
-            printf("Distance: %0.04f m\n", distance);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    elapsed++;
+  }
 
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
+  ESP_LOGW("#3# CommWindow", "");
+  ESP_LOGW("#3# CommWindow", "##############################");
+  ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
+  ESP_LOGW("#3# CommWindow", "##############################");
+  ESP_LOGW("#3# CommWindow", "");
+  vTaskDelete(NULL);
 }
-*/
+
 
 extern "C" void app_main()
 {
-    esp_err_t err = ESP_OK;
+  esp_err_t err = ESP_OK;
 
+  // 1. NVS — первым делом
+  err = nvs_flash_init();
+  if(err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    err = nvs_flash_erase();
+    if(err != ESP_OK) {
+    	return;
+    }
+  }
+  err = nvs_flash_init();
+  if(err != ESP_OK) {
+  	ESP_LOGE(TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
+  	return;
+  }
+
+  // 3. LED indicator
+  #if USE_DRIVER_LED_INDICATOR
+    led_handle = configure_indicator();
+    if(!led_handle) {
+      ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
+    } else {
+      //=== ДОБАВЛЕНО: при старте LED выключен ===
+      //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
+      //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
+      //-- поэтому любые попытки мигнуть будут игнорироваться.
+      extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+      //led_indicator_locked = true;
+      led_indicator_locked = false;
+
+      //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
+      //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
+      //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
+      led_indicator_start(led_handle, BLINK_OFF);
+
+      ESP_LOGE("", "");
+      ESP_LOGE("", "==============================");
+      ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
+      #if USE_RGB_LED
+        ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
+      #endif
+      ESP_LOGE("", " LED state at boot: OFF (locked)");
+      ESP_LOGE("", "==============================");
+      ESP_LOGE("", "");
+      //=== /ДОБАВЛЕНО ===
+    }
+  #endif
+
+  // 5. Reboot button
+  #if CONFIG_REBOOT_BUTTON_ENABLED
     xTaskCreate(reboot_button_task, "reboot_button_task", 2048, NULL, CONFIG_REBOOT_BUTTON_TASK_PRIORITY, NULL);
+  #endif
   
-    nvs_flash_init();
+  // 6. Console
+  #if CONFIG_ENABLE_CHIP_SHELL
+    esp_matter::console::diagnostics_register_commands();
+    esp_matter::console::wifi_register_commands();
+    esp_matter::console::factoryreset_register_commands();
+    #if CONFIG_OPENTHREAD_CLI
+      esp_matter::console::otcli_register_commands();
+    #endif
+    ESP_LOGE("", "");
+    ESP_LOGE("", "===========================================");
+    ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+    ESP_LOGE("", "===========================================");
+    ESP_LOGE("", "");
+    err = esp_matter::console::init();
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MIKE_APP, "Console init failed: %d", err);
+    }
+  #endif
 
-    node::config_t node_config;
-    node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-    ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to create Matter node"));
-
-#if CONFIG_HCSR501_ENABLED
+  // 6. Matter node + endpoint
+  node::config_t node_config;
+  node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "Failed to create Matter node"));
+  #if CONFIG_HCSR501_ENABLED
     sensor_config_t pir_sensor = {
         .type = SENSOR_TYPE_PIR,
         .trigger_pin = (gpio_num_t)CONFIG_HCSR501_PIR_GPIO,
@@ -391,9 +430,9 @@ extern "C" void app_main()
     if (CONFIG_HCSR501_ENABLED) {
         create_sensor_endpoint(&pir_sensor, node);
     }
-#endif
+  #endif
 
-#if CONFIG_RCWL0516_ENABLED
+  #if CONFIG_RCWL0516_ENABLED
     sensor_config_t microwave_sensor = {
         .type = SENSOR_TYPE_MICROWAVE,
         .trigger_pin = (gpio_num_t)CONFIG_RCWL0516_MICROWAVE_GPIO,
@@ -405,9 +444,9 @@ extern "C" void app_main()
     if (CONFIG_RCWL0516_ENABLED) {
         create_sensor_endpoint(&microwave_sensor, node);
     }
-#endif
+  #endif
 
-#if CONFIG_HCSR04_ENABLED
+  #if CONFIG_HCSR04_ENABLED
     sensor_config_t ultrasonic_sensor = {
         .type = SENSOR_TYPE_ULTRASONIC,
         .trigger_pin = (gpio_num_t)CONFIG_HCSR04_TRIG_GPIO,
@@ -419,34 +458,76 @@ extern "C" void app_main()
     if (CONFIG_HCSR04_ENABLED) {
         create_sensor_endpoint(&ultrasonic_sensor, node);
     }
-#endif
+  #endif
 
-    #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
+  // 7. OpenThread config
+  #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     esp_openthread_platform_config_t config = {
         .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
         .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
         .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
     };
     set_openthread_platform_config(&config);
-    #endif
+  #endif
 
-    err = esp_matter::start(app_event_cb);
-    ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MULTI_SENSOR, "Failed to start Matter, err:%d", err));
+  // 8. Matter start
+  err = esp_matter::start(app_event_cb);
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
 
-    vTaskDelay(pdMS_TO_TICKS(3000));
-    set_basic_attributes_esp_matter();
+  // 9. Open commissioning windows after factory reset and reboot
+  #if CONFIG_REBOOT_BUTTON_ENABLED
+    //--> uses for CommissioningWindowOpen
+    chip::DeviceLayer::PlatformMgr().ScheduleWork([](intptr_t context) {
+      auto &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+      // Check if the pairing window is already open, avoid opening it again
+      if(!commissionMgr.IsCommissioningWindowOpen()) {
+        CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(
+          // Window opens for CONFIG_COMMISSIONING_WINDOW_OPEN seconds
+          chip::System::Clock::Seconds16(CONFIG_COMMISSIONING_WINDOW_OPEN)
+        );
+        if(err != CHIP_NO_ERROR) {
+          ESP_LOGE("", "");
+          ESP_LOGE("", "-------------------------------------------------");
+          ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
+          ESP_LOGE("", "-------------------------------------------------");
+          ESP_LOGE("", "");
+        } else {
+          ESP_LOGW("", "");
+          ESP_LOGW("", "------------------------------------------------------------");
+          ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
+          ESP_LOGW("", "------------------------------------------------------------");
+          ESP_LOGW("", "");
+        }
+      } else {
+      	// Запускаем задачу мигания (в стеке 2 KB достаточно)
+        xTaskCreate(commissioning_window_blink_task, "comm_blink", 2048, (void *)(uintptr_t)CONFIG_COMMISSIONING_WINDOW_OPEN, CONFIG_COMMISSIONING_WINDOW_PRIORITY, NULL);
+      }
+    }, 0);
+    //<-- uses for CommissioningWindowOpen
+  #endif
+  
+  // 10. Get FabricId & NodeId
+  ESP_LOGW("", "");
+  ESP_LOGW("", "===========================================");
+  chip::FabricTable &fabricTable = chip::Server::GetInstance().GetFabricTable();
+  for(auto iter = fabricTable.begin(); iter != fabricTable.end(); ++iter) {
+    ESP_LOGW("", "FabricId 0x%llx NodeId 0x%llx", iter->GetFabricId(), iter->GetNodeId());
+  }
+  ESP_LOGW("", "===========================================");
+  ESP_LOGW("", "");
 
-    xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
+  // 11. Basic attributes (лучше — по событию)
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  set_basic_attributes_esp_matter();
 
-    //xTaskCreate(ultrasonic_test, "ultrasonic_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+  // 12. Polling task
+  xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
-    #if CONFIG_ENABLE_CHIP_SHELL
-    esp_matter::console::diagnostics_register_commands();
-    esp_matter::console::wifi_register_commands();
-    esp_matter::console::factoryreset_register_commands();
-    #if CONFIG_OPENTHREAD_CLI
-    esp_matter::console::otcli_register_commands();
-    #endif
-    esp_matter::console::init();
-    #endif
+  //xTaskCreate(ultrasonic_test, "ultrasonic_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+  get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+  get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+
 }

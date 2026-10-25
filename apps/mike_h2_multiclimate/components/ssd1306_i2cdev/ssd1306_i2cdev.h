@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MAIN_SSD1306_H_
 #define MAIN_SSD1306_H_
 
@@ -5,6 +7,8 @@
 #include "driver/i2c_master.h"
 // ДОБАВЛЕНО: include для i2cdev
 #include "i2cdev.h"
+
+#define TAG_SSD1306 "SSD1306 I2CDEV"
 
 // Following definitions are bollowed from 
 // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html

@@ -18,7 +18,7 @@ void turn_off_other_relays(uint8_t excluded_endpoint)
     if(relay.endpoint != excluded_endpoint) {
       bool matter_update = true;
       app_driver_sync_update(relay.endpoint, relay.gpio_pin, false, matter_update);
-      #if USE_SSD1306_DRIVER
+      #if CONFIG_SSD1306_ENABLED
         //-- SSD1306: show plug status
         ssd1306_show_plug_status(relay.endpoint, false);
       #endif
@@ -39,7 +39,7 @@ void relay_init()
     //OnOffServer::Instance().setOnOffValue(relay.endpoint, state);
     //bool matter_update = false;
     //app_driver_sync_update(relay.endpoint, relay.gpio_pin, state, matter_update);
-    #if USE_SSD1306_DRIVER
+    #if CONFIG_SSD1306_ENABLED
       //-- SSD1306: show plug status
       ssd1306_show_plug_status(relay.endpoint, state);
     #endif
@@ -68,7 +68,7 @@ esp_err_t relay_set_on_off(uint8_t endpoint, bool state)
   }
 
   if(err == ESP_OK) {
-    #if USE_SSD1306_DRIVER
+    #if CONFIG_SSD1306_ENABLED
       //-- SSD1306: show plug status
       ssd1306_show_plug_status(endpoint, state);
     #endif

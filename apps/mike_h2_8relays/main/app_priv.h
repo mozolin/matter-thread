@@ -1,5 +1,13 @@
 #pragma once
 
+#include <esp_err.h>
+#include <esp_matter.h>
+#include "soc/gpio_num.h"
+#include "driver/gpio.h"
+#include <button_gpio.h>
+#include "plugin_device_structure.h"
+
+
 /************************************************
  *                                              *
  *   GPIOs USED (relays):  0,1,2,3,5,10,11,12   *
@@ -7,20 +15,24 @@
  *                                              *
  ************************************************/
 
-#define TAG_MIKE_APP               "Mike's App"
-#define TAG_EMPTY                  ""
-#define CONFIG_NUM_VIRTUAL_PLUGS   8
-#define RELAY_INVERSE_LEVEL        true
-#define USE_SSD1306_DRIVER         true
-#define LIVE_BLINK_TIME_MS         0
-#define UPDATE_ATTRIBUTES_TIME_MS  10000
-#define USE_INTERNAL_TEMPERATURE   true
-#define USE_INTERNAL_VOLTAGE       false
-#define USE_INTERNAL_UPTIME        true
-#define USE_TIME_DRIVER            false
-#define ADD_CUSTOM_CLUSTERS        false
-#define SHOW_DEVICE_LOG            false
-#define UART_MONITOR_DEBUG         false
+#define TAG_MIKE_APP                           "MIKE 8RELAYS H2"
+#define TAG_EMPTY                              ""
+#define CONFIG_NUM_VIRTUAL_PLUGS               8
+#define RELAY_INVERSE_LEVEL                    true
+
+//-- SSD1306 LED Display
+#define CONFIG_SSD1306_ENABLED                 true
+
+
+#define LIVE_BLINK_TIME_MS                     0
+#define UPDATE_ATTRIBUTES_TIME_MS              10000
+#define USE_INTERNAL_TEMPERATURE               true
+#define USE_INTERNAL_VOLTAGE                   false
+#define USE_INTERNAL_UPTIME                    true
+#define USE_TIME_DRIVER                        false
+#define ADD_CUSTOM_CLUSTERS                    false
+#define SHOW_DEVICE_LOG                        false
+#define UART_MONITOR_DEBUG                     false
 
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
@@ -81,9 +93,39 @@
 #include "driver_chip.h"
 #include "driver_relay.h"
 #include "driver_reboot_button.h"
-#include "driver_ssd1306.h"
 #include "driver_time.h"
 #include "driver_uptime.h"
+
+#if CONFIG_SSD1306_ENABLED
+  #include "driver_ssd1306.h"
+  #include "ssd1306_i2cdev.h"
+  /**********************************************************
+   *
+   *  This driver initializes the I2C bus
+   *  on port CONFIG_SSD1306_I2C_PORT;
+   *  therefore, any sensors using the I2C interface
+   *  must be connected to the same GPIO pins (SDA and SCL)
+   *  if they use this port.
+   *
+   **********************************************************/
+  #define CONFIG_SSD1306_SDA_GPIO              14
+  #define CONFIG_SSD1306_SCL_GPIO              13
+  #define CONFIG_SSD1306_RESET_GPIO            -1
+  #define CONFIG_SSD1306_I2C_ADDRESS           0x3C
+  #define CONFIG_SSD1306_I2C_PORT              I2C_NUM_0
+  
+  extern bool ssd1306_initialized;
+  extern SSD1306_t ssd1306dev;
+  
+  //=== ДОБАВЛЕНО: флаг состояния дисплея и таймер авто-выключения ===
+  extern bool ssd1306_display_enabled;       // true = экран включён
+  extern uint64_t ssd1306_last_on_time_ms;   // момент последнего включения (ms)
+  #define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
+  // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
+  //extern void ssd1306_update_timeout_line(void);
+  //=== /ДОБАВЛЕНО ===
+#endif
+
 
 //-- LED Indicator
 #include "led_config.h"
@@ -110,17 +152,6 @@ const std::vector<RelayConfig> relays = {
   {8, GPIO_NUM_10},
 };
 
-#if USE_SSD1306_DRIVER
-  #include "driver_ssd1306.h"
-  #include "ssd1306.h"
-  
-  //-- SSD1306
-  #define CONFIG_SCL_GPIO 13
-  #define CONFIG_SDA_GPIO 14
-  #define CONFIG_RESET_GPIO -1
-  extern bool ssd1306_initialized;
-  extern SSD1306_t ssd1306dev;
-#endif
 
 
 //-- Default attribute values used during initialization

@@ -18,8 +18,6 @@
 #include "ssd1306_i2cdev.h"
 #include "i2cdev.h" // ДОБАВЛЕНО: Заголовок компонента i2cdev
 
-#define TAG_MIKE_APP "Mike's App"
-
 // УДАЛЕНО: Определения I2C_NUM, I2C_MASTER_FREQ_HZ, I2C_TICKS_TO_WAIT
 // Они больше не нужны, так как i2cdev управляет параметрами шины.
 
@@ -37,7 +35,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
 {
     esp_err_t err = ESP_OK;
     
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Инициализация i2cdev для SSD1306");
+    ESP_LOGW(TAG_SSD1306, "~~~ Инициализация i2cdev для SSD1306");
 
     /*
     // ДОБАВЛЕНО: Инициализация подсистемы i2cdev (мьютексы, внутреннее состояние)
@@ -45,7 +43,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     // Если i2cdev_init() уже был вызван в app_main, повторный вызов безопасен (он идемпотентен).
     err = i2cdev_init();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ i2cdev_init() failed! %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ i2cdev_init() failed! %d (%s)", err, esp_err_to_name(err));
         return err;
     }
     */
@@ -63,7 +61,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     // ДОБАВЛЕНО: Создание мьютекса и регистрация устройства в i2cdev
     err = i2c_dev_create_mutex(&ssd1306_i2c_dev);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ i2c_dev_create_mutex() failed! %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ i2c_dev_create_mutex() failed! %d (%s)", err, esp_err_to_name(err));
         return err;
     }
 
@@ -154,9 +152,9 @@ esp_err_t i2c_init(SSD1306_t * dev, int width, int height)
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, out_buf[0], &out_buf[1], out_index - 1);
     
     if (err == ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Конфигурация OLED прошла успешно");
+        ESP_LOGW(TAG_SSD1306, "~~~ Конфигурация OLED прошла успешно");
     } else {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать в устройство [0x%02x]: %d (%s)", dev->_address, err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ Не удалось записать в устройство [0x%02x]: %d (%s)", dev->_address, err, esp_err_to_name(err));
         err = ESP_FAIL;
     }
     return err;
@@ -188,13 +186,13 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * image
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, cmd_buf, 3);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать команды адреса: %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ Не удалось записать команды адреса: %d (%s)", err, esp_err_to_name(err));
     }
 
     // Отправка данных (control byte 0x40)
     err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_DATA_STREAM, images, width);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать данные изображения: %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ Не удалось записать данные изображения: %d (%s)", err, esp_err_to_name(err));
     }
 }
 
@@ -214,7 +212,7 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, cmd_buf, 2);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось установить контраст: %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ Не удалось установить контраст: %d (%s)", err, esp_err_to_name(err));
     }
 }
 
@@ -275,6 +273,6 @@ void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll) {
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, out_buf, out_index);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось выполнить прокрутку: %d (%s)", err, esp_err_to_name(err));
+        ESP_LOGE(TAG_SSD1306, "~~~ Не удалось выполнить прокрутку: %d (%s)", err, esp_err_to_name(err));
     }
 }

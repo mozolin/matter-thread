@@ -12,7 +12,7 @@
 #define MOCK_SENSORS_BEHAVIOR                  false
 #define DEBUG_MODE                             false
 #define SHOW_DEVICE_LOG                        false
-#define TAG_MULTI_CLIMATE                      "MIKE MULTICLIMATE H2"
+#define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 //-- SSD1306 LED Display
 #define CONFIG_SSD1306_ENABLED                 true
@@ -29,6 +29,15 @@
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 #if CONFIG_REBOOT_BUTTON_ENABLED
+  //--> uses for CommissioningWindowOpen
+  #include <app/server/CommissioningWindowManager.h>
+  #include <app/server/Server.h>
+  //-- Window opens for NNN seconds
+  #define CONFIG_COMMISSIONING_WINDOW_OPEN     60//300
+  #define CONFIG_COMMISSIONING_WINDOW_PRIORITY 6
+  //<-- uses for CommissioningWindowOpen
+  
+  #include "driver_reboot_button.h"
   //-- Single-click: toggle SSD1306
   //-- Double-click: toggle LED Indicator
   #define REBOOT_BUTTON_GPIO                   9
@@ -36,7 +45,14 @@
   #define REBOOT_HOLD_TIME_MS                  3000
   //-- Hold to factory reset
   #define FACTORY_RESET_HOLD_TIME_MS           10000
+  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
+  //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+  #define DOUBLE_CLICK_INTERVAL_MS             400
+  //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+  #define SHORT_CLICK_MAX_MS                   350
+  //=== /ДОБАВЛЕНО ===
 #endif
+
 
 //-- LED Indicator
 #include "led_config.h"
@@ -74,16 +90,6 @@
 #define CONFIG_SHT41_SCL_GPIO                  5
 #define CONFIG_SHT41_I2C_PORT                  I2C_NUM_1
 
-#if CONFIG_REBOOT_BUTTON_ENABLED
-  #include "driver_reboot_button.h"
-  
-  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
-  //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
-  #define DOUBLE_CLICK_INTERVAL_MS             400
-  //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
-  #define SHORT_CLICK_MAX_MS                   350
-  //=== /ДОБАВЛЕНО ===
-#endif
 #define LIVE_BLINK_TIME_MS                     0
 #define CONFIG_SENSOR_POLL_PERIOD_MS           5000
 

@@ -18,12 +18,13 @@
 #include <esp_matter.h>
 #include <esp_matter_console.h>
 #include <esp_matter_ota.h>
-#include "driver/gpio.h"
-#include "soc/gpio_num.h"
+//#include "driver/gpio.h"
+//#include "soc/gpio_num.h"
 
 #include <common_macros.h>
 #include <app_priv.h>
-#include <app_reset.h>
+//#include <app_reset.h>
+#include "i2cdev.h"
 #include <platform/ESP32/OpenthreadLauncher.h>
 
 #include <app/server/CommissioningWindowManager.h>
@@ -54,11 +55,15 @@ static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
   led_indicator_handle_t led_handle;
 #endif
 
-#if USE_SSD1306_DRIVER
+#if CONFIG_SSD1306_ENABLED
   //-- SSD1306 device instance
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
+  //=== ДОБАВЛЕНО: состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  bool ssd1306_display_enabled = false;
+  uint64_t ssd1306_last_on_time_ms = 0;
+  //=== /ДОБАВЛЕНО ===
 #endif
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
@@ -492,7 +497,7 @@ void update_matter_values()
       volt = (float)read_internal_voltage();
     #endif
     
-    #if USE_SSD1306_DRIVER
+    #if CONFIG_SSD1306_ENABLED
     	//-- show all updated values of matter clusters
     	ssd1306_show_matter_updates(temp, volt, short_uptime_buf, timeinfo);
     #endif
@@ -652,18 +657,36 @@ extern "C" void app_main()
   	return;
   }
   
-    // 3. LED indicator
+  // 2. i2cdev — до I2C устройств
+  err = i2cdev_init();
+  if(err != ESP_OK) {
+    #if DEBUG_MODE
+      ESP_LOGE(TAG_MIKE_APP, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
+    #endif
+    // Можно продолжить, но I2C устройства не будут работать.
+  }
+  
+  // 3. LED indicator
   #if USE_DRIVER_LED_INDICATOR
     led_handle = configure_indicator();
     if(!led_handle) {
-      ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to configure LED indicator");
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
+      #endif
     } else {
+      //=== ДОБАВЛЕНО: при старте LED выключен ===
+      //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
+      //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
+      //-- поэтому любые попытки мигнуть будут игнорироваться.
       extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+      //led_indicator_locked = true;
       led_indicator_locked = false;
 
+      //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
+      //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
+      //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
       led_indicator_start(led_handle, BLINK_OFF);
 
-      /*
       ESP_LOGE("", "");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
@@ -673,22 +696,38 @@ extern "C" void app_main()
       ESP_LOGE("", " LED state at boot: OFF (locked)");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", "");
-      */
-      //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      //=== /ДОБАВЛЕНО ===
     }
   #endif
 
 
-  #if USE_SSD1306_DRIVER
+  // 4. SSD1306
+  #if CONFIG_SSD1306_ENABLED
     //-- Init LCD SSD1306
-    err = ssd1306_init();
+    err = ssd1306_i2cdev_init();
     if(err != ESP_OK) {
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
-      //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+      #endif
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #endif
     } else {
       ssd1306_initialized = true;
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
+      #endif
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #endif
     }
-    ssd1306_show_title();
+    //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
+    //ssd1306_show_title();                 // было: сразу показываем заголовок
+    ssd1306_display_enabled = false;        // стало: экран выключен
+    ssd1306_clear_screen(&ssd1306dev, false);
+    //ssd1306_display_off(&ssd1306dev);       // гасим панель
+    ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
+    //=== /ИЗМЕНЕНО ===
   #endif
 
 
@@ -717,27 +756,31 @@ extern "C" void app_main()
   #endif
 
   
+  // 7. Matter node + endpoints
   //-- Create a Matter node and add the mandatory Root Node device type on endpoint 0
   node::config_t node_config;
-
   //-- node handle can be used to add/modify other endpoints.
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to create Matter node"));
-
   //-- Creates plug-endpoint mapping for all GPIO pins configured.
   CREATE_ALL_GPIO_ONOFF_PLUGS(node);
 
-  //-- Set OpenThread platform config
-  esp_openthread_platform_config_t config = {
-    .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
-    .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
-    .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
-  };
-  set_openthread_platform_config(&config);
 
-  //-- Matter starts
+  // 8. OpenThread config
+  #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
+    //-- Set OpenThread platform config
+    esp_openthread_platform_config_t config = {
+      .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
+      .host_config = ESP_OPENTHREAD_DEFAULT_HOST_CONFIG(),
+      .port_config = ESP_OPENTHREAD_DEFAULT_PORT_CONFIG(),
+    };
+    set_openthread_platform_config(&config);
+  #endif
+
+  // 9. Matter start
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to start Matter, err:%d", err));
+
 
   // 9. Open commissioning windows after factory reset and reboot
   #if CONFIG_REBOOT_BUTTON_ENABLED
@@ -780,6 +823,15 @@ extern "C" void app_main()
   }
   ESP_LOGW("", "===========================================");
   ESP_LOGW("", "");
+
+
+  // 10. Basic attributes (лучше — по событию)
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  set_basic_attributes_esp_matter();
+
+
+
+
 
   //ESP_ERROR_CHECK(err);
   if(err == ESP_OK) {
