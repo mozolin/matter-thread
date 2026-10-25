@@ -103,17 +103,3 @@ CONFIG_USE_GAMMA_CORRECTION=y
 
 #-- Генерация OTA-образа
 CONFIG_CHIP_OTA_IMAGE_BUILD=y
-
-
-
-##########################################
-#                                        #
-#        OTA Requestor (ESP32-H2)        #
-#                                        #
-##########################################
-
-#CONFIG_ENABLE_OTA_REQUESTOR=y
-#-- Разделы (два OTA-слота)
-#CONFIG_PARTITION_TABLE_TWO_OTA=y
-#-- Автоматический откат при неудаче
-#CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
