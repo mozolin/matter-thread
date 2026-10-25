@@ -26,33 +26,12 @@
     0b00000000
   };
 
-  esp_err_t ssd1306_i2cdev_check_present(void)
-  {
-  	i2c_dev_t dev;
-  	esp_err_t err = ESP_OK;
-
-    memset(&dev, 0, sizeof(i2c_dev_t));
-    dev.port = CONFIG_SSD1306_I2C_PORT;
-    dev.addr = CONFIG_SSD1306_I2C_ADDRESS; // 0x3C
-    dev.cfg.sda_io_num = (gpio_num_t)CONFIG_SSD1306_SDA_GPIO;
-    dev.cfg.scl_io_num = (gpio_num_t)CONFIG_SSD1306_SCL_GPIO;
-    dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
-    dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    dev.cfg.master.clk_speed = 400000; // 400 кГц
-
-    err = i2c_dev_check_present(&dev);
-    if(err != ESP_OK) {
-      ESP_LOGE(TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
-    }
-    return err;
-  }
-
   esp_err_t ssd1306_i2cdev_init(void)
   {
     esp_err_t err = ESP_OK;
     
     #if CONFIG_I2C_INTERFACE
-      ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c");
+      ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",CONFIG_SSD1306_I2C_PORT);
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
@@ -62,53 +41,23 @@
         ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
         return err;
       }
-
-      // Явная проверка наличия устройства на шине
-      err = ssd1306_i2cdev_check_present();
-      if(err != ESP_OK) {
-      	return err; // Выходим, никаких повторных попыток
-      }
-
-      /*
-      i2c_dev_t dev;
-      memset(&dev, 0, sizeof(i2c_dev_t));
-      dev.port = CONFIG_SSD1306_I2C_PORT;
-      dev.addr = CONFIG_SSD1306_I2C_ADDRESS; // 0x3C
-      dev.cfg.sda_io_num = (gpio_num_t)CONFIG_SSD1306_SDA_GPIO;
-      dev.cfg.scl_io_num = (gpio_num_t)CONFIG_SSD1306_SCL_GPIO;
-      dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
-      dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
-      dev.cfg.master.clk_speed = 400000; // 400 кГц
-
-      err = i2c_dev_check_present(&dev);
-      if(err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "SSD1306 не найден (err: %s). Пропускаем инициализацию.", esp_err_to_name(err));
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        return err; // Выходим, никаких повторных попыток
-      }
-      */
-      ESP_LOGI(TAG_MIKE_APP, "SSD1306 detected, initializing...");
-
     #endif // CONFIG_I2C_INTERFACE
     
-    /*
     #if CONFIG_SPI_INTERFACE
       ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is SPI");
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
       ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
-      spi_master_init(&ssd1306dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_SSD1306_RESET_GPIO);
+      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+      spi_master_init(&ssd1306dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
     #endif // CONFIG_SPI_INTERFACE
-    */
     
     #if CONFIG_FLIP
       ssd1306dev._flip = true;
       ESP_LOGW(TAG_MIKE_APP, "~~~ Flip upside down");
     #endif
     
-    /*
     #if CONFIG_SSD1306_128x64
       ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x64");
       err = ssd1306_init(&ssd1306dev, 128, 64);
@@ -126,7 +75,6 @@
         return err;
       }
     #endif // CONFIG_SSD1306_128x32
-    */
     
     ESP_LOGW(TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
     
@@ -137,9 +85,11 @@
     }
     
     if(err != ERR_OK) {
+      /*
       get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      */
       return err;
     }
     
@@ -315,7 +265,8 @@
 
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
-    ssd1306_display_text(&ssd1306dev, 0, " MATTER/THREAD  ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 0, "    8 RELAYS    ", 16, false);
   }
 
   void ssd1306_show_plug_status(uint8_t plug_num, bool state)
@@ -336,7 +287,7 @@
     
     ssd1306_show_square(plug_num - 1, state);
   }
-  
+
   void ssd1306_show_square(int idx, bool state)
   {
     uint8_t image[24];
@@ -375,7 +326,7 @@
     }
     ssd1306_display_image(&ssd1306dev, top+1, left+8, image, 8);
   }
-
+  
   #if USE_TIME_DRIVER
     bool ssd1306_show_datetime(const tm& timeinfo)
     {
@@ -406,68 +357,8 @@
     //-- from DeepSeek example: ssd1306_draw_bitmap(&ssd1306dev, x, y, x+7, y+7, (uint8_t*)degree_symbol);
     ssd1306_bitmaps(&ssd1306dev, x, y, (uint8_t*)degree_symbol, 8, 8, false);
   }
-
-	void ssd1306_show_matter_updates(float temp, float volt, char* short_uptime_buf, const tm& timeinfo)
-	{
-		//-- if not initialized
-    if(!ssd1306_initialized) {
-		  return;
-		}
-  
-    uint8_t x_pos = 0;
-    char buf[32];
-		
-		#if USE_INTERNAL_UPTIME
-			char buf2[32];
-		#endif
-		
-		
-  
-    if(temp > 0) {
-      //-- temperature
-      snprintf(buf, sizeof(buf), " %.0f C", temp);
-      //-- save position for degree symbol (between the numeric part and the letter C), 8px per symbol
-      x_pos = (strlen(buf) - 2) * 8;
-    }
-    
-    #if USE_INTERNAL_VOLTAGE
-      if(volt > 0) {
-      	//-- voltage
-      	if(temp > 0) {
-        	snprintf(buf2, sizeof(buf2), " / %.2fV", volt);
-		      //-- temperature + voltage
-		      strcat(buf, buf2);
-      	} else {
-      		snprintf(buf2, sizeof(buf2), " %.2fV", volt);
-      	}
-      }
-    #endif
-    
-    #if USE_INTERNAL_UPTIME
-      if(temp > 0) {
-      	snprintf(buf2, sizeof(buf2), " %s", short_uptime_buf);
-			  //-- temperature + uptime
-			  strcat(buf, buf2);
-      } else {
-      	snprintf(buf, sizeof(buf), " %s", short_uptime_buf);
-      }
-    #endif
-    
-
-    #if USE_TIME_DRIVER
-		  //-- Displaying time on the display (row = 0)
-			ssd1306_show_datetime(timeinfo);
-		#endif
-    
-    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
-    
-    if(temp > 0) {
-    	//-- put degree symbol at saved position (y = 8 => line 1)
-      ssd1306_draw_degree_symbol(x_pos, 8);
-    }
-	}
-
-	//=== ДОБАВЛЕНО: управление питанием/видимостью дисплея ===
+	
+	//=== управление питанием/видимостью дисплея ===
   void ssd1306_set_display_enabled(bool enabled)
   {
     //-- если дисплей не был инициализирован — ничего не делаем
@@ -481,6 +372,11 @@
       ssd1306_clear_screen(&ssd1306dev, false);
       ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
       ssd1306_show_title();                       // заголовок
+      //-- callback function specific to this application
+      //-- declared in the main module (app_main.cpp)
+      #ifdef CONFIG_SSD1306_MAIN_RUN_CB
+        ssd1306_main_run_cb();
+      #endif
       ssd1306_display_enabled  = true;
       ssd1306_last_on_time_ms  = esp_log_timestamp(); // запоминаем момент включения
       ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display ON");
@@ -494,9 +390,8 @@
       ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display OFF");
     }
   }
-  //=== /ДОБАВЛЕНО ===
   
-    //=== ДОБАВЛЕНО: вывод оставшегося времени до авто-отключения ===
+  //=== вывод оставшегося времени до авто-отключения ===
   // Формат: "OFF in MM:SS" во второй строке (y_pos = 1).
   void ssd1306_update_timeout_line(void)
   {
@@ -525,8 +420,6 @@
     //-- строка фиксированной длины 16 символов (128px / 8px)
     ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
   }
-  //=== /ДОБАВЛЕНО ===
-
 
 #endif
 

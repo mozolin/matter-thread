@@ -45,12 +45,11 @@
   #define REBOOT_HOLD_TIME_MS                  3000
   //-- Hold to factory reset
   #define FACTORY_RESET_HOLD_TIME_MS           10000
-  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
+  //=== параметры детекции двойного нажатия кнопки Reboot ===
   //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
   #define DOUBLE_CLICK_INTERVAL_MS             400
   //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
   #define SHORT_CLICK_MAX_MS                   350
-  //=== /ДОБАВЛЕНО ===
 #endif
 
 
@@ -157,13 +156,12 @@
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
   
-  //=== ДОБАВЛЕНО: флаг состояния дисплея и таймер авто-выключения ===
+  //=== флаг состояния дисплея и таймер авто-выключения ===
   extern bool ssd1306_display_enabled;       // true = экран включён
   extern uint64_t ssd1306_last_on_time_ms;   // момент последнего включения (ms)
   #define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
   // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
-  //extern void ssd1306_update_timeout_line(void);
-  //=== /ДОБАВЛЕНО ===
+  extern void ssd1306_update_timeout_line(void);
 #endif
 
 

@@ -26,13 +26,6 @@
 
 #define LIVE_BLINK_TIME_MS                     0
 #define UPDATE_ATTRIBUTES_TIME_MS              10000
-#define USE_INTERNAL_TEMPERATURE               true
-#define USE_INTERNAL_VOLTAGE                   false
-#define USE_INTERNAL_UPTIME                    true
-#define USE_TIME_DRIVER                        false
-#define ADD_CUSTOM_CLUSTERS                    false
-#define SHOW_DEVICE_LOG                        false
-#define UART_MONITOR_DEBUG                     false
 
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
@@ -57,48 +50,23 @@
 
   //-- task priorities
   #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
-  //=== ДОБАВЛЕНО: параметры детекции двойного нажатия кнопки Reboot ===
+  //=== параметры детекции двойного нажатия кнопки Reboot ===
   //-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
   #define DOUBLE_CLICK_INTERVAL_MS             400
   //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
   #define SHORT_CLICK_MAX_MS                   350
-  //=== /ДОБАВЛЕНО ===
 #endif
 
 
-#if ADD_CUSTOM_CLUSTERS
-	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//-- !!                                                           !!
-	//-- !! For custom clusters, use ID from the manufacturer's range !!
-	//-- !!            (can be in 0xFC00-0xFFFE)                      !!
-	//-- !!                                                           !!
-	//-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//-- Cluster for chip temperature (int16_t)
-	#define CLUSTER_ID_CHIP_TEMP          0xFC00
-	//-- Cluster for uptime (uint32_t)
-	#define CLUSTER_ID_UPTIME             0xFC01
-	//-- Custom endpoint for chip temperature & uptime
-	#define CUSTOM_ENDPOINT_ID            1
-#endif
-
-#if SHOW_DEVICE_LOG
-	//-- what part of tree to show
-	#define SHOW_DEVICE_LOG_ONE_CLUSTER   1
-	#define SHOW_DEVICE_LOG_CLUSTERS      true
-	#define SHOW_DEVICE_LOG_ATTRIBUTES    true
-	#define SHOW_DEVICE_LOG_COMMANDS      true
-#endif
-
-
-#include "driver_chip.h"
 #include "driver_relay.h"
 #include "driver_reboot_button.h"
-#include "driver_time.h"
-#include "driver_uptime.h"
 
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
+
+  #define CONFIG_SSD1306_MAIN_RUN_CB           true
+
   /**********************************************************
    *
    *  This driver initializes the I2C bus
@@ -117,13 +85,12 @@
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
   
-  //=== ДОБАВЛЕНО: флаг состояния дисплея и таймер авто-выключения ===
+  //=== флаг состояния дисплея и таймер авто-выключения ===
   extern bool ssd1306_display_enabled;       // true = экран включён
   extern uint64_t ssd1306_last_on_time_ms;   // момент последнего включения (ms)
   #define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
   // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
-  //extern void ssd1306_update_timeout_line(void);
-  //=== /ДОБАВЛЕНО ===
+  extern void ssd1306_update_timeout_line(void);
 #endif
 
 
@@ -133,11 +100,6 @@
   #include "driver_led_indicator.h"
   extern led_indicator_handle_t led_handle;
 #endif
-
-#if ADD_CUSTOM_CLUSTERS
-	#include "plugin_custom_cluster.h"
-#endif
-#include "plugin_device_structure.h"
 
 //-- Plugs (Relays)
 //-- List of all relays
@@ -191,10 +153,12 @@ extern esp_err_t app_driver_plugin_unit_init(const gpio_plug* plug);
 //-- Return GPIO pin from plug-endpoint mapping list
 extern gpio_num_t get_gpio(uint16_t endpoint_id);
 
-extern void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value);
-//extern void update_uptime_value(uint16_t endpoint_id, uint32_t uptime_seconds);
-extern void update_time_values(uint32_t endpoint_id);
-
 extern esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 
 extern uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay);
+
+#if CONFIG_SSD1306_ENABLED
+  #ifdef CONFIG_SSD1306_MAIN_RUN_CB
+    extern void ssd1306_main_run_cb(void);
+  #endif
+#endif

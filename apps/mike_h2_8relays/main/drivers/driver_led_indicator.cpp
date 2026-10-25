@@ -5,10 +5,9 @@
 #if USE_DRIVER_LED_INDICATOR
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
   
-  //=== ДОБАВЛЕНО: флаг блокировки индикатора ===
+  //=== флаг блокировки индикатора ===
   //-- При запуске LED выключен, поэтому функция мигания заблокирована.
   bool led_indicator_locked = true;
-  //=== /ДОБАВЛЕНО ===
 
   //-- use it, if there is at least one RGB LED
   #if USE_RGB_LED
@@ -31,9 +30,8 @@
       #if LED_NUMBERS > 1
         [BLINK_FLOWING] = flowing_blink,
       #endif
-      //=== ДОБАВЛЕНО: регистрация шага "выключить LED" ===
+      //=== регистрация шага "выключить LED" ===
       [BLINK_OFF] = led_off_blink,
-      //=== /ДОБАВЛЕНО ===
       [BLINK_MAX] = NULL,
     };
   
@@ -83,13 +81,12 @@
     
     uint8_t get_led_indicator_blink_idx(uint8_t blink_type, int start_delay, int stop_delay)
     {
-      //=== ДОБАВЛЕНО: если индикатор заблокирован — ничего не делаем ===
+      //=== если индикатор заблокирован — ничего не делаем ===
       //-- Это позволяет полностью "погасить" RGB LED и запретить любые мигания,
       //-- например по двойному клику кнопки Reset.
       if(led_indicator_locked) {
         return 255;
       }
-      //=== /ДОБАВЛЕНО ===
       
       uint8_t idx = 255;
       
@@ -119,7 +116,7 @@
       return idx;
     }
     
-    //=== ДОБАВЛЕНО: шаг "просто выключить LED" ===
+    //=== шаг "просто выключить LED" ===
     //-- Устанавливает цвет в 0,0,0 и останавливается. Используется
     //-- для принудительного гашения индикатора (например, при блокировке
     //-- по двойному клику кнопки Reset).
@@ -128,7 +125,6 @@
       {LED_BLINK_HOLD, LED_STATE_OFF, 10},
       {LED_BLINK_STOP, 0, 0},
     };
-    //=== /ДОБАВЛЕНО ===
   
     //-- Just turn on the yellow color
     const blink_step_t yellow_on[] = {

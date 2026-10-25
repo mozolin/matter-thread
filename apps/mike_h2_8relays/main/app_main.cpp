@@ -60,10 +60,19 @@ static gpio_num_t reset_gpio = gpio_num_t::GPIO_NUM_NC;
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
-  //=== ДОБАВЛЕНО: состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
   bool ssd1306_display_enabled = false;
   uint64_t ssd1306_last_on_time_ms = 0;
-  //=== /ДОБАВЛЕНО ===
+
+  //-- callback function specific to this application
+  //-- (can be used within the SSD1306 driver)
+  #ifdef CONFIG_SSD1306_MAIN_RUN_CB
+    void ssd1306_main_run_cb(void)
+    {
+	    relay_init();
+    }
+  #endif
+
 #endif
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
@@ -162,70 +171,6 @@ static esp_err_t app_identification_cb(identification::callback_type_t type, uin
   return ESP_OK;
 }
 
-#if ADD_CUSTOM_CLUSTERS
-	//-- Callback for reading custom attributes
-	esp_err_t read_custom_attribute_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
-	{
-    ESP_LOGW(TAG_MIKE_APP, "~~~ read_custom_attribute_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
-    
-    if(type == attribute::READ) {
-		#if USE_INTERNAL_TEMPERATURE
-      if(cluster_id == CLUSTER_ID_CHIP_TEMP && attribute_id == 0x0000) {
-        //-- Reading chip temperature
-        float temp = (float)read_internal_temperature();
-        if(temp > 0) {
-        	//-- Temperature at 0.01°C
-        	val->val.i16 = (int16_t)(temp * 100);
-          val->type = ESP_MATTER_VAL_TYPE_INT16;
-          ESP_LOGW(TAG_MIKE_APP, "~~~ READ TEMPERATURE: %.0f°C", temp);
-        } else {
-          ESP_LOGE(TAG_MIKE_APP, "TEMPERATURE FAILED!");
-          return ESP_FAIL;
-        }
-      } else if (cluster_id == CLUSTER_ID_UPTIME && attribute_id == 0x0000) {
-        //-- Reading uptime in seconds
-        uint32_t uptime = (uint32_t)(esp_timer_get_time() / 1000000);
-        val->val.u32 = uptime;
-        val->type = ESP_MATTER_VAL_TYPE_UINT32;
-        ESP_LOGW(TAG_MIKE_APP, "~~~ READ UPTIME: %lu", uptime);
-      }
-      #endif
-    }
-    return ESP_OK;
-	}
-#endif
-
-static esp_matter::cluster_t *create_temperature_measurement_cluster(esp_matter::endpoint_t *endpoint)
-{
-    // Создаем кластер измерения температуры
-    esp_matter::cluster::temperature_measurement::config_t temp_config;
-    temp_config.measured_value = 0 * 100; // Начальное значение температуры (25°C, умноженное на 100)
-    temp_config.min_measured_value = -40 * 100; // Минимальная измеряемая температура (-40°C)
-    temp_config.max_measured_value = 80 * 100; // Максимальная измеряемая температура (80°C)
-    
-    return esp_matter::cluster::temperature_measurement::create(endpoint, &temp_config, esp_matter::cluster_flags::CLUSTER_FLAG_SERVER);
-}
-
-void update_temperature_value(uint16_t endpoint_id, int16_t temperature_value)
-{
-	uint32_t
-		cluster_id = chip::app::Clusters::TemperatureMeasurement::Id,
-		attribute_id = chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Id;
-
-	#if UART_MONITOR_DEBUG
-		ESP_LOGI("", "");
-		ESP_LOGI("", "###   TEMPERATURE   ###");
-		ESP_LOGI("", "");
-	#endif
-    
-  esp_matter_attr_val_t val = esp_matter_int16(temperature_value * 100); // Value in 0.01°C
-  esp_matter::attribute::update(endpoint_id, cluster_id, attribute_id, &val);
- 
-  #if UART_MONITOR_DEBUG
-		ESP_LOGW(TAG_MIKE_APP, "~~~ Update Temperature: endpoint:0x%04" PRIX16 "|cluster:0x%08" PRIX32 "|attribute:0x%08" PRIX32 "|value:%d", endpoint_id, cluster_id, attribute_id, temperature_value);
-	#endif
-}
-
 //-- This callback is called for every attribute update. The callback implementation shall
 //-- handle the desired attributes and return an appropriate error code. If the attribute
 //-- is not of your interest, please do not return an error code and strictly return ESP_OK.
@@ -271,75 +216,6 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
   }
   
   return err;
-}
-
-static esp_matter::cluster_t *create_time_sync_cluster(esp_matter::endpoint_t *endpoint)
-{
-    // Конфигурация кластера времени
-    esp_matter::cluster::time_synchronization::config_t time_config;
-    /*
-    time_config.utc_time = 0;            // Начальное значение UTC времени (эпоха Unix)
-    time_config.time_zone = {            // Часовой пояс
-        .offset = 0,                     // Смещение от UTC в секундах
-        .valid_at = 0                    // Время, когда этот часовой пояс стал актуальным
-    };
-    time_config.dst_offset = {           // Летнее время
-        .offset = 0,                     // Смещение для летнего времени
-        .valid_starting_at = 0,          // Начало действия
-        .valid_until = 0                 // Конец действия
-    };
-    time_config.local_time = 0;          // Локальное время
-    */
-    
-    return esp_matter::cluster::time_synchronization::create(
-        endpoint, 
-        &time_config, 
-        esp_matter::cluster_flags::CLUSTER_FLAG_SERVER
-    );
-}
-
-void update_time_values(uint32_t endpoint_id)
-{
-    // Получаем текущее время
-    time_t now;
-    time(&now);
-    struct tm timeinfo;
-    localtime_r(&now, &timeinfo);
-
-    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #1: %d (%s)", (int)now, asctime(&timeinfo));
-
-    // Обновляем UTC время
-    /*
-    !!! ERROR !!!
-    esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000000 to matter: 0x1
-    !!! ERROR !!!
-    */
-    esp_matter_attr_val_t utc_val = esp_matter_uint64(now);
-    esp_matter::attribute::update(
-        endpoint_id,
-        chip::app::Clusters::TimeSynchronization::Id,
-        chip::app::Clusters::TimeSynchronization::Attributes::UTCTime::Id,
-        &utc_val
-    );
-
-    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #2: utc-%d", (int)utc_val.val.u64);
-
-    // Обновляем локальное время (пример для UTC+3)
-    /*
-    !!! ERROR !!!
-    esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000007 to matter: 0x86
-    !!! ERROR !!!
-    */
-    esp_matter_attr_val_t local_val = esp_matter_uint64(now + 3 * 3600);
-    esp_matter::attribute::update(
-        endpoint_id,
-        chip::app::Clusters::TimeSynchronization::Id,
-        chip::app::Clusters::TimeSynchronization::Attributes::LocalTime::Id,
-        &local_val
-    );
-
-    //val->val.i16
-    ESP_LOGW(TAG_MIKE_APP, "~~~ UPDATE TimeSynchronization #3: local-%d", (int)local_val.val.u64);
 }
 
 //-- Creates plug-endpoint mapping for each GPIO pin configured.
@@ -393,13 +269,6 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
     //get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
   }
 
-  //-- Add temperature cluster to endpoint 1
-  if(configure_plugs == 0) {
-    create_temperature_measurement_cluster(endpoint);
-    //create_uptime_cluster(endpoint);
-    create_time_sync_cluster(endpoint);
-  }
-
   //-- Check for maximum plugs that can be configured.
   if(configure_plugs < CONFIG_NUM_VIRTUAL_PLUGS) {
     plugin_unit_list[configure_plugs].plug = plug->GPIO_PIN_VALUE;
@@ -415,95 +284,6 @@ static esp_err_t create_plug(gpio_plug* plug, node_t* node)
   ESP_LOGW(TAG_MIKE_APP, "~~~ Plug created with endpoint_id %d", plug_endpoint_id);
   //get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
   return err;
-}
-
-void update_matter_values()
-{
-	float temp = 0;
-	
-	float volt = 0;
-	char* short_uptime_buf = "";
-	struct tm timeinfo;
-	int16_t temp_val_int = 0;
-
-  //-- !!! This block is used to update the value of matter clusters !!!
-	while(1) {
-    #if USE_INTERNAL_TEMPERATURE
-      temp = (float)read_internal_temperature();
-      temp_val_int = (int16_t)temp;
-			
-      update_temperature_value(1, temp_val_int);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Internal Temperature: %.0f°C", temp);
-    #endif
-    
-    #if ADD_CUSTOM_CLUSTERS
-      esp_matter_attr_val_t temp_val = {
-        .type = ESP_MATTER_VAL_TYPE_INT16,
-        .val = {
-          .i16 = temp_val_int // 0.01°C
-        }
-      };
-      update_custom_attribute(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, temp_val);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Cluster Temperature: %d°C", temp_val_int);
-    #endif
-    
-    #if USE_INTERNAL_UPTIME
-      /*
-	    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	    !!                                                               !!
-	    !! ERROR UPDATING: Attributes::UTCTime and Attributes::LocalTime !!
-	    !!                                                               !!
-	    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  	  >> esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000000 to matter: 0x1
-    	>> esp_matter_attribute: Error updating Endpoint 0x0001's Cluster 0x00000038's Attribute 0x00000007 to matter: 0x86
-      update_time_values(1);
-	    */
-      
-      char bufUP[OT_UPTIME_STRING_SIZE];
-      //-- long uptime
-      //uptime_buf = ot_get_thread_uptime(bufUP);
-      //-- short uptime
-      short_uptime_buf = ot_get_thread_short_uptime(bufUP);
-      
-      short_uptime_buf = get_system_clock_uptime(bufUP);
-    #endif
-    
-    #if USE_TIME_DRIVER
-      time_t now;
-      time(&now);
-    
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Time Now - 2: %d", (int)now);
-    
-      if(ot_get_current_thread_time(&timeinfo)) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ OpenThread Time is synchronized!");
-      } else if(chip_get_current_matter_time(&timeinfo)) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Matter Time is synchronized!");
-    	} else if(now < 3600*24*365) {
-        timeinfo.tm_hour = 12;
-        timeinfo.tm_min = 0;
-        timeinfo.tm_sec = 0;
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using RTC fallback");
-      } else {
-        // Fallback на системное время
-        now = time(nullptr);
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Time is not synchronized, using default value");
-      }
-      
-      localtime_r(&now, &timeinfo);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Current time: %s", asctime(&timeinfo));
-    #endif
-    
-    #if USE_INTERNAL_VOLTAGE
-      volt = (float)read_internal_voltage();
-    #endif
-    
-    #if CONFIG_SSD1306_ENABLED
-    	//-- show all updated values of matter clusters
-    	ssd1306_show_matter_updates(temp, volt, short_uptime_buf, timeinfo);
-    #endif
-
-    vTaskDelay(pdMS_TO_TICKS(UPDATE_ATTRIBUTES_TIME_MS));
-  }
 }
 
 void set_basic_attributes_esp_matter()
@@ -638,7 +418,6 @@ static void commissioning_window_blink_task(void *arg)
   vTaskDelete(NULL);
 }
 
-
 extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
@@ -674,7 +453,7 @@ extern "C" void app_main()
         ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
       #endif
     } else {
-      //=== ДОБАВЛЕНО: при старте LED выключен ===
+      //=== при старте LED выключен ===
       //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
       //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
       //-- поэтому любые попытки мигнуть будут игнорироваться.
@@ -696,7 +475,6 @@ extern "C" void app_main()
       ESP_LOGE("", " LED state at boot: OFF (locked)");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", "");
-      //=== /ДОБАВЛЕНО ===
     }
   #endif
 
@@ -722,10 +500,8 @@ extern "C" void app_main()
       #endif
     }
     //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
-    //ssd1306_show_title();                 // было: сразу показываем заголовок
     ssd1306_display_enabled = false;        // стало: экран выключен
     ssd1306_clear_screen(&ssd1306dev, false);
-    //ssd1306_display_off(&ssd1306dev);       // гасим панель
     ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
     //=== /ИЗМЕНЕНО ===
   #endif
@@ -830,70 +606,18 @@ extern "C" void app_main()
   set_basic_attributes_esp_matter();
 
 
-
-
-
-  //ESP_ERROR_CHECK(err);
   if(err == ESP_OK) {
     relay_init();
   }
 
-
-
   //-- Setting BasicInformationCluster attributes
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
-  #if UART_MONITOR_DEBUG
-  	print_attribute_ids();
-  #endif
-
-
-	#if ADD_CUSTOM_CLUSTERS
-  	//-- Temperature cluster
-  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_CHIP_TEMP, 0x0000, esp_matter_int16(0))) {
-  		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Temperature cluster created successfully");
-  	} else {
-  		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Temperature cluster");
-  	}
-  	//-- Uptime cluster
-  	if(create_custom_cluster(CUSTOM_ENDPOINT_ID, CLUSTER_ID_UPTIME, 0x0000, esp_matter_uint32(0))) {
-  		ESP_LOGW(TAG_MIKE_APP, "~~~ Custom Uptime cluster created successfully");
-  	} else {
-  		ESP_LOGE(TAG_MIKE_APP, "~~~ Error creating Custom Uptime cluster");
-  	}
-  #endif
-
-  if(node) {
-  	//-- Device structure log
-    //log_device_structure(node);
-  }
 
 
   #if LIVE_BLINK_TIME_MS > 0
 	  //-- Start init indicator task
   	xTaskCreate(init_indicator_task, "init_indicator_task", 2048, NULL, 6, NULL);
   #endif
-
-  #if USE_TIME_DRIVER
-     //-- Initialization of time
-     //sntp_initialize_time();
-     netif_sntp_initialize_time();
-     chip_initialize_time();
-     show_time();
-  #endif
-
-  #if USE_INTERNAL_UPTIME
-     //-- Initialization of Thread
-     ot_init_thread_time_sync();
-  #endif
-  
-  #if USE_INTERNAL_VOLTAGE
-    //-- ADC initialization
-    if(!init_internal_voltage()) {
-      ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to init power monitor!");
-    }
-  #endif
-
-  update_matter_values();
 
 }

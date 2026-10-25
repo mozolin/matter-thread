@@ -19,9 +19,8 @@ extern void reboot_button_task(void *pvParameter);
 
 extern void single_click_timer_init(void);
 
-//=== ДОБАВЛЕНО: обработка двойного клика кнопки Reset ===
+//=== обработка двойного клика кнопки Reset ===
 //-- Переключает блокировку/разблокировку функции get_led_indicator_blink_idx.
 //-- Вызывается из esp_timer-колбэка, когда окно двойного клика истекло
 //-- и второго нажатия не последовало (т.е. был одиночный клик).
 extern void reset_button_handle_single_click(void);
-//=== ДОБАВЛЕНО ===

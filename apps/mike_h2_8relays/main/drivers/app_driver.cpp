@@ -1,5 +1,4 @@
 
-//#include <bsp/esp-bsp.h>
 #include <app_priv.h>
 
 using namespace chip::app::Clusters;

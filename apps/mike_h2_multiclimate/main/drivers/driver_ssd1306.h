@@ -16,13 +16,12 @@
   
   extern void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra);
   
-  //=== ДОБАВЛЕНО: управление включением/выключением экрана ===
+  //=== управление включением/выключением экрана ===
   // Включает/выключает дисплей SSD1306.
   // enabled=true  -> включить панель, показать заголовок, запомнить время.
   // enabled=false -> очистить экран и погасить панель.
   extern void ssd1306_set_display_enabled(bool enabled);
-  //=== ДОБАВЛЕНО: обратный отсчёт до авто-отключения ===
+  //=== обратный отсчёт до авто-отключения ===
   extern void ssd1306_update_timeout_line(void);
-  //=== /ДОБАВЛЕНО ===
 
 #endif

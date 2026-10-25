@@ -15,16 +15,13 @@
     extern bool ssd1306_show_datetime(const tm& timeinfo);
   #endif
   extern void ssd1306_draw_degree_symbol(uint8_t x, uint8_t y);
-
-  extern void ssd1306_show_matter_updates(float temp, float volt, char* short_uptime_buf, const tm& timeinfo);
-
-  //=== ДОБАВЛЕНО: управление включением/выключением экрана ===
+  
+  //=== управление включением/выключением экрана ===
   // Включает/выключает дисплей SSD1306.
   // enabled=true  -> включить панель, показать заголовок, запомнить время.
   // enabled=false -> очистить экран и погасить панель.
   extern void ssd1306_set_display_enabled(bool enabled);
-  //=== ДОБАВЛЕНО: обратный отсчёт до авто-отключения ===
+  //=== обратный отсчёт до авто-отключения ===
   extern void ssd1306_update_timeout_line(void);
-  //=== /ДОБАВЛЕНО ===
 
 #endif

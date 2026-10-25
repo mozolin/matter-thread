@@ -63,10 +63,9 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
   bool ssd1306_initialized = false;
-  //=== ДОБАВЛЕНО: состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
   bool ssd1306_display_enabled = false;
   uint64_t ssd1306_last_on_time_ms = 0;
-  //=== /ДОБАВЛЕНО ===
 #endif
 
 /*********************
@@ -697,7 +696,7 @@ extern "C" void app_main()
         ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
       #endif
     } else {
-      //=== ДОБАВЛЕНО: при старте LED выключен ===
+      //=== при старте LED выключен ===
       //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
       //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
       //-- поэтому любые попытки мигнуть будут игнорироваться.
@@ -719,7 +718,6 @@ extern "C" void app_main()
       ESP_LOGE("", " LED state at boot: OFF (locked)");
       ESP_LOGE("", "==============================");
       ESP_LOGE("", "");
-      //=== /ДОБАВЛЕНО ===
     }
   #endif
 
