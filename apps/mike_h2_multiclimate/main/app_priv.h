@@ -270,6 +270,14 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
  */
 esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
 
+// ============================================================
+// Задача опроса Boot Switch
+// Генерирует Matter события для одиночного/двойного/длинного нажатия
+// ============================================================
+#if CONFIG_BOOT_SWITCH_ENABLED
+  void boot_switch_task(void *pvParameters);
+#endif
+
 /** Task to poll sensors
  *
  * This task periodically reads sensor values and updates Matter attributes
