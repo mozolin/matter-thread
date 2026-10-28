@@ -6,6 +6,8 @@ const std::map<uint32_t, std::string> ATTRIBUTE_NAMES = {
     {0x0000, "AttributeList"},
     {0x0001, "FeatureMap"},
     {0x0002, "ClusterRevision"},
+    {0x0003, "PartsList"},
+    {0xFFFC, "FeatureMap"},
     
     // Атрибуты Identify кластера
     {0x0000, "IdentifyTime"},

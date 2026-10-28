@@ -29,6 +29,7 @@ const std::map<uint32_t, std::string> CLUSTER_NAMES = {
     {0x0036, "WiFiNetworkDiagnostics"},
     {0x0037, "EthernetNetworkDiagnostics"},
     {0x0039, "BridgedDeviceBasicInformation"},
+    {0x003B, "Switch"},
     {0x003C, "AdministratorCommissioning"},
     {0x003E, "OperationalCredentials"},
     {0x003F, "GroupKeyManagement"},
