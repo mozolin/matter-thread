@@ -12,11 +12,13 @@
 
 #include <esp_matter.h>
 #include <esp_matter_attribute.h>
+#include <esp_matter_endpoint.h>
 #include <app_priv.h>
 
 using namespace esp_matter;
 using namespace chip::app::Clusters;
 using namespace esp_matter::cluster;
+using namespace esp_matter::endpoint;
 
 // ============================================================
 // ВНУТРЕННИЕ КОНСТАНТЫ
