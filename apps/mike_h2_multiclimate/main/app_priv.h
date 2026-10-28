@@ -44,17 +44,18 @@
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT41_ENABLED                   true
 
+
 // ============================================================
 // Boot Switch (Generic Switch для Home Assistant)
 // Включает экспорт кнопки BOOT (GPIO 9) как Matter Generic Switch
 // с событиями: одиночное нажатие, двойное нажатие, длинное нажатие (3 сек)
 // ============================================================
 #define CONFIG_BOOT_SWITCH_ENABLED             true
-
 #if CONFIG_BOOT_SWITCH_ENABLED
   // Драйвер boot switch (реализация в driver_boot_switch.cpp)
   #include "driver_boot_switch.h"
 #endif
+
 
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
