@@ -14,6 +14,24 @@
 #define SHOW_DEVICE_LOG                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
+
+//-- task priorities
+// ============================================================
+// Задача опроса Boot Switch
+// Приоритет 3 (ниже reboot_button=4 и sensor_poll=5),
+// потому что:
+//   • кнопка — событие для человека, задержка 20–50 мс не заметна
+//   • reboot_button (4) уже опрашивает тот же GPIO — boot_switch
+//     не должен его вытеснять
+//   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
+//   • Matter-события уходят в HA без задержек
+// ============================================================
+#define CONFIG_COMMISSIONING_WINDOW_PRIORITY   6
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
+#define CONFIG_REBOOT_BUTTON_TASK_PRIORITY     4
+#define CONFIG_BOOT_SWITCH_TASK_PRIORITY       3
+
+
 //-- SSD1306 LED Display
 #define CONFIG_SSD1306_ENABLED                 true
 
@@ -26,6 +44,18 @@
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT41_ENABLED                   true
 
+// ============================================================
+// Boot Switch (Generic Switch для Home Assistant)
+// Включает экспорт кнопки BOOT (GPIO 9) как Matter Generic Switch
+// с событиями: одиночное нажатие, двойное нажатие, длинное нажатие (3 сек)
+// ============================================================
+#define CONFIG_BOOT_SWITCH_ENABLED             true
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+  // Драйвер boot switch (реализация в driver_boot_switch.cpp)
+  #include "driver_boot_switch.h"
+#endif
+
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 #if CONFIG_REBOOT_BUTTON_ENABLED
@@ -34,7 +64,6 @@
   #include <app/server/Server.h>
   //-- Window opens for NNN seconds
   #define CONFIG_COMMISSIONING_WINDOW_OPEN     60//300
-  #define CONFIG_COMMISSIONING_WINDOW_PRIORITY 6
   //<-- uses for CommissioningWindowOpen
   
   #include "driver_reboot_button.h"
@@ -60,11 +89,6 @@
   extern led_indicator_handle_t led_handle;
 #endif
 
-//-- task priorities
-#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
-#if CONFIG_REBOOT_BUTTON_ENABLED
-  #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY   4
-#endif
 
 //-- BMP280 sensor (i2c bus=0,i2c_addr=0x76)
 #define CONFIG_BME280_SDA_GPIO                 1

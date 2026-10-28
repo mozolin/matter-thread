@@ -802,7 +802,15 @@ extern "C" void app_main()
   #if CONFIG_SHT41_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_SHT41, node);
   #endif
-
+  // ============================================================
+  // Boot Switch (Generic Switch для Home Assistant)
+  // Создаёт endpoint для кнопки BOOT с событиями:
+  // одиночное нажатие, двойное нажатие, длинное нажатие (3 сек)
+  // ============================================================
+  #if CONFIG_BOOT_SWITCH_ENABLED
+    boot_switch_driver_init();
+    boot_switch_create_endpoint(node);
+  #endif
   
   // 8. OpenThread config
   #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
@@ -866,6 +874,15 @@ extern "C" void app_main()
   // 10. Basic attributes (лучше — по событию)
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
+
+
+  // ============================================================
+  // Задача опроса Boot Switch
+  // Генерирует Matter события для одиночного/двойного/длинного нажатия
+  // ============================================================
+  #if CONFIG_BOOT_SWITCH_ENABLED
+    xTaskCreate(boot_switch_task, "boot_switch", 3072, NULL, CONFIG_BOOT_SWITCH_TASK_PRIORITY, NULL);
+  #endif
 
   
   // 11. Polling task
