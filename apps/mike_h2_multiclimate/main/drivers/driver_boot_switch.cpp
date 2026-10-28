@@ -77,20 +77,12 @@ uint16_t boot_switch_create_endpoint(esp_matter::node_t *node)
     }
 
     // ============================================================
-    // Конфигурация Generic Switch endpoint
-    // Feature flags соответствуют требованиям Matter Spec:
-    // MS (MomentarySwitch) — обязательно для InitialPress
-    // MSR (MomentarySwitchRelease) — для ShortRelease/LongRelease
-    // MSL (MomentarySwitchLongPress) — для LongPress/LongRelease
-    // MSM (MomentarySwitchMultiPress) — для MultiPressOngoing/Complete
+    // ИЗМЕНЕНО: Убрано поле feature_flags из конфигурации endpoint'а.
+    // В ESP-Matter 1.4 функции добавляются отдельно после создания.
     // ============================================================
     generic_switch::config_t switch_config;
-
-    switch_config.switch_cluster.feature_flags =
-        cluster::switch_cluster::feature::momentary_switch::get_id() |
-        cluster::switch_cluster::feature::momentary_switch_release::get_id() |
-        cluster::switch_cluster::feature::momentary_switch_long_press::get_id() |
-        cluster::switch_cluster::feature::momentary_switch_multi_press::get_id();
+    // Здесь можно задать другие базовые параметры, если нужно.
+    // Например: switch_config.switch_cluster.number_of_positions = 2;
 
     endpoint_t *endpoint = generic_switch::create(node, &switch_config, ENDPOINT_FLAG_NONE, NULL);
     if (endpoint == NULL) {
@@ -99,6 +91,29 @@ uint16_t boot_switch_create_endpoint(esp_matter::node_t *node)
     }
 
     s_switch_endpoint_id = endpoint::get_id(endpoint);
+
+    // ============================================================
+    // ДОБАВЛЕНО: Получаем кластер Switch и добавляем функции (features)
+    // через API feature::*::add(), как в официальном примере.
+    // ============================================================
+    cluster_t *switch_cluster = cluster::get(endpoint, Switch::Id);
+    if (switch_cluster == NULL) {
+        ESP_LOGE(TAG_MIKE_APP, "Boot switch: failed to get Switch cluster");
+        return 0;
+    }
+
+    // Включаем Momentary Switch (обязательно для InitialPress)
+    cluster::switch_cluster::feature::momentary_switch::add(switch_cluster);
+    // Включаем Release (для ShortRelease / LongRelease)
+    cluster::switch_cluster::feature::momentary_switch_release::add(switch_cluster);
+    // Включаем Long Press (для LongPress / LongRelease)
+    cluster::switch_cluster::feature::momentary_switch_long_press::add(switch_cluster);
+
+    // Включаем Multi Press (для MultiPressOngoing / MultiPressComplete)
+    // Для этой функции требуется конфигурация с параметром multi_press_max.
+    cluster::switch_cluster::feature::momentary_switch_multi_press::config_t msm_config;
+    msm_config.multi_press_max = 5; // Максимальное количество нажатий для детекции
+    cluster::switch_cluster::feature::momentary_switch_multi_press::add(switch_cluster, &msm_config);
 
     ESP_LOGI(TAG_MIKE_APP, "Boot switch Generic Switch created, endpoint_id=%d", s_switch_endpoint_id);
     return s_switch_endpoint_id;
