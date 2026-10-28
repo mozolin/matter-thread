@@ -9,9 +9,9 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  false
+#define MOCK_SENSORS_BEHAVIOR                  1
 #define DEBUG_MODE                             false
-#define SHOW_DEVICE_LOG                        false
+#define SHOW_DEVICE_LOG                        1
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
@@ -121,8 +121,8 @@
 	//-- what part of tree to show (-1 means: SHOW ALL)
   #define SHOW_DEVICE_LOG_ONE_CLUSTER   -      1
   #define SHOW_DEVICE_LOG_CLUSTERS             true
-  #define SHOW_DEVICE_LOG_ATTRIBUTES           false
-  #define SHOW_DEVICE_LOG_COMMANDS             false
+  #define SHOW_DEVICE_LOG_ATTRIBUTES           true
+  #define SHOW_DEVICE_LOG_COMMANDS             true
 #endif
 
 

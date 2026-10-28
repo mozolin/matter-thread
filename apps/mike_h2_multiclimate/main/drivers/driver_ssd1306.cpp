@@ -26,6 +26,27 @@
     0b00000000
   };
 
+  esp_err_t ssd1306_i2cdev_check_present(void)
+  {
+  	i2c_dev_t dev;
+  	esp_err_t err = ESP_OK;
+
+    memset(&dev, 0, sizeof(i2c_dev_t));
+    dev.port = CONFIG_SSD1306_I2C_PORT;
+    dev.addr = CONFIG_SSD1306_I2C_ADDRESS; // 0x3C
+    dev.cfg.sda_io_num = (gpio_num_t)CONFIG_SSD1306_SDA_GPIO;
+    dev.cfg.scl_io_num = (gpio_num_t)CONFIG_SSD1306_SCL_GPIO;
+    dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    dev.cfg.master.clk_speed = 400000; // 400 кГц
+
+    err = i2c_dev_check_present(&dev);
+    if(err != ESP_OK) {
+      ESP_LOGE(TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
+    }
+    return err;
+  }
+
   esp_err_t ssd1306_init(void)
   {
     esp_err_t err = ESP_OK;
@@ -41,6 +62,12 @@
         ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
         return err;
       }
+    
+      // Явная проверка наличия устройства на шине
+      err = ssd1306_i2cdev_check_present();
+      if(err != ESP_OK) {
+      	return err; // Выходим, никаких повторных попыток
+      }    
     #endif // CONFIG_I2C_INTERFACE
     
     #if CONFIG_SPI_INTERFACE
