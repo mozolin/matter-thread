@@ -9,9 +9,9 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  1
+#define MOCK_SENSORS_BEHAVIOR                  false
 #define DEBUG_MODE                             false
-#define SHOW_DEVICE_LOG                        1
+#define SHOW_DEVICE_LOG                        true
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
@@ -32,6 +32,50 @@
 #define CONFIG_BOOT_SWITCH_TASK_PRIORITY       3
 
 
+// ============================================================
+// ДОБАВЛЕНО: Boot Switch (Generic Switch) для событий кнопки BOOT
+// ============================================================
+#define CONFIG_BOOT_SWITCH_ENABLED true
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+  //-- Период опроса GPIO кнопки BOOT в задаче boot_switch (мс)
+  #define BOOT_SWITCH_POLL_MS              20
+  //-- Порог удержания для генерации LongPress (мс)
+  //-- ВАЖНО: не пересекается с REBOOT_HOLD_TIME_MS (3000),
+  //-- но семантически LongPress в HA = удержание > 3 сек.
+  //-- Поскольку reboot уже срабатывает на 3000 мс, LongPress
+  //-- будет отправлен ДО перезагрузки (на 3000 мс), но после
+  //-- этого устройство уйдёт в ребут. Если вы хотите чистый
+  //-- LongPress без ребута — увеличьте REBOOT_HOLD_TIME_MS
+  //-- или измените логику reboot_button_task.
+  #define BOOT_SWITCH_LONG_PRESS_MS        3000
+  //-- Окно между кликами для определения двойного нажатия (мс)
+  #define BOOT_SWITCH_DOUBLE_CLICK_MS      400
+
+  //-- Внешние функции драйвера boot_switch
+  extern void boot_switch_driver_init(void);
+  extern void boot_switch_task(void *pvParameters);
+  extern void boot_switch_report_event(uint8_t event_type);
+
+  //-- Типы событий (для внутреннего использования)
+  #define BOOT_SWITCH_EVENT_SINGLE         1
+  #define BOOT_SWITCH_EVENT_DOUBLE         2
+  #define BOOT_SWITCH_EVENT_LONG           3
+
+// ============================================================
+// ДОБАВЛЕНО: Внешние ID On/Off эндпоинтов для управления из HA
+// ============================================================
+// Эти переменные определяются в app_main.cpp и используются
+// в app_driver.cpp (app_driver_attribute_update) для маршрутизации
+// On/Off команд от Home Assistant.
+// ============================================================
+
+  extern uint16_t s_ep_screen_onoff;   // On/Off для SSD1306
+  extern uint16_t s_ep_led_onoff;      // On/Off для LED ленты (блокировка)
+  extern uint16_t s_ep_reboot_onoff;   // On/Off для перезагрузки ESP32-H2
+#endif
+
+
 //-- SSD1306 LED Display
 #define CONFIG_SSD1306_ENABLED                 true
 
@@ -43,18 +87,6 @@
 #define CONFIG_DHT11_ENABLED                   true
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT41_ENABLED                   true
-
-
-// ============================================================
-// Boot Switch (Generic Switch для Home Assistant)
-// Включает экспорт кнопки BOOT (GPIO 9) как Matter Generic Switch
-// с событиями: одиночное нажатие, двойное нажатие, длинное нажатие (3 сек)
-// ============================================================
-#define CONFIG_BOOT_SWITCH_ENABLED             true
-#if CONFIG_BOOT_SWITCH_ENABLED
-  // Драйвер boot switch (реализация в driver_boot_switch.cpp)
-  #include "driver_boot_switch.h"
-#endif
 
 
 //-- Reboot button handlers
@@ -269,14 +301,6 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
  * @return ESP_OK on success
  */
 esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
-
-// ============================================================
-// Задача опроса Boot Switch
-// Генерирует Matter события для одиночного/двойного/длинного нажатия
-// ============================================================
-#if CONFIG_BOOT_SWITCH_ENABLED
-  void boot_switch_task(void *pvParameters);
-#endif
 
 /** Task to poll sensors
  *

@@ -28,7 +28,22 @@ static void single_click_timer_cb(void *arg)
   //-- Выполняем действие одиночного клика: переключаем SSD1306 (как было раньше)
   #if CONFIG_SSD1306_ENABLED
     if(ssd1306_initialized) {
-      ssd1306_set_display_enabled(!ssd1306_display_enabled);
+      bool new_state = !ssd1306_display_enabled;
+      ssd1306_set_display_enabled(new_state);
+
+      // ============================================================
+      // ДОБАВЛЕНО: после переключения экрана физической кнопкой
+      // синхронизируем атрибут OnOff эндпоинта Screen.
+      // ============================================================
+      if(s_ep_screen_onoff != 0) {
+        esp_matter_attr_val_t val = esp_matter_bool(new_state);
+        esp_matter::attribute::update(
+          s_ep_screen_onoff,
+          chip::app::Clusters::OnOff::Id,
+          chip::app::Clusters::OnOff::Attributes::OnOff::Id,
+          &val
+        );
+      }
     } else {
       ESP_LOGW("Reset Button", "SSD1306 not initialized, skip toggle");
     }
@@ -82,8 +97,23 @@ void reboot_button_task(void *pvParameter)
       if(ssd1306_display_enabled && ssd1306_last_on_time_ms != 0) {
         uint32_t now_ms = esp_log_timestamp();
         if((now_ms - ssd1306_last_on_time_ms) >= SSD1306_AUTO_OFF_TIMEOUT_MS) {
-          ESP_LOGW("Reset Button", "SSD1306 auto-off after 5 min");
+          ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
           ssd1306_set_display_enabled(false);
+
+          // ============================================================
+          // ДОБАВЛЕНО: после автоматического отключения экрана синхронизируем
+          // атрибут OnOff эндпоинта Screen в Matter (OFF), чтобы HA увидел,
+          // что экран выключен.
+          // ============================================================
+          if(s_ep_screen_onoff != 0) {
+            esp_matter_attr_val_t val = esp_matter_bool(false);
+            esp_matter::attribute::update(
+              s_ep_screen_onoff,
+              chip::app::Clusters::OnOff::Id,
+              chip::app::Clusters::OnOff::Attributes::OnOff::Id,
+              &val
+            );
+          }
         } else {
           //=== пока экран ещё включён — рисуем оставшееся время ===
           ssd1306_update_timeout_line();
@@ -161,6 +191,20 @@ void reboot_button_task(void *pvParameter)
               esp_timer_stop(s_single_click_timer);
               #if USE_DRIVER_LED_INDICATOR
                 toggle_led_indicator_lock();
+                // ============================================================
+                // ДОБАВЛЕНО: после изменения led_indicator_locked синхронизируем
+                // атрибут OnOff эндпоинта LED в Matter, чтобы HA увидел новое состояние.
+                // ============================================================
+                if(s_ep_led_onoff != 0) {
+                  extern bool led_indicator_locked;
+                  esp_matter_attr_val_t val = esp_matter_bool(!led_indicator_locked);
+                  esp_matter::attribute::update(
+                    s_ep_led_onoff,
+                    chip::app::Clusters::OnOff::Id,
+                    chip::app::Clusters::OnOff::Attributes::OnOff::Id,
+                    &val
+                  );
+                }
               #endif
             }
           } else {
