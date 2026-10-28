@@ -62,6 +62,12 @@ std::string get_attribute_name(uint32_t cluster_id, uint32_t attribute_id)
   	case 0x0002:
   		str = "ClusterRevision";
   		break;
+  	case 0x0003:
+  		str = "PartsList";
+  		break;
+  	case 0xFFFC:
+  		str = "FeatureMap";
+  		break;
   	case 0xFFFD:
   		str = "ClusterRevision";
   		break;
