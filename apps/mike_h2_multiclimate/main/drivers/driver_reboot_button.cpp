@@ -32,7 +32,7 @@ static void single_click_timer_cb(void *arg)
       ssd1306_set_display_enabled(new_state);
 
       // ============================================================
-      // ДОБАВЛЕНО: после переключения экрана физической кнопкой
+      // После переключения экрана физической кнопкой
       // синхронизируем атрибут OnOff эндпоинта Screen.
       // ============================================================
       if(s_ep_screen_onoff != 0) {
@@ -101,7 +101,7 @@ void reboot_button_task(void *pvParameter)
           ssd1306_set_display_enabled(false);
 
           // ============================================================
-          // ДОБАВЛЕНО: после автоматического отключения экрана синхронизируем
+          // После автоматического отключения экрана синхронизируем
           // атрибут OnOff эндпоинта Screen в Matter (OFF), чтобы HA увидел,
           // что экран выключен.
           // ============================================================
@@ -159,7 +159,7 @@ void reboot_button_task(void *pvParameter)
           //vTaskDelay(pdMS_TO_TICKS(5000));
           esp_restart();
         } else {
-          //=== ИЗМЕНЕНО: различаем одиночный и двойной клик ===
+          //=== Различаем одиночный и двойной клик ===
           //
           // Логика:
           //   • Если это первый короткий клик — запускаем одноразовый esp_timer
@@ -192,7 +192,7 @@ void reboot_button_task(void *pvParameter)
               #if USE_DRIVER_LED_INDICATOR
                 toggle_led_indicator_lock();
                 // ============================================================
-                // ДОБАВЛЕНО: после изменения led_indicator_locked синхронизируем
+                // После изменения led_indicator_locked синхронизируем
                 // атрибут OnOff эндпоинта LED в Matter, чтобы HA увидел новое состояние.
                 // ============================================================
                 if(s_ep_led_onoff != 0) {
@@ -213,7 +213,6 @@ void reboot_button_task(void *pvParameter)
             ESP_LOGD("Reset Button", "Long-ish press (%lu ms), ignored",
                      (unsigned long)pressed_duration);
           }
-          //=== /ИЗМЕНЕНО ===
         }
       }
       button_pressed = false;

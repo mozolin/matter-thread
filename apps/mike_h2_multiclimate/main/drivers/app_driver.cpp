@@ -282,13 +282,12 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     return err;
 }
 
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
-                                      uint32_t attribute_id, esp_matter_attr_val_t *val)
+esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val)
 {
-    // ============================================================
-// ДОБАВЛЕНО: Обработка On/Off для экрана, ленты и ребута из HA
-// ============================================================
-#if CONFIG_BOOT_SWITCH_ENABLED
+  // ============================================================
+  //  Обработка On/Off для экрана, ленты и ребута из HA
+  // ============================================================
+  #if CONFIG_BOOT_SWITCH_ENABLED
     //-- Проверяем, не наш ли это эндпоинт
     if (cluster_id == OnOff::Id && attribute_id == OnOff::Attributes::OnOff::Id) {
         //-- Экран
@@ -326,10 +325,10 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
             return ESP_OK;
         }
     }
-#endif
+  #endif
     
-    // Sensors are read-only in this implementation
-    return ESP_OK;
+  // Sensors are read-only in this implementation
+  return ESP_OK;
 }
 
 static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)

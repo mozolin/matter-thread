@@ -663,9 +663,9 @@ static void commissioning_window_blink_task(void *arg)
 }
 
 
-// ============================================================
-// ДОБАВЛЕНО: Создание Generic Switch endpoint для кнопки BOOT
-// ============================================================
+// ==================================================
+//  Создание Generic Switch endpoint для кнопки BOOT
+// ==================================================
 #if CONFIG_BOOT_SWITCH_ENABLED
 static esp_err_t create_boot_switch_endpoint(node_t *node)
 {
@@ -741,9 +741,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
 }
 #endif
 
-// ============================================================
-// ДОБАВЛЕНО: On/Off эндпоинты для управления экраном, лентой и ребутом
-// ============================================================
+// ===========================================================
+//  On/Off эндпоинты для управления экраном, лентой и ребутом
+// ===========================================================
 
 //-- Глобальные ID для On/Off эндпоинтов (чтобы app_driver_attribute_update мог их найти)
 #if CONFIG_BOOT_SWITCH_ENABLED
@@ -781,7 +781,7 @@ static esp_err_t create_onoff_endpoints(node_t *node)
     #if USE_DRIVER_LED_INDICATOR
     on_off_light::config_t led_config;
     // ============================================================
-    // ДОБАВЛЕНО: начальное состояние ON — аналогично тому, что делает
+    // Начальное состояние ON — аналогично тому, что делает
     // физическая кнопка по doublepress (toggle_led_indicator_lock).
     // При старте прошивки LED Indicator должен быть РАЗБЛОКИРОВАН.
     // ============================================================
@@ -911,13 +911,12 @@ extern "C" void app_main()
         get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       #endif
     }
-    //=== ИЗМЕНЕНО: при загрузке экран ВЫКЛЮЧЕН ===
+    //=== При загрузке экран ВЫКЛЮЧЕН ===
     //ssd1306_show_title();                 // было: сразу показываем заголовок
     ssd1306_display_enabled = false;        // стало: экран выключен
     ssd1306_clear_screen(&ssd1306dev, false);
     //ssd1306_display_off(&ssd1306dev);       // гасим панель
     ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
-    //=== /ИЗМЕНЕНО ===
   #endif
 
   
@@ -971,9 +970,9 @@ extern "C" void app_main()
   #if CONFIG_SHT41_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_SHT41, node);
   #endif
-  // ============================================================
-  // ДОБАВЛЕНО: Boot Switch endpoint и On/Off эндпоинты
-  // ============================================================
+  // =========================================
+  //  Boot Switch endpoint и On/Off эндпоинты
+  // =========================================
   #if CONFIG_BOOT_SWITCH_ENABLED
     create_boot_switch_endpoint(node);
       
@@ -1050,9 +1049,9 @@ extern "C" void app_main()
   set_basic_attributes_esp_matter();
 
 
-  // ============================================================
-  // ДОБАВЛЕНО: Запуск задачи опроса кнопки BOOT
-  // ============================================================
+  // ==================================
+  //  Запуск задачи опроса кнопки BOOT
+  // ==================================
   #if CONFIG_BOOT_SWITCH_ENABLED
     //-- Инициализируем драйвер (передаём endpoint)
     boot_switch_driver_init();
@@ -1062,10 +1061,10 @@ extern "C" void app_main()
     ESP_LOGI(TAG_MIKE_APP, "Boot Switch task created");
   #endif
 
-  // ============================================================
-  // ДОБАВЛЕНО: явно выставляем OnOff = ON для LED эндпоинта,
+  // =================================================
+  // Явно выставляем OnOff = ON для LED эндпоинта,
   // чтобы HA сразу видел разблокированное состояние.
-  // ============================================================
+  // =================================================
   #if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
     if(s_ep_led_onoff != 0) {
       esp_matter_attr_val_t val = esp_matter_bool(true);

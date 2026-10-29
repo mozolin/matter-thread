@@ -43,7 +43,7 @@
         led_indicator_locked = !led_indicator_locked;
     
         if(led_indicator_locked) {
-          //=== ИЗМЕНЕНО: корректное гашение LED без BLINK_MAX ===
+          //=== Корректное гашение LED без BLINK_MAX ===
           //-- led_indicator_stop(handle, idx) останавливает КОНКРЕТНУЮ анимацию
           //-- по её индексу. BLINK_MAX — это НЕ индекс, а маркер конца массива,
           //-- поэтому раньше лог сыпал "blink_type out of range".
@@ -65,7 +65,6 @@
             led_indicator_start(led_handle, BLINK_OFF);
           }
           ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
-          //=== /ИЗМЕНЕНО ===
         } else {
           //-- При разблокировке просто останавливаем "гасящий" шаг,
           //-- чтобы LED не удерживался в состоянии OFF.
