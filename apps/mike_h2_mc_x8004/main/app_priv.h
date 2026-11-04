@@ -14,6 +14,7 @@
 #define SHOW_DEVICE_LOG                        true
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
+#define CONFIG_CUSTOM_THREAD_DATASET_TLV       "0e080000000000010000000300000f4a0300001035060004001fffe00208dead00beef00cafe0708fd000db800a00000051000112233445566778899aabbccddeeff030e4f70656e5468726561642d455350010212340410104810e2315100afd6bc9215a6bfac530c0402a0f7f8"
 
 //-- task priorities
 // ============================================================
@@ -309,6 +310,8 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
 void sensor_polling_task(void *pvParameters);
 
 void app_driver_log_sensor_statistics(void);
+
+void apply_custom_dataset(void);
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \

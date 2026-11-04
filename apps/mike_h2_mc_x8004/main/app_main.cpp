@@ -1,3 +1,48 @@
+#include "esp_err.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+extern "C" {
+    // 1. Системные заглушки контроллера ESP-IDF
+    esp_err_t __wrap_esp_bt_controller_init(void *cfg) { return ESP_OK; }
+    esp_err_t __wrap_esp_bt_controller_enable(int mode) { return ESP_OK; }
+    esp_err_t __wrap_esp_nimble_init(void) { return ESP_OK; }
+    esp_err_t __wrap_nimble_port_init(void) { return ESP_OK; }
+    void __wrap_nimble_port_run(void) {
+        while(1) { vTaskDelay(portMAX_DELAY); }
+    }
+
+    // 2. Новые КРИТИЧЕСКИЕ заглушки для NimBLE GAP API (защита от паники в BLEManagerImpl)
+    int __wrap_ble_gap_adv_start(uint8_t own_addr_type, const void *direct_addr, 
+                                 int32_t duration_ms, const void *adv_params, 
+                                 void *cb, void *cb_arg) {
+        ESP_LOGW("ANTI_PANIC", "!!! STUB: ble_gap_adv_start blocked !!!");
+        return 0; // BLE_HS_EUNKNOWN или 0 (успех)
+    }
+    
+    int __wrap_ble_gap_adv_stop(void) {
+        return 0;
+    }
+    
+    int __wrap_ble_gap_adv_set_fields(const void *fields) {
+        return 0;
+    }
+
+    int __wrap_ble_gap_update_params(uint16_t conn_handle, const void *params) {
+        ESP_LOGW("ANTI_PANIC", "!!! STUB: ble_gap_update_params blocked !!!");
+        return 0;
+    }
+
+    int __wrap_ble_gap_terminate(uint16_t conn_handle, uint8_t reason) {
+        return 0;
+    }
+}
+
+
+
+#include "esp_openthread.h"
+
 #include <esp_err.h>
 #include <esp_log.h>
 #include <nvs_flash.h>
@@ -92,96 +137,112 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
-    switch (event->Type) {
+  switch(event->Type) {
+    // Это событие гарантирует, что сетевой стек Matter и OpenThread полностью инициализированы
+    case chip::DeviceLayer::DeviceEventType::kCHIPoBLEAdvertisingChange: // срабатывает при старте Matter-сервера даже без BLE
+    case chip::DeviceLayer::DeviceEventType::kThreadConnectivityChange:
+      {
+        if(esp_openthread_get_instance() != nullptr) {
+          static bool dataset_applied = false;
+          if(!dataset_applied) {
+            ESP_LOGI("CUSTOM_OT", "System mutexes and OpenThread instance are ready!");
+            // Теперь вызов безопасен — мьютекс существует!
+            apply_custom_dataset(); 
+            dataset_applied = true;
+          }
+        }
+      }
+      break;
+    
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Interface IP Address changed");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Interface IP Address changed");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning complete");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning complete");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning session started");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning session started");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning session stopped");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning session stopped");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning window opened");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning window opened");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Commissioning window closed");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Commissioning window closed");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Fabric removed successfully");
-        #endif
-        if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
-            chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
-            constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
-            if (!commissionMgr.IsCommissioningWindowOpen()) {
-                CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
-                                                                            chip::CommissioningWindowAdvertisement::kDnssdOnly);
-                if (err != CHIP_NO_ERROR) {
-                    #if DEBUG_MODE
-                      ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
-                    #endif
-                }
-            }
-        }
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Fabric removed successfully");
+      #endif
+      if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
+          chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+          constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
+          if (!commissionMgr.IsCommissioningWindowOpen()) {
+              CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
+                                                                          chip::CommissioningWindowAdvertisement::kDnssdOnly);
+              if (err != CHIP_NO_ERROR) {
+                  #if DEBUG_MODE
+                    ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                  #endif
+              }
+          }
+      }
+      break;
     }
 
     case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Fabric will be removed");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Fabric will be removed");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Fabric is updated");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Fabric is updated");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Fabric is committed");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "Fabric is committed");
+      #endif
+      break;
 
     case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
-        #endif
-        break;
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
+      #endif
+      break;
 
     default:
-        break;
-    }
+      break;
+  }
 }
 
 static esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id,
@@ -826,6 +887,105 @@ static esp_err_t create_onoff_endpoints(node_t *node)
 }
 #endif
 
+
+#include "openthread/dataset.h"
+#include "openthread/instance.h"
+#include "openthread/thread.h"
+#include "esp_openthread_lock.h"
+// Функция для конвертации hex-строки в байты
+void hex_to_bytes(const char* hex, uint8_t* bytes, size_t max_len)
+{
+  size_t len = strlen(hex);
+  for(size_t i = 0; i < len && (i / 2) < max_len; i += 2) {
+    unsigned int byte;
+    sscanf(&hex[i], "%02x", &byte);
+    bytes[i / 2] = (uint8_t)byte;
+  }
+}
+
+
+#include "openthread/dataset.h"
+#include "openthread/thread.h"
+#include "esp_openthread_lock.h"
+#include "esp_openthread.h"
+#include "esp_log.h"
+#include "app/server/Server.h" // КРИТИЧНО: Нужен для управления окном сопряжения
+
+void apply_custom_dataset()
+{
+  otInstance* instance = esp_openthread_get_instance();
+  if(!instance) {
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, " OpenThread instance is NULL ");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    return;
+  }
+
+  const char* dataset_hex = CONFIG_CUSTOM_THREAD_DATASET_TLV;
+  if(strlen(dataset_hex) == 0) {
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, " Dataset TLV is empty ");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    return;
+  }
+
+  otOperationalDatasetTlvs datasetTlvs;
+  datasetTlvs.mLength = strlen(dataset_hex) / 2;
+  hex_to_bytes(dataset_hex, datasetTlvs.mTlvs, sizeof(datasetTlvs.mTlvs));
+
+  // Блокируем контекст OpenThread перед записью в память чипа
+  esp_openthread_lock_acquire(portMAX_DELAY);
+
+  // 1. Записываем датасет в эмулируемую NVS-память
+  otError error = otDatasetSetActiveTlvs(instance, &datasetTlvs);
+  
+  if(error == OT_ERROR_NONE) {
+    ESP_LOGW(TAG_MIKE_APP, "");
+    ESP_LOGW(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGW(TAG_MIKE_APP, "");
+    ESP_LOGW(TAG_MIKE_APP, " Dataset applied successfully ");
+    ESP_LOGW(TAG_MIKE_APP, "");
+    ESP_LOGW(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGW(TAG_MIKE_APP, "");
+    
+    // 2. Аппаратно поднимаем интерфейс и запускаем Thread внутри эмулятора
+    otIp6SetEnabled(instance, true);
+    otThreadSetEnabled(instance, true);
+  } else {
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, " Failed to apply dataset, error: %d", error);
+    ESP_LOGE(TAG_MIKE_APP, "");
+    ESP_LOGE(TAG_MIKE_APP, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    ESP_LOGE(TAG_MIKE_APP, "");
+  }
+
+  // Освобождаем контекст OpenThread
+  esp_openthread_lock_release();
+
+  // 3. Открываем сетевое окно сопряжения Matter
+  if(error == OT_ERROR_NONE) {
+    // Даем эмулятору 5 секунд, чтобы интерфейс tap0 связался с вашим физическим OTBR
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    
+    ESP_LOGI("CUSTOM_OT", "Opening Matter network commissioning window...");
+    
+    // Принудительно открываем базовое окно сопряжения по сети Thread (On-Network)
+    chip::Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
+  }
+}
+
+
+
 extern "C" void app_main()
 {
   esp_err_t err = ESP_OK;
@@ -995,7 +1155,6 @@ extern "C" void app_main()
     set_openthread_platform_config(&config);
   #endif
 
-  
   // 9. Matter start
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
