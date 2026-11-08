@@ -44,13 +44,17 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
       res = ds18x20_scan_devices(SENSOR_GPIO, addrs, MAX_SENSORS, &sensor_count);
       if(res != ESP_OK)
       {
-        ESP_LOGE(TAG_MIKE_APP, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
+        #endif
         return ESP_OK;
       }
       
       if(!sensor_count)
       {
-        ESP_LOGE(TAG_MIKE_APP, "DS18B20: No sensors detected!");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "DS18B20: No sensors detected!");
+        #endif
         return ESP_OK;
       }
       
@@ -65,12 +69,16 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
       }
       
       // Do a number of temperature samples, and print the results.
-      //ESP_LOGI(TAG_MIKE_APP, "Measuring...");
+      #if DEBUG_MODE
+        //ESP_LOGI(TAG_MIKE_APP, "Measuring...");
+      #endif
       
       res = ds18x20_measure_and_read_multi(SENSOR_GPIO, addrs, sensor_count, temps);
       if(res != ESP_OK)
       {
-        ESP_LOGE(TAG_MIKE_APP, "Sensors read error %d (%s)", res, esp_err_to_name(res));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Sensors read error %d (%s)", res, esp_err_to_name(res));
+        #endif
         return ESP_OK;
       }
       

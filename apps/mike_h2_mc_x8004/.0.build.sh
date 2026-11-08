@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+cat > sdkconfig.thread <<'EOF'
+#CONFIG_OPENTHREAD_NETWORK_AUTO_START=y
+CONFIG_OPENTHREAD_NETWORK_NAME="OpenThread-ESP"
+CONFIG_OPENTHREAD_MESH_LOCAL_PREFIX="fd00:db8:a0:0::/64"
+CONFIG_OPENTHREAD_NETWORK_CHANNEL=15
+CONFIG_OPENTHREAD_NETWORK_PANID=0x1234
+CONFIG_OPENTHREAD_NETWORK_EXTPANID="dead00beef00cafe"
+CONFIG_OPENTHREAD_NETWORK_MASTERKEY="00112233445566778899aabbccddeeff"
+CONFIG_OPENTHREAD_NETWORK_PSKC="104810e2315100afd6bc9215a6bfac53"
+EOF
+
+SDKCONFIG_DEFAULTS='sdkconfig.defaults;sdkconfig.thread' idf.py build
+
+idf.py merge-bin
+#esptool.py --chip esp32h2 merge_bin -o build/merged-binary.bin @build/flash_args

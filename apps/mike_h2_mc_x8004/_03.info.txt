@@ -1,0 +1,11 @@
+matter esp ot_cli dataset set active 0e08000000000001000000030000144a0300000e35060004001fffe002089f31b65566d404c50708fd100fa3b7e6fad3051052bacf86e7d69952202dc6c2b5c830a6030f4f70656e5468726561642d636634660102cf4f04107ad319bca36fd1676442bd6417a6d0060c0402a0f7f8
+
+matter esp ot_cli dataset networkkey 52bacf86e7d69952202dc6c2b5c830a6
+
+
+matter esp ot_cli ping fd6d:f115:22a5:260:0:ff:fe00:fc00
+matter esp ot_cli ping fd6d:f115:22a5:260:0:ff:fe00:2800
+matter esp ot_cli ping fd6d:f115:22a5:260:1d5a:1f46:644b:fce8
+matter esp ot_cli ping fe80:0:0:0:68b6:36b0:f68c:40e6
+
+ping -6 -c 4 fd6d:f115:22a5:260:0:ff:fe00:fc00

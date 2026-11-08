@@ -27,7 +27,9 @@ esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity)
             ESP_LOGD("|   DHT11", "Temp: %.2f °C, Hum: %.2f %%", temp, hum);
         #endif
       else {
-        ESP_LOGE(">> DHT11", "Could not read data from sensor!");
+        #if DEBUG_MODE
+          ESP_LOGE(">> DHT11", "Could not read data from sensor!");
+        #endif
       }
       
       // If you read the sensor data too often, it will heat up

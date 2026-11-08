@@ -45,7 +45,9 @@ static void single_click_timer_cb(void *arg)
         );
       }
     } else {
-      ESP_LOGW("Reset Button", "SSD1306 not initialized, skip toggle");
+      #if DEBUG_MODE
+        ESP_LOGW("Reset Button", "SSD1306 not initialized, skip toggle");
+      #endif
     }
   #endif
 }
@@ -97,7 +99,9 @@ void reboot_button_task(void *pvParameter)
       if(ssd1306_display_enabled && ssd1306_last_on_time_ms != 0) {
         uint32_t now_ms = esp_log_timestamp();
         if((now_ms - ssd1306_last_on_time_ms) >= SSD1306_AUTO_OFF_TIMEOUT_MS) {
-          ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
+          #if DEBUG_MODE
+            ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
+          #endif
           ssd1306_set_display_enabled(false);
 
           // ============================================================
@@ -135,11 +139,13 @@ void reboot_button_task(void *pvParameter)
         uint32_t pressed_duration = esp_log_timestamp() - button_pressed_time;
         
         if(pressed_duration >= FACTORY_RESET_HOLD_TIME_MS) {
-          ESP_LOGE("Reset Button", "*******************************");
-          ESP_LOGE("Reset Button", "*                             *");
-          ESP_LOGE("Reset Button", "*   Factory reset triggered   *");
-          ESP_LOGE("Reset Button", "*                             *");
-          ESP_LOGE("Reset Button", "*******************************");
+          #if DEBUG_MODE
+            ESP_LOGE("Reset Button", "*******************************");
+            ESP_LOGE("Reset Button", "*                             *");
+            ESP_LOGE("Reset Button", "*   Factory reset triggered   *");
+            ESP_LOGE("Reset Button", "*                             *");
+            ESP_LOGE("Reset Button", "*******************************");
+          #endif
           //--> uses for CommissioningWindowOpen
           //-- Schedule reset and open window in Matter thread
           chip::DeviceLayer::PlatformMgr().ScheduleWork([](intptr_t context) {
@@ -151,12 +157,13 @@ void reboot_button_task(void *pvParameter)
           esp_restart();
           //<-- uses for CommissioningWindowOpen
         } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
-          ESP_LOGW("Reset Button", "************************");
-          ESP_LOGW("Reset Button", "*                      *");
-          ESP_LOGW("Reset Button", "*   Reboot triggered   *");
-          ESP_LOGW("Reset Button", "*                      *");
-          ESP_LOGW("Reset Button", "************************");
-          //vTaskDelay(pdMS_TO_TICKS(5000));
+          #if DEBUG_MODE
+            ESP_LOGW("Reset Button", "************************");
+            ESP_LOGW("Reset Button", "*                      *");
+            ESP_LOGW("Reset Button", "*   Reboot triggered   *");
+            ESP_LOGW("Reset Button", "*                      *");
+            ESP_LOGW("Reset Button", "************************");
+          #endif
           esp_restart();
         } else {
           //=== Различаем одиночный и двойной клик ===
@@ -171,21 +178,25 @@ void reboot_button_task(void *pvParameter)
           //
           if(pressed_duration <= SHORT_CLICK_MAX_MS) {
             if(!s_first_click_pending) {
-              ESP_LOGW("Reset Button", "****************************");
-              ESP_LOGW("Reset Button", "*                          *");
-              ESP_LOGW("Reset Button", "*   Reset button pressed   *");
-              ESP_LOGW("Reset Button", "*                          *");
-              ESP_LOGW("Reset Button", "****************************");
+              //#if DEBUG_MODE
+                ESP_LOGW("Reset Button", "****************************");
+                ESP_LOGW("Reset Button", "*                          *");
+                ESP_LOGW("Reset Button", "*   Reset button pressed   *");
+                ESP_LOGW("Reset Button", "*                          *");
+                ESP_LOGW("Reset Button", "****************************");
+              //#endif
               //-- Первый клик в окне: стартуем таймер ожидания второго
               s_first_click_pending = true;
               esp_timer_stop(s_single_click_timer);
               esp_timer_start_once(s_single_click_timer, (uint64_t)DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
             } else {
-              ESP_LOGW("Reset Button", "*********************************");
-              ESP_LOGW("Reset Button", "*                               *");
-              ESP_LOGW("Reset Button", "*   Reset button double click   *");
-              ESP_LOGW("Reset Button", "*                               *");
-              ESP_LOGW("Reset Button", "*********************************");
+              //#if DEBUG_MODE
+                ESP_LOGW("Reset Button", "*********************************");
+                ESP_LOGW("Reset Button", "*                               *");
+                ESP_LOGW("Reset Button", "*   Reset button double click   *");
+                ESP_LOGW("Reset Button", "*                               *");
+                ESP_LOGW("Reset Button", "*********************************");
+              //#endif
               //-- Второй клик в окне: отменяем одиночное действие и делаем двойное
               s_first_click_pending = false;
               esp_timer_stop(s_single_click_timer);

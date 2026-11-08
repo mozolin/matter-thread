@@ -75,8 +75,10 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
             adc_unit_t adc_unit = CONFIG_MQ135_ADC_UNIT;
             adc_channel_t adc_channel = CONFIG_MQ135_ADC_CHANNEL;
             
-            ESP_LOGI(TAG_MIKE_APP, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
+            #if DEBUG_MODE
+              ESP_LOGI(TAG_MIKE_APP, "Инициализация драйвера MQ-135 на GPI%d (ADC_CHANNEL_%d)...",
                 (uint16_t)CONFIG_MQ135_GPIO, (uint16_t)CONFIG_MQ135_ADC_CHANNEL);
+            #endif
             #if CONFIG_MQ135_3V3_CIRCUIT
               err = mq135_driver_init_3v3(&s_mq135_handle, adc_unit, adc_channel, NULL);
             #else
@@ -88,10 +90,12 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
               //================================//
               //   ОПЦИОНАЛЬНО: КАЛИБРОВКА R0   //
               //================================//
-              #if CONFIG_MQ135_3V3_CIRCUIT
-                ESP_LOGW(TAG_MIKE_APP, "Калибровка R0 для 3.3V. Датчик должен быть в чистом воздухе!");
-              #else
-                ESP_LOGW(TAG_MIKE_APP, "Калибровка R0 для 5V. Датчик должен быть в чистом воздухе!");
+              #if DEBUG_MODE
+                #if CONFIG_MQ135_3V3_CIRCUIT
+                  ESP_LOGW(TAG_MIKE_APP, "Калибровка R0 для 3.3V. Датчик должен быть в чистом воздухе!");
+                #else
+                  ESP_LOGW(TAG_MIKE_APP, "Калибровка R0 для 5V. Датчик должен быть в чистом воздухе!");
+                #endif
               #endif
               
               #if CONFIG_MQ135_3V3_CIRCUIT
@@ -117,7 +121,9 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         #endif
         
         default: {
-            ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
+            #if DEBUG_MODE
+              ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
+            #endif
             err = ESP_ERR_INVALID_ARG;
             break;
         }
@@ -129,7 +135,9 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
 esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
 {
     if (sensor_idx >= configured_sensors) {
-        ESP_LOGE(TAG_MIKE_APP, "Invalid sensor index: %d", sensor_idx);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Invalid sensor index: %d", sensor_idx);
+        #endif
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -220,7 +228,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
             #endif
             if(err != ESP_OK) {
-              ESP_LOGE(TAG_MIKE_APP, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Ошибка чтения MQ-135: %s", esp_err_to_name(err));
+              #endif
             } else {
               #if !MOCK_SENSORS_BEHAVIOR
                 sensor->last_co2  = (int16_t)sensor_data.co2.ppm;
@@ -238,7 +248,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
               #endif
             }
         
-            //ESP_LOGW(TAG_MIKE_APP, "~~~ Данные MQ-135 -> CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm", sensor_data.co2.ppm, sensor_data.co.ppm, sensor_data.tvoc.ppm);
+            #if DEBUG_MODE
+              //ESP_LOGW(TAG_MIKE_APP, "~~~ Данные MQ-135 -> CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm", sensor_data.co2.ppm, sensor_data.co.ppm, sensor_data.tvoc.ppm);
+            #endif
             break;
         }
         #endif
@@ -268,14 +280,13 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     }
 
     if (err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "Failed to read sensor %d: %d", sensor_idx, err);
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Failed to read sensor %d: %d", sensor_idx, err);
+        #endif
     } else {
       #if USE_DRIVER_LED_INDICATOR
         //get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
         get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
-        //ESP_LOGW("", "-------\n|     |\n| LED |\n|     |\n-------");
-      #else
-      	//ESP_LOGE("", "-------\n|     |\n| NOT |\n|     |\n-------");
       #endif
     }
 
@@ -296,7 +307,9 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
             bool turn_on = val->val.b;
             if (ssd1306_initialized) {
                 ssd1306_set_display_enabled(turn_on);
-                ESP_LOGI(TAG_MIKE_APP, "HA -> Screen %s", turn_on ? "ON" : "OFF");
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "HA -> Screen %s", turn_on ? "ON" : "OFF");
+                #endif
             }
             return ESP_OK;
         }
@@ -310,7 +323,9 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
             //-- turn_on = false -> заблокировать (led_indicator_locked = true)
             extern bool led_indicator_locked;
             led_indicator_locked = !turn_on;
-            ESP_LOGI(TAG_MIKE_APP, "HA -> LED %s (locked=%d)", turn_on ? "ON" : "OFF", led_indicator_locked);
+            #if DEBUG_MODE
+              ESP_LOGI(TAG_MIKE_APP, "HA -> LED %s (locked=%d)", turn_on ? "ON" : "OFF", led_indicator_locked);
+            #endif
             return ESP_OK;
         }
         #endif
@@ -318,7 +333,9 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
         //-- Перезагрузка (On = немедленный reboot)
         if (endpoint_id == s_ep_reboot_onoff) {
             if (val->val.b) {
-                ESP_LOGW(TAG_MIKE_APP, "HA -> Reboot requested, restarting in 1 sec...");
+                #if DEBUG_MODE
+                  ESP_LOGW(TAG_MIKE_APP, "HA -> Reboot requested, restarting in 1 sec...");
+                #endif
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 esp_restart();
             }
@@ -338,7 +355,9 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     }
     
     sensor_data_t *sensor = &sensors[sensor_idx];
-    ESP_LOGW(TAG_MIKE_APP, "Performing soft reset for sensor %d (%d)", sensor_idx, sensor->config);
+    #if DEBUG_MODE
+      ESP_LOGW(TAG_MIKE_APP, "Performing soft reset for sensor %d (%d)", sensor_idx, sensor->config);
+    #endif
     
     esp_err_t err = ESP_OK;
     
@@ -365,7 +384,9 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
             break;
         #endif
         default:
-            ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type for reset: %d", sensor->config);
+            #if DEBUG_MODE
+              ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type for reset: %d", sensor->config);
+            #endif
             err = ESP_ERR_NOT_SUPPORTED;
             break;
     }
@@ -373,10 +394,14 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     if (err == ESP_OK) {
         sensor_reset_tracker[sensor_idx].reset_count++;
         sensor_reset_tracker[sensor_idx].last_reset_time = esp_timer_get_time() / 1000;
-        ESP_LOGI(TAG_MIKE_APP, "Sensor %d reset successful (total resets: %lu)", 
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Sensor %d reset successful (total resets: %lu)", 
                 sensor_idx, sensor_reset_tracker[sensor_idx].reset_count);
+        #endif
     } else {
-        ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", sensor_idx, err);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", sensor_idx, err);
+        #endif
     }
     
     return err;
@@ -399,7 +424,9 @@ void sensor_polling_task(void *pvParameters)
     const uint32_t RESET_CHECK_INTERVAL = 100;
     //const uint32_t STATS_LOG_INTERVAL = 5000;
     
-    ESP_LOGI(TAG_MIKE_APP, "Sensor polling task started with %d sensors", configured_sensors);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Sensor polling task started with %d sensors", configured_sensors);
+    #endif
     
     while (true) {
         
@@ -417,16 +444,19 @@ void sensor_polling_task(void *pvParameters)
                 uint64_t time_since_last_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
                 
                 if (time_since_last_reset >= RESET_INTERVAL_MS) {
-                    ESP_LOGI(TAG_MIKE_APP, 
+                    #if DEBUG_MODE
+                      ESP_LOGI(TAG_MIKE_APP, 
                             "Scheduled reset for sensor %d (%d): %llu ms since last reset", 
                             i, sensors[i].config, time_since_last_reset);
-                    
+                    #endif
                     sensor_reset_tracker[i].reset_in_progress = true;
                     esp_err_t reset_err = app_driver_sensor_soft_reset(i);
                     sensor_reset_tracker[i].reset_in_progress = false;
                     
                     if (reset_err == ESP_OK) {
-                        ESP_LOGI(TAG_MIKE_APP, "Scheduled reset completed for sensor %d", i);
+                        #if DEBUG_MODE
+                          ESP_LOGI(TAG_MIKE_APP, "Scheduled reset completed for sensor %d", i);
+                        #endif
                     }
                     
                     vTaskDelay(pdMS_TO_TICKS(200));
@@ -435,10 +465,13 @@ void sensor_polling_task(void *pvParameters)
         }
         
         // Log statistics
-        //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
+        #if DEBUG_MODE
+          //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
             app_driver_log_sensor_statistics();
-        //}
+          //}
+        #endif
         
+        #if !ESP_EMULATOR_MODE
         // Read all sensors
         for (int i = 0; i < configured_sensors; i++) {
             if (sensor_reset_tracker[i].reset_in_progress) {
@@ -685,7 +718,9 @@ void sensor_polling_task(void *pvParameters)
                                 &val
                             );
                             if (err != ESP_OK) {
-                                ESP_LOGE(TAG_MIKE_APP, "Ошибка обновления AirQuality: %s", esp_err_to_name(err));
+                                #if DEBUG_MODE
+                                  ESP_LOGE(TAG_MIKE_APP, "Ошибка обновления AirQuality: %s", esp_err_to_name(err));
+                                #endif
                             }
                         }
                         
@@ -756,7 +791,9 @@ void sensor_polling_task(void *pvParameters)
                                 esp_err_t err = attribute::update(endpoint::get_id(endpoint), TotalVolatileOrganicCompoundsConcentrationMeasurement::Id, 
                                       TotalVolatileOrganicCompoundsConcentrationMeasurement::Attributes::MeasuredValue::Id, &val);
                                 if (err != ESP_OK) {
-                                    ESP_LOGE(TAG_MIKE_APP, "Ошибка обновления атрибута TVOC MeasuredValue: %s", esp_err_to_name(err));
+                                    #if DEBUG_MODE
+                                      ESP_LOGE(TAG_MIKE_APP, "Ошибка обновления атрибута TVOC MeasuredValue: %s", esp_err_to_name(err));
+                                    #endif
                                 }
                                 */
                             }
@@ -810,11 +847,12 @@ void sensor_polling_task(void *pvParameters)
                 }
             }
         }
-        
+        #endif
         vTaskDelay(poll_period_ms);
     }
 }
 
+#if DEBUG_MODE
 void app_driver_log_sensor_statistics(void)
 {
     uint64_t current_time_ms = esp_timer_get_time() / 1000;
@@ -897,3 +935,4 @@ void app_driver_log_sensor_statistics(void)
     ESP_LOGW("", "===========================================================================");
     ESP_LOGW("", "");
 }
+#endif

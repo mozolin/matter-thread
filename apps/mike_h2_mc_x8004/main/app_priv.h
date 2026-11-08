@@ -9,9 +9,10 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  false
+#define MOCK_SENSORS_BEHAVIOR                  true
 #define DEBUG_MODE                             false
-#define SHOW_DEVICE_LOG                        true
+#define ESP_EMULATOR_MODE                      true
+#define SHOW_DEVICE_LOG                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
@@ -77,14 +78,14 @@
 
 
 //-- SSD1306 LED Display
-#define CONFIG_SSD1306_ENABLED                 true
+#define CONFIG_SSD1306_ENABLED                 false
 
 
 //-- Sensors configuration
 #define CONFIG_BME280_ENABLED                  true
-#define CONFIG_BME680_ENABLED                  0
-#define CONFIG_DS18B20_ENABLED                 0
-#define CONFIG_DHT11_ENABLED                   0
+#define CONFIG_BME680_ENABLED                  true
+#define CONFIG_DS18B20_ENABLED                 true
+#define CONFIG_DHT11_ENABLED                   true
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT41_ENABLED                   true
 
@@ -308,7 +309,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
  */
 void sensor_polling_task(void *pvParameters);
 
-void app_driver_log_sensor_statistics(void);
+#if DEBUG_MODE
+  void app_driver_log_sensor_statistics(void);
+#endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \

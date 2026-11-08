@@ -74,18 +74,6 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   uint64_t ssd1306_last_on_time_ms = 0;
 #endif
 
-/*********************
- *                   *
- *   LED INDICATOR   *
- *                   *
- *********************/
-/*
-#include "led_config.h"
-#if USE_DRIVER_LED_INDICATOR
-  #include "driver_led_indicator.h"
-  led_indicator_handle_t led_handle;
-#endif
-*/
 #if USE_DRIVER_LED_INDICATOR
   led_indicator_handle_t led_handle;
 #endif
@@ -198,10 +186,12 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
 {
     esp_err_t err = ESP_OK;
 
-    if (type == PRE_UPDATE) {
+    #if !ESP_EMULATOR_MODE
+      if (type == PRE_UPDATE) {
         app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
         err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
-    }
+      }
+    #endif
 
     return err;
 }
@@ -628,21 +618,25 @@ static void commissioning_window_blink_task(void *arg)
   uint32_t window_sec = (uint32_t)(uintptr_t)arg;
   uint32_t elapsed = 0;
 
-  ESP_LOGW("#1# CommWindow", "");
-  ESP_LOGW("#1# CommWindow", "##############################");
-  ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
-  ESP_LOGW("#1# CommWindow", "##############################");
-  ESP_LOGW("#1# CommWindow", "");
+  #if DEBUG_MODE
+    ESP_LOGW("#1# CommWindow", "");
+    ESP_LOGW("#1# CommWindow", "##############################");
+    ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
+    ESP_LOGW("#1# CommWindow", "##############################");
+    ESP_LOGW("#1# CommWindow", "");
+  #endif
 
   while(elapsed < window_sec) {
     // Проверяем, не закрылось ли окно раньше (например, устройство уже сопряжено)
     auto &mgr = chip::Server::GetInstance().GetCommissioningWindowManager();
     if(!mgr.IsCommissioningWindowOpen()) {
-      ESP_LOGW("#2# CommWindow", "");
-      ESP_LOGW("#2# CommWindow", "##############################");
-      ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
-      ESP_LOGW("#2# CommWindow", "##############################");
-      ESP_LOGW("#2# CommWindow", "");
+      #if DEBUG_MODE
+        ESP_LOGW("#2# CommWindow", "");
+        ESP_LOGW("#2# CommWindow", "##############################");
+        ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
+        ESP_LOGW("#2# CommWindow", "##############################");
+        ESP_LOGW("#2# CommWindow", "");
+      #endif
       break;
     }
 
@@ -654,11 +648,13 @@ static void commissioning_window_blink_task(void *arg)
     elapsed++;
   }
 
-  ESP_LOGW("#3# CommWindow", "");
-  ESP_LOGW("#3# CommWindow", "##############################");
-  ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
-  ESP_LOGW("#3# CommWindow", "##############################");
-  ESP_LOGW("#3# CommWindow", "");
+  #if DEBUG_MODE
+    ESP_LOGW("#3# CommWindow", "");
+    ESP_LOGW("#3# CommWindow", "##############################");
+    ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
+    ESP_LOGW("#3# CommWindow", "##############################");
+    ESP_LOGW("#3# CommWindow", "");
+  #endif
   vTaskDelete(NULL);
 }
 
@@ -670,7 +666,9 @@ static void commissioning_window_blink_task(void *arg)
 static esp_err_t create_boot_switch_endpoint(node_t *node)
 {
     if (node == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch: node is NULL");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: node is NULL");
+        #endif
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -679,17 +677,23 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     generic_switch::config_t switch_config;
     endpoint_t *endpoint = generic_switch::create(node, &switch_config, ENDPOINT_FLAG_NONE, NULL);
     if (endpoint == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to create endpoint");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to create endpoint");
+        #endif
         return ESP_FAIL;
     }
 
     uint16_t ep_id = endpoint::get_id(endpoint);
-    ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint created, id=%d", ep_id);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint created, id=%d", ep_id);
+    #endif
 
     //-- 2. Получаем кластер Switch для добавления функций
     cluster_t *switch_cluster = cluster::get(endpoint, Switch::Id);
     if (switch_cluster == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to get Switch cluster");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to get Switch cluster");
+        #endif
         return ESP_FAIL;
     }
 
@@ -698,7 +702,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Без неё остальные функции не имеют смысла.
     esp_err_t err = cluster::switch_cluster::feature::momentary_switch::add(switch_cluster);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch: %d", err);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch: %d", err);
+        #endif
         return err;
     }
 
@@ -708,7 +714,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Согласно спецификации Matter, MSR требует наличия MS[citation:2][citation:10].
     err = cluster::switch_cluster::feature::momentary_switch_release::add(switch_cluster);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch_release: %d", err);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch_release: %d", err);
+        #endif
         return err;
     }
 
@@ -717,7 +725,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Требует наличия MSR[citation:5].
     err = cluster::switch_cluster::feature::momentary_switch_long_press::add(switch_cluster);
     if (err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add long_press: %d (продолжаем)", err);
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add long_press: %d (продолжаем)", err);
+        #endif
         //-- Не критично: можно продолжить без LongPress
     }
 
@@ -728,7 +738,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     msm_config.multi_press_max = 2;  //-- максимум 2 нажатия (двойной клик)
     err = cluster::switch_cluster::feature::momentary_switch_multi_press::add(switch_cluster, &msm_config);
     if (err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add multi_press: %d (продолжаем)", err);
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add multi_press: %d (продолжаем)", err);
+        #endif
         //-- Не критично: можно продолжить без двойного клика
     }
 
@@ -736,7 +748,9 @@ static esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    (функция объявлена в driver_boot_switch.cpp)
     boot_switch_set_endpoint(ep_id, switch_cluster);
 
-    ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint fully configured (MS, MSR, LongPress, MultiPress)");
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint fully configured (MS, MSR, LongPress, MultiPress)");
+    #endif
     return ESP_OK;
 }
 #endif
@@ -763,17 +777,21 @@ static esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *screen_ep = on_off_light::create(node, &screen_config, ENDPOINT_FLAG_NONE, NULL);
     if(screen_ep) {
       s_ep_screen_onoff = endpoint::get_id(screen_ep);
-      ESP_LOGW(TAG_MIKE_APP, "");
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_screen_onoff);
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_screen_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
     } else {
-    	ESP_LOGE(TAG_MIKE_APP, "");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, "");
+    	#if DEBUG_MODE
+    		ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
     }
     #endif
 
@@ -789,17 +807,21 @@ static esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *led_ep = on_off_light::create(node, &led_config, ENDPOINT_FLAG_NONE, NULL);
     if(led_ep) {
       s_ep_led_onoff = endpoint::get_id(led_ep);
-      ESP_LOGW(TAG_MIKE_APP, "");
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_led_onoff);
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_led_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
     } else {
-    	ESP_LOGE(TAG_MIKE_APP, "");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, "");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
     }
     #endif
 
@@ -809,17 +831,21 @@ static esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *reboot_ep = on_off_plugin_unit::create(node, &reboot_config, ENDPOINT_FLAG_NONE, NULL);
     if(reboot_ep) {
       s_ep_reboot_onoff = endpoint::get_id(reboot_ep);
-      ESP_LOGW(TAG_MIKE_APP, "");
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_reboot_onoff);
-      ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGW(TAG_MIKE_APP, "");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_reboot_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+       ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
     } else {
-    	ESP_LOGE(TAG_MIKE_APP, "");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-      ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      ESP_LOGE(TAG_MIKE_APP, "");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
     }
 
     return ESP_OK;
@@ -878,15 +904,17 @@ extern "C" void app_main()
       //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
       led_indicator_start(led_handle, BLINK_OFF);
 
-      ESP_LOGE("", "");
-      ESP_LOGE("", "==============================");
-      ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
-      #if USE_RGB_LED
-        ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
+      #if DEBUG_MODE
+        ESP_LOGE("", "");
+        ESP_LOGE("", "==============================");
+        ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
+        #if USE_RGB_LED
+          ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
+        #endif
+        ESP_LOGE("", " LED state at boot: OFF (locked)");
+        ESP_LOGE("", "==============================");
+        ESP_LOGE("", "");
       #endif
-      ESP_LOGE("", " LED state at boot: OFF (locked)");
-      ESP_LOGE("", "==============================");
-      ESP_LOGE("", "");
     }
   #endif
 
@@ -934,11 +962,13 @@ extern "C" void app_main()
     #if CONFIG_OPENTHREAD_CLI
       esp_matter::console::otcli_register_commands();
     #endif
-    ESP_LOGE("", "");
-    ESP_LOGE("", "===========================================");
-    ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-    ESP_LOGE("", "===========================================");
-    ESP_LOGE("", "");
+    #if DEBUG_MODE
+      ESP_LOGE("", "");
+      ESP_LOGE("", "===========================================");
+      ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+      ESP_LOGE("", "===========================================");
+      ESP_LOGE("", "");
+    #endif
     err = esp_matter::console::init();
     if(err != ESP_OK) {
       #if DEBUG_MODE
@@ -975,13 +1005,13 @@ extern "C" void app_main()
   // =========================================
   #if CONFIG_BOOT_SWITCH_ENABLED
     create_boot_switch_endpoint(node);
-      
+    #if DEBUG_MODE
       ESP_LOGE(TAG_MIKE_APP, "");
       ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~");
       ESP_LOGE(TAG_MIKE_APP, " ??? On/Off ??? ");
       ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~");
       ESP_LOGE(TAG_MIKE_APP, "");
-
+    #endif
     create_onoff_endpoints(node);
   #endif
   
@@ -1013,17 +1043,21 @@ extern "C" void app_main()
           chip::System::Clock::Seconds16(CONFIG_COMMISSIONING_WINDOW_OPEN)
         );
         if(err != CHIP_NO_ERROR) {
-          ESP_LOGE("", "");
-          ESP_LOGE("", "-------------------------------------------------");
-          ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
-          ESP_LOGE("", "-------------------------------------------------");
-          ESP_LOGE("", "");
+          #if DEBUG_MODE
+            ESP_LOGE("", "");
+            ESP_LOGE("", "-------------------------------------------------");
+            ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
+            ESP_LOGE("", "-------------------------------------------------");
+            ESP_LOGE("", "");
+          #endif
         } else {
-          ESP_LOGW("", "");
-          ESP_LOGW("", "------------------------------------------------------------");
-          ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
-          ESP_LOGW("", "------------------------------------------------------------");
-          ESP_LOGW("", "");
+          #if DEBUG_MODE
+            ESP_LOGW("", "");
+            ESP_LOGW("", "------------------------------------------------------------");
+            ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
+            ESP_LOGW("", "------------------------------------------------------------");
+            ESP_LOGW("", "");
+          #endif
         }
       } else {
       	// Запускаем задачу мигания (в стеке 2 KB достаточно)
@@ -1034,14 +1068,16 @@ extern "C" void app_main()
   #endif
   
   // 10. Get FabricId & NodeId
-  ESP_LOGW("", "");
-  ESP_LOGW("", "===========================================");
-  chip::FabricTable &fabricTable = chip::Server::GetInstance().GetFabricTable();
-  for(auto iter = fabricTable.begin(); iter != fabricTable.end(); ++iter) {
-    ESP_LOGW("", "FabricId 0x%llx NodeId 0x%llx", iter->GetFabricId(), iter->GetNodeId());
-  }
-  ESP_LOGW("", "===========================================");
-  ESP_LOGW("", "");
+  #if DEBUG_MODE
+    ESP_LOGW("", "");
+    ESP_LOGW("", "===========================================");
+    chip::FabricTable &fabricTable = chip::Server::GetInstance().GetFabricTable();
+    for(auto iter = fabricTable.begin(); iter != fabricTable.end(); ++iter) {
+      ESP_LOGW("", "FabricId 0x%llx NodeId 0x%llx", iter->GetFabricId(), iter->GetNodeId());
+    }
+    ESP_LOGW("", "===========================================");
+    ESP_LOGW("", "");
+  #endif
 
 
   // 10. Basic attributes (лучше — по событию)
@@ -1058,7 +1094,9 @@ extern "C" void app_main()
 
     //-- Запускаем задачу (приоритет ниже, чем reboot_button_task, чтобы не мешать)
     xTaskCreate(boot_switch_task, "boot_switch", 3072, NULL, CONFIG_BOOT_SWITCH_TASK_PRIORITY, NULL);
-    ESP_LOGI(TAG_MIKE_APP, "Boot Switch task created");
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch task created");
+    #endif
   #endif
 
   // =================================================
@@ -1074,7 +1112,9 @@ extern "C" void app_main()
         OnOff::Attributes::OnOff::Id,
         &val
       );
-      ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to ON after start");
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to ON after start");
+      #endif
     }
   #endif
   

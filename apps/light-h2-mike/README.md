@@ -1,10 +1,7 @@
-# ESP32-H2 Light
+# Light
 
-This example creates a Color Temperature Light device using the ESP32-H2 DevBoard  
-Matter data model.  
-Extra options:  
-- set GPIO values for OUTPUT and BUTTON in h-file
-- init GPIO for OUTPUT
+This example creates a Color Temperature Light device using the ESP
+Matter data model.
 
 See the [docs](https://docs.espressif.com/projects/esp-matter/en/latest/esp32/developing.html) for more information about building and flashing the firmware.
 

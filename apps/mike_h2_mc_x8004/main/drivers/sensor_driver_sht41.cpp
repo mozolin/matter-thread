@@ -14,12 +14,16 @@ esp_err_t sht41_init(void)
     esp_err_t err = ESP_OK;
     
     if(s_initialized) {
-      ESP_LOGW(TAG_MIKE_APP, "Драйвер уже инициализирован");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "Драйвер уже инициализирован");
+      #endif
       return ESP_OK;
     }
 
-    ESP_LOGI(TAG_MIKE_APP, "Инициализация SHT41: порт=%d, SDA=%d, SCL=%d",
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Инициализация SHT41: порт=%d, SDA=%d, SCL=%d",
              CONFIG_SHT41_I2C_PORT, (gpio_num_t)CONFIG_SHT41_SDA_GPIO, (gpio_num_t)CONFIG_SHT41_SCL_GPIO);
+    #endif
     
     #if !MOCK_SENSORS_BEHAVIOR
       // Инициализация дескриптора устройства SHT41
@@ -27,27 +31,33 @@ esp_err_t sht41_init(void)
       memset(&s_dev, 0, sizeof(sht4x_t));
       err = sht4x_init_desc(&s_dev, CONFIG_SHT41_I2C_PORT, (gpio_num_t)CONFIG_SHT41_SDA_GPIO, (gpio_num_t)CONFIG_SHT41_SCL_GPIO);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации дескриптора SHT41: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации дескриптора SHT41: %s", esp_err_to_name(err));
+        #endif
         return err;
       }
 
       // Установка частоты I2C
       err = sht4x_init(&s_dev);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации датчика SHT41: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации датчика SHT41: %s", esp_err_to_name(err));
+        #endif
         //sht4x_free_desc(&s_dev);
         return err;
       }
     #endif
     s_initialized = true;
 
-    ESP_LOGI("", "");
-    ESP_LOGI("", "##############################");
-    ESP_LOGI("", "#                            #");
-    ESP_LOGI("", "#     SHT41: initialized     #");
-    ESP_LOGI("", "#                            #");
-    ESP_LOGI("", "##############################");
-    ESP_LOGI("", "");
+    #if DEBUG_MODE
+      ESP_LOGI("", "");
+      ESP_LOGI("", "##############################");
+      ESP_LOGI("", "#                            #");
+      ESP_LOGI("", "#     SHT41: initialized     #");
+      ESP_LOGI("", "#                            #");
+      ESP_LOGI("", "##############################");
+      ESP_LOGI("", "");
+    #endif
 
     return err;
 }
@@ -63,13 +73,17 @@ esp_err_t sht41_read_all(int16_t *temperature, uint16_t *humidity)
     
   #if !MOCK_SENSORS_BEHAVIOR
     if (!s_initialized) {
-        ESP_LOGE(TAG_MIKE_APP, "Драйвер не инициализирован");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Драйвер не инициализирован");
+        #endif
         return ESP_ERR_INVALID_STATE;
     }
 
     err = sht4x_measure(&s_dev, &temp, &hum);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка измерения SHT41: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка измерения SHT41: %s", esp_err_to_name(err));
+        #endif
         return err;
     }
   #else
@@ -100,7 +114,9 @@ esp_err_t sht41_driver_deinit(void)
 
     sht4x_free_desc(&s_dev);
     s_initialized = false;
-    ESP_LOGI(TAG_MIKE_APP, "Драйвер SHT41 освобождён");
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Драйвер SHT41 освобождён");
+    #endif
 
     return ESP_OK;
 }

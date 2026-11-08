@@ -41,7 +41,9 @@ void boot_switch_driver_init(void)
 {
     //-- endpoint_id и cluster будут переданы извне
     //-- (см. create_boot_switch_endpoint в app_main.cpp)
-    ESP_LOGI(TAG_MIKE_APP, "Boot Switch driver initialized (endpoint=%d)", s_boot_switch_endpoint_id);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch driver initialized (endpoint=%d)", s_boot_switch_endpoint_id);
+    #endif
 }
 
 // ============================================================
@@ -61,14 +63,18 @@ extern "C" void boot_switch_set_endpoint(uint16_t endpoint_id, cluster_t *cluste
 void boot_switch_report_event(uint8_t event_type)
 {
     if (s_boot_switch_endpoint_id == 0 || s_boot_switch_cluster == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Boot Switch not initialized, cannot report event %d", event_type);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch not initialized, cannot report event %d", event_type);
+        #endif
         return;
     }
 
     //-- Получаем FeatureMap кластера, чтобы понять, какие события разрешены
     attribute_t *fm_attr = attribute::get(s_boot_switch_cluster, Switch::Attributes::FeatureMap::Id);
     if (fm_attr == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Cannot get FeatureMap for Switch cluster");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Cannot get FeatureMap for Switch cluster");
+        #endif
         return;
     }
 
@@ -95,7 +101,9 @@ void boot_switch_report_event(uint8_t event_type)
                     &val
                 );
                 if (err == ESP_OK) {
-                    ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE press -> InitialPress");
+                    #if DEBUG_MODE
+                      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE press -> InitialPress");
+                    #endif
                 }
 
                 //-- Отправляем ShortRelease
@@ -133,9 +141,13 @@ void boot_switch_report_event(uint8_t event_type)
                     Switch::Attributes::CurrentPosition::Id,
                     &val
                 );
-                ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE press -> MultiPressComplete(2)");
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE press -> MultiPressComplete(2)");
+                #endif
             } else {
-                ESP_LOGW(TAG_MIKE_APP, "Boot Switch: DOUBLE press not supported (feature not enabled)");
+                #if DEBUG_MODE
+                  ESP_LOGW(TAG_MIKE_APP, "Boot Switch: DOUBLE press not supported (feature not enabled)");
+                #endif
             }
             break;
         }
@@ -150,9 +162,13 @@ void boot_switch_report_event(uint8_t event_type)
                     Switch::Attributes::CurrentPosition::Id,
                     &val
                 );
-                ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press -> LongPress/LongRelease");
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press -> LongPress/LongRelease");
+                #endif
             } else {
-                ESP_LOGW(TAG_MIKE_APP, "Boot Switch: LONG press not supported (feature not enabled)");
+                #if DEBUG_MODE
+                  ESP_LOGW(TAG_MIKE_APP, "Boot Switch: LONG press not supported (feature not enabled)");
+                #endif
             }
             break;
         }
@@ -170,9 +186,10 @@ void boot_switch_report_event(uint8_t event_type)
 // ============================================================
 void boot_switch_task(void *pvParameters)
 {
-    ESP_LOGI(TAG_MIKE_APP, "Boot Switch task started (poll=%d ms, long=%d ms, double=%d ms)",
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch task started (poll=%d ms, long=%d ms, double=%d ms)",
              BOOT_SWITCH_POLL_MS, BOOT_SWITCH_LONG_PRESS_MS, BOOT_SWITCH_DOUBLE_CLICK_MS);
-
+    #endif
     while (true) {
         uint64_t now_ms = esp_timer_get_time() / 1000;
         bool current_state = gpio_get_level((gpio_num_t)REBOOT_BUTTON_GPIO);  // true = отпущена
@@ -191,7 +208,9 @@ void boot_switch_task(void *pvParameters)
                 //-- Отправляем LongPress (но НЕ отпускаем — LongRelease уйдёт при отпускании)
                 boot_switch_report_event(BOOT_SWITCH_EVENT_LONG);
                 s_long_press_sent = true;
-                ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press detected at %llu ms", press_duration);
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press detected at %llu ms", press_duration);
+                #endif
             }
         }
 
@@ -203,15 +222,19 @@ void boot_switch_task(void *pvParameters)
                 //-- Уже был LongPress, теперь LongRelease (можно отправить отдельно)
                 //-- В текущей реализации мы уже отправили событие LONG,
                 //-- HA увидит LongPress. LongRelease — опционально.
-                ESP_LOGI(TAG_MIKE_APP, "Boot Switch: release after LONG press");
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: release after LONG press");
+                #endif
             } else if (press_duration <= SHORT_CLICK_MAX_MS) {
                 //-- Короткий клик: проверяем, не был ли это второй клик
                 if (s_first_click_pending && (now_ms - s_first_click_time_ms) <= BOOT_SWITCH_DOUBLE_CLICK_MS) {
                     //-- Второй клик в окне -> ДВОЙНОЙ
                     s_first_click_pending = false;
                     boot_switch_report_event(BOOT_SWITCH_EVENT_DOUBLE);
-                    ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE click detected (gap=%llu ms)",
+                    #if DEBUG_MODE
+                      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE click detected (gap=%llu ms)",
                              now_ms - s_first_click_time_ms);
+                    #endif
                 } else {
                     //-- Первый клик в окне -> ждём второй
                     s_first_click_pending = true;
@@ -231,7 +254,9 @@ void boot_switch_task(void *pvParameters)
                 //-- Второй клик не пришёл -> это ОДИНОЧНЫЙ
                 s_first_click_pending = false;
                 boot_switch_report_event(BOOT_SWITCH_EVENT_SINGLE);
-                ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE click confirmed");
+                #if DEBUG_MODE
+                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE click confirmed");
+                #endif
             }
         }
 

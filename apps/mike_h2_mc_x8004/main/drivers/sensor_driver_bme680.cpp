@@ -14,14 +14,18 @@ esp_err_t bme680_init()
     
       err = bme680_init_desc(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #endif
         return err;
       }
     
       // init the sensor
       err = bme680_init_sensor(&sensor);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #endif
         return err;
       }
     
@@ -46,13 +50,15 @@ esp_err_t bme680_init()
     
     last_wakeup = xTaskGetTickCount();
 
-    ESP_LOGI("", "");
-    ESP_LOGI("", "###############################");
-    ESP_LOGI("", "#                             #");
-    ESP_LOGI("", "#     BME680: initialized     #");
-    ESP_LOGI("", "#                             #");
-    ESP_LOGI("", "###############################");
-    ESP_LOGI("", "");
+    #if DEBUG_MODE
+      ESP_LOGI("", "");
+      ESP_LOGI("", "###############################");
+      ESP_LOGI("", "#                             #");
+      ESP_LOGI("", "#     BME680: initialized     #");
+      ESP_LOGI("", "#                             #");
+      ESP_LOGI("", "###############################");
+      ESP_LOGI("", "");
+    #endif
     
     return err;
 }

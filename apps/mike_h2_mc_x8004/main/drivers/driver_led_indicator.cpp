@@ -64,17 +64,23 @@
             //-- 2. Гасим LED через штатный шаг BLINK_OFF
             led_indicator_start(led_handle, BLINK_OFF);
           }
-          ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
+          #if DEBUG_MODE
+            ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
+          #endif
         } else {
           //-- При разблокировке просто останавливаем "гасящий" шаг,
           //-- чтобы LED не удерживался в состоянии OFF.
           if(led_handle) {
             led_indicator_stop(led_handle, BLINK_OFF);
           }
-          ESP_LOGW("Reset Button", "LED indicator UNLOCKED (on)");
+          #if DEBUG_MODE
+            ESP_LOGW("Reset Button", "LED indicator UNLOCKED (on)");
+          #endif
         }
       #else
-        ESP_LOGW("Reset Button", "LED indicator not compiled in");
+        #if DEBUG_MODE
+          ESP_LOGW("Reset Button", "LED indicator not compiled in");
+        #endif
       #endif
     }
     
