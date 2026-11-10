@@ -76,7 +76,7 @@ Bindings in ~/.config/micro/bindings.json:
 https://www.debugpoint.com/install-change-autostart-setup-screensaver-ubuntu-linux/
 Install
 ~~~
-sudo apt install xscreensaver
+sudo apt install xscreensaver xscreensaver-gl xscreensaver-gl-extra xscreensaver-data-extra
 ~~~
 Check
 ~~~
@@ -92,6 +92,10 @@ sudo apt remove gnome-screensaver
 
 Disable Wayland: in /etc/gdm3/custom.conf set:  
 > WaylandEnable=false
+  
+Settings:  
+![](../images/xscreensaver/xscreensaver.png)  
+  
 
 <!--
 ## Anbox?
