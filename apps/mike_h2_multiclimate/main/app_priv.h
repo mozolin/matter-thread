@@ -193,6 +193,7 @@
 
 
 #if CONFIG_SSD1306_ENABLED
+  #include "driver_ssd1306_common.h"
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
   /**********************************************************

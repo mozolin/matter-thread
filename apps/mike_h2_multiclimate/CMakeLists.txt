@@ -10,6 +10,13 @@ set(MATTER_SDK_PATH ${ESP_MATTER_PATH}/connectedhomeip/connectedhomeip)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 include(${ESP_MATTER_PATH}/examples/common/cmake_common/components_include.cmake)
 
+list(APPEND EXTRA_COMPONENT_DIRS 
+  "${CMAKE_CURRENT_LIST_DIR}/../lib"
+  #"${CMAKE_CURRENT_LIST_DIR}/../lib/components"
+)
+
+
+
 set(EXTRA_COMPONENT_DIRS
     "${MATTER_SDK_PATH}/config/esp32/components"
     "${ESP_MATTER_PATH}/components"
