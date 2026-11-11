@@ -32,13 +32,17 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
   //-- Get Matter node
   node_t *node = node::get();
   if(!node) {
-  	ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#endif
   	return false;
 	}
 	//-- Get Endpoint
   endpoint_t *endpoint = endpoint::get(node, endpoint_id);
   if(!endpoint) {
-  	ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+  	#endif
   	return false;
 	}
 
@@ -49,12 +53,16 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
   	MATTER_CLUSTER_FLAG_SERVER
   );
   if(!cluster) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster");
+  	#endif
   	return false;
 	} else {
     //-- Check if attribute exists
     if(is_attribute_exists(endpoint_id, cluster_id, attribute_id)) {
-    	ESP_LOGE(TAG_MIKE_APP, "Attribute already exists");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Attribute already exists");
+    	#endif
     	return false;
     }
     //-- Create an attribute
@@ -68,7 +76,9 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
     //-- Get a pointer to the attribute
     esp_matter::attribute_t *attribute = esp_matter::attribute::get(cluster, attribute_id);
     if(!attribute) {
-  		ESP_LOGE(TAG_MIKE_APP, "Failed to create attribute");
+  		#if DEBUG_MODE
+  		  ESP_LOGE(TAG_MIKE_APP, "Failed to create attribute");
+  		#endif
   		return false;
 		}
 
@@ -77,10 +87,14 @@ bool create_custom_cluster(uint16_t endpoint_id, uint32_t cluster_id, uint32_t a
   //-- Get a pointer to the cluster
   cluster_t *cluster_new = cluster::get(endpoint_id, cluster_id);
   if(!cluster_new) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#endif
   	return false;
   } else {
-  	ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
+  	#if DEBUG_MODE
+  	  ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
+  	#endif
   }
 
   //add_custom_cluster_safely(endpoint_id);
@@ -93,7 +107,9 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
   //-- Get Matter node
   node_t *node = node::get();
   if(!node) {
-  	ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#endif
   	return false;
 	}
   	
@@ -116,12 +132,16 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
   	MATTER_CLUSTER_FLAG_SERVER
   );
   if(!cluster) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster");
+  	#endif
   	return false;
 	} else {
     //-- Check if attribute exists
     if(is_attribute_exists(endpoint_id, cluster_id, attribute_id)) {
-    	ESP_LOGE(TAG_MIKE_APP, "Attribute already exists");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Attribute already exists");
+    	#endif
     	return false;
     }
     //-- Create an attribute
@@ -135,7 +155,9 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
     //-- Get a pointer to the attribute
     esp_matter::attribute_t *attribute = esp_matter::attribute::get(cluster, attribute_id);
     if(!attribute) {
-  		ESP_LOGE(TAG_MIKE_APP, "Failed to create attribute");
+  		#if DEBUG_MODE
+  		  ESP_LOGE(TAG_MIKE_APP, "Failed to create attribute");
+  		#endif
   		return false;
 		}
 
@@ -150,7 +172,9 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
     //-- Get a pointer to the attribute
     esp_matter::attribute_t *attribute2 = esp_matter::attribute::get(cluster, 0xFFFD);
     if(!attribute2) {
-  		ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster revision attribute");
+  		#if DEBUG_MODE
+  		  ESP_LOGE(TAG_MIKE_APP, "Failed to create cluster revision attribute");
+  		#endif
   		return false;
 		}
 		
@@ -159,10 +183,14 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
   //-- Get a pointer to the cluster
   cluster_t *cluster_new = cluster::get(endpoint_id, cluster_id);
   if(!cluster_new) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#endif
   	return false;
   } else {
-  	ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
+  	#if DEBUG_MODE
+  	  ESP_LOGI(TAG_MIKE_APP, "~~~ Custom cluster 0x%08" PRIX32 " initialized at endpoint 0x%04" PRIX16, cluster_id, endpoint_id);
+  	#endif
   }
 
   //check_cluster_revision2();
@@ -181,7 +209,9 @@ bool create_custom_cluster2(uint16_t endpoint_id, uint32_t cluster_id, uint32_t 
 //-- Set a callback function if there is no other
 static esp_err_t attr_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
 {
-  ESP_LOGE(TAG_MIKE_APP, "~~~ attr_update_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+  #if DEBUG_MODE
+    ESP_LOGE(TAG_MIKE_APP, "~~~ attr_update_cb():type=%d,ep=%d,cluster=%d,attr=%d", (int)type, (int)endpoint_id, (int)cluster_id, (int)attribute_id);
+  #endif
   return ESP_OK;
 }
 */
@@ -198,34 +228,46 @@ bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t
   //-- Get a pointer to the Matter node
   node_t *node = node::get();
   if(!node) {
-  	ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Matter node not initialized");
+  	#endif
   	return false;
 	}
 	//-- Get a pointer to the Endpoint
   endpoint_t *endpoint = endpoint::get(node, endpoint_id);
   if(!endpoint) {
-  	ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+  	#endif
   	return false;
 	}
   //-- Get a pointer to the cluster
   cluster_t *cluster = cluster::get(endpoint_id, cluster_id);
   if(!cluster) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to get cluster");
+  	#endif
   	return false;
   }
   //-- Get a pointer to the attribute
   attribute_t *attribute = attribute::get(cluster, attribute_id);
   if(!attribute) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
+  	#endif
   	return false;
 	}
 	//-- Get existing attribute value
 	esp_matter_attr_val_t val_old;
 	if(attribute::get_val(attribute, &val_old) == ESP_OK) {
   	const char* buf = get_attribute_value(val_old).c_str();
-  	ESP_LOGI(TAG_MIKE_APP, "~~~ Get value of attribute: successfully => %s", buf);
+  	#if DEBUG_MODE
+  	  ESP_LOGI(TAG_MIKE_APP, "~~~ Get value of attribute: successfully => %s", buf);
+  	#endif
   } else {
-  	ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to get value of attribute");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "~~~ Failed to get value of attribute");
+  	#endif
   	return false;
   }
 
@@ -241,7 +283,9 @@ bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t
     &val
   );
   if(err != ESP_OK) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to update attribute");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to update attribute");
+  	#endif
   	return false;
   }
 
@@ -253,7 +297,9 @@ bool update_custom_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t
   	&val
   );
   if(err != ESP_OK) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to report attribute");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to report attribute");
+  	#endif
   	return false;
   }
 
@@ -381,7 +427,9 @@ void add_custom_cluster_safely(uint16_t endpoint_id)
   // 1. Получаем текущий endpoint (без модификации)
   const EmberAfEndpointType *endpoint = emberAfFindEndpointType(endpoint_id);
   if(!endpoint) {
-    ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+    #if DEBUG_MODE
+      ESP_LOGE(TAG_MIKE_APP, "Endpoint %d not found", endpoint_id);
+    #endif
     return;
   }
 
@@ -402,13 +450,17 @@ void add_custom_cluster_safely(uint16_t endpoint_id)
   
   // 6. Добавляем наш кластер
   new_clusters[endpoint->clusterCount] = customCluster;
-  ESP_LOGW(TAG_MIKE_APP, "new_clusters-1: %d (%d -> %d)", endpoint->clusterCount, new_cluster_count, sizeof(new_clusters));
+  #if DEBUG_MODE
+    ESP_LOGW(TAG_MIKE_APP, "new_clusters-1: %d (%d -> %d)", endpoint->clusterCount, new_cluster_count, sizeof(new_clusters));
+  #endif
   
   // 7. Обновляем структуру
   new_endpoint->cluster = new_clusters;
   new_endpoint->clusterCount = new_cluster_count;
   
-  ESP_LOGW(TAG_MIKE_APP, "new_clusters-2: %d", new_endpoint->clusterCount);
+  #if DEBUG_MODE
+    ESP_LOGW(TAG_MIKE_APP, "new_clusters-2: %d", new_endpoint->clusterCount);
+  #endif
   
   // 8. Регистрируем обновленный endpoint
   CHIP_ERROR err = CHIP_NO_ERROR;
@@ -446,37 +498,51 @@ void add_custom_cluster_safely(uint16_t endpoint_id)
 
   if(err != CHIP_NO_ERROR) {
     if(err == CHIP_ERROR_NO_MEMORY) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_NO_MEMORY");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_NO_MEMORY");
+    	#endif
     }
     if(err == CHIP_ERROR_INVALID_ARGUMENT) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_INVALID_ARGUMENT");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_INVALID_ARGUMENT");
+    	#endif
     }
     if(err == CHIP_ERROR_ENDPOINT_EXISTS) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_ENDPOINT_EXISTS");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_ENDPOINT_EXISTS");
+    	#endif
     }
   } else {
-    ESP_LOGI(TAG_MIKE_APP, "Custom endpoint %d registered", endpoint_id);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Custom endpoint %d registered", endpoint_id);
+    #endif
   }
 
-  ESP_LOGI(TAG_MIKE_APP, "Custom cluster 0x%08" PRIX32 " added to endpoint %d", 
+  #if DEBUG_MODE
+    ESP_LOGI(TAG_MIKE_APP, "Custom cluster 0x%08" PRIX32 " added to endpoint %d", 
           customCluster.clusterId, endpoint_id);
+  #endif
 
   chip::EndpointId ep = emberAfEndpointFromIndex(1);
   bool isServer = true;
   uint8_t num = emberAfClusterCount(ep, isServer);
-	ESP_LOGW(TAG_MIKE_APP, "Clusters: %d", num);
+	#if DEBUG_MODE
+	  ESP_LOGW(TAG_MIKE_APP, "Clusters: %d", num);
+	#endif
 }
 
 /*
 void create_custom_cluster_safely(uint16_t endpoint_id)
 {
-  ESP_LOGE("", "");
-  ESP_LOGE(TAG_MIKE_APP, "##########################");
-  ESP_LOGE(TAG_MIKE_APP, "#                        #");
-  ESP_LOGE(TAG_MIKE_APP, "#   CUSTOM ENDPOINT: %d   #", endpoint_id);
-  ESP_LOGE(TAG_MIKE_APP, "#                        #");
-  ESP_LOGE(TAG_MIKE_APP, "##########################");
-  ESP_LOGE("", "");
+  #if DEBUG_MODE
+    ESP_LOGE("", "");
+    ESP_LOGE(TAG_MIKE_APP, "##########################");
+    ESP_LOGE(TAG_MIKE_APP, "#                        #");
+    ESP_LOGE(TAG_MIKE_APP, "#   CUSTOM ENDPOINT: %d   #", endpoint_id);
+    ESP_LOGE(TAG_MIKE_APP, "#                        #");
+    ESP_LOGE(TAG_MIKE_APP, "##########################");
+    ESP_LOGE("", "");
+  #endif
   
   EmberAfEndpointType endpoint = {
     .cluster = &customCluster,
@@ -484,7 +550,9 @@ void create_custom_cluster_safely(uint16_t endpoint_id)
     .endpointSize = 0
   };
   
-  ESP_LOGW(TAG_MIKE_APP, "clusters: %d", endpoint->clusterCount);
+  #if DEBUG_MODE
+    ESP_LOGW(TAG_MIKE_APP, "clusters: %d", endpoint->clusterCount);
+  #endif
   
   // 8. Регистрируем обновленный endpoint
   CHIP_ERROR err = CHIP_NO_ERROR;
@@ -520,31 +588,46 @@ void create_custom_cluster_safely(uint16_t endpoint_id)
 
   if(err != CHIP_NO_ERROR) {
     if(err == CHIP_ERROR_NO_MEMORY) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_NO_MEMORY");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_NO_MEMORY");
+    	#endif
     }
     if(err == CHIP_ERROR_INVALID_ARGUMENT) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_INVALID_ARGUMENT");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_INVALID_ARGUMENT");
+    	#endif
     }
     if(err == CHIP_ERROR_ENDPOINT_EXISTS) {
-    	ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_ENDPOINT_EXISTS");
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "Failed to register endpoint: CHIP_ERROR_ENDPOINT_EXISTS");
+    	#endif
     }
   } else {
-    ESP_LOGI(TAG_MIKE_APP, "Custom endpoint %d registered", endpoint_id);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Custom endpoint %d registered", endpoint_id);
+    #endif
   }
 
-  ESP_LOGI(TAG_MIKE_APP, "Custom cluster 0x%08" PRIX32 " added to endpoint %d", 
+  #if DEBUG_MODE
+    ESP_LOGI(TAG_MIKE_APP, "Custom cluster 0x%08" PRIX32 " added to endpoint %d", 
           customCluster.clusterId, endpoint_id);
+  #endif
 
   chip::EndpointId ep = emberAfEndpointFromIndex(1);
   bool isServer = true;
   uint8_t num = emberAfClusterCount(ep, isServer);
-	ESP_LOGW(TAG_MIKE_APP, "Clusters: %d", num);
+	
+	#if DEBUG_MODE
+	  ESP_LOGW(TAG_MIKE_APP, "Clusters: %d", num);
+	#endif
 }
 */
 
 void remove_custom_cluster(uint16_t endpoint_id)
 {
-  ESP_LOGW(TAG_MIKE_APP, "Remove EP %d", endpoint_id);
+  #if DEBUG_MODE
+    ESP_LOGW(TAG_MIKE_APP, "Remove EP %d", endpoint_id);
+  #endif
   emberAfClearDynamicEndpoint(endpoint_id - 1);
 }
 
@@ -558,7 +641,9 @@ void check_cluster_revisions()
     if(ept->endpoint == endpoint_id) {
       for(uint8_t j = 0; j < ept->clusterCount; j++) {
         uint32_t rev = get_cluster_revision(endpoint_id, ept->cluster[j].clusterId);
-        ESP_LOGI(TAG_MIKE_APP, "Cluster 0x%08" PRIX32 " revision: %d", ept->cluster[j].clusterId, (int)rev);
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Cluster 0x%08" PRIX32 " revision: %d", ept->cluster[j].clusterId, (int)rev);
+        #endif
       }
     }
   }
@@ -570,9 +655,13 @@ void check_cluster_revision2()
   uint16_t revision = 0;
   if(emberAfReadAttribute(1, 0xFC01, 0xFFFD, 
     (uint8_t*)&revision, sizeof(revision)) == Status::Success) {
-    ESP_LOGW(TAG_MIKE_APP, "Cluster 0xFC01 revision: %d", revision);
+    #if DEBUG_MODE
+      ESP_LOGW(TAG_MIKE_APP, "Cluster 0xFC01 revision: %d", revision);
+    #endif
   } else {
-  	ESP_LOGE(TAG_MIKE_APP, "Cluster 0xFC01 revision not found!");
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Cluster 0xFC01 revision not found!");
+  	#endif
   }
 }
 

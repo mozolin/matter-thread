@@ -16,12 +16,16 @@ esp_err_t bme280_init()
 
       err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #endif
         return err;
       }
       err = bmp280_init(&dev, &params);
       if(err != ESP_OK) {
-        ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #endif
         return err;
       }
 
@@ -29,15 +33,16 @@ esp_err_t bme280_init()
     #else
       bme280p = true;
     #endif
-    ESP_LOGI(TAG_MIKE_APP, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
-
-    ESP_LOGI("", "");
-    ESP_LOGI("", "###############################");
-    ESP_LOGI("", "#                             #");
-    ESP_LOGI("", "#     BME280: initialized     #");
-    ESP_LOGI("", "#                             #");
-    ESP_LOGI("", "###############################");
-    ESP_LOGI("", "");
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
+      ESP_LOGI("", "");
+      ESP_LOGI("", "###############################");
+      ESP_LOGI("", "#                             #");
+      ESP_LOGI("", "#     BME280: initialized     #");
+      ESP_LOGI("", "#                             #");
+      ESP_LOGI("", "###############################");
+      ESP_LOGI("", "");
+    #endif
 
     return err;
 }
@@ -49,7 +54,9 @@ esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pre
     #if !MOCK_SENSORS_BEHAVIOR
       if(bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
       {
-        ESP_LOGE(TAG_MIKE_APP, "Temperature/pressure reading failed!");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Temperature/pressure reading failed!");
+        #endif
         //continue;
         return ESP_OK;
       }

@@ -9,9 +9,10 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  false
+#define MOCK_SENSORS_BEHAVIOR                  true
 #define DEBUG_MODE                             false
-#define SHOW_DEVICE_LOG                        true
+#define ESP_EMULATOR_MODE                      true
+#define SHOW_DEVICE_LOG                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
@@ -77,7 +78,7 @@
 
 
 //-- SSD1306 LED Display
-#define CONFIG_SSD1306_ENABLED                 true
+#define CONFIG_SSD1306_ENABLED                 false
 
 
 //-- Sensors configuration
@@ -142,12 +143,16 @@
 #define CONFIG_MQ135_3V3_CIRCUIT               true
 #define CONFIG_MQ135_CALIBRATE                 true
 //-- SHT41 sensor (i2c bus=1,i2c_addr=0x44)
-#define CONFIG_SHT41_SDA_GPIO                  3
-#define CONFIG_SHT41_SCL_GPIO                  5
-#define CONFIG_SHT41_I2C_PORT                  I2C_NUM_1
+#define CONFIG_SHT41_SDA_GPIO                  1
+#define CONFIG_SHT41_SCL_GPIO                  2
+#define CONFIG_SHT41_I2C_PORT                  I2C_NUM_0
 
 #define LIVE_BLINK_TIME_MS                     0
-#define CONFIG_SENSOR_POLL_PERIOD_MS           5000
+#if ESP_EMULATOR_MODE
+  #define CONFIG_SENSOR_POLL_PERIOD_MS         15000
+#else
+  #define CONFIG_SENSOR_POLL_PERIOD_MS         5000
+#endif
 
 #if SHOW_DEVICE_LOG
 	//-- what part of tree to show (-1 means: SHOW ALL)
@@ -309,7 +314,9 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
  */
 void sensor_polling_task(void *pvParameters);
 
-void app_driver_log_sensor_statistics(void);
+#if DEBUG_MODE || ESP_EMULATOR_MODE
+  void app_driver_log_sensor_statistics(void);
+#endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \

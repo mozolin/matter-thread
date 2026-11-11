@@ -3,7 +3,7 @@
 idf_component_register(
     SRC_DIRS "."
     #SRCS "${component_srcs}"
-    PRIV_REQUIRES driver
+    PRIV_REQUIRES main driver
     INCLUDE_DIRS "."
     REQUIRES i2cdev
 )

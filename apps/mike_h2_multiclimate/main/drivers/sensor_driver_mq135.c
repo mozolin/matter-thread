@@ -5,8 +5,6 @@
 #include "esp_log.h"
 #include "math.h"
 
-static const char *TAG = "MQ135_DRIVER_5V";
-
 esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_channel_t adc_channel, const mq135_config_t *config) {
     if (handle == NULL) {
         return ESP_ERR_INVALID_ARG;
@@ -19,7 +17,9 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
     };
     esp_err_t ret = adc_oneshot_new_unit(&init_config, &handle->adc_handle);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Ошибка инициализации ADC юнита: %s", esp_err_to_name(ret));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации ADC юнита: %s", esp_err_to_name(ret));
+        #endif
         return ret;
     }
 
@@ -30,7 +30,9 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
     };
     ret = adc_oneshot_config_channel(handle->adc_handle, adc_channel, &chan_config);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Ошибка конфигурации канала ADC: %s", esp_err_to_name(ret));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка конфигурации канала ADC: %s", esp_err_to_name(ret));
+        #endif
         adc_oneshot_del_unit(handle->adc_handle);
         return ret;
     }
@@ -46,7 +48,9 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
     };
     ret = adc_cali_create_scheme_curve_fitting(&cali_config, &handle->cali_handle);
     if (ret != ESP_OK) {
-        ESP_LOGW(TAG, "Калибровка ADC не удалась (не критично): %s", esp_err_to_name(ret));
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Калибровка ADC не удалась (не критично): %s", esp_err_to_name(ret));
+        #endif
         handle->cali_handle = NULL;
     }
 
@@ -75,7 +79,9 @@ esp_err_t mq135_driver_init(mq135_handle_t *handle, adc_unit_t adc_unit, adc_cha
         handle->config.offset[2] = MQ135_TVOC_OFFSET;
     }
 
-    ESP_LOGI(TAG, "Драйвер MQ-135 инициализирован (канал: %d)", adc_channel);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Драйвер MQ-135 инициализирован (канал: %d)", adc_channel);
+    #endif
     return ESP_OK;
 }
 
@@ -90,7 +96,9 @@ void mq135_driver_deinit(mq135_handle_t *handle) {
         adc_oneshot_del_unit(handle->adc_handle);
         handle->adc_handle = NULL;
     }
-    ESP_LOGI(TAG, "Драйвер MQ-135 деинициализирован");
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Драйвер MQ-135 деинициализирован");
+    #endif
 }
 
 esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
@@ -102,7 +110,9 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
     int raw = 0;
     esp_err_t ret = adc_oneshot_read(handle->adc_handle, handle->adc_channel, &raw);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Ошибка чтения ADC: %s", esp_err_to_name(ret));
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Ошибка чтения ADC: %s", esp_err_to_name(ret));
+        #endif
         return ret;
     }
 
@@ -165,8 +175,10 @@ esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
 
     data->timestamp_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
-    ESP_LOGD(TAG, "Напряжение: %.3f В, Rs: %.1f Ом, CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm",
+    #if DEBUG_MODE
+      ESP_LOGD(TAG_MIKE_APP, "Напряжение: %.3f В, Rs: %.1f Ом, CO2: %.1f ppm, CO: %.1f ppm, TVOC: %.1f ppm",
              voltage, rs, data->co2.ppm, data->co.ppm, data->tvoc.ppm);
+    #endif
 
     return ESP_OK;
 }
@@ -197,7 +209,9 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count)
         return ESP_ERR_INVALID_ARG;
     }
 
-    ESP_LOGI(TAG, "Начало калибровки R0 (вариант 5V). Выборок: %d", sample_count);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Начало калибровки R0 (вариант 5V). Выборок: %d", sample_count);
+    #endif
 
     float sum_rs = 0.0f;
     uint16_t valid_samples = 0;
@@ -207,7 +221,9 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count)
         int raw = 0;
         esp_err_t ret = adc_oneshot_read(handle->adc_handle, handle->adc_channel, &raw);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Ошибка чтения ADC: %s", esp_err_to_name(ret));
+            #if DEBUG_MODE
+              ESP_LOGE(TAG_MIKE_APP, "Ошибка чтения ADC: %s", esp_err_to_name(ret));
+            #endif
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
@@ -249,7 +265,9 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count)
     }
 
     if (valid_samples == 0) {
-        ESP_LOGE(TAG, "Калибровка не удалась: нет валидных выборок");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Калибровка не удалась: нет валидных выборок");
+        #endif
         return ESP_FAIL;
     }
 
@@ -263,8 +281,10 @@ esp_err_t mq135_calibrate_r0(mq135_handle_t *handle, uint16_t sample_count)
     const float RS_R0_RATIO_CLEAN_AIR = 3.6f;
     handle->config.r0 = rs_avg / RS_R0_RATIO_CLEAN_AIR;
 
-    ESP_LOGI(TAG, "Калибровка завершена. Среднее Rs: %.1f Ом, новый R0: %.1f Ом",
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Калибровка завершена. Среднее Rs: %.1f Ом, новый R0: %.1f Ом",
              rs_avg, handle->config.r0);
+    #endif
 
     return ESP_OK;
 }

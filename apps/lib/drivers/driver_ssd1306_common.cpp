@@ -1,5 +1,5 @@
 
-#include "driver_ssd1306_common.h"
+#include "driver_ssd1306.h"
 #include <app_priv.h>
 
 #include <stdio.h>
@@ -42,7 +42,9 @@
 
     err = i2c_dev_check_present(&dev);
     if(err != ESP_OK) {
-      ESP_LOGE(TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
+      #endif
     }
     return err;
   }
@@ -52,14 +54,18 @@
     esp_err_t err = ESP_OK;
     
     #if CONFIG_I2C_INTERFACE
-      ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",CONFIG_SSD1306_I2C_PORT);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",CONFIG_SSD1306_I2C_PORT);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
+      #endif
       err = i2c_master_init(&ssd1306dev, CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO, CONFIG_SSD1306_RESET_GPIO);
       if(err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #endif
         return err;
       }
     
@@ -71,44 +77,62 @@
     #endif // CONFIG_I2C_INTERFACE
     
     #if CONFIG_SPI_INTERFACE
-      ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is SPI");
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
-      ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is SPI");
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+      #endif
       spi_master_init(&ssd1306dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
     #endif // CONFIG_SPI_INTERFACE
     
     #if CONFIG_FLIP
       ssd1306dev._flip = true;
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Flip upside down");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Flip upside down");
+      #endif
     #endif
     
     #if CONFIG_SSD1306_128x64
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x64");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x64");
+      #endif
       err = ssd1306_init(&ssd1306dev, 128, 64);
       if(err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #endif
         return err;
       }
     #endif // CONFIG_SSD1306_128x64
     
     #if CONFIG_SSD1306_128x32
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x32");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x32");
+      #endif
       err = ssd1306_init(&ssd1306dev, 128, 32);
       if(err != ESP_OK) {
-        ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #endif
         return err;
       }
     #endif // CONFIG_SSD1306_128x32
     
-    ESP_LOGW(TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
+    #if DEBUG_MODE
+      ESP_LOGW(TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
+    #endif
     
     if(std::is_same<decltype(ssd1306dev), SSD1306_t>::value) {
-      ESP_LOGW(TAG_MIKE_APP, "~~~ OK!");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ OK!");
+      #endif
     } else {
-      ESP_LOGE(TAG_MIKE_APP, "~~~ FAIL!");
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "~~~ FAIL!");
+      #endif
     }
     
     if(err != ERR_OK) {
@@ -283,11 +307,136 @@
     return err;
   }
 
+  void ssd1306_show_title()
+  {
+    //-- if not initialized
+    if(!ssd1306_initialized) {
+      return;
+    }
+
+    ssd1306_clear_screen(&ssd1306dev, false);
+    ssd1306_contrast(&ssd1306dev, 0xff);
+    //ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
+    ssd1306_display_text(&ssd1306dev, 0, "  MULTICLIMATE  ", 16, false);
+
+    /*
+    char buf[32];
+    uint8_t idx = 0;
+    snprintf(buf, sizeof(buf), " SSD1306: %d %d %d", CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO);
+    idx = 1;
+    ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    
+    #if CONFIG_BME280_ENABLED
+      snprintf(buf, sizeof(buf), "  BMP280: %d %d %d", CONFIG_BME280_I2C_PORT, CONFIG_BME280_SDA_GPIO, CONFIG_BME280_SCL_GPIO);
+      idx++;
+      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    #endif
+
+    #if CONFIG_BME680_ENABLED
+      snprintf(buf, sizeof(buf), "  BME680: %d %d %d", CONFIG_BME680_I2C_PORT, CONFIG_BME680_SDA_GPIO, CONFIG_BME680_SCL_GPIO);
+      idx++;
+      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
+    #endif
+    */
+  }
+  
+  #if USE_TIME_DRIVER
+    bool ssd1306_show_datetime(const tm& timeinfo)
+    {
+      //-- if not initialized
+      if(!ssd1306_initialized) {
+        return false;
+      }
+      
+      //char time_str[32];
+      //strftime(time_str, sizeof(time_str), "%H:%M:%S", &timeinfo);
+      
+      //char date_str[32];
+      //strftime(date_str, sizeof(date_str), "%d.%m.%Y", &timeinfo);
+      
+      char datetime_str[32];
+      strftime(datetime_str, sizeof(datetime_str), "%d%m%y %H:%M:%S", &timeinfo);
+      
+      //ssd1306_display_text(&ssd1306dev, 0, time_str, strlen(time_str), false);
+      //ssd1306_display_text(&ssd1306dev, 1, date_str, strlen(date_str), false);
+      ssd1306_display_text(&ssd1306dev, 0, datetime_str, strlen(datetime_str), false);
+      
+      return true;
+    }
+  #endif
+
   void ssd1306_draw_degree_symbol(uint8_t x, uint8_t y)
   {
     //-- from DeepSeek example: ssd1306_draw_bitmap(&ssd1306dev, x, y, x+7, y+7, (uint8_t*)degree_symbol);
     ssd1306_bitmaps(&ssd1306dev, x, y, (uint8_t*)degree_symbol, 8, 8, false);
   }
+
+	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra)
+	{
+		//-- if not initialized
+    if(!ssd1306_initialized) {
+		  return;
+		}
+		
+		//=== Если экран выключен — не рисуем ===
+		if(!ssd1306_display_enabled) {
+		  return;
+		}
+
+    char buf[96];
+    //-- temperature
+    if(extra == -1) {
+    	//-- MQ135 parameters (temp => co2)
+    	snprintf(buf, sizeof(buf), "%.0f", temp);
+    } else {
+    	snprintf(buf, sizeof(buf), "%.1f", temp/100.0f);
+    }
+    
+    ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
+
+    //-- humidity
+    if(hum > 0) {
+    	char buf2[16];
+    	if(extra == -1) {
+    		//-- MQ135 parameters (temp => co2)
+	    	snprintf(buf2, sizeof(buf2), " %.0f", hum);
+  	  } else {
+	    	snprintf(buf2, sizeof(buf2), " %.1f", hum/100.0f);
+	    }
+    	strcat(buf, buf2);
+    }
+    
+    //-- pressure
+    if(pres > 0) {
+    	char buf3[16];
+    	if(extra == -1) {
+    		//-- MQ135 parameters (pres => tvoc)
+	    	snprintf(buf3, sizeof(buf3), " %.0f", pres);
+  	  } else {
+	    	snprintf(buf3, sizeof(buf3), " %.0f", pres);
+	    }
+    	strcat(buf, buf3);
+    }
+    
+    //-- gas resistance
+    if(gas > 0) {
+    	char buf4[16];
+    	snprintf(buf4, sizeof(buf4), " %.0f", gas);
+    	strcat(buf, buf4);
+    }
+
+    //-- just 1 byte of extra info
+    if(extra > 1) {
+    	char buf5[16];
+    	snprintf(buf5, sizeof(buf5), " (%d)", extra);
+    	strcat(buf, buf5);
+    }
+
+    ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
+	}
 	
 	//=== управление питанием/видимостью дисплея ===
   void ssd1306_set_display_enabled(bool enabled)
@@ -302,10 +451,12 @@
       //ssd1306_display_on(&ssd1306dev);           // аппаратное включение панели
       ssd1306_clear_screen(&ssd1306dev, false);
       ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
-      //_ssd1306_show_title();                       // заголовок
+      ssd1306_show_title();                       // заголовок
       ssd1306_display_enabled  = true;
       ssd1306_last_on_time_ms  = esp_log_timestamp(); // запоминаем момент включения
-      ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display ON");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display ON");
+      #endif
     } else {
       //-- ВЫКЛЮЧАЕМ: чистим и гасим панель
       ssd1306_clear_screen(&ssd1306dev, false);
@@ -313,7 +464,9 @@
       ssd1306_contrast(&ssd1306dev, 0x00);          // программное выключение панели
       ssd1306_display_enabled  = false;
       ssd1306_last_on_time_ms  = 0;
-      ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display OFF");
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display OFF");
+      #endif
     }
   }
   

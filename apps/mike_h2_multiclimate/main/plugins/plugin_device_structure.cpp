@@ -297,8 +297,10 @@ bool is_attribute_present(uint16_t endpoint_id, uint32_t cluster_id, uint32_t at
   //esp_matter_attr_val_t val;
   attribute_t *attribute = attribute::get(endpoint_id, cluster_id, attribute_id);
   if(!attribute) {
-  	ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
-	return false;
+  	#if DEBUG_MODE
+  	  ESP_LOGE(TAG_MIKE_APP, "Failed to get attribute");
+  	#endif
+	  return false;
   }
   return true;
 }
@@ -320,7 +322,9 @@ void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
 {
   const EmberAfEndpointType *endpoint_type = emberAfFindEndpointType(endpoint_id);
   if(!endpoint_type) {
-    ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
+    #if DEBUG_MODE
+      ESP_LOGE("APP", "Endpoint %d not found", endpoint_id);
+    #endif
     return;
   }
   
@@ -337,7 +341,9 @@ void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
     //ESP_LOGE("APP", "Не удалось получить device type IDs (endpoint или count_ptr == NULL)");
     ESP_LOGE("", "# %sENDPOINT %d", indent.c_str(), (uint8_t)endpoint_id);
 	} else {
-    //ESP_LOGI("APP", "Endpoint содержит %d device type(s):", device_type_count);
+    #if DEBUG_MODE
+      //ESP_LOGI("APP", "Endpoint содержит %d device type(s):", device_type_count);
+    #endif
 
     if(device_type_count > 0) {
     
@@ -441,10 +447,14 @@ bool validate_attribute(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attr
 
     // 2. Проверка типа
     esp_matter_attr_val_t val = esp_matter_nullable_uint32(0);
-    ESP_LOGI("VALIDATE", "validate_attribute()");
+    #if DEBUG_MODE
+      ESP_LOGI("VALIDATE", "validate_attribute()");
+    #endif
     if(attribute::get_val(attribute, &val) == ESP_OK) {
     	if(val.type != expected_type) {
-        ESP_LOGE("VALIDATE", "Type mismatch: expected %d, got %d", expected_type, val.type);
+        #if DEBUG_MODE
+          ESP_LOGE("VALIDATE", "Type mismatch: expected %d, got %d", expected_type, val.type);
+        #endif
         return false;
     	}
     }
