@@ -6,7 +6,7 @@ bme680_t sensor;
 TickType_t last_wakeup;
 uint32_t duration;
 
-esp_err_t bme680_init()
+esp_err_t bme680_init_app()
 {
     esp_err_t err = ESP_OK;
     

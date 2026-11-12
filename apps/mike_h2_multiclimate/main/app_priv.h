@@ -9,7 +9,7 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  true
+#define MOCK_SENSORS_BEHAVIOR                  false
 #define DEBUG_MODE                             false
 #define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false
@@ -146,9 +146,14 @@
 #define CONFIG_MQ135_3V3_CIRCUIT               true
 #define CONFIG_MQ135_CALIBRATE                 true
 //-- SHT4X sensor (i2c bus=1,i2c_addr=0x44)
-#define CONFIG_SHT4X_SDA_GPIO                  1
-#define CONFIG_SHT4X_SCL_GPIO                  2
-#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_0
+//#define CONFIG_SHT4X_SDA_GPIO                  1
+//#define CONFIG_SHT4X_SCL_GPIO                  2
+//#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_0
+#define CONFIG_SHT4X_SDA_GPIO                  3
+#define CONFIG_SHT4X_SCL_GPIO                  5
+#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_1
+
+
 
 #define LIVE_BLINK_TIME_MS                     0
 #if ESP_EMULATOR_MODE

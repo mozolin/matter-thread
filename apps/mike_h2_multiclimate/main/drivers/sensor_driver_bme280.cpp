@@ -4,7 +4,7 @@
 bmp280_t dev;
 bool bme280p;
 
-esp_err_t bme280_init()
+esp_err_t bme280_init_app()
 {
     esp_err_t err = ESP_OK;
     

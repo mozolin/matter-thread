@@ -49,23 +49,23 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
 
     switch (sensor_cfg) {
         case SENSOR_TYPE_BME280: {
-            err = bme280_init();
+            err = bme280_init_app();
             break;
         }
         
         case SENSOR_TYPE_BME680: {
-            err = bme680_init();
+            err = bme680_init_app();
             break;
         }
         
         case SENSOR_TYPE_DS18B20: {
-            err = ds18b20_init();
+            err = ds18b20_init_app();
             break;
         }
         
         #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
-            err = dht11_init();
+            err = dht11_init_app();
             break;
         }
         #endif
@@ -115,7 +115,7 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         
         #if CONFIG_SHT4X_ENABLED
         case SENSOR_TYPE_SHT4X: {
-            err = sht4x_init();
+            err = sht4x_init_app();
             break;
         }
         #endif
@@ -325,7 +325,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
         
         #if CONFIG_SHT4X_ENABLED
         case SENSOR_TYPE_SHT4X:
-            err = sht4x_reset();
+            err = sht4x_reset_app();
             break;
         #endif
         default:

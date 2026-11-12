@@ -6,7 +6,7 @@
 
 float temperature, humidity;
 
-esp_err_t dht11_init()
+esp_err_t dht11_init_app()
 {
     #if !MOCK_SENSORS_BEHAVIOR
       gpio_set_pull_mode((gpio_num_t)CONFIG_DHT11_GPIO, GPIO_PULLUP_ONLY);

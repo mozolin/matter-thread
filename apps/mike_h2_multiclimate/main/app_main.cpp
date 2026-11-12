@@ -47,6 +47,7 @@
   #include "sensor_driver_sht4x.h"
 #endif
 
+
 #if CONFIG_BOOT_SWITCH_ENABLED
   #include "driver_boot_switch.h"
   //-- Внешняя функция для передачи endpoint_id в драйвер

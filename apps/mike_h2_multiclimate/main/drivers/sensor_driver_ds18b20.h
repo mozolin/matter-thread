@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-esp_err_t ds18b20_init();
+esp_err_t ds18b20_init_app();
 esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors);
 esp_err_t ds18b20_reset();
 

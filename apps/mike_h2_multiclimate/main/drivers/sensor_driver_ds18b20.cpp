@@ -12,7 +12,7 @@ onewire_addr_t addrs[MAX_SENSORS];
 float temps[MAX_SENSORS];
 size_t sensor_count = 0;
 
-esp_err_t ds18b20_init()
+esp_err_t ds18b20_init_app()
 {
     // There is no special initialization required before using the ds18x20
     // routines.  However, we make sure that the internal pull-up resistor is

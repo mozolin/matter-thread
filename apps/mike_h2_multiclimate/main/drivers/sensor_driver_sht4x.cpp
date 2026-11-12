@@ -9,7 +9,7 @@ bool s_initialized = false;
 /**
  * @brief Инициализация I2C и датчика SHT4X
  */
-esp_err_t sht4x_init(void)
+esp_err_t sht4x_init_app(void)
 {
     esp_err_t err = ESP_OK;
     
@@ -122,7 +122,7 @@ esp_err_t sht4x_driver_deinit(void)
     return ESP_OK;
 }
 
-esp_err_t sht4x_reset()
+esp_err_t sht4x_reset_app()
 {
     return ESP_OK;
 }
