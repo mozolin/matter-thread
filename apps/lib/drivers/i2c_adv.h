@@ -9,7 +9,7 @@
 #if CONFIG_BME680_ENABLED
   #include "bme680.h"
 #endif
-#if CONFIG_SHT41_ENABLED
+#if CONFIG_SHT4X_ENABLED
   #include "sht4x.h"
 #endif
 
@@ -25,7 +25,7 @@ extern "C" {
 #if CONFIG_BME680_ENABLED
   extern esp_err_t bme680_init_desc_adv(bme680_t *dev, uint8_t addr, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio);
 #endif
-#if CONFIG_SHT41_ENABLED
+#if CONFIG_SHT4X_ENABLED
   extern esp_err_t sht4x_init_desc_adv(sht4x_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio);
 #endif
 

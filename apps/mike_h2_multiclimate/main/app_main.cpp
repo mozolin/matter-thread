@@ -43,8 +43,8 @@
   // Хэндл для задачи, которая будет обновлять данные
   TaskHandle_t s_update_task_handle = NULL;
 #endif
-#if CONFIG_SHT41_ENABLED
-  #include "sensor_driver_sht41.h"
+#if CONFIG_SHT4X_ENABLED
+  #include "sensor_driver_sht4x.h"
 #endif
 
 #if CONFIG_BOOT_SWITCH_ENABLED
@@ -500,13 +500,13 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
         #endif
 
-        #if CONFIG_SHT41_ENABLED
-        case SENSOR_TYPE_SHT41: {
+        #if CONFIG_SHT4X_ENABLED
+        case SENSOR_TYPE_SHT4X: {
             // Create endpoint with multiple clusters
             #if DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "************************************");
-              ESP_LOGW("", " Start creating endpoint for SHT41");
+              ESP_LOGW("", " Start creating endpoint for SHT4X");
               ESP_LOGW("", "************************************");
               ESP_LOGW("", "");
             #endif
@@ -519,7 +519,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             if(!endpoint) {
               #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SHT41");
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SHT4X");
               #endif
               return ESP_FAIL;
             }
@@ -1003,8 +1003,8 @@ extern "C" void app_main()
   #if CONFIG_MQ135_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_MQ135, node);
   #endif
-  #if CONFIG_SHT41_ENABLED
-    create_sensor_endpoint(SENSOR_TYPE_SHT41, node);
+  #if CONFIG_SHT4X_ENABLED
+    create_sensor_endpoint(SENSOR_TYPE_SHT4X, node);
   #endif
   // =========================================
   //  Boot Switch endpoint и On/Off эндпоинты

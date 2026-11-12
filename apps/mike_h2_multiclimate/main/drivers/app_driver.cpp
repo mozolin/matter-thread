@@ -18,8 +18,8 @@
     #include "sensor_driver_mq135.h"
   #endif
 #endif
-#if CONFIG_SHT41_ENABLED
-  #include "sensor_driver_sht41.h"
+#if CONFIG_SHT4X_ENABLED
+  #include "sensor_driver_sht4x.h"
 #endif
 
 #include "led_config.h"
@@ -113,9 +113,9 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
         }
         #endif
         
-        #if CONFIG_SHT41_ENABLED
-        case SENSOR_TYPE_SHT41: {
-            err = sht41_init();
+        #if CONFIG_SHT4X_ENABLED
+        case SENSOR_TYPE_SHT4X: {
+            err = sht4x_init();
             break;
         }
         #endif
@@ -255,12 +255,12 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         }
         #endif
 
-        #if CONFIG_SHT41_ENABLED
-        case SENSOR_TYPE_SHT41: {
+        #if CONFIG_SHT4X_ENABLED
+        case SENSOR_TYPE_SHT4X: {
             int16_t temperature;
             uint16_t humidity;
             
-            err = sht41_read_all(&temperature, &humidity);
+            err = sht4x_read_all(&temperature, &humidity);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
@@ -293,61 +293,6 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
     return err;
 }
 
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val)
-{
-  // ============================================================
-  //  Обработка On/Off для экрана, ленты и ребута из HA
-  // ============================================================
-  #if CONFIG_BOOT_SWITCH_ENABLED
-    //-- Проверяем, не наш ли это эндпоинт
-    if (cluster_id == OnOff::Id && attribute_id == OnOff::Attributes::OnOff::Id) {
-        //-- Экран
-        #if CONFIG_SSD1306_ENABLED
-        if (endpoint_id == s_ep_screen_onoff) {
-            bool turn_on = val->val.b;
-            if (ssd1306_initialized) {
-                ssd1306_set_display_enabled(turn_on);
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "HA -> Screen %s", turn_on ? "ON" : "OFF");
-                #endif
-            }
-            return ESP_OK;
-        }
-        #endif
-
-        //-- LED лента (блокировка)
-        #if USE_DRIVER_LED_INDICATOR
-        if (endpoint_id == s_ep_led_onoff) {
-            bool turn_on = val->val.b;
-            //-- turn_on = true -> разблокировать (led_indicator_locked = false)
-            //-- turn_on = false -> заблокировать (led_indicator_locked = true)
-            extern bool led_indicator_locked;
-            led_indicator_locked = !turn_on;
-            #if DEBUG_MODE
-              ESP_LOGI(TAG_MIKE_APP, "HA -> LED %s (locked=%d)", turn_on ? "ON" : "OFF", led_indicator_locked);
-            #endif
-            return ESP_OK;
-        }
-        #endif
-
-        //-- Перезагрузка (On = немедленный reboot)
-        if (endpoint_id == s_ep_reboot_onoff) {
-            if (val->val.b) {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "HA -> Reboot requested, restarting in 1 sec...");
-                #endif
-                vTaskDelay(pdMS_TO_TICKS(1000));
-                esp_restart();
-            }
-            return ESP_OK;
-        }
-    }
-  #endif
-    
-  // Sensors are read-only in this implementation
-  return ESP_OK;
-}
-
 static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 {
     if (sensor_idx >= configured_sensors) {
@@ -378,9 +323,9 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
             break;
         #endif
         
-        #if CONFIG_SHT41_ENABLED
-        case SENSOR_TYPE_SHT41:
-            err = sht41_reset();
+        #if CONFIG_SHT4X_ENABLED
+        case SENSOR_TYPE_SHT4X:
+            err = sht4x_reset();
             break;
         #endif
         default:
@@ -803,8 +748,8 @@ void sensor_polling_task(void *pvParameters)
                     }
                     #endif
 
-                    #if CONFIG_SHT41_ENABLED
-                    case SENSOR_TYPE_SHT41: {
+                    #if CONFIG_SHT4X_ENABLED
+                    case SENSOR_TYPE_SHT4X: {
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
                         esp_err_t err = esp_matter::attribute::update(
@@ -919,8 +864,8 @@ void app_driver_log_sensor_statistics(void)
                 break;
             }
             #endif
-            case SENSOR_TYPE_SHT41: {
-                ESP_LOGW("", "SHT41   (%d) | Temp: %.2f °C, Hum: %.2f %%",
+            case SENSOR_TYPE_SHT4X: {
+                ESP_LOGW("", "SHT4X   (%d) | Temp: %.2f °C, Hum: %.2f %%",
                 i,
                 sensor->last_temperature / 100.0f,
                 sensor->last_humidity / 100.0f);

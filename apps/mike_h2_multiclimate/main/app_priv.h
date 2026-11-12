@@ -26,7 +26,7 @@
 #define CONFIG_DS18B20_ENABLED                 true
 #define CONFIG_DHT11_ENABLED                   true
 #define CONFIG_MQ135_ENABLED                   true
-#define CONFIG_SHT41_ENABLED                   true
+#define CONFIG_SHT4X_ENABLED                   true
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 
@@ -145,10 +145,10 @@
 #define CONFIG_MQ135_ADC_CHANNEL               ADC_CHANNEL_3
 #define CONFIG_MQ135_3V3_CIRCUIT               true
 #define CONFIG_MQ135_CALIBRATE                 true
-//-- SHT41 sensor (i2c bus=1,i2c_addr=0x44)
-#define CONFIG_SHT41_SDA_GPIO                  1
-#define CONFIG_SHT41_SCL_GPIO                  2
-#define CONFIG_SHT41_I2C_PORT                  I2C_NUM_0
+//-- SHT4X sensor (i2c bus=1,i2c_addr=0x44)
+#define CONFIG_SHT4X_SDA_GPIO                  1
+#define CONFIG_SHT4X_SCL_GPIO                  2
+#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_0
 
 #define LIVE_BLINK_TIME_MS                     0
 #if ESP_EMULATOR_MODE
@@ -204,6 +204,9 @@
   #include "driver_ssd1306_common.h"
   #include "driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
+
+  #define CONFIG_SSD1306_APP_RUN_CB            true
+
   /**********************************************************
    *
    *  This driver initializes the I2C bus
@@ -238,7 +241,7 @@ typedef enum {
   SENSOR_TYPE_DS18B20 = 2,
   SENSOR_TYPE_DHT11   = 3,
   SENSOR_TYPE_MQ135   = 4,
-  SENSOR_TYPE_SHT41   = 5,
+  SENSOR_TYPE_SHT4X   = 5,
   SENSOR_TYPE_MAX,
 } sensor_type_t;
 
@@ -336,4 +339,12 @@ void sensor_polling_task(void *pvParameters);
     {                                                                                   \
         .storage_partition_name = "nvs", .netif_queue_size = 10, .task_queue_size = 10, \
     }
+#endif
+
+#if CONFIG_SSD1306_ENABLED
+  #ifdef CONFIG_SSD1306_APP_RUN_CB
+    //-- callback function specific to this application
+    //-- (can be used within the SSD1306 common driver)
+    extern void ssd1306_app_run_cb(void);
+  #endif
 #endif

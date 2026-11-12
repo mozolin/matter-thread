@@ -140,6 +140,14 @@
 
     ssd1306_display_text(&ssd1306dev, y_pos, buf, strlen(buf), false);
 	}
+
+	//-- callback function specific to this application
+  //-- (can be used within the SSD1306 common driver)
+	#ifdef CONFIG_SSD1306_APP_RUN_CB
+    void ssd1306_app_run_cb()
+    {
+	    ssd1306_show_title();
+    }
+  #endif
 	
 #endif
-

@@ -334,6 +334,11 @@
       ssd1306_clear_screen(&ssd1306dev, false);
       ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
       ssd1306_show_title();                       // заголовок
+      //-- callback function specific to this application
+      //-- declared in the SSD1306 app module (main/driver_ssd1306.cpp)
+      #ifdef CONFIG_SSD1306_APP_RUN_CB
+        ssd1306_app_run_cb()
+      #endif
       ssd1306_display_enabled  = true;
       ssd1306_last_on_time_ms  = esp_log_timestamp(); // запоминаем момент включения
       #if DEBUG_MODE
