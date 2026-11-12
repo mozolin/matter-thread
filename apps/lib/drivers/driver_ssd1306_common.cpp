@@ -109,7 +109,7 @@
       err = ssd1306_init(&ssd1306dev, 128, 64);
       if(err != ESP_OK) {
         #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+          ESP_LOGW(TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
         #endif
         return err;
       }
@@ -122,7 +122,7 @@
       err = ssd1306_init(&ssd1306dev, 128, 32);
       if(err != ESP_OK) {
         #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+          ESP_LOGW(TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
         #endif
         return err;
       }
