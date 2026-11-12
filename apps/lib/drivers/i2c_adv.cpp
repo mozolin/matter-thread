@@ -1,6 +1,9 @@
 #include "app_priv.h"
 #include "i2c_adv.h"
 
+#include "soc/soc_caps.h"
+#include "driver/i2c_types.h"
+
 
 #define SENSOR_I2C_FREQ_HZ 1000000 // Up to 3.4MHz, but esp-idf only supports 1MHz
 
@@ -84,3 +87,11 @@
     return i2c_dev_create_mutex(&dev->i2c_dev);
 }
 #endif
+
+
+void check_i2c_ports()
+{
+  // Для ESP32-H2 оба значения будут равны 2
+  ESP_LOGI("I2C_INFO", "Общее число портов I2C: %d", SOC_I2C_NUM);
+  ESP_LOGI("I2C_INFO", "Максимум портов (I2C_NUM_MAX): %d", I2C_NUM_MAX);
+}

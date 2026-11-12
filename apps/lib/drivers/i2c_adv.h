@@ -29,6 +29,8 @@ extern "C" {
   extern esp_err_t sht4x_init_desc_adv(sht4x_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio);
 #endif
 
+extern void check_i2c_ports(void);
+
 
 #ifdef __cplusplus
 }
