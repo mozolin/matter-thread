@@ -19,6 +19,8 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include "i2c_adv.h"
+
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
 #include "sensor_driver_ds18b20.h"
@@ -76,6 +78,10 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 #if USE_DRIVER_LED_INDICATOR
   led_indicator_handle_t led_handle;
+#endif
+
+#if SHOW_DEVICE_LOG
+  #include "plugin_device_structure.h"
 #endif
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)

@@ -29,7 +29,8 @@ esp_err_t sht41_init(void)
       // Инициализация дескриптора устройства SHT41
       // Библиотека sht4x сама создаёт I2C мастер и добавляет устройство
       memset(&s_dev, 0, sizeof(sht4x_t));
-      err = sht4x_init_desc(&s_dev, CONFIG_SHT41_I2C_PORT, (gpio_num_t)CONFIG_SHT41_SDA_GPIO, (gpio_num_t)CONFIG_SHT41_SCL_GPIO);
+      //err = sht4x_init_desc(&s_dev, CONFIG_SHT41_I2C_PORT, (gpio_num_t)CONFIG_SHT41_SDA_GPIO, (gpio_num_t)CONFIG_SHT41_SCL_GPIO);
+      err = sht4x_init_desc_adv(&s_dev, CONFIG_SHT41_I2C_PORT, (gpio_num_t)CONFIG_SHT41_SDA_GPIO, (gpio_num_t)CONFIG_SHT41_SCL_GPIO);
       if(err != ESP_OK) {
         #if DEBUG_MODE
           ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации дескриптора SHT41: %s", esp_err_to_name(err));

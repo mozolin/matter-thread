@@ -1,3 +1,4 @@
+//#include "i2c_adv.h"
 #include "sensor_driver_bme680.h"
 #include "app_priv.h"
 
@@ -12,7 +13,7 @@ esp_err_t bme680_init()
     #if !MOCK_SENSORS_BEHAVIOR
       memset(&sensor, 0, sizeof(bme680_t));
     
-      err = bme680_init_desc(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
+      err = bme680_init_desc_adv(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
       if(err != ESP_OK) {
         #if DEBUG_MODE
           ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));

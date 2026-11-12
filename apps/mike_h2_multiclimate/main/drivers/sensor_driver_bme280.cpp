@@ -14,7 +14,8 @@ esp_err_t bme280_init()
     
       memset(&dev, 0, sizeof(bmp280_t));
 
-      err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
+      //err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
+      err = bmp280_init_desc_adv(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
       if(err != ESP_OK) {
         #if DEBUG_MODE
           ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));

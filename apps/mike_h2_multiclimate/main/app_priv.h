@@ -11,9 +11,24 @@
 //-- Debug options
 #define MOCK_SENSORS_BEHAVIOR                  true
 #define DEBUG_MODE                             false
-#define ESP_EMULATOR_MODE                      true
+#define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
+
+
+//-- Boot Switch (Generic Switch) для событий кнопки BOOT
+#define CONFIG_BOOT_SWITCH_ENABLED             true
+//-- SSD1306 LED Display
+#define CONFIG_SSD1306_ENABLED                 true
+//-- Sensors configuration
+#define CONFIG_BME280_ENABLED                  true
+#define CONFIG_BME680_ENABLED                  true
+#define CONFIG_DS18B20_ENABLED                 true
+#define CONFIG_DHT11_ENABLED                   true
+#define CONFIG_MQ135_ENABLED                   true
+#define CONFIG_SHT41_ENABLED                   true
+//-- Reboot button handlers
+#define CONFIG_REBOOT_BUTTON_ENABLED           true
 
 
 //-- task priorities
@@ -36,8 +51,6 @@
 // ============================================================
 //  Boot Switch (Generic Switch) для событий кнопки BOOT
 // ============================================================
-#define CONFIG_BOOT_SWITCH_ENABLED true
-
 #if CONFIG_BOOT_SWITCH_ENABLED
   //-- Период опроса GPIO кнопки BOOT в задаче boot_switch (мс)
   #define BOOT_SWITCH_POLL_MS              20
@@ -77,21 +90,7 @@
 #endif
 
 
-//-- SSD1306 LED Display
-#define CONFIG_SSD1306_ENABLED                 false
-
-
-//-- Sensors configuration
-#define CONFIG_BME280_ENABLED                  true
-#define CONFIG_BME680_ENABLED                  true
-#define CONFIG_DS18B20_ENABLED                 true
-#define CONFIG_DHT11_ENABLED                   true
-#define CONFIG_MQ135_ENABLED                   true
-#define CONFIG_SHT41_ENABLED                   true
-
-
 //-- Reboot button handlers
-#define CONFIG_REBOOT_BUTTON_ENABLED           true
 #if CONFIG_REBOOT_BUTTON_ENABLED
   //--> uses for CommissioningWindowOpen
   #include <app/server/CommissioningWindowManager.h>
@@ -123,6 +122,10 @@
   extern led_indicator_handle_t led_handle;
 #endif
 
+
+#include "i2c_adv.h"
+
+#define CONFIG_I2C_FREQ_HZ                     400000
 
 //-- BMP280 sensor (i2c bus=0,i2c_addr=0x76)
 #define CONFIG_BME280_SDA_GPIO                 1
