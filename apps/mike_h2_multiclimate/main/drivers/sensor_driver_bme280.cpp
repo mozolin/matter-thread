@@ -48,7 +48,7 @@ esp_err_t bme280_init_app()
     return err;
 }
 
-esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pressure)
+esp_err_t bme280_read_app(int16_t *temperature, uint16_t *humidity, int16_t *pressure)
 {
     float temp, hum, press;
 
@@ -80,7 +80,7 @@ esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pre
     return ESP_OK;
 }
 
-esp_err_t bme280_reset()
+esp_err_t bme280_reset_app()
 {
     /*
     if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;

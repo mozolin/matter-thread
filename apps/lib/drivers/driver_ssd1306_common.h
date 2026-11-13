@@ -7,7 +7,7 @@
   //-- Custom Degree Symbol (8x8px)
   extern const uint8_t degree_symbol[];
   
-  extern esp_err_t ssd1306_init(void);
+  extern esp_err_t ssd1306_init_app(void);
 
   extern void ssd1306_draw_degree_symbol(uint8_t x, uint8_t y);
   

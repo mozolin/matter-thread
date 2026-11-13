@@ -64,7 +64,7 @@ esp_err_t bme680_init_app()
     return err;
 }
 
-esp_err_t bme680_read_all(int16_t *temperature, uint16_t *humidity,
+esp_err_t bme680_read_app(int16_t *temperature, uint16_t *humidity,
                           int16_t *pressure, uint32_t *gas_resistance)
 {
     bme680_values_float_t values;
@@ -112,7 +112,7 @@ esp_err_t bme680_read_all(int16_t *temperature, uint16_t *humidity,
     return ESP_OK;
 }
 
-esp_err_t bme680_reset()
+esp_err_t bme680_reset_app()
 {
     /*
     if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;

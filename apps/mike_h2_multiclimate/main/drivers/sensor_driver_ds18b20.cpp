@@ -30,7 +30,7 @@ esp_err_t ds18b20_init_app()
     return ESP_OK;
 }
 
-esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
+esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
 {
     float temp;
 
@@ -121,7 +121,7 @@ esp_err_t ds18b20_read(int16_t *temperature, uint8_t *num_sensors)
     return ESP_OK;
 }
 
-esp_err_t ds18b20_reset()
+esp_err_t ds18b20_reset_app()
 {
     //if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
     return ESP_OK;  // DS18B20 не требует reset, просто перечитать

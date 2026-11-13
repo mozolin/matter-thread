@@ -56,7 +56,7 @@
     return err;
   }
 
-  esp_err_t ssd1306_init(void)
+  esp_err_t ssd1306_init_app(void)
   {
     esp_err_t err = ESP_OK;
     

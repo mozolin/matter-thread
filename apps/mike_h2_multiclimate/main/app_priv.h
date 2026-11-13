@@ -13,9 +13,15 @@
 #define DEBUG_MODE                             false
 #define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false
+#define CHECK_I2C_PORTS                        true
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
+/**********************
+ *                    *
+ *   USE OF SENSORS   *
+ *                    *
+ **********************/
 //-- Boot Switch (Generic Switch) для событий кнопки BOOT
 #define CONFIG_BOOT_SWITCH_ENABLED             true
 //-- SSD1306 LED Display
@@ -27,10 +33,33 @@
 #define CONFIG_DHT11_ENABLED                   true
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT4X_ENABLED                   true
+#define CONFIG_SCD4X_ENABLED                   true
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 
 
+/*****************
+ *               *
+ *   I2C BUSES   *
+ *               *
+ *****************/
+#include "i2c_adv.h"
+#define CONFIG_I2C_FREQ_HZ                     400000
+//-- I2C Bus=0
+#define CONFIG_I2C_0_SDA_GPIO                  1
+#define CONFIG_I2C_0_SCL_GPIO                  2
+#define CONFIG_I2C_0_PORT_NUM                  I2C_NUM_0
+//-- I2C Bus=1
+#define CONFIG_I2C_1_SDA_GPIO                  3
+#define CONFIG_I2C_1_SCL_GPIO                  5
+#define CONFIG_I2C_1_PORT_NUM                  I2C_NUM_1
+
+
+/***********************
+ *                     *
+ *   TASK PRIORITIES   *
+ *                     *
+ ***********************/
 //-- task priorities
 // ============================================================
 // Задача опроса Boot Switch
@@ -123,18 +152,19 @@
 #endif
 
 
-#include "i2c_adv.h"
-
-#define CONFIG_I2C_FREQ_HZ                     400000
-
+/************************
+ *                      *
+ *   SENSORS SETTINGS   *
+ *                      *
+ ************************/
 //-- BMP280 sensor (i2c bus=0,i2c_addr=0x76)
-#define CONFIG_BME280_SDA_GPIO                 1
-#define CONFIG_BME280_SCL_GPIO                 2
-#define CONFIG_BME280_I2C_PORT                 I2C_NUM_0
+#define CONFIG_BME280_SDA_GPIO                 CONFIG_I2C_0_SDA_GPIO
+#define CONFIG_BME280_SCL_GPIO                 CONFIG_I2C_0_SCL_GPIO
+#define CONFIG_BME280_I2C_PORT                 CONFIG_I2C_0_PORT_NUM
 //-- BME680 sensor (i2c bus=1,i2c_addr=0x77)
-#define CONFIG_BME680_SDA_GPIO                 3
-#define CONFIG_BME680_SCL_GPIO                 5
-#define CONFIG_BME680_I2C_PORT                 I2C_NUM_1
+#define CONFIG_BME680_SDA_GPIO                 CONFIG_I2C_1_SDA_GPIO
+#define CONFIG_BME680_SCL_GPIO                 CONFIG_I2C_1_SCL_GPIO
+#define CONFIG_BME680_I2C_PORT                 CONFIG_I2C_1_PORT_NUM
 //-- DS18B20 sensor
 #define CONFIG_DS18B20_GPIO                    10
 //-- DHT11 sensor
@@ -146,12 +176,16 @@
 #define CONFIG_MQ135_3V3_CIRCUIT               true
 #define CONFIG_MQ135_CALIBRATE                 true
 //-- SHT4X sensor (i2c bus=1,i2c_addr=0x44)
-//#define CONFIG_SHT4X_SDA_GPIO                  1
-//#define CONFIG_SHT4X_SCL_GPIO                  2
-//#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_0
-#define CONFIG_SHT4X_SDA_GPIO                  3
-#define CONFIG_SHT4X_SCL_GPIO                  5
-#define CONFIG_SHT4X_I2C_PORT                  I2C_NUM_1
+//#define CONFIG_SHT4X_SDA_GPIO                  CONFIG_I2C_0_SDA_GPIO
+//#define CONFIG_SHT4X_SCL_GPIO                  CONFIG_I2C_0_SCL_GPIO
+//#define CONFIG_SHT4X_I2C_PORT                  CONFIG_I2C_0_PORT_NUM
+#define CONFIG_SHT4X_SDA_GPIO                  CONFIG_I2C_1_SDA_GPIO
+#define CONFIG_SHT4X_SCL_GPIO                  CONFIG_I2C_1_SCL_GPIO
+#define CONFIG_SHT4X_I2C_PORT                  CONFIG_I2C_1_PORT_NUM
+//-- SCD4X sensor (i2c bus=1,i2c_addr=0x62)
+#define CONFIG_SCD4X_SDA_GPIO                  CONFIG_I2C_1_SDA_GPIO
+#define CONFIG_SCD4X_SCL_GPIO                  CONFIG_I2C_1_SCL_GPIO
+#define CONFIG_SCD4X_I2C_PORT                  CONFIG_I2C_1_PORT_NUM
 
 
 
@@ -221,11 +255,11 @@
    *  if they use this port.
    *
    **********************************************************/
-  #define CONFIG_SSD1306_SDA_GPIO              1
-  #define CONFIG_SSD1306_SCL_GPIO              2
+  #define CONFIG_SSD1306_SDA_GPIO              CONFIG_I2C_0_SDA_GPIO
+  #define CONFIG_SSD1306_SCL_GPIO              CONFIG_I2C_0_SCL_GPIO
   #define CONFIG_SSD1306_RESET_GPIO            -1
   #define CONFIG_SSD1306_I2C_ADDRESS           0x3C
-  #define CONFIG_SSD1306_I2C_PORT              I2C_NUM_0
+  #define CONFIG_SSD1306_I2C_PORT              CONFIG_I2C_0_PORT_NUM
   
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
@@ -247,6 +281,7 @@ typedef enum {
   SENSOR_TYPE_DHT11   = 3,
   SENSOR_TYPE_MQ135   = 4,
   SENSOR_TYPE_SHT4X   = 5,
+  SENSOR_TYPE_SCD4X   = 6,
   SENSOR_TYPE_MAX,
 } sensor_type_t;
 

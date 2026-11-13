@@ -46,6 +46,9 @@
 #if CONFIG_SHT4X_ENABLED
   #include "sensor_driver_sht4x.h"
 #endif
+#if CONFIG_SCD4X_ENABLED
+  #include "sensor_driver_scd4x.h"
+#endif
 
 
 #if CONFIG_BOOT_SWITCH_ENABLED
@@ -536,6 +539,42 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         }
         #endif
 
+
+        #if CONFIG_SCD4X_ENABLED
+        case SENSOR_TYPE_SCD4X: {
+            // Create endpoint with multiple clusters
+            #if DEBUG_MODE
+              ESP_LOGW("", "");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", " Start creating endpoint for SCD4X");
+              ESP_LOGW("", "************************************");
+              ESP_LOGW("", "");
+            #endif
+            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
+            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);  // 20.00°C
+            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
+            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
+            
+            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+            
+            if(!endpoint) {
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SCD4X");
+              #endif
+              return ESP_FAIL;
+            }
+
+            //-- Add Humidity Measurement cluster
+            cluster::relative_humidity_measurement::config_t hum_config;
+            hum_config.measured_value = nullable<uint16_t>(5000); // 50.00%
+            hum_config.min_measured_value = nullable<uint16_t>(0); // 0.00%
+            hum_config.max_measured_value = nullable<uint16_t>(10000); // 100.00%
+            cluster::relative_humidity_measurement::create(endpoint, &hum_config, CLUSTER_FLAG_SERVER);
+
+            break;
+        }
+        #endif
+
         default:
           #if DEBUG_MODE
             ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
@@ -929,7 +968,7 @@ extern "C" void app_main()
   // 4. SSD1306
   #if CONFIG_SSD1306_ENABLED
     //-- Init LCD SSD1306
-    err = ssd1306_init();
+    err = ssd1306_init_app();
     if(err != ESP_OK) {
       #if DEBUG_MODE
         ESP_LOGE(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
@@ -1006,6 +1045,9 @@ extern "C" void app_main()
   #endif
   #if CONFIG_SHT4X_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_SHT4X, node);
+  #endif
+  #if CONFIG_SCD4X_ENABLED
+    create_sensor_endpoint(SENSOR_TYPE_SCD4X, node);
   #endif
   // =========================================
   //  Boot Switch endpoint и On/Off эндпоинты
@@ -1136,4 +1178,9 @@ extern "C" void app_main()
       log_device_structure(node);
     }
   #endif
+
+  #if CHECK_I2C_PORTS
+    check_i2c_ports();
+  #endif
+
 }

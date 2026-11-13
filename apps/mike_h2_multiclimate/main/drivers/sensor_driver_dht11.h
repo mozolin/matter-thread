@@ -11,8 +11,8 @@
   #endif
 
   esp_err_t dht11_init_app();
-  esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity);
-  esp_err_t dht11_reset();
+  esp_err_t dht11_read_app(int16_t *temperature, uint16_t *humidity);
+  esp_err_t dht11_reset_app();
 
   #ifdef __cplusplus
     }

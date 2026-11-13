@@ -101,7 +101,7 @@ void mq135_driver_deinit(mq135_handle_t *handle) {
     #endif
 }
 
-esp_err_t mq135_read(mq135_handle_t *handle, mq135_data_t *data) {
+esp_err_t mq135_read_app(mq135_handle_t *handle, mq135_data_t *data) {
     if (handle == NULL || data == NULL) {
         return ESP_ERR_INVALID_ARG;
     }

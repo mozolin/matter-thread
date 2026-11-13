@@ -21,6 +21,9 @@
 #if CONFIG_SHT4X_ENABLED
   #include "sensor_driver_sht4x.h"
 #endif
+#if CONFIG_SCD4X_ENABLED
+  #include "sensor_driver_scd4x.h"
+#endif
 
 #include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
@@ -119,6 +122,13 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
             break;
         }
         #endif
+
+        #if CONFIG_SCD4X_ENABLED
+        case SENSOR_TYPE_SCD4X: {
+            err = scd4x_init_app();
+            break;
+        }
+        #endif
         
         default: {
             #if DEBUG_MODE
@@ -150,7 +160,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             uint16_t humidity;
             int16_t pressure;
             
-            err = bme280_read_all(&temperature, &humidity, &pressure);
+            err = bme280_read_app(&temperature, &humidity, &pressure);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
@@ -170,7 +180,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             int16_t pressure;
             uint32_t gas;
             
-            err = bme680_read_all(&temperature, &humidity, &pressure, &gas);
+            err = bme680_read_app(&temperature, &humidity, &pressure, &gas);
             if(err == ESP_OK) {
               sensor->last_temperature = temperature;
               sensor->last_humidity = humidity;
@@ -188,7 +198,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         case SENSOR_TYPE_DS18B20: {
             int16_t temperature;
             uint8_t num_sensors;
-            err = ds18b20_read(&temperature, &num_sensors);
+            err = ds18b20_read_app(&temperature, &num_sensors);
             if(err == ESP_OK) {
               sensor->last_temperature = temperature;
               sensor->last_read_time = esp_timer_get_time();
@@ -205,7 +215,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
         case SENSOR_TYPE_DHT11: {
             int16_t temperature;
             uint16_t humidity;
-            err = dht11_read(&temperature, &humidity);
+            err = dht11_read_app(&temperature, &humidity);
             if(err == ESP_OK) {
               sensor->last_temperature = temperature;
               sensor->last_humidity = humidity;
@@ -225,7 +235,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             #if CONFIG_MQ135_3V3_CIRCUIT
               esp_err_t err = mq135_read_3v3(&s_mq135_handle, &sensor_data);
             #else
-              esp_err_t err = mq135_read(&s_mq135_handle, &sensor_data);
+              esp_err_t err = mq135_read_app(&s_mq135_handle, &sensor_data);
             #endif
             if(err != ESP_OK) {
               #if DEBUG_MODE
@@ -260,7 +270,26 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
             int16_t temperature;
             uint16_t humidity;
             
-            err = sht4x_read_all(&temperature, &humidity);
+            err = sht4x_read_app(&temperature, &humidity);
+            if (err == ESP_OK) {
+                sensor->last_temperature = temperature;
+                sensor->last_humidity = humidity;
+                sensor->last_read_time = esp_timer_get_time();
+
+                #if CONFIG_SSD1306_ENABLED
+                  ssd1306_show_sensor_data(7, temperature, humidity, 0, 0, 0);
+                #endif
+            }
+            break;
+        }
+        #endif
+
+        #if CONFIG_SCD4X_ENABLED
+        case SENSOR_TYPE_SCD4X: {
+            int16_t temperature;
+            uint16_t humidity;
+            
+            err = scd4x_read_app(&temperature, &humidity);
             if (err == ESP_OK) {
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
@@ -308,18 +337,18 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     
     switch (sensor->config) {
         case SENSOR_TYPE_BME280:
-            err = bme280_reset();
+            err = bme280_reset_app();
             break;
         case SENSOR_TYPE_BME680:
-            err = bme680_reset();
+            err = bme680_reset_app();
             break;
         case SENSOR_TYPE_DS18B20:
-            err = ds18b20_reset();
+            err = ds18b20_reset_app();
             break;
         
         #if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11:
-            err = dht11_reset();
+            err = dht11_reset_app();
             break;
         #endif
         
@@ -328,6 +357,13 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
             err = sht4x_reset_app();
             break;
         #endif
+
+        #if CONFIG_SCD4X_ENABLED
+        case SENSOR_TYPE_SCD4X:
+            err = scd4x_reset_app();
+            break;
+        #endif
+        
         default:
             #if DEBUG_MODE
               ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type for reset: %d", sensor->config);
@@ -787,6 +823,45 @@ void sensor_polling_task(void *pvParameters)
                     }
                     #endif
 
+                    #if CONFIG_SCD4X_ENABLED
+                    case SENSOR_TYPE_SCD4X: {
+                        // Update Temperature
+                        esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
+                        esp_err_t err = esp_matter::attribute::update(
+                            endpoint_id,
+                            TemperatureMeasurement::Id,
+                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                            &temp_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                            #else
+                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                            #endif
+                        }
+                        
+                        // Update Humidity
+                        esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
+                        err = esp_matter::attribute::update(
+                            endpoint_id,
+                            RelativeHumidityMeasurement::Id,
+                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                            &hum_val
+                        );
+                        
+                        if (err == ESP_OK) {
+                            #if DEBUG_MODE
+                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                            #else
+                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                            #endif
+                        }
+                        break;
+                    }
+                    #endif
+
                     default:
                         break;
                 }
@@ -864,6 +939,8 @@ void app_driver_log_sensor_statistics(void)
                 break;
             }
             #endif
+            
+            #if CONFIG_SHT4X_ENABLED
             case SENSOR_TYPE_SHT4X: {
                 ESP_LOGW("", "SHT4X   (%d) | Temp: %.2f °C, Hum: %.2f %%",
                 i,
@@ -871,6 +948,18 @@ void app_driver_log_sensor_statistics(void)
                 sensor->last_humidity / 100.0f);
                 break;
             }
+            #endif
+
+            #if CONFIG_SCD4X_ENABLED
+            case SENSOR_TYPE_SCD4X: {
+                ESP_LOGW("", "SCD4X   (%d) | Temp: %.2f °C, Hum: %.2f %%",
+                i,
+                sensor->last_temperature / 100.0f,
+                sensor->last_humidity / 100.0f);
+                break;
+            }
+            #endif
+
             default: {
                 break;
             }

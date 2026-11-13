@@ -9,8 +9,8 @@ extern "C" {
 #endif
 
 esp_err_t bme280_init_app();
-esp_err_t bme280_read_all(int16_t *temperature, uint16_t *humidity, int16_t *pressure);
-esp_err_t bme280_reset();
+esp_err_t bme280_read_app(int16_t *temperature, uint16_t *humidity, int16_t *pressure);
+esp_err_t bme280_reset_app();
 
 #ifdef __cplusplus
 }

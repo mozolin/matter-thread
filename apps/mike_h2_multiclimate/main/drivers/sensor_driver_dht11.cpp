@@ -15,7 +15,7 @@ esp_err_t dht11_init_app()
     return ESP_OK;
 }
 
-esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity)
+esp_err_t dht11_read_app(int16_t *temperature, uint16_t *humidity)
 {
     float hum, temp;
     
@@ -45,7 +45,7 @@ esp_err_t dht11_read(int16_t *temperature, uint16_t *humidity)
     return ESP_OK;
 }
 
-esp_err_t dht11_reset()
+esp_err_t dht11_reset_app()
 {
     /*
     if (!dev || !dev->initialized) return ESP_ERR_INVALID_STATE;
