@@ -60,6 +60,9 @@
   {
     esp_err_t err = ESP_OK;
     
+    #if !MOCK_DISPLAY_BEHAVIOR
+    
+    
     #if CONFIG_I2C_INTERFACE
       #if DEBUG_MODE
         ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
@@ -310,6 +313,9 @@
     //-- Restart module
     esp_restart();
     */
+    #else
+      ssd1306_initialized = false;
+    #endif
     
     return err;
   }
@@ -333,9 +339,9 @@
       //ssd1306_display_on(&ssd1306dev);           // аппаратное включение панели
       ssd1306_clear_screen(&ssd1306dev, false);
       ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
-      ssd1306_show_title();                       // заголовок
       //-- callback function specific to this application
       //-- declared in the SSD1306 app module (main/driver_ssd1306.cpp)
+      //-- for instance: ssd1306_show_title()
       #ifdef CONFIG_SSD1306_APP_RUN_CB
         ssd1306_app_run_cb();
       #endif
@@ -384,7 +390,7 @@
              (unsigned long)mins, (unsigned long)secs);
 
     //-- строка фиксированной длины 16 символов (128px / 8px)
-    ssd1306_display_text(&ssd1306dev, 1, buf, strlen(buf), false);
+    ssd1306_display_text(&ssd1306dev, 0, buf, strlen(buf), false);
   }
 
 #endif

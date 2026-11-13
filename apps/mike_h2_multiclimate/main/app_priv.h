@@ -9,7 +9,8 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  false
+#define MOCK_SENSORS_BEHAVIOR                  true
+#define MOCK_DISPLAY_BEHAVIOR                  false
 #define DEBUG_MODE                             false
 #define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false

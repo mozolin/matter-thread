@@ -2,18 +2,6 @@
 #include "driver_ssd1306.h"
 #include <app_priv.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-
-#include "ssd1306_i2cdev.h"
-#include "ssd1306_font8x8_basic.h"
-
-#include <type_traits>
-
 #if CONFIG_SSD1306_ENABLED
 
   void ssd1306_show_title()
@@ -30,26 +18,20 @@
     //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
     //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
     ssd1306_display_text(&ssd1306dev, 0, "  MULTICLIMATE  ", 16, false);
-
+    ssd1306_display_text(&ssd1306dev, 1, "  MATTER/THREAD ", 16, false);
+    ssd1306_display_text_x2(&ssd1306dev, 3, "ESP32-H2", 8, false);
+    //ssd1306_display_text_x2(&ssd1306dev, 4, " MATTER ", 8, false);
+    //ssd1306_display_text_x2(&ssd1306dev, 6, " THREAD ", 8, false);
     /*
-    char buf[32];
-    uint8_t idx = 0;
-    snprintf(buf, sizeof(buf), " SSD1306: %d %d %d", CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO);
-    idx = 1;
-    ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
-    
-    #if CONFIG_BME280_ENABLED
-      snprintf(buf, sizeof(buf), "  BMP280: %d %d %d", CONFIG_BME280_I2C_PORT, CONFIG_BME280_SDA_GPIO, CONFIG_BME280_SCL_GPIO);
-      idx++;
-      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
-    #endif
-
-    #if CONFIG_BME680_ENABLED
-      snprintf(buf, sizeof(buf), "  BME680: %d %d %d", CONFIG_BME680_I2C_PORT, CONFIG_BME680_SDA_GPIO, CONFIG_BME680_SCL_GPIO);
-      idx++;
-      ssd1306_display_text(&ssd1306dev, idx, buf, strlen(buf), false);
-    #endif
+    ssd1306_display_text(&ssd1306dev, 2, "#     #   ##### ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 3, "##   ##  #     #", 16, false);
+    ssd1306_display_text(&ssd1306dev, 4, "# # # #  #      ", 16, false);
+    ssd1306_display_text(&ssd1306dev, 5, "#  #  #  #     #", 16, false);
+    ssd1306_display_text(&ssd1306dev, 6, "#     #   ##### ", 16, false);
     */
+    
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    ssd1306_clear_screen(&ssd1306dev, false);
   }
   
   #if USE_TIME_DRIVER

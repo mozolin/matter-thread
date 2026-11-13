@@ -2,9 +2,9 @@
 #include "app_priv.h"
 
 // Дескриптор устройства SCD4X
-i2c_dev_t scd4x_dev = { 0 };
+i2c_dev_t scd4x_dev;
 // Флаг инициализации
-bool s_initialized = false;
+bool scd4x_initialized = false;
 
 /**
  * @brief Инициализация I2C и датчика SCD4X
@@ -13,7 +13,7 @@ esp_err_t scd4x_init_app(void)
 {
   esp_err_t err = ESP_OK;
   
-  if(s_initialized) {
+  if(scd4x_initialized) {
     #if DEBUG_MODE
       ESP_LOGW(TAG_MIKE_APP, "Драйвер SCD4X уже инициализирован");
     #endif
@@ -70,7 +70,7 @@ esp_err_t scd4x_init_app(void)
       #endif
       return err;
     }
-    ESP_LOGI(TAG, "Sensor serial number: 0x%04x%04x%04x", serial[0], serial[1], serial[2]);
+    ESP_LOGI(TAG_MIKE_APP, "Sensor serial number: 0x%04x%04x%04x", serial[0], serial[1], serial[2]);
     
     //-- Start periodic measurement
     err = scd4x_start_periodic_measurement(&scd4x_dev);
@@ -80,10 +80,10 @@ esp_err_t scd4x_init_app(void)
       #endif
       return err;
     }
-    ESP_LOGI(TAG, "Periodic measurements started");
+    ESP_LOGI(TAG_MIKE_APP, "Periodic measurements started");
   #endif
   
-  s_initialized = true;
+  scd4x_initialized = true;
   
   #if DEBUG_MODE
     ESP_LOGI("", "");
@@ -109,7 +109,7 @@ esp_err_t scd4x_read_app(int16_t *temperature, uint16_t *humidity)
   float temp, hum;
     
   #if !MOCK_SENSORS_BEHAVIOR
-    if(!s_initialized) {
+    if(!scd4x_initialized) {
       #if DEBUG_MODE
         ESP_LOGE(TAG_MIKE_APP, "Драйвер не инициализирован");
       #endif
@@ -119,13 +119,13 @@ esp_err_t scd4x_read_app(int16_t *temperature, uint16_t *humidity)
     esp_err_t res = scd4x_read_measurement(&scd4x_dev, &co2, &temp, &hum);
     if(res != ESP_OK)
     {
-      ESP_LOGE(TAG, "Error reading results %d (%s)", res, esp_err_to_name(res));
+      ESP_LOGE(TAG_MIKE_APP, "Error reading results %d (%s)", res, esp_err_to_name(res));
       return err;
     }
 
     if(co2 == 0)
     {
-      ESP_LOGW(TAG, "Invalid sample detected, skipping");
+      ESP_LOGW(TAG_MIKE_APP, "Invalid sample detected, skipping");
       return ESP_FAIL;
     }
   #else
@@ -151,13 +151,13 @@ esp_err_t scd4x_read_app(int16_t *temperature, uint16_t *humidity)
  */
 esp_err_t scd4x_driver_deinit(void)
 {
-  if(!s_initialized) {
+  if(!scd4x_initialized) {
     return ESP_OK;
   }
 
   scd4x_free_desc(&scd4x_dev);
   
-  s_initialized = false;
+  scd4x_initialized = false;
   #if DEBUG_MODE
     ESP_LOGI(TAG_MIKE_APP, "Драйвер SCD4X освобождён");
   #endif
