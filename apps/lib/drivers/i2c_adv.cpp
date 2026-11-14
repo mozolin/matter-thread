@@ -155,7 +155,7 @@ void scan_port(i2c_port_t port, gpio_num_t sda, gpio_num_t scl)
 {
   esp_err_t err = ESP_OK;
   
-  ESP_LOGW("", "Scanning PORT %d (SDA=%d, SCL=%d)...", port, sda, scl);
+  ESP_LOGE("", "Scanning PORT %d (SDA=%d, SCL=%d)...", port, sda, scl);
   
   // Перебор 7-битных адресов (0x08 ~ 0x77 — это диапазон, обычно используемый в стандартах)
   int found = 0;

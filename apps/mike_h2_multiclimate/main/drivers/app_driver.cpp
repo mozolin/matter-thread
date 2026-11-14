@@ -286,17 +286,19 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx)
 
         #if CONFIG_SCD4X_ENABLED
         case SENSOR_TYPE_SCD4X: {
+            int16_t co2;
             int16_t temperature;
             uint16_t humidity;
             
-            err = scd4x_read_app(&temperature, &humidity);
+            err = scd4x_read_app(&co2, &temperature, &humidity);
             if (err == ESP_OK) {
+                sensor->last_co2  = co2;
                 sensor->last_temperature = temperature;
                 sensor->last_humidity = humidity;
                 sensor->last_read_time = esp_timer_get_time();
 
                 #if CONFIG_SSD1306_ENABLED
-                  ssd1306_show_sensor_data(7, temperature, humidity, 0, 0, 0);
+                  ssd1306_show_sensor_data(7, temperature, humidity, co2, 0, 0);
                 #endif
             }
             break;
@@ -789,74 +791,129 @@ void sensor_polling_task(void *pvParameters)
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
                         esp_err_t err = esp_matter::attribute::update(
-                            endpoint_id,
-                            TemperatureMeasurement::Id,
-                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
-                            &temp_val
+                          endpoint_id,
+                          TemperatureMeasurement::Id,
+                          TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                          &temp_val
                         );
                         
-                        if (err == ESP_OK) {
-                            #if DEBUG_MODE
-                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
-                            #else
-                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
-                            #endif
+                        if(err == ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                          #else
+                            ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                          #endif
                         }
                         
                         // Update Humidity
                         esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
                         err = esp_matter::attribute::update(
-                            endpoint_id,
-                            RelativeHumidityMeasurement::Id,
-                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
-                            &hum_val
+                          endpoint_id,
+                          RelativeHumidityMeasurement::Id,
+                          RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                          &hum_val
                         );
                         
-                        if (err == ESP_OK) {
-                            #if DEBUG_MODE
-                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
-                            #else
-                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
-                            #endif
+                        if(err == ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                          #else
+                            ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                          #endif
                         }
+                        
+                        
                         break;
                     }
                     #endif
 
                     #if CONFIG_SCD4X_ENABLED
                     case SENSOR_TYPE_SCD4X: {
+                        // 1. Обновление атрибута AirQuality для кластера AirQuality
+                        // Логика: выбираем уровень на основе ppm CO2 (или комбинации газов)
+                        uint8_t level = 1; // Good по умолчанию
+                        /*
+                        0 = Unknown / Неизвестно
+                        1 = Good / Хорошее
+                        2 = Fair / Удовлетворительное
+                        3 = Moderate / Умеренное
+                        4 = Poor / Плохое
+                        5 = VeryPoor / Очень плохое
+                        6 = ExtremelyPoor / Крайне плохое
+                        */
+                        if(sensor->last_co2 > CONFIG_SCD4X_AQ6_EXTREMELYPOOR) {
+                          level = 6;
+                        } else if(sensor->last_co2 > CONFIG_SCD4X_AQ5_VERYPOOR) {
+                        	level = 5;
+                        } else if(sensor->last_co2 > CONFIG_SCD4X_AQ4_POOR) {
+                        	level = 4;
+                        } else if(sensor->last_co2 > CONFIG_SCD4X_AQ3_MODERATE) {
+                        	level = 3;
+                        } else if(sensor->last_co2 > CONFIG_SCD4X_AQ2_FAIR) {
+                        	level = 2;
+                        }
+                        
+                        esp_matter_attr_val_t aq_val = esp_matter_enum8(level);
+                        esp_err_t err = attribute::update(
+                          endpoint_id,
+                          AirQuality::Id,
+                          AirQuality::Attributes::AirQuality::Id,
+                          &aq_val
+                        );
+                        if(err != ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGE(TAG_MIKE_APP, "Ошибка обновления AirQuality: %s", esp_err_to_name(err));
+                          #endif
+                        }
+                        
+                        // 2. Обновление атрибута MeasuredValue для кластера CO2
+                        esp_matter_attr_val_t co2_val = esp_matter_float(sensor->last_co2);
+                        err = esp_matter::attribute::update(
+                          endpoint_id,
+                          CarbonDioxideConcentrationMeasurement::Id,
+                          CarbonDioxideConcentrationMeasurement::Attributes::MeasuredValue::Id,
+                          &co2_val
+                        );
+                        if(err == ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGW(TAG_MIKE_APP, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                          #else
+                            ESP_LOGD(TAG_MIKE_APP, "Sensor %d: CO2 = %.2f ppm", i, sensor->last_co2);
+                          #endif
+                        }
+
                         // Update Temperature
                         esp_matter_attr_val_t temp_val = esp_matter_int16((int16_t)sensor->last_temperature);
-                        esp_err_t err = esp_matter::attribute::update(
-                            endpoint_id,
-                            TemperatureMeasurement::Id,
-                            TemperatureMeasurement::Attributes::MeasuredValue::Id,
-                            &temp_val
+                        err = esp_matter::attribute::update(
+                          endpoint_id,
+                          TemperatureMeasurement::Id,
+                          TemperatureMeasurement::Attributes::MeasuredValue::Id,
+                          &temp_val
                         );
                         
-                        if (err == ESP_OK) {
-                            #if DEBUG_MODE
-                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
-                            #else
-                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
-                            #endif
+                        if(err == ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                          #else
+                            ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Temperature = %.2f°C", i, sensor->last_temperature / 100.0f);
+                          #endif
                         }
                         
                         // Update Humidity
                         esp_matter_attr_val_t hum_val = esp_matter_uint16((uint16_t)sensor->last_humidity);
                         err = esp_matter::attribute::update(
-                            endpoint_id,
-                            RelativeHumidityMeasurement::Id,
-                            RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
-                            &hum_val
+                          endpoint_id,
+                          RelativeHumidityMeasurement::Id,
+                          RelativeHumidityMeasurement::Attributes::MeasuredValue::Id,
+                          &hum_val
                         );
                         
-                        if (err == ESP_OK) {
-                            #if DEBUG_MODE
-                              ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
-                            #else
-                              ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
-                            #endif
+                        if(err == ESP_OK) {
+                          #if DEBUG_MODE
+                            ESP_LOGW(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                          #else
+                            ESP_LOGD(TAG_MIKE_APP, "Sensor %d: Humidity = %.2f %%", i, sensor->last_humidity / 100.0f);
+                          #endif
                         }
                         break;
                     }

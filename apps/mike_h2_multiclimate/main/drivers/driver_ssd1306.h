@@ -3,11 +3,8 @@
 #include <app_priv.h>
 
 #if CONFIG_SSD1306_ENABLED
-
-  extern void ssd1306_show_title(void);
-  #if USE_TIME_DRIVER
-    extern bool ssd1306_show_datetime(const tm& timeinfo);
-  #endif
+  
+  void ssd1306_show_title(void);
   
   extern void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra);
 

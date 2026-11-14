@@ -393,5 +393,25 @@
     ssd1306_display_text(&ssd1306dev, 0, buf, strlen(buf), false);
   }
 
+  void ssd1306_empty_screen(SSD1306_t * dev, bool invert)
+  {
+    //-- if not initialized
+    if(!ssd1306_initialized) {
+      return;
+    }
+
+    //ssd1306_clear_screen(dev, false);
+    //-- программное включение панели
+    //ssd1306_contrast(dev, 0xff);
+    ssd1306_display_text(dev, 0, "                ", 16, invert);
+    ssd1306_display_text(dev, 1, "                ", 16, invert);
+    ssd1306_display_text(dev, 2, "                ", 16, invert);
+    ssd1306_display_text(dev, 3, "                ", 16, invert);
+    ssd1306_display_text(dev, 4, "                ", 16, invert);
+    ssd1306_display_text(dev, 5, "                ", 16, invert);
+    ssd1306_display_text(dev, 6, "                ", 16, invert);
+    ssd1306_display_text(dev, 7, "                ", 16, invert);
+  }
+
 #endif
 

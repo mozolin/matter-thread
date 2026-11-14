@@ -19,6 +19,7 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include "app_main.h"
 #include "i2c_adv.h"
 
 #include "sensor_driver_bme280.h"
@@ -88,6 +89,7 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   #include "plugin_device_structure.h"
 #endif
 
+/*
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
@@ -205,6 +207,7 @@ static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16
 
     return err;
 }
+*/
 
 static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 {
@@ -366,7 +369,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             break;
         }
 
-        #if CONFIG_DHT11_ENABLED
+        //#if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
             // Create endpoint with multiple clusters
             #if DEBUG_MODE
@@ -399,9 +402,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             break;
         }
-        #endif
+        //#endif
 
-        #if CONFIG_MQ135_ENABLED
+        //#if CONFIG_MQ135_ENABLED
         case SENSOR_TYPE_MQ135: {
             #if DEBUG_MODE
               ESP_LOGW("", "");
@@ -502,9 +505,9 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             break;
         }
-        #endif
+        //#endif
 
-        #if CONFIG_SHT4X_ENABLED
+        //#if CONFIG_SHT4X_ENABLED
         case SENSOR_TYPE_SHT4X: {
             // Create endpoint with multiple clusters
             #if DEBUG_MODE
@@ -537,10 +540,10 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
             break;
         }
-        #endif
+        //#endif
 
 
-        #if CONFIG_SCD4X_ENABLED
+        //#if CONFIG_SCD4X_ENABLED
         case SENSOR_TYPE_SCD4X: {
             // Create endpoint with multiple clusters
             #if DEBUG_MODE
@@ -550,13 +553,12 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
               ESP_LOGW("", "************************************");
               ESP_LOGW("", "");
             #endif
-            esp_matter::endpoint::temperature_sensor::config_t sensor_config;
-            sensor_config.temperature_measurement.measured_value = nullable<int16_t>(2000);  // 20.00°C
-            sensor_config.temperature_measurement.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
-            sensor_config.temperature_measurement.max_measured_value = nullable<int16_t>(12500); // 125.00°C
             
-            endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
+            // Создание endpoint с типом Air Quality Sensor
+            // Это стандартный тип устройства, который подходит для нашего датчика.
+            air_quality_sensor::config_t sensor_config;
             
+            endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             if(!endpoint) {
               #if DEBUG_MODE
                 ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SCD4X");
@@ -564,6 +566,49 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
               return ESP_FAIL;
             }
 
+            cluster_t *scd4x_aq_cluster = cluster::get(endpoint, AirQuality::Id);
+            if(scd4x_aq_cluster == NULL) {
+              #if DEBUG_MODE
+                ESP_LOGE(TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
+              #endif
+            }
+            // Включить все доступные уровни (FAIR | MOD | VPOOR | XPOOR)
+            attribute_t *fm_attr = attribute::get(scd4x_aq_cluster, AirQuality::Attributes::FeatureMap::Id);
+            if(fm_attr) {
+              esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
+              attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
+                            AirQuality::Attributes::FeatureMap::Id, &fm_val);
+              #if DEBUG_MODE
+                ESP_LOGW(TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+              #endif
+            }
+            
+            // === 1. Кластер Carbon Dioxide Concentration Measurement (0x040D) ===
+            cluster::carbon_dioxide_concentration_measurement::config_t co2_config;
+            cluster_t *scd4x_co2_cluster = cluster::carbon_dioxide_concentration_measurement::create(endpoint, &co2_config, CLUSTER_FLAG_SERVER);
+            if(scd4x_co2_cluster) {
+              // Включение функции NumericMeasurement (обязательна для MeasuredValue)
+              cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::config_t co2_feature_cfg;
+              co2_feature_cfg.measured_value = 400.0f; // Начальное значение (примерно атмосферный уровень)
+              co2_feature_cfg.min_measured_value = 0.0f;
+              co2_feature_cfg.max_measured_value = 5000.0f;
+              co2_feature_cfg.measurement_unit = 0; // 0 = PPM (согласно MeasurementUnitEnum)
+                  
+              esp_err_t err = cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::add(scd4x_co2_cluster, &co2_feature_cfg);
+              if(err != ESP_OK) {
+                #if DEBUG_MODE
+                  ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                #endif
+              }
+            }
+
+            //-- Add Humidity Measurement cluster
+            cluster::temperature_measurement::config_t temp_config;
+            temp_config.measured_value = nullable<int16_t>(2000);  // 20.00°C
+            temp_config.min_measured_value = nullable<int16_t>(-4000); // -40.00°C
+            temp_config.max_measured_value = nullable<int16_t>(12500); // 125.00°C
+            cluster::temperature_measurement::create(endpoint, &temp_config, CLUSTER_FLAG_SERVER);
+            
             //-- Add Humidity Measurement cluster
             cluster::relative_humidity_measurement::config_t hum_config;
             hum_config.measured_value = nullable<uint16_t>(5000); // 50.00%
@@ -573,7 +618,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
             break;
         }
-        #endif
+        //#endif
 
         default:
           #if DEBUG_MODE
@@ -986,10 +1031,8 @@ extern "C" void app_main()
       #endif
     }
     //=== При загрузке экран ВЫКЛЮЧЕН ===
-    //ssd1306_show_title();                 // было: сразу показываем заголовок
     ssd1306_display_enabled = false;        // стало: экран выключен
     ssd1306_clear_screen(&ssd1306dev, false);
-    //ssd1306_display_off(&ssd1306dev);       // гасим панель
     ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
   #endif
 
@@ -1028,27 +1071,27 @@ extern "C" void app_main()
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "Failed to create Matter node"));
-  #if CONFIG_BME280_ENABLED
+  //#if CONFIG_BME280_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME280, node);
-  #endif
-  #if CONFIG_BME680_ENABLED
+  //#endif
+  //#if CONFIG_BME680_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_BME680, node);
-  #endif
-  #if CONFIG_DS18B20_ENABLED
+  //#endif
+  //#if CONFIG_DS18B20_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_DS18B20, node);
-  #endif
-  #if CONFIG_DHT11_ENABLED
+  //#endif
+  //#if CONFIG_DHT11_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_DHT11, node);
-  #endif
-  #if CONFIG_MQ135_ENABLED
+  //#endif
+  //#if CONFIG_MQ135_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_MQ135, node);
-  #endif
-  #if CONFIG_SHT4X_ENABLED
+  //#endif
+  //#if CONFIG_SHT4X_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_SHT4X, node);
-  #endif
-  #if CONFIG_SCD4X_ENABLED
+  //#endif
+  //#if CONFIG_SCD4X_ENABLED
     create_sensor_endpoint(SENSOR_TYPE_SCD4X, node);
-  #endif
+  //#endif
   // =========================================
   //  Boot Switch endpoint и On/Off эндпоинты
   // =========================================

@@ -9,12 +9,12 @@
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  true
+#define MOCK_SENSORS_BEHAVIOR                  false
 #define MOCK_DISPLAY_BEHAVIOR                  false
 #define DEBUG_MODE                             false
 #define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false
-#define CHECK_I2C_PORTS                        true
+#define CHECK_I2C_PORTS                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
 
 
@@ -34,16 +34,16 @@
 #define CONFIG_DHT11_ENABLED                   true
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT4X_ENABLED                   true
-#define CONFIG_SCD4X_ENABLED                   true
+#define CONFIG_SCD4X_ENABLED                   false
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 
 
-/*****************
- *               *
- *   I2C BUSES   *
- *               *
- *****************/
+/****************************************
+ *                                      *
+ *   I2C BUSES (0 and 1 for ESP32-H2)   *
+ *                                      *
+ ****************************************/
 #include "i2c_adv.h"
 #define CONFIG_I2C_FREQ_HZ                     400000
 //-- I2C Bus=0
@@ -239,6 +239,23 @@
   #define CONFIG_MQ135_AQ6_EXTREMELYPOOR       5000
 #endif
 
+#if CONFIG_SCD4X_ENABLED
+  //-- AirQuality:
+  //-- 0 = Unknown / Неизвестно
+  #define CONFIG_SCD4X_AQ0_UNKNOWN             -1
+  //-- 1 = Good / Хорошее
+  #define CONFIG_SCD4X_AQ1_GOOD                0
+  //-- 2 = Fair / Удовлетворительное
+  #define CONFIG_SCD4X_AQ2_FAIR                1000
+  //-- 3 = Moderate / Умеренное
+  #define CONFIG_SCD4X_AQ3_MODERATE            2000
+  //-- 4 = Poor / Плохое
+  #define CONFIG_SCD4X_AQ4_POOR                3000
+  //-- 5 = VeryPoor / Очень плохое
+  #define CONFIG_SCD4X_AQ5_VERYPOOR            4000
+  //-- 6 = ExtremelyPoor / Крайне плохое
+  #define CONFIG_SCD4X_AQ6_EXTREMELYPOOR       5000
+#endif
 
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306_common.h"
@@ -293,7 +310,7 @@ typedef struct {
   float last_humidity;
   float last_pressure;
   float last_gas_resistance;  // For BME680
-  float last_co2;             // For MQ135
+  float last_co2;             // For MQ135 & SCD4X
   float last_co;              // For MQ135
   float last_tvoc;            // For MQ135
   uint64_t last_read_time;
@@ -328,22 +345,6 @@ typedef void *app_driver_handle_t;
  * @return error in case of failure.
  */
 esp_err_t app_driver_sensor_init(sensor_type_t sensor_config);
-
-/** Driver Update
- *
- * This API should be called to update the driver for the attribute being updated.
- * This is usually called from the common `app_attribute_update_cb()`.
- *
- * @param[in] endpoint_id Endpoint ID of the attribute.
- * @param[in] cluster_id Cluster ID of the attribute.
- * @param[in] attribute_id Attribute ID of the attribute.
- * @param[in] val Pointer to `esp_matter_attr_val_t`. Use appropriate elements as per the value type.
- *
- * @return ESP_OK on success.
- * @return error in case of failure.
- */
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
-                                      uint32_t attribute_id, esp_matter_attr_val_t *val);
 
 /** Read sensor data
  *

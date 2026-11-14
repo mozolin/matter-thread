@@ -12,14 +12,16 @@
     }
 
     ssd1306_clear_screen(&ssd1306dev, false);
-    ssd1306_contrast(&ssd1306dev, 0xff);
+    ssd1306_contrast(&ssd1306dev, 0xff);        // программное включение панели
     //ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
     //ssd1306_display_text(&ssd1306dev, 1, "  MULTICLIMATE  ", 16, false);
     //ssd1306_display_text(&ssd1306dev, 2, "----------------", 16, false);
     //ssd1306_display_text(&ssd1306dev, 7, "----------------", 16, false);
-    ssd1306_display_text(&ssd1306dev, 0, "  MULTICLIMATE  ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 1, "  MATTER/THREAD ", 16, false);
-    ssd1306_display_text_x2(&ssd1306dev, 3, "ESP32-H2", 8, false);
+    ssd1306_display_text(&ssd1306dev,    1, "ESP32-H2 THREAD", 16, false);
+    //ssd1306_display_text(&ssd1306dev,    1, "MATTER/THREAD   ", 16, false);
+    ssd1306_display_text_x2(&ssd1306dev, 2, "MULTI   ", 8, false);
+    ssd1306_display_text_x2(&ssd1306dev, 4, "CLIMATE ", 8, false);
+    ssd1306_display_text_x2(&ssd1306dev, 6, "(c) MIKE", 8, false);
     //ssd1306_display_text_x2(&ssd1306dev, 4, " MATTER ", 8, false);
     //ssd1306_display_text_x2(&ssd1306dev, 6, " THREAD ", 8, false);
     /*
@@ -30,35 +32,11 @@
     ssd1306_display_text(&ssd1306dev, 6, "#     #   ##### ", 16, false);
     */
     
-    vTaskDelay(pdMS_TO_TICKS(3000));
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    //ssd1306_empty_screen(&ssd1306dev, true);
     ssd1306_clear_screen(&ssd1306dev, false);
   }
   
-  #if USE_TIME_DRIVER
-    bool ssd1306_show_datetime(const tm& timeinfo)
-    {
-      //-- if not initialized
-      if(!ssd1306_initialized) {
-        return false;
-      }
-      
-      //char time_str[32];
-      //strftime(time_str, sizeof(time_str), "%H:%M:%S", &timeinfo);
-      
-      //char date_str[32];
-      //strftime(date_str, sizeof(date_str), "%d.%m.%Y", &timeinfo);
-      
-      char datetime_str[32];
-      strftime(datetime_str, sizeof(datetime_str), "%d%m%y %H:%M:%S", &timeinfo);
-      
-      //ssd1306_display_text(&ssd1306dev, 0, time_str, strlen(time_str), false);
-      //ssd1306_display_text(&ssd1306dev, 1, date_str, strlen(date_str), false);
-      ssd1306_display_text(&ssd1306dev, 0, datetime_str, strlen(datetime_str), false);
-      
-      return true;
-    }
-  #endif
-
 	void ssd1306_show_sensor_data(uint8_t y_pos, float temp, float hum, float pres, float gas, int8_t extra)
 	{
 		//-- if not initialized

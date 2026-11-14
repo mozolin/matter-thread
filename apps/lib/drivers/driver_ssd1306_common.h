@@ -1,6 +1,7 @@
 #pragma once
 
 #include <app_priv.h>
+#include "ssd1306_i2cdev.h"
 
 #if CONFIG_SSD1306_ENABLED
 
@@ -18,5 +19,8 @@
   extern void ssd1306_set_display_enabled(bool enabled);
   //=== обратный отсчёт до авто-отключения ===
   extern void ssd1306_update_timeout_line(void);
+
+  //extern void ssd1306_empty_screen(void);
+  extern void ssd1306_empty_screen(SSD1306_t * dev, bool invert);
 
 #endif

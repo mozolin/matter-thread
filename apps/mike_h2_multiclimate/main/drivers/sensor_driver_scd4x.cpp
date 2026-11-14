@@ -101,11 +101,11 @@ esp_err_t scd4x_init_app(void)
 /**
  * @brief Выполнить измерение и заполнить структуру результата
  */
-esp_err_t scd4x_read_app(int16_t *temperature, uint16_t *humidity)
+esp_err_t scd4x_read_app(int16_t *co2, int16_t *temperature, uint16_t *humidity)
 {
   esp_err_t err = ESP_OK;
 
-  uint16_t co2;
+  uint16_t co2_val;
   float temp, hum;
     
   #if !MOCK_SENSORS_BEHAVIOR
@@ -116,30 +116,31 @@ esp_err_t scd4x_read_app(int16_t *temperature, uint16_t *humidity)
       return ESP_ERR_INVALID_STATE;
     }
 
-    esp_err_t res = scd4x_read_measurement(&scd4x_dev, &co2, &temp, &hum);
+    esp_err_t res = scd4x_read_measurement(&scd4x_dev, &co2_val, &temp, &hum);
     if(res != ESP_OK)
     {
       ESP_LOGE(TAG_MIKE_APP, "Error reading results %d (%s)", res, esp_err_to_name(res));
       return err;
     }
 
-    if(co2 == 0)
+    if(co2_val == 0)
     {
       ESP_LOGW(TAG_MIKE_APP, "Invalid sample detected, skipping");
       return ESP_FAIL;
     }
   #else
-    co2 = 1234;
-    temp = 26.77;
-    hum  = 41.33;
+    co2_val = 999;
+    temp = 22.33;
+    hum  = 33.44;
   #endif
 
   #if DEBUG_MODE
-    ESP_LOGW("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2, temp, hum);
+    ESP_LOGW("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2_val, temp, hum);
   #else
-    ESP_LOGD("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2, temp, hum);
+    ESP_LOGD("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2_val, temp, hum);
   #endif
 
+  *co2 = (int16_t)co2_val;
   *temperature = (int16_t)(temp * 100.0f);
   *humidity = (uint16_t)(hum * 100.0f);
 
