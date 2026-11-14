@@ -413,5 +413,31 @@
     ssd1306_display_text(dev, 7, "                ", 16, invert);
   }
 
+  //-- Init LCD SSD1306
+  void ssd1306_init_app_main()
+  {
+    esp_err_t err = ssd1306_init_app();
+    if(err != ESP_OK) {
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+      #endif
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
+      #endif
+    } else {
+      ssd1306_initialized = true;
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
+      #endif
+      #if USE_DRIVER_LED_INDICATOR
+        get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
+      #endif
+    }
+    //=== При загрузке экран ВЫКЛЮЧЕН ===
+    ssd1306_display_enabled = false;        // стало: экран выключен
+    ssd1306_clear_screen(&ssd1306dev, false);
+    ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
+  }
+
 #endif
 

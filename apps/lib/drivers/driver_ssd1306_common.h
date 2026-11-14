@@ -23,4 +23,7 @@
   //extern void ssd1306_empty_screen(void);
   extern void ssd1306_empty_screen(SSD1306_t * dev, bool invert);
 
+  //-- Init LCD SSD1306
+  extern void ssd1306_init_app_main(void);
+
 #endif

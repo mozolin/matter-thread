@@ -8,7 +8,14 @@
 #include "driver_reboot_button.h"
 #include "drivers/sensor_common.h"
 
+//-- Debug options
+#define MOCK_SENSORS_BEHAVIOR                  false
+#define DEBUG_MODE                             false
+#define ESP_EMULATOR_MODE                      false
+#define SHOW_DEVICE_LOG                        false
+
 #define TAG_MIKE_APP                           "MIKE MULTISENSOR H2"
+
 #define CONFIG_NUM_SENSORS                     4
 
 //-- Sensors configuration

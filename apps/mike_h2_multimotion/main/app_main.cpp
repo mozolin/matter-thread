@@ -21,6 +21,15 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
+#include "app_main.h"
+
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+  #include "driver_boot_switch.h"
+  //-- Внешняя функция для передачи endpoint_id в драйвер
+  extern "C" void boot_switch_set_endpoint(uint16_t endpoint_id, cluster_t *cluster);
+#endif
+
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;

@@ -153,7 +153,7 @@ void reboot_button_task(void *pvParameter)
             // Optional: open pairing window here or after reboot, open it in app_main
           }, 0);
           // A small delay to allow the task to complete (usually not required, but may help with debugging)
-          vTaskDelay(pdMS_TO_TICKS(1000));
+          vTaskDelay(pdMS_TO_TICKS(3000));
           esp_restart();
           //<-- uses for CommissioningWindowOpen
         } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
@@ -178,25 +178,25 @@ void reboot_button_task(void *pvParameter)
           //
           if(pressed_duration <= SHORT_CLICK_MAX_MS) {
             if(!s_first_click_pending) {
-              //#if DEBUG_MODE
+              #if DEBUG_MODE
                 ESP_LOGW("Reset Button", "****************************");
                 ESP_LOGW("Reset Button", "*                          *");
                 ESP_LOGW("Reset Button", "*   Reset button pressed   *");
                 ESP_LOGW("Reset Button", "*                          *");
                 ESP_LOGW("Reset Button", "****************************");
-              //#endif
+              #endif
               //-- Первый клик в окне: стартуем таймер ожидания второго
               s_first_click_pending = true;
               esp_timer_stop(s_single_click_timer);
               esp_timer_start_once(s_single_click_timer, (uint64_t)DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
             } else {
-              //#if DEBUG_MODE
+              #if DEBUG_MODE
                 ESP_LOGW("Reset Button", "*********************************");
                 ESP_LOGW("Reset Button", "*                               *");
                 ESP_LOGW("Reset Button", "*   Reset button double click   *");
                 ESP_LOGW("Reset Button", "*                               *");
                 ESP_LOGW("Reset Button", "*********************************");
-              //#endif
+              #endif
               //-- Второй клик в окне: отменяем одиночное действие и делаем двойное
               s_first_click_pending = false;
               esp_timer_stop(s_single_click_timer);

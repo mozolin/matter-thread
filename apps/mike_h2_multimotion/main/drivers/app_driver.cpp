@@ -60,7 +60,7 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 
 #if CONFIG_RCWL0516_ENABLED
         case SENSOR_TYPE_MICROWAVE:
-            err = rcwl0516_init(&microwave_sensor, sensor_cfg->trigger_pin);
+            err = rcwl0516_init_app(&microwave_sensor, sensor_cfg->trigger_pin);
             break;
 #endif
 
@@ -97,7 +97,7 @@ bool app_driver_read_sensor_state(uint8_t sensor_idx)
 
 #if CONFIG_RCWL0516_ENABLED
         case SENSOR_TYPE_MICROWAVE:
-            return rcwl0516_read(&microwave_sensor);
+            return rcwl0516_read_app(&microwave_sensor);
 #endif
 
 #if CONFIG_HCSR04_ENABLED
@@ -175,7 +175,7 @@ esp_err_t app_driver_sensor_reinit(uint8_t sensor_idx)
 
 #if CONFIG_RCWL0516_ENABLED
         case SENSOR_TYPE_MICROWAVE:
-            return rcwl0516_init(&microwave_sensor, cfg->trigger_pin);
+            return rcwl0516_init_app(&microwave_sensor, cfg->trigger_pin);
 #endif
 
 #if CONFIG_HCSR04_ENABLED
@@ -213,7 +213,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 
 #if CONFIG_RCWL0516_ENABLED
         case SENSOR_TYPE_MICROWAVE:
-            err = rcwl0516_init(&microwave_sensor, sensor->config.trigger_pin);
+            err = rcwl0516_init_app(&microwave_sensor, sensor->config.trigger_pin);
             break;
 #endif
 
@@ -353,7 +353,7 @@ void sensor_polling_task(void *pvParameters)
 
 #if CONFIG_RCWL0516_ENABLED
                 case SENSOR_TYPE_MICROWAVE: {
-                    bool current_state = rcwl0516_read(&microwave_sensor);
+                    bool current_state = rcwl0516_read_app(&microwave_sensor);
                     
                     if (current_state != sensor->last_state) {
                         sensor->last_state = current_state;

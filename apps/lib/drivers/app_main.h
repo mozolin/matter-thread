@@ -47,6 +47,12 @@ extern esp_err_t app_identification_cb(identification::callback_type_t type, uin
 
 extern esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data);
 
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  // Open commissioning windows after factory reset and reboot
+  extern void open_commissioning_window_after_factory_reset();
+#endif
+
+extern void set_basic_attributes_esp_matter(void);
 
 #ifdef __cplusplus
 }

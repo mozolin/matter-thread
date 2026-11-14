@@ -146,6 +146,12 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
           #if DEBUG_MODE
             ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
           #endif
+        } else {
+        	ESP_LOGW("", "");
+        	ESP_LOGW("", "----------------------------");
+        	ESP_LOGW("", "Commissioning window opened!");
+        	ESP_LOGW("", "----------------------------");
+        	ESP_LOGW("", "");
         }
       }
     }
@@ -201,4 +207,118 @@ esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endp
   #endif
 
   return err;
+}
+
+//--- Задача: раз в секунду мигать, пока открыто окно сопряжения ---
+static void commissioning_window_blink_task(void *arg)
+{
+  uint32_t window_sec = (uint32_t)(uintptr_t)arg;
+  uint32_t elapsed = 0;
+
+  #if DEBUG_MODE
+    ESP_LOGW("#1# CommWindow", "");
+    ESP_LOGW("#1# CommWindow", "##############################");
+    ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
+    ESP_LOGW("#1# CommWindow", "##############################");
+    ESP_LOGW("#1# CommWindow", "");
+  #endif
+
+  while(elapsed < window_sec) {
+    // Проверяем, не закрылось ли окно раньше (например, устройство уже сопряжено)
+    auto &mgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+    if(!mgr.IsCommissioningWindowOpen()) {
+      #if DEBUG_MODE
+        ESP_LOGW("#2# CommWindow", "");
+        ESP_LOGW("#2# CommWindow", "##############################");
+        ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
+        ESP_LOGW("#2# CommWindow", "##############################");
+        ESP_LOGW("#2# CommWindow", "");
+      #endif
+      break;
+    }
+
+    #if USE_DRIVER_LED_INDICATOR
+      get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
+    #endif
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    elapsed++;
+  }
+
+  #if DEBUG_MODE
+    ESP_LOGW("#3# CommWindow", "");
+    ESP_LOGW("#3# CommWindow", "##############################");
+    ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
+    ESP_LOGW("#3# CommWindow", "##############################");
+    ESP_LOGW("#3# CommWindow", "");
+  #endif
+  vTaskDelete(NULL);
+}
+
+#if CONFIG_REBOOT_BUTTON_ENABLED
+  // 9. Open commissioning windows after factory reset and reboot
+  void open_commissioning_window_after_factory_reset()
+  {  
+    //--> uses for CommissioningWindowOpen
+    chip::DeviceLayer::PlatformMgr().ScheduleWork([](intptr_t context) {
+      auto &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+      // Check if the pairing window is already open, avoid opening it again
+      if(!commissionMgr.IsCommissioningWindowOpen()) {
+        CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(
+          // Window opens for CONFIG_COMMISSIONING_WINDOW_OPEN seconds
+          chip::System::Clock::Seconds16(CONFIG_COMMISSIONING_WINDOW_OPEN)
+        );
+        if(err != CHIP_NO_ERROR) {
+          #if DEBUG_MODE
+            ESP_LOGE("", "");
+            ESP_LOGE("", "-------------------------------------------------");
+            ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
+            ESP_LOGE("", "-------------------------------------------------");
+            ESP_LOGE("", "");
+          #endif
+        } else {
+          #if DEBUG_MODE
+            ESP_LOGW("", "");
+            ESP_LOGW("", "------------------------------------------------------------");
+            ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
+            ESP_LOGW("", "------------------------------------------------------------");
+            ESP_LOGW("", "");
+          #endif
+        }
+      } else {
+      	// Запускаем задачу мигания (в стеке 2 KB достаточно)
+        xTaskCreate(commissioning_window_blink_task, "comm_blink", 2048, (void *)(uintptr_t)CONFIG_COMMISSIONING_WINDOW_OPEN, CONFIG_COMMISSIONING_WINDOW_PRIORITY, NULL);
+      }
+    }, 0);
+    //<-- uses for CommissioningWindowOpen
+  }
+#endif
+
+void set_basic_attributes_esp_matter()
+{
+  #ifdef CONFIG_DEVICE_NODE_LABEL  
+    uint16_t endpoint_id = 0x0000;
+
+    // Set NodeLabel
+    // BasicInformationCluster (ClusterId 40, 0x0028), Endpoint 0
+    // AttributeId 5: NodeLabel
+    char node_label[] = CONFIG_DEVICE_NODE_LABEL;
+    esp_matter_attr_val_t node_label_val = esp_matter_char_str(node_label, strlen(node_label));
+    esp_err_t err = esp_matter::attribute::update(
+        endpoint_id,
+        chip::app::Clusters::BasicInformation::Id,
+        chip::app::Clusters::BasicInformation::Attributes::NodeLabel::Id,
+        &node_label_val
+    );
+    
+    if(err == ESP_OK) {
+      #if DEBUG_MODE
+        ESP_LOGI(TAG_MIKE_APP, "NodeLabel set via ESP-Matter API");
+      #endif
+    } else {
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to set NodeLabel: %d", err);
+      #endif
+    }
+  #endif  
 }

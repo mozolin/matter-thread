@@ -28,7 +28,7 @@ include(${ESP_MATTER_PATH}/examples/common/cmake_common/components_include.cmake
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
 set(DEVICE_PRODUCT_NAME "Mike_0x8000_MultiClimate")
-#-- AttributeId 5: NodeLabel
+#-- AttributeId 5: NodeLabel (NOT SET! See: set_basic_attributes_esp_matter())
 set(DEVICE_NODE_LABEL "MultiClimate_ESP32H2")
 #-- AttributeId 6: Location
 set(DEVICE_LOCATION "Home")

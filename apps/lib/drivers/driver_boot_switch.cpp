@@ -1,3 +1,24 @@
+#include <esp_err.h>
+#include <esp_log.h>
+#include <nvs_flash.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+#include <esp_matter.h>
+#include <esp_matter_console.h>
+#include <esp_matter_attribute.h>
+#include <esp_matter_ota.h>
+
+#include <common_macros.h>
+#include <app_priv.h>
+#include <app_reset.h>
+#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
+  #include <platform/ESP32/OpenthreadLauncher.h>
+#endif
+
+#include <app/server/CommissioningWindowManager.h>
+#include <app/server/Server.h>
+
 
 #include <app_priv.h>
 #include "driver_boot_switch.h"
@@ -9,8 +30,12 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 
+/*
 using namespace esp_matter;
+using namespace esp_matter::attribute;
+using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
+*/
 
 // ============================================================
 //  Глобальные переменные для boot_switch
@@ -49,7 +74,7 @@ void boot_switch_driver_init(void)
 // ============================================================
 //  Установка endpoint_id и кластера (вызывается из app_main)
 // ============================================================
-extern "C" void boot_switch_set_endpoint(uint16_t endpoint_id, cluster_t *cluster)
+/*extern "C" */void boot_switch_set_endpoint(uint16_t endpoint_id, cluster_t *cluster)
 {
     s_boot_switch_endpoint_id = endpoint_id;
     s_boot_switch_cluster = cluster;
@@ -265,3 +290,240 @@ void boot_switch_task(void *pvParameters)
 }
 
 #endif // CONFIG_BOOT_SWITCH_ENABLED
+
+// ==================================================
+//  Создание Generic Switch endpoint для кнопки BOOT
+// ==================================================
+#if CONFIG_BOOT_SWITCH_ENABLED
+esp_err_t create_boot_switch_endpoint(node_t *node)
+{
+    if (node == NULL) {
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: node is NULL");
+        #endif
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    //-- 1. Создаём endpoint Generic Switch с пустой конфигурацией
+    //--    (функции будут добавлены отдельно через add())
+    generic_switch::config_t switch_config;
+    endpoint_t *endpoint = generic_switch::create(node, &switch_config, ENDPOINT_FLAG_NONE, NULL);
+    if (endpoint == NULL) {
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to create endpoint");
+        #endif
+        return ESP_FAIL;
+    }
+
+    uint16_t ep_id = endpoint::get_id(endpoint);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint created, id=%d", ep_id);
+    #endif
+
+    //-- 2. Получаем кластер Switch для добавления функций
+    cluster_t *switch_cluster = cluster::get(endpoint, Switch::Id);
+    if (switch_cluster == NULL) {
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to get Switch cluster");
+        #endif
+        return ESP_FAIL;
+    }
+
+    //-- 3. Добавляем функцию Momentary Switch (MS)
+    //--    Обязательна для генерации событий InitialPress/ShortRelease.
+    //--    Без неё остальные функции не имеют смысла.
+    esp_err_t err = cluster::switch_cluster::feature::momentary_switch::add(switch_cluster);
+    if (err != ESP_OK) {
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch: %d", err);
+        #endif
+        return err;
+    }
+
+    //-- 4. Добавляем функцию Momentary Switch Release (MSR)
+    //--    ИСПРАВЛЕНО: правильное имя — momentary_switch_release.
+    //--    Необходима для ShortRelease, LongRelease и MultiPress.
+    //--    Согласно спецификации Matter, MSR требует наличия MS[citation:2][citation:10].
+    err = cluster::switch_cluster::feature::momentary_switch_release::add(switch_cluster);
+    if (err != ESP_OK) {
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch_release: %d", err);
+        #endif
+        return err;
+    }
+
+    //-- 5. Добавляем функцию Long Press (MSL)
+    //--    Для генерации событий LongPress/LongRelease.
+    //--    Требует наличия MSR[citation:5].
+    err = cluster::switch_cluster::feature::momentary_switch_long_press::add(switch_cluster);
+    if (err != ESP_OK) {
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add long_press: %d (продолжаем)", err);
+        #endif
+        //-- Не критично: можно продолжить без LongPress
+    }
+
+    //-- 6. Добавляем функцию Multi Press (MSM)
+    //--    Для генерации событий MultiPressOngoing/MultiPressComplete (двойной клик).
+    //--    Требует наличия MSR[citation:5].
+    cluster::switch_cluster::feature::momentary_switch_multi_press::config_t msm_config;
+    msm_config.multi_press_max = 2;  //-- максимум 2 нажатия (двойной клик)
+    err = cluster::switch_cluster::feature::momentary_switch_multi_press::add(switch_cluster, &msm_config);
+    if (err != ESP_OK) {
+        #if DEBUG_MODE
+          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add multi_press: %d (продолжаем)", err);
+        #endif
+        //-- Не критично: можно продолжить без двойного клика
+    }
+
+    //-- 7. Передаём endpoint_id и указатель на кластер в драйвер boot_switch
+    //--    (функция объявлена в driver_boot_switch.cpp)
+    boot_switch_set_endpoint(ep_id, switch_cluster);
+
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint fully configured (MS, MSR, LongPress, MultiPress)");
+    #endif
+    return ESP_OK;
+}
+#endif
+
+// ===========================================================
+//  On/Off эндпоинты для управления экраном, лентой и ребутом
+// ===========================================================
+
+//-- Глобальные ID для On/Off эндпоинтов (чтобы app_driver_attribute_update мог их найти)
+#if CONFIG_BOOT_SWITCH_ENABLED
+  uint16_t s_ep_screen_onoff = 0;
+  uint16_t s_ep_led_onoff = 0;
+  uint16_t s_ep_reboot_onoff = 0;
+#endif
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+esp_err_t create_onoff_endpoints(node_t *node)
+{
+    if (node == NULL) return ESP_ERR_INVALID_ARG;
+
+    //-- 1. On/Off для экрана SSD1306
+    #if CONFIG_SSD1306_ENABLED
+    on_off_light::config_t screen_config;
+    endpoint_t *screen_ep = on_off_light::create(node, &screen_config, ENDPOINT_FLAG_NONE, NULL);
+    if(screen_ep) {
+      s_ep_screen_onoff = endpoint::get_id(screen_ep);
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_screen_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
+    } else {
+    	#if DEBUG_MODE
+    		ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
+    }
+    #endif
+
+    //-- 2. On/Off для LED ленты (блокировка/разблокировка)
+    #if USE_DRIVER_LED_INDICATOR
+    on_off_light::config_t led_config;
+    // ============================================================
+    // Начальное состояние ON — аналогично тому, что делает
+    // физическая кнопка по doublepress (toggle_led_indicator_lock).
+    // При старте прошивки LED Indicator должен быть РАЗБЛОКИРОВАН.
+    // ============================================================
+    led_config.on_off.on_off = true;
+    endpoint_t *led_ep = on_off_light::create(node, &led_config, ENDPOINT_FLAG_NONE, NULL);
+    if(led_ep) {
+      s_ep_led_onoff = endpoint::get_id(led_ep);
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_led_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
+    } else {
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
+    }
+    #endif
+
+    //-- 3. On/Off для перезагрузки (On = перезагрузка, Off = игнор)
+    //-- Используем on_off_plugin_unit как "кнопку" — HA увидит Switch
+    on_off_plugin_unit::config_t reboot_config;
+    endpoint_t *reboot_ep = on_off_plugin_unit::create(node, &reboot_config, ENDPOINT_FLAG_NONE, NULL);
+    if(reboot_ep) {
+      s_ep_reboot_onoff = endpoint::get_id(reboot_ep);
+      #if DEBUG_MODE
+        ESP_LOGW(TAG_MIKE_APP, "");
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_reboot_onoff);
+        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+       ESP_LOGW(TAG_MIKE_APP, "");
+      #endif
+    } else {
+    	#if DEBUG_MODE
+    	  ESP_LOGE(TAG_MIKE_APP, "");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(TAG_MIKE_APP, "");
+      #endif
+    }
+
+    return ESP_OK;
+}
+#endif
+
+#if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
+// ==================================
+// Значение OnOff для LED эндпоинта:
+// ON (true) или OFF (false)
+// ==================================
+void set_led_onoff_attribute(bool status)
+{
+  if(s_ep_led_onoff != 0) {
+    esp_matter_attr_val_t val = esp_matter_bool(status);
+    esp_matter::attribute::update(
+      s_ep_led_onoff,
+      OnOff::Id,
+      OnOff::Attributes::OnOff::Id,
+      &val
+    );
+    #if DEBUG_MODE
+      if(status == true) {
+        ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to ON after start");
+      } else {
+      	ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to OFF after start");
+      }
+    #endif
+  }
+  
+}
+#endif
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+  // ==================================
+  //  Запуск задачи опроса кнопки BOOT
+  // ==================================
+  void start_boot_switch_polling_task()
+  {
+    //-- Инициализируем драйвер
+    boot_switch_driver_init();
+
+    //-- Запускаем задачу (приоритет ниже, чем reboot_button_task, чтобы не мешать)
+    xTaskCreate(boot_switch_task, "boot_switch", 3072, NULL, CONFIG_BOOT_SWITCH_TASK_PRIORITY, NULL);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Boot Switch task created");
+    #endif
+  }
+#endif

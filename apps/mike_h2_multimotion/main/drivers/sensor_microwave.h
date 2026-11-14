@@ -14,10 +14,10 @@ typedef struct {
 } rcwl0516_dev_t;
 
 // Initialize microwave sensor
-esp_err_t rcwl0516_init(rcwl0516_dev_t *dev, gpio_num_t output_pin);
+esp_err_t rcwl0516_init_app(rcwl0516_dev_t *dev, gpio_num_t output_pin);
 
 // Read microwave sensor state
-bool rcwl0516_read(rcwl0516_dev_t *dev);
+bool rcwl0516_read_app(rcwl0516_dev_t *dev);
 
 #ifdef __cplusplus
 }

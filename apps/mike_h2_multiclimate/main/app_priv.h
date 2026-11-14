@@ -5,17 +5,17 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
-#include "plugin_device_structure.h"
 
 
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  false
+#define MOCK_SENSORS_BEHAVIOR                  1
 #define MOCK_DISPLAY_BEHAVIOR                  false
-#define DEBUG_MODE                             false
+#define DEBUG_MODE                             1
 #define ESP_EMULATOR_MODE                      false
 #define SHOW_DEVICE_LOG                        false
 #define CHECK_I2C_PORTS                        false
 #define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
+#define CONFIG_DEVICE_NODE_LABEL               "MultiClimate_ESP32H2"
 
 
 /**********************
@@ -78,48 +78,6 @@
 #define CONFIG_BOOT_SWITCH_TASK_PRIORITY       3
 
 
-// ============================================================
-//  Boot Switch (Generic Switch) для событий кнопки BOOT
-// ============================================================
-#if CONFIG_BOOT_SWITCH_ENABLED
-  //-- Период опроса GPIO кнопки BOOT в задаче boot_switch (мс)
-  #define BOOT_SWITCH_POLL_MS              20
-  //-- Порог удержания для генерации LongPress (мс)
-  //-- ВАЖНО: не пересекается с REBOOT_HOLD_TIME_MS (3000),
-  //-- но семантически LongPress в HA = удержание > 3 сек.
-  //-- Поскольку reboot уже срабатывает на 3000 мс, LongPress
-  //-- будет отправлен ДО перезагрузки (на 3000 мс), но после
-  //-- этого устройство уйдёт в ребут. Если вы хотите чистый
-  //-- LongPress без ребута — увеличьте REBOOT_HOLD_TIME_MS
-  //-- или измените логику reboot_button_task.
-  #define BOOT_SWITCH_LONG_PRESS_MS        3000
-  //-- Окно между кликами для определения двойного нажатия (мс)
-  #define BOOT_SWITCH_DOUBLE_CLICK_MS      400
-
-  //-- Внешние функции драйвера boot_switch
-  extern void boot_switch_driver_init(void);
-  extern void boot_switch_task(void *pvParameters);
-  extern void boot_switch_report_event(uint8_t event_type);
-
-  //-- Типы событий (для внутреннего использования)
-  #define BOOT_SWITCH_EVENT_SINGLE         1
-  #define BOOT_SWITCH_EVENT_DOUBLE         2
-  #define BOOT_SWITCH_EVENT_LONG           3
-
-// ============================================================
-//  Внешние ID On/Off эндпоинтов для управления из HA
-// ============================================================
-// Эти переменные определяются в app_main.cpp и используются
-// в app_driver.cpp (app_driver_attribute_update) для маршрутизации
-// On/Off команд от Home Assistant.
-// ============================================================
-
-  extern uint16_t s_ep_screen_onoff;   // On/Off для SSD1306
-  extern uint16_t s_ep_led_onoff;      // On/Off для LED ленты (блокировка)
-  extern uint16_t s_ep_reboot_onoff;   // On/Off для перезагрузки ESP32-H2
-#endif
-
-
 //-- Reboot button handlers
 #if CONFIG_REBOOT_BUTTON_ENABLED
   //--> uses for CommissioningWindowOpen
@@ -150,6 +108,10 @@
 #if USE_DRIVER_LED_INDICATOR
   #include "driver_led_indicator.h"
   extern led_indicator_handle_t led_handle;
+#endif
+
+#if CONFIG_BOOT_SWITCH_ENABLED
+  #include "driver_boot_switch.h"
 #endif
 
 

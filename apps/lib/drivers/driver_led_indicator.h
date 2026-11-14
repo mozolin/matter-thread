@@ -197,4 +197,7 @@
   
   #endif //-- USE_ORDINARY_LED
 
+  // LED indicator Init
+  extern void led_indicator_init_main(void);
+
 #endif //-- USE_DRIVER_LED_INDICATOR

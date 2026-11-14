@@ -695,3 +695,42 @@
   #endif //-- USE_ORDINARY_LED
 
 #endif //-- USE_DRIVER_LED_INDICATOR
+
+
+// LED indicator
+#if USE_DRIVER_LED_INDICATOR
+  void led_indicator_init_main()
+  {
+    led_handle = configure_indicator();
+    if(!led_handle) {
+      #if DEBUG_MODE
+        ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
+      #endif
+    } else {
+      //=== при старте LED выключен ===
+      //-- Синхронизируем глобальный флаг с driver_led_indicator.cpp:
+      //-- при загрузке функция get_led_indicator_blink_idx заблокирована,
+      //-- поэтому любые попытки мигнуть будут игнорироваться.
+      extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
+      //led_indicator_locked = true;
+      led_indicator_locked = false;
+
+      //-- Гасим RGB-ленту через штатный шаг BLINK_OFF.
+      //-- ВАЖНО: используем именно BLINK_OFF, а не BLINK_MAX —
+      //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
+      led_indicator_start(led_handle, BLINK_OFF);
+
+      #if DEBUG_MODE
+        ESP_LOGE("", "");
+        ESP_LOGE("", "==============================");
+        ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
+        #if USE_RGB_LED
+          ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
+        #endif
+        ESP_LOGE("", " LED state at boot: OFF (locked)");
+        ESP_LOGE("", "==============================");
+        ESP_LOGE("", "");
+      #endif
+    }
+  }
+#endif
