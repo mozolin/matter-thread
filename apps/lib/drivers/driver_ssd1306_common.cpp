@@ -9,14 +9,14 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
-#include "ssd1306_i2cdev.h"
-#include "ssd1306_font8x8_basic.h"
-
 #include <type_traits>
 
 #define SSD1306_I2C_FREQ_HZ 400000
 
 #if CONFIG_SSD1306_ENABLED
+  #include "ssd1306_i2cdev.h"
+  #include "ssd1306_font8x8_basic.h"
+
   const uint8_t degree_symbol[] = {
     0b00110000,
     0b01001000,
@@ -440,4 +440,3 @@
   }
 
 #endif
-

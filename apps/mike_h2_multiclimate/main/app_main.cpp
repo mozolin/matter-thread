@@ -641,6 +641,7 @@ extern "C" void app_main()
   create_sensor_endpoint(SENSOR_TYPE_SHT4X, node);
   create_sensor_endpoint(SENSOR_TYPE_SCD4X, node);
 
+  
   // =========================================
   //  Boot Switch endpoint и On/Off эндпоинты
   // =========================================
@@ -669,6 +670,7 @@ extern "C" void app_main()
   #if CONFIG_REBOOT_BUTTON_ENABLED
     open_commissioning_window_after_factory_reset();
   #endif
+
   
   // 11. Get FabricId & NodeId
   #if DEBUG_MODE

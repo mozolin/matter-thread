@@ -15,13 +15,13 @@ typedef struct {
 } hcsr04_dev_t;
 
 // Initialize ultrasonic sensor
-esp_err_t hcsr04_init(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo_pin);
+esp_err_t hcsr04_init_app(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t echo_pin);
 
 // Measure distance with ultrasonic sensor (in cm)
-uint32_t hcsr04_measure_distance(hcsr04_dev_t *dev);
+uint32_t hcsr04_read_app(hcsr04_dev_t *dev);
 
 // Reset functions
-esp_err_t hcsr04_reset(hcsr04_dev_t *dev);
+esp_err_t hcsr04_reset_app(hcsr04_dev_t *dev);
 
 #ifdef __cplusplus
 }

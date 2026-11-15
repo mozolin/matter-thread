@@ -45,7 +45,9 @@ static sensor_reset_tracker_t sensor_reset_tracker[SENSOR_TYPE_MAX];
 esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 {
     if (sensor_cfg == NULL) {
-        ESP_LOGE(TAG_MIKE_APP, "Sensor config is NULL");
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Sensor config is NULL");
+        #endif
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -54,7 +56,7 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
     switch (sensor_cfg->type) {
 #if CONFIG_HCSR501_ENABLED
         case SENSOR_TYPE_PIR:
-            err = hcsr501_init(&pir_sensor, sensor_cfg->trigger_pin);
+            err = hcsr501_init_app(&pir_sensor, sensor_cfg->trigger_pin);
             break;
 #endif
 
@@ -66,130 +68,20 @@ esp_err_t app_driver_sensor_init(const sensor_config_t* sensor_cfg)
 
 #if CONFIG_HCSR04_ENABLED
         case SENSOR_TYPE_ULTRASONIC:
-            err = hcsr04_init(&ultrasonic_sensor, sensor_cfg->trigger_pin, sensor_cfg->echo_pin);
+            err = hcsr04_init_app(&ultrasonic_sensor, sensor_cfg->trigger_pin, sensor_cfg->echo_pin);
             //err = hcsr04_init1();
             break;
 #endif
 
         default:
-            ESP_LOGE(TAG_MIKE_APP, "Unknown or disabled sensor type: %d", sensor_cfg->type);
+            #if DEBUG_MODE
+              ESP_LOGE(TAG_MIKE_APP, "Unknown or disabled sensor type: %d", sensor_cfg->type);
+            #endif
             err = ESP_ERR_INVALID_ARG;
             break;
     }
 
     return err;
-}
-
-bool app_driver_read_sensor_state(uint8_t sensor_idx)
-{
-    if (sensor_idx >= configured_sensors) {
-        ESP_LOGE(TAG_MIKE_APP, "Invalid sensor index: %d", sensor_idx);
-        return false;
-    }
-
-    sensor_type_t type = sensors[sensor_idx].config.type;
-    
-    switch (type) {
-#if CONFIG_HCSR501_ENABLED
-        case SENSOR_TYPE_PIR:
-            return hcsr501_read(&pir_sensor);
-#endif
-
-#if CONFIG_RCWL0516_ENABLED
-        case SENSOR_TYPE_MICROWAVE:
-            return rcwl0516_read_app(&microwave_sensor);
-#endif
-
-#if CONFIG_HCSR04_ENABLED
-        case SENSOR_TYPE_ULTRASONIC:
-            return (hcsr04_measure_distance(&ultrasonic_sensor) > 0);
-            //return (hcsr04_measure_distance1() > 0);
-#endif
-
-        default:
-            return false;
-    }
-}
-
-uint32_t app_driver_read_ultrasonic_distance(uint8_t sensor_idx)
-{
-#if CONFIG_HCSR04_ENABLED
-    if (sensor_idx >= configured_sensors) {
-        ESP_LOGE(TAG_MIKE_APP, "Invalid sensor index: %d", sensor_idx);
-        return 0;
-    }
-
-    if (sensors[sensor_idx].config.type != SENSOR_TYPE_ULTRASONIC) {
-        ESP_LOGE(TAG_MIKE_APP, "Sensor %d is not ultrasonic", sensor_idx);
-        return 0;
-    }
-
-    return hcsr04_measure_distance(&ultrasonic_sensor);
-    //return hcsr04_measure_distance1();
-#else
-    ESP_LOGE(TAG_MIKE_APP, "Ultrasonic sensor is disabled");
-    return 0;
-#endif
-}
-
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
-                                      uint32_t attribute_id, esp_matter_attr_val_t *val)
-{
-    return ESP_OK;
-}
-
-sensor_data_t* get_sensor_by_endpoint(uint16_t endpoint_id)
-{
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensor_mapping_list[i].endpoint_id == endpoint_id) {
-            return &sensors[i];
-        }
-    }
-    return NULL;
-}
-
-uint16_t get_endpoint_by_sensor_type(sensor_type_t type)
-{
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensor_mapping_list[i].sensor_type == type) {
-            return sensor_mapping_list[i].endpoint_id;
-        }
-    }
-    return 0;
-}
-
-esp_err_t app_driver_sensor_reinit(uint8_t sensor_idx)
-{
-    if (sensor_idx >= configured_sensors) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    sensor_config_t *cfg = &sensors[sensor_idx].config;
-    ESP_LOGW(TAG_MIKE_APP, "Reinitializing sensor %d", sensor_idx);
-    
-    switch (cfg->type) {
-#if CONFIG_HCSR501_ENABLED
-        case SENSOR_TYPE_PIR:
-            return hcsr501_init(&pir_sensor, cfg->trigger_pin);
-#endif
-
-#if CONFIG_RCWL0516_ENABLED
-        case SENSOR_TYPE_MICROWAVE:
-            return rcwl0516_init_app(&microwave_sensor, cfg->trigger_pin);
-#endif
-
-#if CONFIG_HCSR04_ENABLED
-        /*
-        case SENSOR_TYPE_ULTRASONIC:
-            return hcsr04_init(&ultrasonic_sensor, cfg->trigger_pin, cfg->echo_pin);
-            //return hcsr04_init1();
-        */
-#endif
-
-        default:
-            ESP_LOGE(TAG_MIKE_APP, "Unknown or disabled sensor type: %d", cfg->type);
-            return ESP_ERR_NOT_SUPPORTED;
-    }
 }
 
 static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
@@ -199,15 +91,17 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     }
     
     sensor_data_t *sensor = &sensors[sensor_idx];
-    ESP_LOGW(TAG_MIKE_APP, "Performing soft reset for sensor %d (%s)", 
+    #if DEBUG_MODE
+      ESP_LOGW(TAG_MIKE_APP, "Performing soft reset for sensor %d (%s)", 
             sensor_idx, sensor->config.name);
+    #endif
     
     esp_err_t err = ESP_OK;
     
     switch (sensor->config.type) {
 #if CONFIG_HCSR501_ENABLED
         case SENSOR_TYPE_PIR:
-            err = hcsr501_init(&pir_sensor, sensor->config.trigger_pin);
+            err = hcsr501_init_app(&pir_sensor, sensor->config.trigger_pin);
             break;
 #endif
 
@@ -220,7 +114,7 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 #if CONFIG_HCSR04_ENABLED
         /*
         case SENSOR_TYPE_ULTRASONIC:
-            err = hcsr04_init(&ultrasonic_sensor, sensor->config.trigger_pin, sensor->config.echo_pin);
+            err = hcsr04_init_app(&ultrasonic_sensor, sensor->config.trigger_pin, sensor->config.echo_pin);
             //err = hcsr04_init();
             if (err == ESP_OK) {
                 vTaskDelay(pdMS_TO_TICKS(100));
@@ -236,7 +130,9 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 #endif
 
         default:
-            ESP_LOGE(TAG_MIKE_APP, "Unknown or disabled sensor type for reset: %d", sensor->config.type);
+            #if DEBUG_MODE
+              ESP_LOGE(TAG_MIKE_APP, "Unknown or disabled sensor type for reset: %d", sensor->config.type);
+            #endif
             err = ESP_ERR_NOT_SUPPORTED;
             break;
     }
@@ -244,10 +140,14 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
     if (err == ESP_OK) {
         sensor_reset_tracker[sensor_idx].reset_count++;
         sensor_reset_tracker[sensor_idx].last_reset_time = esp_timer_get_time() / 1000;
-        ESP_LOGI(TAG_MIKE_APP, "Sensor %d reset successful (total resets: %lu)", 
+        #if DEBUG_MODE
+          ESP_LOGI(TAG_MIKE_APP, "Sensor %d reset successful (total resets: %lu)", 
                 sensor_idx, sensor_reset_tracker[sensor_idx].reset_count);
+        #endif
     } else {
-        ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", sensor_idx, err);
+        #if DEBUG_MODE
+          ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", sensor_idx, err);
+        #endif
     }
     
     return err;
@@ -255,7 +155,8 @@ static esp_err_t app_driver_sensor_soft_reset(uint8_t sensor_idx)
 
 void sensor_polling_task(void *pvParameters)
 {
-    const TickType_t poll_period_ms = 1;
+    //const TickType_t poll_period_ms = 1;
+    const TickType_t poll_period_ms = CONFIG_SENSOR_POLL_PERIOD_MS / portTICK_PERIOD_MS;
     
     for (int i = 0; i < configured_sensors; i++) {
         sensor_reset_tracker[i].last_reset_time = esp_timer_get_time() / 1000;
@@ -265,9 +166,11 @@ void sensor_polling_task(void *pvParameters)
     
     uint32_t cycle_counter = 0;
     const uint32_t RESET_CHECK_INTERVAL = 100;
-    const uint32_t STATS_LOG_INTERVAL = 5000;
+    //const uint32_t STATS_LOG_INTERVAL = 5000;
     
-    ESP_LOGI(TAG_MIKE_APP, "Sensor polling task started with %d sensors", configured_sensors);
+    #if DEBUG_MODE
+      ESP_LOGI(TAG_MIKE_APP, "Sensor polling task started with %d sensors", configured_sensors);
+    #endif
     
     while (true) {
         
@@ -284,16 +187,20 @@ void sensor_polling_task(void *pvParameters)
                 uint64_t time_since_last_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
                 
                 if (time_since_last_reset >= RESET_INTERVAL_MS) {
-                    ESP_LOGI(TAG_MIKE_APP, 
+                    #if DEBUG_MODE
+                      ESP_LOGI(TAG_MIKE_APP, 
                             "Scheduled reset for sensor %d (%s): %llu ms since last reset", 
                             i, sensors[i].config.name, time_since_last_reset);
+                    #endif
                     
                     sensor_reset_tracker[i].reset_in_progress = true;
                     esp_err_t reset_err = app_driver_sensor_soft_reset(i);
                     sensor_reset_tracker[i].reset_in_progress = false;
                     
                     if (reset_err == ESP_OK) {
-                        ESP_LOGI(TAG_MIKE_APP, "Scheduled reset completed for sensor %d", i);
+                        #if DEBUG_MODE
+                          ESP_LOGI(TAG_MIKE_APP, "Scheduled reset completed for sensor %d", i);
+                        #endif
                     }
                     
                     vTaskDelay(pdMS_TO_TICKS(200));
@@ -301,13 +208,18 @@ void sensor_polling_task(void *pvParameters)
             }
         }
         
-        if (cycle_counter % STATS_LOG_INTERVAL == 0) {
+        // Log statistics
+        #if DEBUG_MODE || ESP_EMULATOR_MODE
+          //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
             app_driver_log_sensor_statistics();
-        }
-        
+          //}
+        #endif
+
         for (int i = 0; i < configured_sensors; i++) {
             if (sensor_reset_tracker[i].reset_in_progress) {
-                ESP_LOGD(TAG_MIKE_APP, "Skipping sensor %d (reset in progress)", i);
+                #if DEBUG_MODE
+                  ESP_LOGD(TAG_MIKE_APP, "Skipping sensor %d (reset in progress)", i);
+                #endif
                 continue;
             }
             
@@ -317,14 +229,16 @@ void sensor_polling_task(void *pvParameters)
             switch (sensor->config.type) {
 #if CONFIG_HCSR501_ENABLED
                 case SENSOR_TYPE_PIR: {
-                    bool current_state = hcsr501_read(&pir_sensor);
+                    bool current_state = hcsr501_read_app(&pir_sensor);
 
                     static uint64_t last_pir_change = 0;
                     uint64_t now = esp_timer_get_time();
                     
                     if (current_state != sensor->last_state) {
                         if ((now - last_pir_change) < 2000000) {
-                            ESP_LOGD(TAG_MIKE_APP, "PIR: Ignoring bounce");
+                            #if DEBUG_MODE
+                              ESP_LOGD(TAG_MIKE_APP, "PIR: Ignoring bounce");
+                            #endif
                             break;
                         }
                         last_pir_change = now;
@@ -341,12 +255,21 @@ void sensor_polling_task(void *pvParameters)
                                                       &val);
                         
                         if (update_err == ESP_OK) {
-                            ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR501 Sensor: motion %s (occupancy = %d)", 
+                            #if DEBUG_MODE
+                              ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR501 Sensor: motion %s (occupancy = %d)", 
                                     current_state ? "detected" : "ended", occupancy_value);
+                            #endif
                         } else {
-                            ESP_LOGE(TAG_MIKE_APP, "Failed to update HC-SR501 occupancy attribute: %d", update_err);
+                            #if DEBUG_MODE
+                              ESP_LOGE(TAG_MIKE_APP, "Failed to update HC-SR501 occupancy attribute: %d", update_err);
+                            #endif
                         }
                     }
+
+                    #if USE_DRIVER_LED_INDICATOR
+                      get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+                    #endif
+
                     break;
                 }
 #endif
@@ -365,24 +288,23 @@ void sensor_polling_task(void *pvParameters)
                                                       OccupancySensing::Attributes::Occupancy::Id, 
                                                       &val);
                         
-                        ESP_LOGW(TAG_MIKE_APP, "~~~ RCWL-0516: state changed to %d", current_state);
+                        #if DEBUG_MODE
+                          ESP_LOGW(TAG_MIKE_APP, "~~~ RCWL-0516: state changed to %d", current_state);
+                        #endif
                     }
+
+                    #if USE_DRIVER_LED_INDICATOR
+                      get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+                    #endif
+
                     break;
                 }
 #endif
 
 #if CONFIG_HCSR04_ENABLED
                 case SENSOR_TYPE_ULTRASONIC: {
-                    uint32_t current_distance = hcsr04_measure_distance(&ultrasonic_sensor);
-                    //uint32_t current_distance = hcsr04_measure_distance1();
+                    uint32_t current_distance = hcsr04_read_app(&ultrasonic_sensor);
                     
-                    /*
-                    if (current_distance < 2 || current_distance > 400) {
-                        ESP_LOGW(TAG_MIKE_APP, "HC-SR04: Invalid distance reading: %lu cm", current_distance);
-                        break;
-                    }
-                    */
-
                     bool motion_detected = false;
                     bool should_update_pressure = false;
                     bool should_update_occupancy = false;
@@ -425,7 +347,9 @@ void sensor_polling_task(void *pvParameters)
                         );
 
                         if (update_err == ESP_OK) {
-                            ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR04: Distance = %lu cm", current_distance);
+                            #if DEBUG_MODE
+                              ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR04: Distance = %lu cm", current_distance);
+                            #endif
                             
                             if (should_update_occupancy) {
                                 uint8_t occupancy_value = motion_detected ? OCCUPANCY_OCCUPIED : OCCUPANCY_UNOCCUPIED;
@@ -439,20 +363,31 @@ void sensor_polling_task(void *pvParameters)
                                 );
                                 
                                 if (occupancy_err == ESP_OK) {
-                                    ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR04: Motion %s (Δ %ld cm)", 
+                                    #if DEBUG_MODE
+                                      ESP_LOGW(TAG_MIKE_APP, "~~~ HC-SR04: Motion %s (Δ %ld cm)", 
                                             motion_detected ? "detected" : "ended",
                                             last_distance_cm > 0 ? 
                                                 abs((int32_t)current_distance - (int32_t)last_distance_cm) : 0);
+                                    #endif
                                 } else {
-                                    ESP_LOGE(TAG_MIKE_APP, "Failed to update occupancy: %d", occupancy_err);
+                                    #if DEBUG_MODE
+                                      ESP_LOGE(TAG_MIKE_APP, "Failed to update occupancy: %d", occupancy_err);
+                                    #endif
                                 }
                                 
                                 sensor->last_state = motion_detected;
                             }
                         } else {
-                            ESP_LOGE(TAG_MIKE_APP, "Failed to update pressure attribute: %d", update_err);
+                            #if DEBUG_MODE
+                              ESP_LOGE(TAG_MIKE_APP, "Failed to update pressure attribute: %d", update_err);
+                            #endif
                         }
                     }
+
+                    #if USE_DRIVER_LED_INDICATOR
+                      get_led_indicator_blink_idx(BLINK_ONCE_PURPLE, 60, 0);
+                    #endif
+
                     break;
                 }
 #endif
@@ -466,90 +401,46 @@ void sensor_polling_task(void *pvParameters)
     }
 }
 
-esp_err_t app_driver_reset_sensor_by_type(sensor_type_t type)
-{
-    esp_err_t overall_err = ESP_OK;
-    uint8_t reset_count = 0;
-    
-    for (int i = 0; i < configured_sensors; i++) {
-        if (sensors[i].config.type == type) {
-            ESP_LOGI(TAG_MIKE_APP, "Resetting sensor %d of type %d", i, type);
-            esp_err_t err = app_driver_sensor_soft_reset(i);
-            if (err != ESP_OK) {
-                overall_err = err;
-                ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", i, err);
-            } else {
-                reset_count++;
-            }
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
-    
-    ESP_LOGI(TAG_MIKE_APP, "Reset %d sensors of type %d", reset_count, type);
-    return overall_err;
-}
 
-esp_err_t app_driver_reset_all_sensors(void)
-{
-    ESP_LOGI(TAG_MIKE_APP, "=== Resetting all %d sensors ===", configured_sensors);
-    
-    esp_err_t overall_err = ESP_OK;
-    uint8_t success_count = 0;
-    uint8_t fail_count = 0;
-    
-    for (int i = 0; i < configured_sensors; i++) {
-        ESP_LOGI(TAG_MIKE_APP, "Resetting sensor %d/%d: %s", 
-                i + 1, configured_sensors, sensors[i].config.name);
-        
-        esp_err_t err = app_driver_sensor_soft_reset(i);
-        if (err != ESP_OK) {
-            overall_err = err;
-            fail_count++;
-            ESP_LOGE(TAG_MIKE_APP, "Failed to reset sensor %d: %d", i, err);
-        } else {
-            success_count++;
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    if (overall_err == ESP_OK) {
-        ESP_LOGI(TAG_MIKE_APP, "All %d sensors reset successfully", success_count);
-    } else {
-        ESP_LOGW(TAG_MIKE_APP, "Reset completed: %d success, %d failed", 
-                success_count, fail_count);
-    }
-    
-    ESP_LOGI(TAG_MIKE_APP, "=================================");
-    return overall_err;
-}
-
+#if DEBUG_MODE || ESP_EMULATOR_MODE
 void app_driver_log_sensor_statistics(void)
 {
-    uint64_t current_time_ms = esp_timer_get_time() / 1000;
+  uint64_t current_time_ms = esp_timer_get_time() / 1000;
+  
+  ESP_LOGW(TAG_MIKE_APP, "~~~ === Sensor Statistics ===");
+  ESP_LOGW(TAG_MIKE_APP, "~~~ Total sensors: %d", configured_sensors);
+  ESP_LOGW(TAG_MIKE_APP, "~~~ Uptime: %llu minutes", current_time_ms / 60000);
+  
+  for(int i = 0; i < configured_sensors; i++) {
+    sensor_data_t *sensor = &sensors[i];
+    uint64_t ms_since_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
+    uint64_t hours_since_reset = ms_since_reset / 3600000;
+    uint64_t minutes_since_reset = (ms_since_reset % 3600000) / 60000;
     
-    ESP_LOGW(TAG_MIKE_APP, "~~~ === Sensor Statistics ===");
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Total sensors: %d", configured_sensors);
-    ESP_LOGW(TAG_MIKE_APP, "~~~ Uptime: %llu minutes", current_time_ms / 60000);
-    
-    for (int i = 0; i < configured_sensors; i++) {
-        sensor_data_t *sensor = &sensors[i];
-        uint64_t ms_since_reset = current_time_ms - sensor_reset_tracker[i].last_reset_time;
-        uint64_t hours_since_reset = ms_since_reset / 3600000;
-        uint64_t minutes_since_reset = (ms_since_reset % 3600000) / 60000;
-        
-        const char* type_str = "Unknown";
-        switch (sensor->config.type) {
-            case SENSOR_TYPE_PIR: type_str = "PIR"; break;
-            case SENSOR_TYPE_MICROWAVE: type_str = "Microwave"; break;
-            case SENSOR_TYPE_ULTRASONIC: type_str = "Ultrasonic"; break;
-            default: break;
-        }
-        
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Sensor %d: %s (%s), Resets=%lu, Last reset %llu:%02llu ago",
-                i, sensor->config.name, type_str,
-                sensor_reset_tracker[i].reset_count,
-                hours_since_reset, minutes_since_reset);
+    const char* type_str = "Unknown";
+    switch (sensor->config.type) {
+      case SENSOR_TYPE_PIR: {
+        type_str = "PIR";
+        break;
+      }
+
+      case SENSOR_TYPE_MICROWAVE: {
+        type_str = "Microwave";
+        break;
+      }
+      
+      case SENSOR_TYPE_ULTRASONIC: {
+        type_str = "Ultrasonic";
+        break;
+      }
+      default: break;
     }
-    ESP_LOGW(TAG_MIKE_APP, "~~~ =========================");
+    
+    ESP_LOGW(TAG_MIKE_APP, "~~~ Sensor %d: %s (%s), Resets=%lu, Last reset %llu:%02llu ago",
+      i, sensor->config.name, type_str,
+      sensor_reset_tracker[i].reset_count,
+      hours_since_reset, minutes_since_reset);
+  }
+  ESP_LOGW(TAG_MIKE_APP, "~~~ =========================");
 }
+#endif

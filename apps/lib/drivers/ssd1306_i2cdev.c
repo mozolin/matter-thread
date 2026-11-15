@@ -16,11 +16,13 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#include "ssd1306_i2cdev.h"
-#include "i2cdev.h" // ДОБАВЛЕНО: Заголовок компонента i2cdev
-#include "ssd1306_font8x8_basic.h"
 
 #define SSD1306_I2C_FREQ_HZ 400000
+
+#if CONFIG_SSD1306_ENABLED
+  #include "i2cdev.h" // ДОБАВЛЕНО: Заголовок компонента i2cdev
+  #include "ssd1306_font8x8_basic.h"
+  #include "ssd1306_i2cdev.h"
 
 // УДАЛЕНО: Определения I2C_NUM, I2C_MASTER_FREQ_HZ, I2C_TICKS_TO_WAIT
 // Они больше не нужны, так как i2cdev управляет параметрами шины.
@@ -1558,3 +1560,4 @@ void spi_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll)
 	}
 }
 
+#endif // CONFIG_SSD1306_ENABLED

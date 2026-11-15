@@ -5,11 +5,10 @@
 
 #include "driver/spi_master.h"
 #include "driver/i2c_master.h"
-// ДОБАВЛЕНО: include для i2cdev
-#include "i2cdev.h"
 
-//#define TAG_SSD1306 "SSD1306 I2CDEV"
 
+#if CONFIG_SSD1306_ENABLED
+  #include "i2cdev.h"
 
 //-- When your TFT have offset(X), set it.
 #define CONFIG_OFFSETX 0
@@ -191,6 +190,8 @@ void spi_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // CONFIG_SSD1306_ENABLED
 
 #endif /* MAIN_SSD1306_H_ */
 

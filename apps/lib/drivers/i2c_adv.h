@@ -3,6 +3,9 @@
 #include <esp_err.h>
 #include <driver/gpio.h>
 
+
+#ifndef DO_NOT_USE_I2C
+
 #if CONFIG_BME280_ENABLED
   #include "bmp280.h"
 #endif
@@ -39,3 +42,5 @@ extern void check_i2c_ports(void);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // DO_NOT_USE_I2C

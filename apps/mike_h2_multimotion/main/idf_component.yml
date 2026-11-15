@@ -4,5 +4,6 @@ dependencies:
   espressif/button: ^4.1.5
   esp-idf-lib/ultrasonic: ^1.1.0
   espressif/led_indicator: ^2.1.2
+  #esp-idf-lib/i2cdev: ^2.1.2
   #-- ESP-IDF works ONLY with led_strip v3.0.x!
   espressif/led_strip: ~3.0.3

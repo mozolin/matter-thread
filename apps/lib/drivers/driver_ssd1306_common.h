@@ -1,9 +1,9 @@
 #pragma once
 
 #include <app_priv.h>
-#include "ssd1306_i2cdev.h"
 
 #if CONFIG_SSD1306_ENABLED
+  #include "ssd1306_i2cdev.h"
 
   //-- Custom Degree Symbol (8x8px)
   extern const uint8_t degree_symbol[];

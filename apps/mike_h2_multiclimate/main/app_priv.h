@@ -23,8 +23,6 @@
  *   USE OF SENSORS   *
  *                    *
  **********************/
-//-- Boot Switch (Generic Switch) для событий кнопки BOOT
-#define CONFIG_BOOT_SWITCH_ENABLED             true
 //-- SSD1306 LED Display
 #define CONFIG_SSD1306_ENABLED                 true
 //-- Sensors configuration
@@ -35,6 +33,8 @@
 #define CONFIG_MQ135_ENABLED                   true
 #define CONFIG_SHT4X_ENABLED                   true
 #define CONFIG_SCD4X_ENABLED                   false
+//-- Boot Switch (Generic Switch) для событий кнопки BOOT
+#define CONFIG_BOOT_SWITCH_ENABLED             true
 //-- Reboot button handlers
 #define CONFIG_REBOOT_BUTTON_ENABLED           true
 
