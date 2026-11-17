@@ -104,7 +104,7 @@
   
     extern blink_step_t const *led_mode[];
   
-    #if LIVE_BLINK_TIME_MS > 0
+    #if CONFIG_LIVE_BLINK_TIME_MS > 0
       extern void init_indicator_task(void *pvParameter);
     #endif
   

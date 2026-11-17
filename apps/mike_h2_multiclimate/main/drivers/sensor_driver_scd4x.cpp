@@ -14,22 +14,22 @@ esp_err_t scd4x_init_app(void)
   esp_err_t err = ESP_OK;
   
   if(scd4x_initialized) {
-    #if DEBUG_MODE
-      ESP_LOGW(TAG_MIKE_APP, "Драйвер SCD4X уже инициализирован");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGW(CONFIG_TAG_MIKE_APP, "Драйвер SCD4X уже инициализирован");
     #endif
     return ESP_OK;
   }
 
-  #if DEBUG_MODE
-    ESP_LOGI(TAG_MIKE_APP, "Инициализация SCD4X: порт=%d, SDA=%d, SCL=%d",
+  #if CONFIG_DEBUG_MODE
+    ESP_LOGI(CONFIG_TAG_MIKE_APP, "Инициализация SCD4X: порт=%d, SDA=%d, SCL=%d",
            CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
   #endif
 
-  #if !MOCK_SENSORS_BEHAVIOR
+  #if !CONFIG_MOCK_SENSORS_BEHAVIOR
     err = scd4x_init_desc(&scd4x_dev, CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка инициализации дескриптора SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка инициализации дескриптора SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
@@ -37,8 +37,8 @@ esp_err_t scd4x_init_app(void)
     //-- Wake up sensor from sleep mode to idle mode
     err = scd4x_wake_up(&scd4x_dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка пробуждения SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка пробуждения SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
@@ -46,8 +46,8 @@ esp_err_t scd4x_init_app(void)
     //-- Stop periodic measurement
     err = scd4x_stop_periodic_measurement(&scd4x_dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка остановки периодических измерений SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка остановки периодических измерений SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
@@ -55,8 +55,8 @@ esp_err_t scd4x_init_app(void)
     //-- Reinitialize sensor
     err = scd4x_reinit(&scd4x_dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка переинициализации сенсора SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка переинициализации сенсора SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
@@ -65,27 +65,27 @@ esp_err_t scd4x_init_app(void)
     //-- Read serial number
     err = scd4x_get_serial_number(&scd4x_dev, serial, serial + 1, serial + 2);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка чтения серийного номера SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка чтения серийного номера SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
-    ESP_LOGI(TAG_MIKE_APP, "Sensor serial number: 0x%04x%04x%04x", serial[0], serial[1], serial[2]);
+    ESP_LOGI(CONFIG_TAG_MIKE_APP, "Sensor serial number: 0x%04x%04x%04x", serial[0], serial[1], serial[2]);
     
     //-- Start periodic measurement
     err = scd4x_start_periodic_measurement(&scd4x_dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Ошибка запуска периодических измерений SCD4X: %s", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка запуска периодических измерений SCD4X: %s", esp_err_to_name(err));
       #endif
       return err;
     }
-    ESP_LOGI(TAG_MIKE_APP, "Periodic measurements started");
+    ESP_LOGI(CONFIG_TAG_MIKE_APP, "Periodic measurements started");
   #endif
   
   scd4x_initialized = true;
   
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     ESP_LOGI("", "");
     ESP_LOGI("", "##############################");
     ESP_LOGI("", "#                            #");
@@ -108,10 +108,10 @@ esp_err_t scd4x_read_app(int16_t *co2, int16_t *temperature, uint16_t *humidity)
   uint16_t co2_val;
   float temp, hum;
     
-  #if !MOCK_SENSORS_BEHAVIOR
+  #if !CONFIG_MOCK_SENSORS_BEHAVIOR
     if(!scd4x_initialized) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Драйвер не инициализирован");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Драйвер не инициализирован");
       #endif
       return ESP_ERR_INVALID_STATE;
     }
@@ -119,13 +119,13 @@ esp_err_t scd4x_read_app(int16_t *co2, int16_t *temperature, uint16_t *humidity)
     esp_err_t res = scd4x_read_measurement(&scd4x_dev, &co2_val, &temp, &hum);
     if(res != ESP_OK)
     {
-      ESP_LOGE(TAG_MIKE_APP, "Error reading results %d (%s)", res, esp_err_to_name(res));
+      ESP_LOGE(CONFIG_TAG_MIKE_APP, "Error reading results %d (%s)", res, esp_err_to_name(res));
       return err;
     }
 
     if(co2_val == 0)
     {
-      ESP_LOGW(TAG_MIKE_APP, "Invalid sample detected, skipping");
+      ESP_LOGW(CONFIG_TAG_MIKE_APP, "Invalid sample detected, skipping");
       return ESP_FAIL;
     }
   #else
@@ -134,7 +134,7 @@ esp_err_t scd4x_read_app(int16_t *co2, int16_t *temperature, uint16_t *humidity)
     hum  = 33.44;
   #endif
 
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     ESP_LOGW("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2_val, temp, hum);
   #else
     ESP_LOGD("|  SCD4X", "CO2: %u ppm, Temp: %.2f °C, Hum: %.2f %%", co2_val, temp, hum);
@@ -159,8 +159,8 @@ esp_err_t scd4x_driver_deinit(void)
   scd4x_free_desc(&scd4x_dev);
   
   scd4x_initialized = false;
-  #if DEBUG_MODE
-    ESP_LOGI(TAG_MIKE_APP, "Драйвер SCD4X освобождён");
+  #if CONFIG_DEBUG_MODE
+    ESP_LOGI(CONFIG_TAG_MIKE_APP, "Драйвер SCD4X освобождён");
   #endif
 
   return ESP_OK;

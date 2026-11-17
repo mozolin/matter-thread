@@ -19,7 +19,7 @@
 
     if(addr != BMP280_I2C_ADDRESS_0 && addr != BMP280_I2C_ADDRESS_1)
     {
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGE("BME280", "Invalid I2C address");
       #endif
       return ESP_ERR_INVALID_ARG;
@@ -49,7 +49,7 @@
 
     if(addr != BME680_I2C_ADDR_0 &&  addr != BME680_I2C_ADDR_1)
     {
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGE("BME680", "Invalid I2C address");
       #endif
       return ESP_ERR_INVALID_ARG;

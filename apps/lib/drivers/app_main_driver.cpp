@@ -50,8 +50,8 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
             bool turn_on = val->val.b;
             if (ssd1306_initialized) {
                 ssd1306_set_display_enabled(turn_on);
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "HA -> Screen %s", turn_on ? "ON" : "OFF");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "HA -> Screen %s", turn_on ? "ON" : "OFF");
                 #endif
             }
             return ESP_OK;
@@ -66,8 +66,8 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
             //-- turn_on = false -> заблокировать (led_indicator_locked = true)
             extern bool led_indicator_locked;
             led_indicator_locked = !turn_on;
-            #if DEBUG_MODE
-              ESP_LOGI(TAG_MIKE_APP, "HA -> LED %s (locked=%d)", turn_on ? "ON" : "OFF", led_indicator_locked);
+            #if CONFIG_DEBUG_MODE
+              ESP_LOGI(CONFIG_TAG_MIKE_APP, "HA -> LED %s (locked=%d)", turn_on ? "ON" : "OFF", led_indicator_locked);
             #endif
             return ESP_OK;
         }
@@ -76,8 +76,8 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
         //-- Перезагрузка (On = немедленный reboot)
         if (endpoint_id == s_ep_reboot_onoff) {
             if (val->val.b) {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "HA -> Reboot requested, restarting in 1 sec...");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGW(CONFIG_TAG_MIKE_APP, "HA -> Reboot requested, restarting in 1 sec...");
                 #endif
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 esp_restart();
@@ -96,50 +96,50 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
   switch (event->Type) {
   case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Interface IP Address changed");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Interface IP Address changed");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning complete");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning complete");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning failed, fail safe timer expired");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStarted:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning session started");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning session started");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningSessionStopped:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning session stopped");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning session stopped");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowOpened:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning window opened");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning window opened");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Commissioning window closed");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Commissioning window closed");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricRemoved: {
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Fabric removed successfully");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Fabric removed successfully");
     #endif
     if(chip::Server::GetInstance().GetFabricTable().FabricCount() == 0) {
       chip::CommissioningWindowManager &commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
@@ -147,8 +147,8 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
       if(!commissionMgr.IsCommissioningWindowOpen()) {
         CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds, chip::CommissioningWindowAdvertisement::kDnssdOnly);
         if(err != CHIP_NO_ERROR) {
-          #if DEBUG_MODE
-            ESP_LOGE(TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+          #if CONFIG_DEBUG_MODE
+            ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
           #endif
         } else {
         	ESP_LOGW("", "");
@@ -163,26 +163,26 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   }
 
   case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Fabric will be removed");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Fabric will be removed");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Fabric is updated");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Fabric is updated");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Fabric is committed");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Fabric is committed");
     #endif
     break;
 
   case chip::DeviceLayer::DeviceEventType::kBLEDeinitialized:
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "BLE deinitialized and memory reclaimed");
     #endif
     break;
 
@@ -193,8 +193,8 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 
 esp_err_t app_identification_cb(esp_matter::identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
-  #if DEBUG_MODE
-    ESP_LOGI(TAG_MIKE_APP, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
+  #if CONFIG_DEBUG_MODE
+    ESP_LOGI(CONFIG_TAG_MIKE_APP, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
   #endif
   return ESP_OK;
 }
@@ -203,7 +203,7 @@ esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endp
 {
   esp_err_t err = ESP_OK;
 
-  #if !ESP_EMULATOR_MODE
+  #if !CONFIG_ESP_EMULATOR_MODE
     if(type == PRE_UPDATE) {
       app_driver_handle_t driver_handle = (app_driver_handle_t)priv_data;
       err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
@@ -219,7 +219,7 @@ void commissioning_window_blink_task(void *arg)
   uint32_t window_sec = (uint32_t)(uintptr_t)arg;
   uint32_t elapsed = 0;
 
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     ESP_LOGW("#1# CommWindow", "");
     ESP_LOGW("#1# CommWindow", "##############################");
     ESP_LOGW("#1# CommWindow", "Blink task started, window = %lu s", window_sec);
@@ -231,7 +231,7 @@ void commissioning_window_blink_task(void *arg)
     // Проверяем, не закрылось ли окно раньше (например, устройство уже сопряжено)
     auto &mgr = chip::Server::GetInstance().GetCommissioningWindowManager();
     if(!mgr.IsCommissioningWindowOpen()) {
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGW("#2# CommWindow", "");
         ESP_LOGW("#2# CommWindow", "##############################");
         ESP_LOGW("#2# CommWindow", "Window closed early at %lu s, stop blink", elapsed);
@@ -249,7 +249,7 @@ void commissioning_window_blink_task(void *arg)
     elapsed++;
   }
 
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     ESP_LOGW("#3# CommWindow", "");
     ESP_LOGW("#3# CommWindow", "##############################");
     ESP_LOGW("#3# CommWindow", "Blink task finished after %lu s", elapsed);
@@ -273,7 +273,7 @@ void commissioning_window_blink_task(void *arg)
           chip::System::Clock::Seconds16(CONFIG_COMMISSIONING_WINDOW_OPEN)
         );
         if(err != CHIP_NO_ERROR) {
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGE("", "");
             ESP_LOGE("", "-------------------------------------------------");
             ESP_LOGE("", "Failed to open commissioning window: %" CHIP_ERROR_FORMAT, err.Format());
@@ -281,7 +281,7 @@ void commissioning_window_blink_task(void *arg)
             ESP_LOGE("", "");
           #endif
         } else {
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGW("", "");
             ESP_LOGW("", "------------------------------------------------------------");
             ESP_LOGW("", " Commissioning window opened after factory reset for %d s   ", CONFIG_COMMISSIONING_WINDOW_OPEN);
@@ -316,12 +316,12 @@ void set_basic_attributes_esp_matter()
     );
     
     if(err == ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGI(TAG_MIKE_APP, "NodeLabel set via ESP-Matter API");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGI(CONFIG_TAG_MIKE_APP, "NodeLabel set via ESP-Matter API");
       #endif
     } else {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Failed to set NodeLabel: %d", err);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to set NodeLabel: %d", err);
       #endif
     }
   #endif  

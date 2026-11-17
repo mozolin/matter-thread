@@ -1,6 +1,33 @@
 menu "Lib Drivers Configuration"
 
 
+  #//-- Debug options
+  config MOCK_SENSORS_BEHAVIOR
+    bool "CONFIG_MOCK_SENSORS_BEHAVIOR"
+    default n
+  config MOCK_DISPLAY_BEHAVIOR
+    bool "CONFIG_MOCK_DISPLAY_BEHAVIOR"
+    default n
+  config DEBUG_MODE
+    bool "CONFIG_DEBUG_MODE"
+    default n
+  config ESP_EMULATOR_MODE
+    bool "CONFIG_ESP_EMULATOR_MODE"
+    default n
+  config SHOW_DEVICE_LOG
+    bool "CONFIG_SHOW_DEVICE_LOG"
+    default n
+  config CHECK_I2C_PORTS
+    bool "CONFIG_CHECK_I2C_PORTS"
+    default n
+  config TAG_MIKE_APP
+    string "CONFIG_TAG_MIKE_APP"
+    default "MIKE ENDDEVICE H2"
+  config DEVICE_NODE_LABEL
+    string "CONFIG_DEVICE_NODE_LABEL"
+    default "EndDevice_ESP32H2"
+
+
   #//-- SSD1306 LED Display
   config SSD1306_ENABLED
     bool "CONFIG_SSD1306_ENABLED"
@@ -86,9 +113,38 @@ menu "Lib Drivers Configuration"
     bool "CONFIG_REBOOT_BUTTON_ENABLED"
     default y
 
+  #/***********************
+  # *                     *
+  # *   TASK PRIORITIES   *
+  # *                     *
+  # ***********************/
+  #//-- task priorities
+  #// ============================================================
+  #// Задача опроса Boot Switch
+  #// Приоритет 3 (ниже reboot_button=4 и sensor_poll=5),
+  #// потому что:
+  #//   • кнопка — событие для человека, задержка 20–50 мс не заметна
+  #//   • reboot_button (4) уже опрашивает тот же GPIO — boot_switch
+  #//     не должен его вытеснять
+  #//   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
+  #//   • Matter-события уходят в HA без задержек
+  #// ============================================================
   config COMMISSIONING_WINDOW_PRIORITY
     int "CONFIG_COMMISSIONING_WINDOW_PRIORITY"
     default 6
+  config SENSOR_POLL_TASK_PRIORITY
+    int "CONFIG_SENSOR_POLL_TASK_PRIORITY"
+    default 5
+  config REBOOT_BUTTON_TASK_PRIORITY
+    int "CONFIG_REBOOT_BUTTON_TASK_PRIORITY"
+    default 4
+  config BOOT_SWITCH_TASK_PRIORITY
+    int "CONFIG_BOOT_SWITCH_TASK_PRIORITY"
+    default 3
+
+  config LIVE_BLINK_TIME_MS
+    int "CONFIG_LIVE_BLINK_TIME_MS"
+    default 0
 
 
   #//-- Single-click: toggle SSD1306
@@ -113,6 +169,21 @@ menu "Lib Drivers Configuration"
   config SHORT_CLICK_MAX_MS
     int "CONFIG_SHORT_CLICK_MAX_MS"
     default 350
+
+
+  #//-- what part of tree to show (-1 means: SHOW ALL)
+  config SHOW_DEVICE_LOG_ONE_CLUSTER
+    int "CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER"
+    default 1
+  config SHOW_DEVICE_LOG_CLUSTERS
+    bool "CONFIG_SHOW_DEVICE_LOG_CLUSTERS"
+    default y
+  config SHOW_DEVICE_LOG_ATTRIBUTES
+    bool "CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES"
+    default y
+  config SHOW_DEVICE_LOG_COMMANDS
+    bool "CONFIG_SHOW_DEVICE_LOG_COMMANDS"
+    default y
 
 
 endmenu

@@ -10,13 +10,13 @@ esp_err_t bme680_init_app()
 {
     esp_err_t err = ESP_OK;
     
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       memset(&sensor, 0, sizeof(bme680_t));
     
       err = bme680_init_desc_adv(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
         #endif
         return err;
       }
@@ -24,8 +24,8 @@ esp_err_t bme680_init_app()
       // init the sensor
       err = bme680_init_sensor(&sensor);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));
         #endif
         return err;
       }
@@ -51,7 +51,7 @@ esp_err_t bme680_init_app()
     
     last_wakeup = xTaskGetTickCount();
 
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       ESP_LOGI("", "");
       ESP_LOGI("", "###############################");
       ESP_LOGI("", "#                             #");
@@ -69,7 +69,7 @@ esp_err_t bme680_read_app(int16_t *temperature, uint16_t *humidity,
 {
     bme680_values_float_t values;
     
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       // trigger the sensor to start one TPHG measurement cycle
       if (bme680_force_measurement(&sensor) == ESP_OK)
       {
@@ -78,7 +78,7 @@ esp_err_t bme680_read_app(int16_t *temperature, uint16_t *humidity,
       
           // get the results and do something with them
           if (bme680_get_results_float(&sensor, &values) == ESP_OK) {
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                   ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
                      values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
               #else
@@ -95,7 +95,7 @@ esp_err_t bme680_read_app(int16_t *temperature, uint16_t *humidity,
       values.pressure       = 991.00;
       values.gas_resistance = 40275.00;
 
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGW("|  BME680", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa, Gas: %.2f Ohm",
            values.temperature, values.humidity, values.pressure * 100, values.gas_resistance);
       #else

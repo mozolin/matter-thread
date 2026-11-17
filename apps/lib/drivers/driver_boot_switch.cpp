@@ -69,8 +69,8 @@ void boot_switch_driver_init(void)
 {
     //-- endpoint_id и cluster будут переданы извне
     //-- (см. create_boot_switch_endpoint в app_main.cpp)
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Boot Switch driver initialized (endpoint=%d)", s_boot_switch_endpoint_id);
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch driver initialized (endpoint=%d)", s_boot_switch_endpoint_id);
     #endif
 }
 
@@ -91,8 +91,8 @@ void boot_switch_driver_init(void)
 void boot_switch_report_event(uint8_t event_type)
 {
     if (s_boot_switch_endpoint_id == 0 || s_boot_switch_cluster == NULL) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch not initialized, cannot report event %d", event_type);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch not initialized, cannot report event %d", event_type);
         #endif
         return;
     }
@@ -100,8 +100,8 @@ void boot_switch_report_event(uint8_t event_type)
     //-- Получаем FeatureMap кластера, чтобы понять, какие события разрешены
     attribute_t *fm_attr = attribute::get(s_boot_switch_cluster, Switch::Attributes::FeatureMap::Id);
     if (fm_attr == NULL) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Cannot get FeatureMap for Switch cluster");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Cannot get FeatureMap for Switch cluster");
         #endif
         return;
     }
@@ -129,8 +129,8 @@ void boot_switch_report_event(uint8_t event_type)
                     &val
                 );
                 if (err == ESP_OK) {
-                    #if DEBUG_MODE
-                      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE press -> InitialPress");
+                    #if CONFIG_DEBUG_MODE
+                      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: SINGLE press -> InitialPress");
                     #endif
                 }
 
@@ -169,12 +169,12 @@ void boot_switch_report_event(uint8_t event_type)
                     Switch::Attributes::CurrentPosition::Id,
                     &val
                 );
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE press -> MultiPressComplete(2)");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: DOUBLE press -> MultiPressComplete(2)");
                 #endif
             } else {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "Boot Switch: DOUBLE press not supported (feature not enabled)");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGW(CONFIG_TAG_MIKE_APP, "Boot Switch: DOUBLE press not supported (feature not enabled)");
                 #endif
             }
             break;
@@ -190,12 +190,12 @@ void boot_switch_report_event(uint8_t event_type)
                     Switch::Attributes::CurrentPosition::Id,
                     &val
                 );
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press -> LongPress/LongRelease");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: LONG press -> LongPress/LongRelease");
                 #endif
             } else {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "Boot Switch: LONG press not supported (feature not enabled)");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGW(CONFIG_TAG_MIKE_APP, "Boot Switch: LONG press not supported (feature not enabled)");
                 #endif
             }
             break;
@@ -214,8 +214,8 @@ void boot_switch_report_event(uint8_t event_type)
 // ============================================================
 void boot_switch_task(void *pvParameters)
 {
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Boot Switch task started (poll=%d ms, long=%d ms, double=%d ms)",
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch task started (poll=%d ms, long=%d ms, double=%d ms)",
              BOOT_SWITCH_POLL_MS, BOOT_SWITCH_LONG_PRESS_MS, BOOT_SWITCH_DOUBLE_CLICK_MS);
     #endif
     while (true) {
@@ -226,7 +226,7 @@ void boot_switch_task(void *pvParameters)
         if (s_last_button_state == true && current_state == false) {
             s_press_start_time_ms = now_ms;
             s_long_press_sent = false;
-            ESP_LOGD(TAG_MIKE_APP, "Boot Switch: press DOWN");
+            ESP_LOGD(CONFIG_TAG_MIKE_APP, "Boot Switch: press DOWN");
         }
 
         //-- Удержание: проверяем, не пора ли отправить LongPress
@@ -236,8 +236,8 @@ void boot_switch_task(void *pvParameters)
                 //-- Отправляем LongPress (но НЕ отпускаем — LongRelease уйдёт при отпускании)
                 boot_switch_report_event(BOOT_SWITCH_EVENT_LONG);
                 s_long_press_sent = true;
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: LONG press detected at %llu ms", press_duration);
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: LONG press detected at %llu ms", press_duration);
                 #endif
             }
         }
@@ -250,8 +250,8 @@ void boot_switch_task(void *pvParameters)
                 //-- Уже был LongPress, теперь LongRelease (можно отправить отдельно)
                 //-- В текущей реализации мы уже отправили событие LONG,
                 //-- HA увидит LongPress. LongRelease — опционально.
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: release after LONG press");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: release after LONG press");
                 #endif
             } else if (press_duration <= CONFIG_SHORT_CLICK_MAX_MS) {
                 //-- Короткий клик: проверяем, не был ли это второй клик
@@ -259,15 +259,15 @@ void boot_switch_task(void *pvParameters)
                     //-- Второй клик в окне -> ДВОЙНОЙ
                     s_first_click_pending = false;
                     boot_switch_report_event(BOOT_SWITCH_EVENT_DOUBLE);
-                    #if DEBUG_MODE
-                      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: DOUBLE click detected (gap=%llu ms)",
+                    #if CONFIG_DEBUG_MODE
+                      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: DOUBLE click detected (gap=%llu ms)",
                              now_ms - s_first_click_time_ms);
                     #endif
                 } else {
                     //-- Первый клик в окне -> ждём второй
                     s_first_click_pending = true;
                     s_first_click_time_ms = now_ms;
-                    ESP_LOGD(TAG_MIKE_APP, "Boot Switch: first click, waiting for double...");
+                    ESP_LOGD(CONFIG_TAG_MIKE_APP, "Boot Switch: first click, waiting for double...");
                 }
             }
 
@@ -282,8 +282,8 @@ void boot_switch_task(void *pvParameters)
                 //-- Второй клик не пришёл -> это ОДИНОЧНЫЙ
                 s_first_click_pending = false;
                 boot_switch_report_event(BOOT_SWITCH_EVENT_SINGLE);
-                #if DEBUG_MODE
-                  ESP_LOGI(TAG_MIKE_APP, "Boot Switch: SINGLE click confirmed");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: SINGLE click confirmed");
                 #endif
             }
         }
@@ -301,8 +301,8 @@ void boot_switch_task(void *pvParameters)
 esp_err_t create_boot_switch_endpoint(node_t *node)
 {
     if (node == NULL) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: node is NULL");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch: node is NULL");
         #endif
         return ESP_ERR_INVALID_ARG;
     }
@@ -312,22 +312,22 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     generic_switch::config_t switch_config;
     endpoint_t *endpoint = generic_switch::create(node, &switch_config, ENDPOINT_FLAG_NONE, NULL);
     if (endpoint == NULL) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to create endpoint");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to create endpoint");
         #endif
         return ESP_FAIL;
     }
 
     uint16_t ep_id = endpoint::get_id(endpoint);
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint created, id=%d", ep_id);
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: endpoint created, id=%d", ep_id);
     #endif
 
     //-- 2. Получаем кластер Switch для добавления функций
     cluster_t *switch_cluster = cluster::get(endpoint, Switch::Id);
     if (switch_cluster == NULL) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to get Switch cluster");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to get Switch cluster");
         #endif
         return ESP_FAIL;
     }
@@ -337,8 +337,8 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Без неё остальные функции не имеют смысла.
     esp_err_t err = cluster::switch_cluster::feature::momentary_switch::add(switch_cluster);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch: %d", err);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch: %d", err);
         #endif
         return err;
     }
@@ -349,8 +349,8 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Согласно спецификации Matter, MSR требует наличия MS[citation:2][citation:10].
     err = cluster::switch_cluster::feature::momentary_switch_release::add(switch_cluster);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch_release: %d", err);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to add momentary_switch_release: %d", err);
         #endif
         return err;
     }
@@ -360,8 +360,8 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    Требует наличия MSR[citation:5].
     err = cluster::switch_cluster::feature::momentary_switch_long_press::add(switch_cluster);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add long_press: %d (продолжаем)", err);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to add long_press: %d (продолжаем)", err);
         #endif
         //-- Не критично: можно продолжить без LongPress
     }
@@ -373,8 +373,8 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     msm_config.multi_press_max = 2;  //-- максимум 2 нажатия (двойной клик)
     err = cluster::switch_cluster::feature::momentary_switch_multi_press::add(switch_cluster, &msm_config);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "Boot Switch: failed to add multi_press: %d (продолжаем)", err);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "Boot Switch: failed to add multi_press: %d (продолжаем)", err);
         #endif
         //-- Не критично: можно продолжить без двойного клика
     }
@@ -383,8 +383,8 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
     //--    (функция объявлена в driver_boot_switch.cpp)
     boot_switch_set_endpoint(ep_id, switch_cluster);
 
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Boot Switch: endpoint fully configured (MS, MSR, LongPress, MultiPress)");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch: endpoint fully configured (MS, MSR, LongPress, MultiPress)");
     #endif
     return ESP_OK;
 }
@@ -414,20 +414,20 @@ esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *screen_ep = on_off_light::create(node, &screen_config, ENDPOINT_FLAG_NONE, NULL);
     if(screen_ep) {
       s_ep_screen_onoff = endpoint::get_id(screen_ep);
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "");
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_screen_onoff);
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGW(TAG_MIKE_APP, "");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_screen_onoff);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
       #endif
     } else {
-    	#if DEBUG_MODE
-    		ESP_LOGE(TAG_MIKE_APP, "");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, "");
+    	#if CONFIG_DEBUG_MODE
+    		ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
       #endif
     }
     #endif
@@ -444,20 +444,20 @@ esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *led_ep = on_off_light::create(node, &led_config, ENDPOINT_FLAG_NONE, NULL);
     if(led_ep) {
       s_ep_led_onoff = endpoint::get_id(led_ep);
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "");
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_led_onoff);
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGW(TAG_MIKE_APP, "");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_led_onoff);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
       #endif
     } else {
-    	#if DEBUG_MODE
-    	  ESP_LOGE(TAG_MIKE_APP, "");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, "");
+    	#if CONFIG_DEBUG_MODE
+    	  ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
       #endif
     }
     #endif
@@ -468,20 +468,20 @@ esp_err_t create_onoff_endpoints(node_t *node)
     endpoint_t *reboot_ep = on_off_plugin_unit::create(node, &reboot_config, ENDPOINT_FLAG_NONE, NULL);
     if(reboot_ep) {
       s_ep_reboot_onoff = endpoint::get_id(reboot_ep);
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "");
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGW(TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_reboot_onoff);
-        ESP_LOGW(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-       ESP_LOGW(TAG_MIKE_APP, "");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "On/Off Screen endpoint created: id=%d", s_ep_reboot_onoff);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+       ESP_LOGW(CONFIG_TAG_MIKE_APP, "");
       #endif
     } else {
-    	#if DEBUG_MODE
-    	  ESP_LOGE(TAG_MIKE_APP, "");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
-        ESP_LOGE(TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        ESP_LOGE(TAG_MIKE_APP, "");
+    	#if CONFIG_DEBUG_MODE
+    	  ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, " On/Off Screen endpoint NOT created!");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "");
       #endif
     }
 
@@ -504,11 +504,11 @@ void set_led_onoff_attribute(bool status)
       OnOff::Attributes::OnOff::Id,
       &val
     );
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       if(status == true) {
-        ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to ON after start");
+        ESP_LOGI(CONFIG_TAG_MIKE_APP, "LED OnOff attribute forced to ON after start");
       } else {
-      	ESP_LOGI(TAG_MIKE_APP, "LED OnOff attribute forced to OFF after start");
+      	ESP_LOGI(CONFIG_TAG_MIKE_APP, "LED OnOff attribute forced to OFF after start");
       }
     #endif
   }
@@ -527,8 +527,8 @@ void set_led_onoff_attribute(bool status)
 
     //-- Запускаем задачу (приоритет ниже, чем reboot_button_task, чтобы не мешать)
     xTaskCreate(boot_switch_task, "boot_switch", 3072, NULL, CONFIG_BOOT_SWITCH_TASK_PRIORITY, NULL);
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "Boot Switch task created");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "Boot Switch task created");
     #endif
   }
 #endif

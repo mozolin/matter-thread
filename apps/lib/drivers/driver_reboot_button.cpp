@@ -48,7 +48,7 @@ static void single_click_timer_cb(void *arg)
         );
       }
     } else {
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGW("Reset Button", "SSD1306 not initialized, skip toggle");
       #endif
     }
@@ -102,7 +102,7 @@ void reboot_button_task(void *pvParameter)
       if(ssd1306_display_enabled && ssd1306_last_on_time_ms != 0) {
         uint32_t now_ms = esp_log_timestamp();
         if((now_ms - ssd1306_last_on_time_ms) >= CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS) {
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
           #endif
           ssd1306_set_display_enabled(false);
@@ -142,7 +142,7 @@ void reboot_button_task(void *pvParameter)
         uint32_t pressed_duration = esp_log_timestamp() - button_pressed_time;
         
         if(pressed_duration >= CONFIG_FACTORY_RESET_HOLD_TIME_MS) {
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGE("Reset Button", "*******************************");
             ESP_LOGE("Reset Button", "*                             *");
             ESP_LOGE("Reset Button", "*   Factory reset triggered   *");
@@ -160,7 +160,7 @@ void reboot_button_task(void *pvParameter)
           esp_restart();
           //<-- uses for CommissioningWindowOpen
         } else if(pressed_duration >= CONFIG_REBOOT_HOLD_TIME_MS) {
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGW("Reset Button", "************************");
             ESP_LOGW("Reset Button", "*                      *");
             ESP_LOGW("Reset Button", "*   Reboot triggered   *");
@@ -181,7 +181,7 @@ void reboot_button_task(void *pvParameter)
           //
           if(pressed_duration <= CONFIG_SHORT_CLICK_MAX_MS) {
             if(!s_first_click_pending) {
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                 ESP_LOGW("Reset Button", "****************************");
                 ESP_LOGW("Reset Button", "*                          *");
                 ESP_LOGW("Reset Button", "*   Reset button pressed   *");
@@ -193,7 +193,7 @@ void reboot_button_task(void *pvParameter)
               esp_timer_stop(s_single_click_timer);
               esp_timer_start_once(s_single_click_timer, (uint64_t)CONFIG_DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
             } else {
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                 ESP_LOGW("Reset Button", "*********************************");
                 ESP_LOGW("Reset Button", "*                               *");
                 ESP_LOGW("Reset Button", "*   Reset button double click   *");

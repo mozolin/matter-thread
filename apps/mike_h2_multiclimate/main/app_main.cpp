@@ -42,7 +42,7 @@
   cluster_t *s_co_cluster = NULL;
   cluster_t *s_tvoc_cluster = NULL;
   // Хэндл для задачи, которая будет обновлять данные
-  TaskHandle_t s_update_task_handle = NULL;
+  //TaskHandle_t s_update_task_handle = NULL;
 #endif
 #if CONFIG_SHT4X_ENABLED
   #include "sensor_driver_sht4x.h"
@@ -85,7 +85,7 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   led_indicator_handle_t led_handle;
 #endif
 
-#if SHOW_DEVICE_LOG
+#if CONFIG_SHOW_DEVICE_LOG
   #include "plugin_device_structure.h"
 #endif
 
@@ -101,8 +101,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     // Check if sensor is already configured
     for(int i = 0; i < configured_sensors; i++) {
       if(sensor_mapping_list[i].sensor_type == sensor_cfg) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg);
         #endif
         return ESP_ERR_INVALID_STATE;
       }
@@ -113,7 +113,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     switch (sensor_cfg) {
         case SENSOR_TYPE_BME280: {
             // Create endpoint with multiple clusters
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "************************************");
               ESP_LOGW("", " Start creating endpoint for BME280");
@@ -128,8 +128,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for BME280");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for BME280");
               #endif
               return ESP_FAIL;
             }
@@ -154,7 +154,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         case SENSOR_TYPE_BME680: {
             // Create endpoint with multiple clusters
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "************************************");
               ESP_LOGW("", " Start creating endpoint for BME680");
@@ -169,8 +169,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if (!endpoint) {
-                #if DEBUG_MODE
-                  ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for BME680");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for BME680");
                 #endif
                 return ESP_FAIL;
             }
@@ -214,8 +214,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                     nullable<float>(1000000)
                 );
             } else {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create TVOC cluster");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create TVOC cluster");
               #endif
             }
 
@@ -224,7 +224,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         case SENSOR_TYPE_DS18B20: {
             // Create temperature sensor endpoint
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "*************************************");
               ESP_LOGW("", " Start creating endpoint for DS18B20");
@@ -244,7 +244,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         //#if CONFIG_DHT11_ENABLED
         case SENSOR_TYPE_DHT11: {
             // Create endpoint with multiple clusters
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "***********************************");
               ESP_LOGW("", " Start creating endpoint for DHT11");
@@ -259,8 +259,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for DHT11");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for DHT11");
               #endif
               return ESP_FAIL;
             }
@@ -278,7 +278,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 
         //#if CONFIG_MQ135_ENABLED
         case SENSOR_TYPE_MQ135: {
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "***********************************");
               ESP_LOGW("", " Start creating endpoint for MQ135");
@@ -291,16 +291,16 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             if(!endpoint) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for MQ135");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for MQ135");
               #endif
               return ESP_FAIL;
             }
 
             s_air_quality_cluster = cluster::get(endpoint, AirQuality::Id);
             if(s_air_quality_cluster == NULL) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
               #endif
             }
             // Включить все доступные уровни (FAIR | MOD | VPOOR | XPOOR)
@@ -309,8 +309,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
               esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
               attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
                             AirQuality::Attributes::FeatureMap::Id, &fm_val);
-              #if DEBUG_MODE
-                ESP_LOGW(TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGW(CONFIG_TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
               #endif
             }
             
@@ -329,8 +329,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                     
                 esp_err_t err = cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::add(s_co2_cluster, &co2_feature_cfg);
                 if(err != ESP_OK) {
-                  #if DEBUG_MODE
-                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                  #if CONFIG_DEBUG_MODE
+                    ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
                   #endif
                 }
             }
@@ -349,8 +349,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                     
                 esp_err_t err = cluster::carbon_monoxide_concentration_measurement::feature::numeric_measurement::add(s_co_cluster, &co_feature_cfg);
                 if(err != ESP_OK) {
-                  #if DEBUG_MODE
-                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO: %s", esp_err_to_name(err));
+                  #if CONFIG_DEBUG_MODE
+                    ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO: %s", esp_err_to_name(err));
                   #endif
                 }
             }
@@ -369,8 +369,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                     
                 esp_err_t err = cluster::total_volatile_organic_compounds_concentration_measurement::feature::numeric_measurement::add(s_tvoc_cluster, &tvoc_feature_cfg);
                 if(err != ESP_OK) {
-                  #if DEBUG_MODE
-                    ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер TVOC: %s", esp_err_to_name(err));
+                  #if CONFIG_DEBUG_MODE
+                    ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер TVOC: %s", esp_err_to_name(err));
                   #endif
                 }
             }
@@ -382,7 +382,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         //#if CONFIG_SHT4X_ENABLED
         case SENSOR_TYPE_SHT4X: {
             // Create endpoint with multiple clusters
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "************************************");
               ESP_LOGW("", " Start creating endpoint for SHT4X");
@@ -397,8 +397,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             endpoint = temperature_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             
             if(!endpoint) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SHT4X");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for SHT4X");
               #endif
               return ESP_FAIL;
             }
@@ -418,7 +418,7 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         //#if CONFIG_SCD4X_ENABLED
         case SENSOR_TYPE_SCD4X: {
             // Create endpoint with multiple clusters
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               ESP_LOGW("", "");
               ESP_LOGW("", "************************************");
               ESP_LOGW("", " Start creating endpoint for SCD4X");
@@ -432,16 +432,16 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
             
             endpoint = air_quality_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, NULL);
             if(!endpoint) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Failed to create endpoint for SCD4X");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for SCD4X");
               #endif
               return ESP_FAIL;
             }
 
             cluster_t *scd4x_aq_cluster = cluster::get(endpoint, AirQuality::Id);
             if(scd4x_aq_cluster == NULL) {
-              #if DEBUG_MODE
-                ESP_LOGE(TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGE(CONFIG_TAG_MIKE_APP, "Не удалось получить Air Quality Cluster");
               #endif
             }
             // Включить все доступные уровни (FAIR | MOD | VPOOR | XPOOR)
@@ -450,8 +450,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
               esp_matter_attr_val_t fm_val = esp_matter_bitmap32(0x0F); // биты 0-3
               attribute::update(endpoint::get_id(endpoint), AirQuality::Id,
                             AirQuality::Attributes::FeatureMap::Id, &fm_val);
-              #if DEBUG_MODE
-                ESP_LOGW(TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
+              #if CONFIG_DEBUG_MODE
+                ESP_LOGW(CONFIG_TAG_MIKE_APP, "Все доступные уровни (FAIR | MOD | VPOOR | XPOOR) Air Quality Cluster включены!");
               #endif
             }
             
@@ -468,8 +468,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
                   
               esp_err_t err = cluster::carbon_dioxide_concentration_measurement::feature::numeric_measurement::add(scd4x_co2_cluster, &co2_feature_cfg);
               if(err != ESP_OK) {
-                #if DEBUG_MODE
-                  ESP_LOGE(TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка добавления фичи NumericMeasurement в кластер CO2: %s", esp_err_to_name(err));
                 #endif
               }
             }
@@ -493,15 +493,15 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         //#endif
 
         default:
-          #if DEBUG_MODE
-            ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
+          #if CONFIG_DEBUG_MODE
+            ESP_LOGE(CONFIG_TAG_MIKE_APP, "Unknown sensor type: %d, total sensors: %d", sensor_cfg, SENSOR_TYPE_MAX);
           #endif
           return ESP_ERR_INVALID_ARG;
     }
 
     if(!endpoint) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg);
       #endif
       return ESP_FAIL;
     }
@@ -509,8 +509,8 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
     // Initialize sensor hardware
     err = app_driver_sensor_init(sensor_cfg);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg);
       #endif
       return err;
     }
@@ -536,12 +536,12 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
         
         configured_sensors++;
         
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Sensor %d created with endpoint_id %d", sensor_cfg, endpoint::get_id(endpoint));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGI(CONFIG_TAG_MIKE_APP, "Sensor %d created with endpoint_id %d", sensor_cfg, endpoint::get_id(endpoint));
         #endif
     } else {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
         #endif
         return ESP_FAIL;
     }
@@ -564,8 +564,8 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
-  	#if DEBUG_MODE
-  	  ESP_LOGE(TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
+  	#if CONFIG_DEBUG_MODE
+  	  ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
   	#endif
   	return;
   }
@@ -574,8 +574,8 @@ extern "C" void app_main()
   // 2. i2cdev — до I2C устройств
   err = i2cdev_init();
   if(err != ESP_OK) {
-    #if DEBUG_MODE
-      ESP_LOGE(TAG_MIKE_APP, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to initialize i2cdev: %d (%s)", err, esp_err_to_name(err));
     #endif
     // Можно продолжить, но I2C устройства не будут работать.
   }
@@ -608,7 +608,7 @@ extern "C" void app_main()
     #if CONFIG_OPENTHREAD_CLI
       esp_matter::console::otcli_register_commands();
     #endif
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       ESP_LOGE("", "");
       ESP_LOGE("", "===========================================");
       ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
@@ -617,8 +617,8 @@ extern "C" void app_main()
     #endif
     err = esp_matter::console::init();
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Console init failed: %d", err);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Console init failed: %d", err);
       #endif
     }
   #endif
@@ -627,7 +627,7 @@ extern "C" void app_main()
   // 7. Matter node + endpoints
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "Failed to create Matter node"));
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create Matter node"));
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!                                                              !!
@@ -665,7 +665,7 @@ extern "C" void app_main()
   
   // 9. Matter start
   err = esp_matter::start(app_event_cb);
-  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
 
 
   // 10. Open commissioning windows after factory reset and reboot
@@ -675,7 +675,7 @@ extern "C" void app_main()
 
   
   // 11. Get FabricId & NodeId
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     if(node) {
       ESP_LOGW("", "");
       ESP_LOGW("", "=== FabricId & NodeId =====================");
@@ -715,7 +715,7 @@ extern "C" void app_main()
 
   
   // 16. Log
-  #if SHOW_DEVICE_LOG
+  #if CONFIG_SHOW_DEVICE_LOG
     if(node) {
       vTaskDelay(pdMS_TO_TICKS(3000));
       log_device_structure(node);
@@ -723,7 +723,7 @@ extern "C" void app_main()
   #endif
 
   // 17. Check I2C ports
-  #if CHECK_I2C_PORTS
+  #if CONFIG_CHECK_I2C_PORTS
     check_i2c_ports();
   #endif
 

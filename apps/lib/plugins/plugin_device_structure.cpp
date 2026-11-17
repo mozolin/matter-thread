@@ -269,16 +269,16 @@ void log_device_structure(node_t *node)
     	continue;
     }
 
-    #ifdef SHOW_DEVICE_LOG_ONE_CLUSTER
-      #if SHOW_DEVICE_LOG_ONE_CLUSTER != -1
+    #ifdef CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER
+      #if CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER != -1
 	    	//-- !! show the CUSTOM_ENDPOINT_ID endpoint ONLY !!
-  	  	if(endpoint_id != SHOW_DEVICE_LOG_ONE_CLUSTER) {
+  	  	if(endpoint_id != CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER) {
     			continue;
     		}
     	#endif
     #endif
     
-    #if SHOW_DEVICE_LOG
+    #if CONFIG_SHOW_DEVICE_LOG
 		  endpoint_t *ep = endpoint;
 		  print_all_attributes(endpoint_id, ep);
 		#endif
@@ -358,7 +358,7 @@ void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
 	}
 
   
-  #if SHOW_DEVICE_LOG_CLUSTERS
+  #if CONFIG_SHOW_DEVICE_LOG_CLUSTERS
     for(size_t cluster_idx = 0; cluster_idx < endpoint_type->clusterCount; ++cluster_idx) {
       const EmberAfCluster *cluster = &endpoint_type->cluster[cluster_idx];
       
@@ -370,7 +370,7 @@ void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
         cluster_id,
         cluster_name.c_str());
       
-      #if SHOW_DEVICE_LOG_ATTRIBUTES
+      #if CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES
         for(size_t attr_idx = 0; attr_idx < cluster->attributeCount; ++attr_idx) {
           const EmberAfAttributeMetadata *attr = &cluster->attributes[attr_idx];
 
@@ -404,7 +404,7 @@ void print_all_attributes(uint16_t endpoint_id, endpoint_t *ep)
         }
       #endif
 
-      #if SHOW_DEVICE_LOG_COMMANDS
+      #if CONFIG_SHOW_DEVICE_LOG_COMMANDS
 				cluster_t *cmd_cluster = cluster::get(endpoint_id, cluster_id);
         command_t *command = command::get_first(cmd_cluster);
         while(command) {

@@ -6,16 +6,19 @@
 #include "driver/gpio.h"
 #include <button_gpio.h>
 
+//using namespace esp_matter;
 
+/*
 //-- Debug options
-#define MOCK_SENSORS_BEHAVIOR                  1
-#define MOCK_DISPLAY_BEHAVIOR                  false
-#define DEBUG_MODE                             1
-#define ESP_EMULATOR_MODE                      false
-#define SHOW_DEVICE_LOG                        false
-#define CHECK_I2C_PORTS                        false
-#define TAG_MIKE_APP                           "MIKE MULTICLIMATE H2"
+#define CONFIG_MOCK_SENSORS_BEHAVIOR           1
+#define CONFIG_MOCK_DISPLAY_BEHAVIOR           false
+#define CONFIG_DEBUG_MODE                      1
+#define CONFIG_ESP_EMULATOR_MODE               false
+#define CONFIG_SHOW_DEVICE_LOG                 false
+#define CONFIG_CHECK_I2C_PORTS                 false
+#define CONFIG_TAG_MIKE_APP                    "MIKE MULTICLIMATE H2"
 #define CONFIG_DEVICE_NODE_LABEL               "MultiClimate_ESP32H2"
+*/
 
 
 /**********************
@@ -74,11 +77,12 @@
 //   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
 //   • Matter-события уходят в HA без задержек
 // ============================================================
-//#define CONFIG_COMMISSIONING_WINDOW_PRIORITY   6
+/*
+#define CONFIG_COMMISSIONING_WINDOW_PRIORITY   6
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY     4
 #define CONFIG_BOOT_SWITCH_TASK_PRIORITY       3
-
+*/
 
 //-- Reboot button handlers
 #if CONFIG_REBOOT_BUTTON_ENABLED
@@ -111,7 +115,7 @@
 #include "led_config.h"
 #if USE_DRIVER_LED_INDICATOR
   #include "driver_led_indicator.h"
-  extern led_indicator_handle_t led_handle;
+  //extern led_indicator_handle_t led_handle;
 #endif
 
 #if CONFIG_BOOT_SWITCH_ENABLED
@@ -156,25 +160,25 @@
 
 
 
-#define LIVE_BLINK_TIME_MS                     0
-#if ESP_EMULATOR_MODE
+//#define CONFIG_LIVE_BLINK_TIME_MS              0
+#if CONFIG_ESP_EMULATOR_MODE
   #define CONFIG_SENSOR_POLL_PERIOD_MS         15000
 #else
   #define CONFIG_SENSOR_POLL_PERIOD_MS         5000
 #endif
 
-#if SHOW_DEVICE_LOG
+#if CONFIG_SHOW_DEVICE_LOG
 	//-- what part of tree to show (-1 means: SHOW ALL)
-  #define SHOW_DEVICE_LOG_ONE_CLUSTER   -      1
-  #define SHOW_DEVICE_LOG_CLUSTERS             true
-  #define SHOW_DEVICE_LOG_ATTRIBUTES           true
-  #define SHOW_DEVICE_LOG_COMMANDS             true
+  #define CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER   1
+  #define CONFIG_SHOW_DEVICE_LOG_CLUSTERS      true
+  #define CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES    true
+  #define CONFIG_SHOW_DEVICE_LOG_COMMANDS      true
 #endif
 
 
 #if CONFIG_MQ135_ENABLED
   #include <esp_matter.h>
-  using namespace esp_matter;
+  
   
   #if CONFIG_MQ135_3V3_CIRCUIT
     #include "sensor_driver_mq135_3v3.h"
@@ -182,11 +186,13 @@
     #include "sensor_driver_mq135.h"
   #endif
   
+  /*
   extern mq135_handle_t s_mq135_handle;
   extern cluster_t *s_air_quality_cluster;
   extern cluster_t *s_co2_cluster;
   extern cluster_t *s_co_cluster;
   extern cluster_t *s_tvoc_cluster;
+  */
 
   //-- AirQuality:
   //-- 0 = Unknown / Неизвестно
@@ -247,6 +253,7 @@
   #define CONFIG_SSD1306_I2C_PORT              CONFIG_I2C_0_PORT_NUM
   */
   
+  /*
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
   
@@ -256,6 +263,7 @@
   //#define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
   // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
   extern void ssd1306_update_timeout_line(void);
+  */
 #endif
 
 
@@ -330,7 +338,7 @@ esp_err_t app_driver_read_sensor_data(uint8_t sensor_idx);
  */
 void sensor_polling_task(void *pvParameters);
 
-#if DEBUG_MODE || ESP_EMULATOR_MODE
+#if CONFIG_DEBUG_MODE || CONFIG_ESP_EMULATOR_MODE
   void app_driver_log_sensor_statistics(void);
 #endif
 

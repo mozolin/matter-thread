@@ -23,7 +23,7 @@ esp_err_t ds18b20_init_app()
     // requirements from the ds18x20 datasheet and may not always be reliable.
     // For a real application, a proper 4.7k external pull-up resistor is
     // recommended instead!)
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       gpio_set_pull_mode(SENSOR_GPIO, GPIO_PULLUP_ONLY);
     #endif
 
@@ -36,7 +36,7 @@ esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
 
     temp = 0;
 
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       esp_err_t res;
       
       // Every RESCAN_INTERVAL samples, check to see if the sensors connected
@@ -44,22 +44,22 @@ esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
       res = ds18x20_scan_devices(SENSOR_GPIO, addrs, MAX_SENSORS, &sensor_count);
       if(res != ESP_OK)
       {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "DS18B20: Sensors scan error %d (%s)", res, esp_err_to_name(res));
         #endif
         return ESP_OK;
       }
       
       if(!sensor_count)
       {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "DS18B20: No sensors detected!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "DS18B20: No sensors detected!");
         #endif
         return ESP_OK;
       }
       
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "DS18B20: %d sensors detected", sensor_count);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
       // If there were more sensors found than we have space to handle,
@@ -69,15 +69,15 @@ esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
       }
       
       // Do a number of temperature samples, and print the results.
-      #if DEBUG_MODE
-        //ESP_LOGI(TAG_MIKE_APP, "Measuring...");
+      #if CONFIG_DEBUG_MODE
+        //ESP_LOGI(CONFIG_TAG_MIKE_APP, "Measuring...");
       #endif
       
       res = ds18x20_measure_and_read_multi(SENSOR_GPIO, addrs, sensor_count, temps);
       if(res != ESP_OK)
       {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Sensors read error %d (%s)", res, esp_err_to_name(res));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Sensors read error %d (%s)", res, esp_err_to_name(res));
         #endif
         return ESP_OK;
       }
@@ -89,7 +89,7 @@ esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
       
         temp = temp_c;
       
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           ESP_LOGW("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")", temp_c, (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
         #else
           ESP_LOGD("| DS18B20", "Temp: %.2f °C (" "%08" PRIx32 "%08" PRIx32 ")", temp_c, (uint32_t)(addrs[j] >> 32), (uint32_t)addrs[j]);
@@ -99,11 +99,11 @@ esp_err_t ds18b20_read_app(int16_t *temperature, uint8_t *num_sensors)
       sensor_count = 4;
       temp = 26.12;
       
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "DS18B20: %d sensors detected", sensor_count);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "DS18B20: %d sensors detected", sensor_count);
       #endif
       
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGW("| DS18B20", "Temp: 26.06 °C (35b7464e0b646128)");
         ESP_LOGW("| DS18B20", "Temp: 26.75 °C (ffa80a4e5f646328)");
         ESP_LOGW("| DS18B20", "Temp: 26.56 °C (f5e1ab495f646328)");

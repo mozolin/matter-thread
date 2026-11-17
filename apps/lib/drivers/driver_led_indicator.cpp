@@ -65,7 +65,7 @@
             //-- 2. Гасим LED через штатный шаг BLINK_OFF
             led_indicator_start(led_handle, BLINK_OFF);
           }
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGW("Reset Button", "LED indicator LOCKED (off)");
           #endif
         } else {
@@ -74,12 +74,12 @@
           if(led_handle) {
             led_indicator_stop(led_handle, BLINK_OFF);
           }
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             ESP_LOGW("Reset Button", "LED indicator UNLOCKED (on)");
           #endif
         }
       #else
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           ESP_LOGW("Reset Button", "LED indicator not compiled in");
         #endif
       #endif
@@ -322,16 +322,16 @@
     }
     
   
-    #if LIVE_BLINK_TIME_MS > 0
+    #if CONFIG_LIVE_BLINK_TIME_MS > 0
       void init_indicator_task(void *pvParameter)
       {
       
         uint32_t live_blink_time = 0;
       
         while(1) {
-          //-- blink every "LIVE_BLINK_TIME_MS" milliseconds
+          //-- blink every "CONFIG_LIVE_BLINK_TIME_MS" milliseconds
           uint32_t blinked_duration = esp_log_timestamp() - live_blink_time;
-          if(blinked_duration >= LIVE_BLINK_TIME_MS) {
+          if(blinked_duration >= CONFIG_LIVE_BLINK_TIME_MS) {
             get_led_indicator_blink_idx(BLINK_ONCE_LIVE, 60, 0);
             live_blink_time = esp_log_timestamp();
           }
@@ -339,7 +339,7 @@
           vTaskDelay(pdMS_TO_TICKS(10));
         }
       }
-    #endif //-- LIVE_BLINK_TIME_MS > 0
+    #endif //-- CONFIG_LIVE_BLINK_TIME_MS > 0
   
   #endif //-- USE_RGB_LED
 
@@ -385,7 +385,7 @@
           gpio_set_level(leds[i].gpio, isLEDInverseBlinking ? 1 : 0);
           leds[i].next_change = xTaskGetTickCount() + pdMS_TO_TICKS(100 + simple_random() % 500);
         }
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           printf("LEDs initialized: RX-GPIO%d, TX-GPIO%d\n", LED_RX_GPIO, LED_TX_GPIO);
           printf("Random UART activity simulation started\n");
         #endif
@@ -413,7 +413,7 @@
               leds[i].next_change = current_time + pdMS_TO_TICKS(delay_ms);
               any_activity = true;
             
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                 if (leds[i].state) {
                   printf("%s activity: ON for %lims\n", leds[i].name, delay_ms);
                 }
@@ -424,7 +424,7 @@
           //-- Activity counter
           if (any_activity) {
             activity_counter++;
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               if (activity_counter % 10 == 0) {
                 printf("Activity summary: %d events\n", activity_counter);
               }
@@ -477,7 +477,7 @@
           gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
         #endif
       
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           printf("UART pattern simulation started\n");
         #endif
       
@@ -488,7 +488,7 @@
             rx_active = 1;
             rx_pattern = rx_patterns[esp_random() % 4];
             rx_bit = 0;
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               printf("RX packet started: 0x%li\n", rx_pattern);
             #endif
           }
@@ -499,7 +499,7 @@
             tx_active = 1;
             tx_pattern = tx_patterns[esp_random() % 4];
             tx_bit = 0;
-            #if DEBUG_MODE
+            #if CONFIG_DEBUG_MODE
               printf("TX packet started: 0x%li\n", tx_pattern);
             #endif
           }
@@ -515,7 +515,7 @@
             if (rx_bit >= 8) {
               rx_active = 0;
               gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                 printf("RX packet completed\n");
               #endif
             }
@@ -531,7 +531,7 @@
             if (tx_bit >= 8) {
               tx_active = 0;
               gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
-              #if DEBUG_MODE
+              #if CONFIG_DEBUG_MODE
                 printf("TX packet completed\n");
               #endif
             }
@@ -565,7 +565,7 @@
       void set_mode(activity_mode_t mode) {
         if (current_mode != mode) {
           current_mode = mode;
-          #if DEBUG_MODE
+          #if CONFIG_DEBUG_MODE
             const char* mode_names[] = {"IDLE", "ACTIVE", "BURST", "ERROR"};
             printf("Mode changed to: %s\n", mode_names[mode]);
           #endif
@@ -585,7 +585,7 @@
           gpio_set_direction(LED_TX_GPIO, GPIO_MODE_OUTPUT);
         #endif
     
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           printf("Advanced UART simulation started\n");
         #endif
       
@@ -604,7 +604,7 @@
                   gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 0 : 1);
                   vTaskDelay(30 / portTICK_PERIOD_MS);
                   gpio_set_level(LED_RX_GPIO, isLEDInverseBlinking ? 1 : 0);
-                  #if DEBUG_MODE
+                  #if CONFIG_DEBUG_MODE
                     printf("IDLE: Single RX packet\n");
                   #endif
                 }
@@ -615,7 +615,7 @@
                   gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 0 : 1);
                   vTaskDelay(30 / portTICK_PERIOD_MS);
                   gpio_set_level(LED_TX_GPIO, isLEDInverseBlinking ? 1 : 0);
-                  #if DEBUG_MODE
+                  #if CONFIG_DEBUG_MODE
                     printf("IDLE: Single TX packet\n");
                   #endif
                 }
@@ -647,7 +647,7 @@
               //-- Packages in packs
               #if USE_LED_RX_GPIO
                 if (counter % 50 == 0) {
-                  #if DEBUG_MODE
+                  #if CONFIG_DEBUG_MODE
                     printf("BURST: RX packet burst\n");
                   #endif
                   for (int i = 0; i < 5; i++) {
@@ -661,7 +661,7 @@
     
               #if USE_LED_TX_GPIO
                 if (counter % 60 == 0) {
-                  #if DEBUG_MODE
+                  #if CONFIG_DEBUG_MODE
                     printf("BURST: TX packet burst\n");
                   #endif
                   for (int i = 0; i < 3; i++) {
@@ -704,8 +704,8 @@
   {
     led_handle = configure_indicator();
     if(!led_handle) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Failed to configure LED indicator");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to configure LED indicator");
       #endif
     } else {
       //=== при старте LED выключен ===
@@ -721,7 +721,7 @@
       //-- BLINK_MAX это размер массива led_mode[], а не валидный индекс.
       led_indicator_start(led_handle, BLINK_OFF);
 
-      #if DEBUG_MODE
+      #if CONFIG_DEBUG_MODE
         ESP_LOGE("", "");
         ESP_LOGE("", "==============================");
         ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");

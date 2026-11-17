@@ -111,6 +111,20 @@ CONFIG_CHIP_OTA_IMAGE_BUILD=y
 
 
 
+//-- Debug options
+CONFIG_MOCK_SENSORS_BEHAVIOR=y
+CONFIG_MOCK_DISPLAY_BEHAVIOR=n
+CONFIG_DEBUG_MODE=y
+CONFIG_ESP_EMULATOR_MODE=n
+CONFIG_SHOW_DEVICE_LOG=n
+CONFIG_CHECK_I2C_PORTS=n
+CONFIG_TAG_MIKE_APP="MIKE MULTICLIMATE H2"
+CONFIG_DEVICE_NODE_LABEL="MultiClimate_ESP32H2"
+
+
+
+
+
 #//-- SSD1306 LED Display
 CONFIG_SSD1306_ENABLED=y
 
@@ -151,7 +165,29 @@ CONFIG_BOOT_SWITCH_ENABLED=y
 //-- Reboot button handlers
 CONFIG_REBOOT_BUTTON_ENABLED=y
 
+#/***********************
+# *                     *
+# *   TASK PRIORITIES   *
+# *                     *
+# ***********************/
+#//-- task priorities
+#// ============================================================
+#// Задача опроса Boot Switch
+#// Приоритет 3 (ниже reboot_button=4 и sensor_poll=5),
+#// потому что:
+#//   • кнопка — событие для человека, задержка 20–50 мс не заметна
+#//   • reboot_button (4) уже опрашивает тот же GPIO — boot_switch
+#//     не должен его вытеснять
+#//   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
+#//   • Matter-события уходят в HA без задержек
+#// ============================================================
 CONFIG_COMMISSIONING_WINDOW_PRIORITY=6
+CONFIG_SENSOR_POLL_TASK_PRIORITY=5
+CONFIG_REBOOT_BUTTON_TASK_PRIORITY=4
+CONFIG_BOOT_SWITCH_TASK_PRIORITY=3
+
+
+CONFIG_LIVE_BLINK_TIME_MS=0
 
 
 #//-- Single-click: toggle SSD1306
@@ -166,4 +202,11 @@ CONFIG_FACTORY_RESET_HOLD_TIME_MS=10000
 CONFIG_DOUBLE_CLICK_INTERVAL_MS=400
 #//-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
 CONFIG_SHORT_CLICK_MAX_MS=350
+
+
+#//-- what part of tree to show (-1 means: SHOW ALL)
+CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER=1
+CONFIG_SHOW_DEVICE_LOG_CLUSTERS=y
+CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES=y
+CONFIG_SHOW_DEVICE_LOG_COMMANDS=y
 

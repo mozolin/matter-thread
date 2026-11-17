@@ -43,8 +43,8 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
 {
     esp_err_t err = ESP_OK;
     
-    #if DEBUG_MODE
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Инициализация i2cdev для SSD1306");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Инициализация i2cdev для SSD1306");
     #endif
 
     // ДОБАВЛЕНО: Настройка дескриптора i2cdev
@@ -65,8 +65,8 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     // ДОБАВЛЕНО: Создание мьютекса и регистрация устройства в i2cdev
     err = i2c_dev_create_mutex(&ssd1306_i2c_dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ i2c_dev_create_mutex() failed! %d (%s)", err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ i2c_dev_create_mutex() failed! %d (%s)", err, esp_err_to_name(err));
       #endif
       return err;
     }
@@ -90,7 +90,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     // Теперь мы будем использовать ssd1306_i2c_dev напрямую, но сохраним его для передачи.
     dev->_i2c_dev_handle = (i2c_master_dev_handle_t)&ssd1306_i2c_dev;
 
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       ESP_LOGI("", "");
       ESP_LOGI("", "################################");
       ESP_LOGI("", "#                              #");
@@ -160,12 +160,12 @@ esp_err_t i2c_init(SSD1306_t * dev, int width, int height)
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, out_buf[0], &out_buf[1], out_index - 1);
     
     if (err == ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Конфигурация OLED прошла успешно");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Конфигурация OLED прошла успешно");
       #endif
     } else {
-      #if DEBUG_MODE  
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать в устройство [0x%02x]: %d (%s)", dev->_address, err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE  
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Не удалось записать в устройство [0x%02x]: %d (%s)", dev->_address, err, esp_err_to_name(err));
       #endif
       err = ESP_FAIL;
     }
@@ -198,16 +198,16 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * image
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, cmd_buf, 3);
     if (err != ESP_OK) {
-      #if DEBUG_MODE  
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать команды адреса: %d (%s)", err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE  
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Не удалось записать команды адреса: %d (%s)", err, esp_err_to_name(err));
       #endif
     }
 
     // Отправка данных (control byte 0x40)
     err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_DATA_STREAM, images, width);
     if (err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось записать данные изображения: %d (%s)", err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Не удалось записать данные изображения: %d (%s)", err, esp_err_to_name(err));
       #endif
     }
 }
@@ -228,8 +228,8 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, cmd_buf, 2);
     if (err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось установить контраст: %d (%s)", err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Не удалось установить контраст: %d (%s)", err, esp_err_to_name(err));
       #endif
     }
 }
@@ -291,8 +291,8 @@ void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll) {
 
     esp_err_t err = i2c_dev_write_reg(&ssd1306_i2c_dev, OLED_CONTROL_BYTE_CMD_STREAM, out_buf, out_index);
     if (err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Не удалось выполнить прокрутку: %d (%s)", err, esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Не удалось выполнить прокрутку: %d (%s)", err, esp_err_to_name(err));
       #endif
     }
 }
@@ -884,7 +884,7 @@ void ssd1306_wrap_arround(SSD1306_t * dev, ssd1306_scroll_type_t scroll, int sta
 void _ssd1306_bitmaps(SSD1306_t * dev, int xpos, int ypos, const uint8_t * bitmap, int width, int height, bool invert)
 {
 	if ( (width % 8) != 0) {
-		#if DEBUG_MODE
+		#if CONFIG_DEBUG_MODE
 		  ESP_LOGE(__FUNCTION__, "width must be a multiple of 8");
 		#endif
 		return;
@@ -913,13 +913,13 @@ void _ssd1306_bitmaps(SSD1306_t * dev, int xpos, int ypos, const uint8_t * bitma
 
 				ESP_LOGD(__FUNCTION__, "index=%d offset=%d wk1=0x%x page=%d _seg=%d, wk2=%02x", index, offset, wk1, page, _seg, wk2);
 				if (_seg >= 128) {
-					#if DEBUG_MODE
+					#if CONFIG_DEBUG_MODE
 					  ESP_LOGW(__FUNCTION__, "segment is out of range");
 					#endif
 					break;
 				}
 				if (page >= dev->_pages) {
-					#if DEBUG_MODE
+					#if CONFIG_DEBUG_MODE
 					  ESP_LOGW(__FUNCTION__, "page is out of range");
 					#endif
 					break;
@@ -1201,7 +1201,7 @@ void ssd1306_rotate_image(uint8_t *image, bool flip) {
 	if (flip) ssd1306_flip(image, 8);
 #if 0
 	for (int i=0;i<8;i++) {
-		#if DEBUG_MODE
+		#if CONFIG_DEBUG_MODE
 		  ESP_LOGI(__FUNCTION__, "image[%d]=0x%x", i, image[i]);
 		#endif
 	}
@@ -1234,7 +1234,7 @@ void ssd1306_dump(SSD1306_t dev)
 
 void ssd1306_dump_page(SSD1306_t * dev, int page, int seg)
 {
-	#if DEBUG_MODE
+	#if CONFIG_DEBUG_MODE
 	  ESP_LOGI(__FUNCTION__, "dev->_page[%d]._segs[%d]=%02x", page, seg, dev->_page[page]._segs[seg]);
 	#endif
 }
@@ -1255,8 +1255,8 @@ void ssd1306_dump_page(SSD1306_t * dev, int page, int seg)
 int clock_speed_hz = SPI_DEFAULT_FREQUENCY;
 
 void spi_clock_speed(int speed) {
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "SPI clock speed=%d MHz", speed/1000000);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "SPI clock speed=%d MHz", speed/1000000);
 	#endif
 	clock_speed_hz = speed;
 }
@@ -1291,12 +1291,12 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 		.flags = 0
 	};
 
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "SPI HOST_ID=%d", HOST_ID);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "SPI HOST_ID=%d", HOST_ID);
 	#endif
 	ret = spi_bus_initialize( HOST_ID, &spi_bus_config, SPI_DMA_CH_AUTO );
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "spi_bus_initialize=%d",ret);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "spi_bus_initialize=%d",ret);
 	#endif
 	assert(ret==ESP_OK);
 
@@ -1309,8 +1309,8 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 
 	spi_device_handle_t spi_device_handle;
 	ret = spi_bus_add_device( HOST_ID, &devcfg, &spi_device_handle);
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "spi_bus_add_device=%d",ret);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "spi_bus_add_device=%d",ret);
 	#endif
 	assert(ret==ESP_OK);
 
@@ -1322,8 +1322,8 @@ void spi_master_init(SSD1306_t * dev, int16_t mosi, int16_t sclk, int16_t cs, in
 
 void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 {
-	#if DEBUG_MODE
-	  ESP_LOGW(TAG_MIKE_APP, "Will not install spi master driver");
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGW(CONFIG_TAG_MIKE_APP, "Will not install spi master driver");
 	#endif
 	esp_err_t ret;
 
@@ -1354,12 +1354,12 @@ void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 		.flags = 0
 	};
 
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "SPI HOST_ID=%d", HOST_ID);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "SPI HOST_ID=%d", HOST_ID);
 	#endif
 	ret = spi_bus_initialize( HOST_ID, &spi_bus_config, SPI_DMA_CH_AUTO );
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "spi_bus_initialize=%d",ret);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "spi_bus_initialize=%d",ret);
 	#endif
 	assert(ret==ESP_OK);
 #endif
@@ -1373,8 +1373,8 @@ void spi_device_add(SSD1306_t * dev, int16_t cs, int16_t dc, int16_t reset)
 
 	spi_device_handle_t spi_device_handle;
 	ret = spi_bus_add_device( HOST_ID, &devcfg, &spi_device_handle);
-	#if DEBUG_MODE
-	  ESP_LOGI(TAG_MIKE_APP, "spi_bus_add_device=%d",ret);
+	#if CONFIG_DEBUG_MODE
+	  ESP_LOGI(CONFIG_TAG_MIKE_APP, "spi_bus_add_device=%d",ret);
 	#endif
 	assert(ret==ESP_OK);
 

@@ -8,7 +8,7 @@ esp_err_t bme280_init_app()
 {
     esp_err_t err = ESP_OK;
     
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       bmp280_params_t params;
       bmp280_init_default_params(&params);
     
@@ -17,15 +17,15 @@ esp_err_t bme280_init_app()
       //err = bmp280_init_desc(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
       err = bmp280_init_desc_adv(&dev, BMP280_I2C_ADDRESS_0, CONFIG_BME280_I2C_PORT, (gpio_num_t)CONFIG_BME280_SDA_GPIO, (gpio_num_t)CONFIG_BME280_SCL_GPIO);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
         #endif
         return err;
       }
       err = bmp280_init(&dev, &params);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "bmp280_init failed: %s", esp_err_to_name(err));
         #endif
         return err;
       }
@@ -34,8 +34,8 @@ esp_err_t bme280_init_app()
     #else
       bme280p = true;
     #endif
-    #if DEBUG_MODE
-      ESP_LOGI(TAG_MIKE_APP, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGI(CONFIG_TAG_MIKE_APP, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
       ESP_LOGI("", "");
       ESP_LOGI("", "###############################");
       ESP_LOGI("", "#                             #");
@@ -52,11 +52,11 @@ esp_err_t bme280_read_app(int16_t *temperature, uint16_t *humidity, int16_t *pre
 {
     float temp, hum, press;
 
-    #if !MOCK_SENSORS_BEHAVIOR
+    #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       if(bmp280_read_float(&dev, &temp, &press, &hum) != ESP_OK)
       {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Temperature/pressure reading failed!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Temperature/pressure reading failed!");
         #endif
         //continue;
         return ESP_OK;
@@ -67,7 +67,7 @@ esp_err_t bme280_read_app(int16_t *temperature, uint16_t *humidity, int16_t *pre
       press = 101123.45;
     #endif
 
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       ESP_LOGW("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);
     #else
       ESP_LOGD("|  BME280", "Temp: %.2f °C, Hum: %.2f %%, Pres: %.2f Pa", temp, hum, press);

@@ -65,8 +65,8 @@
 
     err = i2c_dev_check_present(&dev);
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "SSD1306 not found (err: %s). SKipping initialization!", esp_err_to_name(err));
       #endif
     }
     return err;
@@ -76,21 +76,21 @@
   {
     esp_err_t err = ESP_OK;
     
-    #if !MOCK_DISPLAY_BEHAVIOR
+    #if !CONFIG_MOCK_DISPLAY_BEHAVIOR
     
     
     #if CONFIG_I2C_INTERFACE
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",(i2c_port_t)CONFIG_SSD1306_I2C_PORT);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",(i2c_port_t)CONFIG_SSD1306_I2C_PORT);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
       #endif
       err = i2c_master_init(&ssd1306dev, (i2c_port_t)CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO, CONFIG_SSD1306_RESET_GPIO);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
         #endif
         return err;
       }
@@ -103,61 +103,61 @@
     #endif // CONFIG_I2C_INTERFACE
     
     #if CONFIG_SPI_INTERFACE
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is SPI");
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ INTERFACE is SPI");
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
       #endif
       spi_master_init(&ssd1306dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
     #endif // CONFIG_SPI_INTERFACE
     
     #if CONFIG_FLIP
       ssd1306dev._flip = true;
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Flip upside down");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Flip upside down");
       #endif
     #endif
     
     #if CONFIG_SSD1306_128x64
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x64");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Panel is 128x64");
       #endif
       err = ssd1306_init(&ssd1306dev, 128, 64);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
         #endif
         return err;
       }
     #endif // CONFIG_SSD1306_128x64
     
     #if CONFIG_SSD1306_128x32
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ Panel is 128x32");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Panel is 128x32");
       #endif
       err = ssd1306_init(&ssd1306dev, 128, 32);
       if(err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGW(TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ ssd1306_init() failed!");
         #endif
         return err;
       }
     #endif // CONFIG_SSD1306_128x32
     
-    #if DEBUG_MODE
-      ESP_LOGW(TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
     #endif
     
     if(std::is_same<decltype(ssd1306dev), SSD1306_t>::value) {
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ OK!");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ OK!");
       #endif
     } else {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ FAIL!");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ FAIL!");
       #endif
     }
     
@@ -363,8 +363,8 @@
       #endif
       ssd1306_display_enabled  = true;
       ssd1306_last_on_time_ms  = esp_log_timestamp(); // запоминаем момент включения
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display ON");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ SSD1306: display ON");
       #endif
     } else {
       //-- ВЫКЛЮЧАЕМ: чистим и гасим панель
@@ -373,8 +373,8 @@
       ssd1306_contrast(&ssd1306dev, 0x00);          // программное выключение панели
       ssd1306_display_enabled  = false;
       ssd1306_last_on_time_ms  = 0;
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306: display OFF");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ SSD1306: display OFF");
       #endif
     }
   }
@@ -434,16 +434,16 @@
   {
     esp_err_t err = ssd1306_init_app();
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
       #endif
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
     } else {
       ssd1306_initialized = true;
-      #if DEBUG_MODE
-        ESP_LOGW(TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
       #endif
       #if USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
