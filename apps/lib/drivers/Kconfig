@@ -195,3 +195,51 @@ menu "9. Lib Drivers: Device Log"
     bool "CONFIG_SHOW_DEVICE_LOG_COMMANDS"
     default y
 endmenu
+
+
+menu "SSD1306 Configuration"
+
+	choice SSD1306_LIB_INTERFACE
+		prompt "Interface"
+		default SSD1306_LIB_I2C_INTERFACE
+		help
+			Select Interface.
+		config SSD1306_LIB_I2C_INTERFACE
+			bool "I2C Interface"
+			help
+				I2C Interface.
+		config SSD1306_LIB_SPI_INTERFACE
+			bool "SPI Interface"
+			help
+				SPI Interface.
+	endchoice
+
+	choice SSD1306_LIB_PANEL
+		prompt "Panel Type"
+		default SSD1306_LIB_SSD1306_128x64
+		help
+			Select Panel Type.
+		config SSD1306_LIB_SSD1306_128x32
+			bool "128x32 Panel"
+			help
+				Panel is 128x32.
+		config SSD1306_LIB_SSD1306_128x64
+			bool "128x64 Panel"
+			help
+				Panel is 128x64.
+	endchoice
+
+	config SSD1306_LIB_OFFSETX
+		int "GRAM X OFFSET"
+		range 0 99
+		default 0
+		help
+			When your TFT have offset(X), set it.
+
+	config SSD1306_LIB_FLIP
+		bool "Flip upside down"
+		default false
+		help
+			Flip upside down.
+
+endmenu

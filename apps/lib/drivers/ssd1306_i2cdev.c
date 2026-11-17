@@ -181,7 +181,7 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * image
     if (page >= dev->_pages) return;
     if (seg >= dev->_width) return;
 
-    int _seg = seg + CONFIG_OFFSETX;
+    int _seg = seg + CONFIG_SSD1306_LIB_OFFSETX;
     uint8_t columLow = _seg & 0x0F;
     uint8_t columHigh = (_seg >> 4) & 0x0F;
 
@@ -1470,7 +1470,7 @@ void spi_display_image(SSD1306_t * dev, int page, int seg, const uint8_t * image
 	if (page >= dev->_pages) return;
 	if (seg >= dev->_width) return;
 
-	int _seg = seg + CONFIG_OFFSETX;
+	int _seg = seg + CONFIG_SSD1306_LIB_OFFSETX;
 	uint8_t columLow = _seg & 0x0F;
 	uint8_t columHigh = (_seg >> 4) & 0x0F;
 

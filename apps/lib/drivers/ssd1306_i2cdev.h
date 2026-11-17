@@ -11,7 +11,7 @@
   #include "i2cdev.h"
 
 //-- When your TFT have offset(X), set it.
-#define CONFIG_OFFSETX 0
+#define CONFIG_SSD1306_LIB_OFFSETX 0
 
 
 // Following definitions are bollowed from 

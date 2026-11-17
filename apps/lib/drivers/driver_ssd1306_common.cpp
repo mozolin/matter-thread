@@ -79,7 +79,7 @@
     #if !CONFIG_MOCK_DISPLAY_BEHAVIOR
     
     
-    #if CONFIG_I2C_INTERFACE
+    #if CONFIG_SSD1306_LIB_I2C_INTERFACE
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",(i2c_port_t)CONFIG_SSD1306_I2C_PORT);
@@ -100,28 +100,28 @@
       if(err != ESP_OK) {
       	return err; // Выходим, никаких повторных попыток
       }    
-    #endif // CONFIG_I2C_INTERFACE
+    #endif // CONFIG_SSD1306_LIB_I2C_INTERFACE
     
-    #if CONFIG_SPI_INTERFACE
+    #if CONFIG_SSD1306_LIB_SPI_INTERFACE
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ INTERFACE is SPI");
-        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_MOSI_GPIO=%d",CONFIG_MOSI_GPIO);
+        ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_SSD1306_LIB_MOSI_GPIO=%d",CONFIG_SSD1306_LIB_MOSI_GPIO);
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_SCLK_GPIO=%d",CONFIG_SCLK_GPIO);
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_CS_GPIO=%d",CONFIG_CS_GPIO);
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_DC_GPIO=%d",CONFIG_DC_GPIO);
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_RESET_GPIO);
       #endif
-      spi_master_init(&ssd1306dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
-    #endif // CONFIG_SPI_INTERFACE
+      spi_master_init(&ssd1306dev, CONFIG_SSD1306_LIB_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO);
+    #endif // CONFIG_SSD1306_LIB_SPI_INTERFACE
     
-    #if CONFIG_FLIP
+    #if CONFIG_SSD1306_LIB_FLIP
       ssd1306dev._flip = true;
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Flip upside down");
       #endif
     #endif
     
-    #if CONFIG_SSD1306_128x64
+    #if CONFIG_SSD1306_LIB_SSD1306_128x64
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Panel is 128x64");
       #endif
@@ -132,9 +132,9 @@
         #endif
         return err;
       }
-    #endif // CONFIG_SSD1306_128x64
+    #endif // CONFIG_SSD1306_LIB_SSD1306_128x64
     
-    #if CONFIG_SSD1306_128x32
+    #if CONFIG_SSD1306_LIB_SSD1306_128x32
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Panel is 128x32");
       #endif
@@ -145,7 +145,7 @@
         #endif
         return err;
       }
-    #endif // CONFIG_SSD1306_128x32
+    #endif // CONFIG_SSD1306_LIB_SSD1306_128x32
     
     #if CONFIG_DEBUG_MODE
       ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ _address=%x, _width=%x, _height=%x, _pages=%x", ssd1306dev._address, ssd1306dev._width, ssd1306dev._height, ssd1306dev._pages);
@@ -199,7 +199,7 @@
     int center, top, bottom;
     char lineChar[20];
     
-    #if CONFIG_SSD1306_128x64
+    #if CONFIG_SSD1306_LIB_SSD1306_128x64
       top = 2;
       center = 3;
       bottom = 8;
@@ -215,9 +215,9 @@
       ssd1306_display_text(&ssd1306dev, 5, "ABCDEFGHIJKLMNOP", 16, true);
       ssd1306_display_text(&ssd1306dev, 6, "abcdefghijklmnop",16, true);
       ssd1306_display_text(&ssd1306dev, 7, "Hello World!!", 13, true);
-    #endif // CONFIG_SSD1306_128x64
+    #endif // CONFIG_SSD1306_LIB_SSD1306_128x64
     
-    #if CONFIG_SSD1306_128x32
+    #if CONFIG_SSD1306_LIB_SSD1306_128x32
       top = 1;
       center = 1;
       bottom = 4;
@@ -227,7 +227,7 @@
       //ssd1306_clear_line(&ssd1306dev, 3, true);
       ssd1306_display_text(&ssd1306dev, 2, "SSD1306 128x32", 14, true);
       ssd1306_display_text(&ssd1306dev, 3, "Hello World!!", 13, true);
-    #endif // CONFIG_SSD1306_128x32
+    #endif // CONFIG_SSD1306_LIB_SSD1306_128x32
     vTaskDelay(3000 / portTICK_PERIOD_MS);
     
     //-- Display Count Down
