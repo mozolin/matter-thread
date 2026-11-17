@@ -1,5 +1,5 @@
 
-#include "driver_ssd1306.h"
+#include "main_driver_ssd1306.h"
 #include <app_priv.h>
 
 #if CONFIG_SSD1306_ENABLED

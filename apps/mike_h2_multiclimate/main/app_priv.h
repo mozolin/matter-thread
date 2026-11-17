@@ -221,7 +221,7 @@
 
 #if CONFIG_SSD1306_ENABLED
   #include "driver_ssd1306_common.h"
-  #include "driver_ssd1306.h"
+  #include "main_driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
 
   #define CONFIG_SSD1306_APP_RUN_CB            true
