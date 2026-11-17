@@ -3,6 +3,8 @@
 //#include <app_priv.h>
 #include "sdkconfig.h"
 #include "driver_reboot_button.h"
+#include "driver_ssd1306_common.h"
+#include "driver_boot_switch.h"
 #include "driver/gpio.h"
 
 using namespace esp_matter;
@@ -18,7 +20,7 @@ static esp_timer_handle_t s_single_click_timer = NULL;
 
 //=== обработчики одиночного и двойного клика ===
 
-//-- Колбэк esp_timer: вызывается, если в течение DOUBLE_CLICK_INTERVAL_MS
+//-- Колбэк esp_timer: вызывается, если в течение CONFIG_DOUBLE_CLICK_INTERVAL_MS
 //-- второго нажатия не произошло. Значит это был одиночный клик.
 static void single_click_timer_cb(void *arg)
 {
@@ -83,7 +85,7 @@ void reboot_button_task(void *pvParameter)
 
   //-- Configure Reset GPIO
   gpio_config_t io_conf = {
-    .pin_bit_mask = (1ULL << (gpio_num_t)REBOOT_BUTTON_GPIO),
+    .pin_bit_mask = (1ULL << (gpio_num_t)CONFIG_REBOOT_BUTTON_GPIO),
     .mode = GPIO_MODE_INPUT,
     .pull_up_en = GPIO_PULLUP_ENABLE,
     .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -99,9 +101,9 @@ void reboot_button_task(void *pvParameter)
     #if CONFIG_SSD1306_ENABLED
       if(ssd1306_display_enabled && ssd1306_last_on_time_ms != 0) {
         uint32_t now_ms = esp_log_timestamp();
-        if((now_ms - ssd1306_last_on_time_ms) >= SSD1306_AUTO_OFF_TIMEOUT_MS) {
+        if((now_ms - ssd1306_last_on_time_ms) >= CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS) {
           #if DEBUG_MODE
-            ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
+            ESP_LOGW("Reset Button", "SSD1306 auto-off after %d sec", (CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS / 1000));
           #endif
           ssd1306_set_display_enabled(false);
 
@@ -127,7 +129,7 @@ void reboot_button_task(void *pvParameter)
     #endif
     
     //-- Reset button pressed
-    if(gpio_get_level((gpio_num_t)REBOOT_BUTTON_GPIO) == 0) {
+    if(gpio_get_level((gpio_num_t)CONFIG_REBOOT_BUTTON_GPIO) == 0) {
       if(!button_pressed) {
         button_pressed_time = esp_log_timestamp();
         button_pressed = true;
@@ -139,7 +141,7 @@ void reboot_button_task(void *pvParameter)
         //ESP_LOGI("RebootButton", "Button released");
         uint32_t pressed_duration = esp_log_timestamp() - button_pressed_time;
         
-        if(pressed_duration >= FACTORY_RESET_HOLD_TIME_MS) {
+        if(pressed_duration >= CONFIG_FACTORY_RESET_HOLD_TIME_MS) {
           #if DEBUG_MODE
             ESP_LOGE("Reset Button", "*******************************");
             ESP_LOGE("Reset Button", "*                             *");
@@ -157,7 +159,7 @@ void reboot_button_task(void *pvParameter)
           vTaskDelay(pdMS_TO_TICKS(3000));
           esp_restart();
           //<-- uses for CommissioningWindowOpen
-        } else if(pressed_duration >= REBOOT_HOLD_TIME_MS) {
+        } else if(pressed_duration >= CONFIG_REBOOT_HOLD_TIME_MS) {
           #if DEBUG_MODE
             ESP_LOGW("Reset Button", "************************");
             ESP_LOGW("Reset Button", "*                      *");
@@ -171,13 +173,13 @@ void reboot_button_task(void *pvParameter)
           //
           // Логика:
           //   • Если это первый короткий клик — запускаем одноразовый esp_timer
-          //     на DOUBLE_CLICK_INTERVAL_MS. Если за это время второго клика
+          //     на CONFIG_DOUBLE_CLICK_INTERVAL_MS. Если за это время второго клика
           //     не будет — таймер вызовет single_click_timer_cb() и выполнит
           //     действие одиночного клика (переключение SSD1306).
           //   • Если во время окна приходит второй клик — останавливаем таймер
           //     и выполняем действие двойного клика (переключение блокировки LED).
           //
-          if(pressed_duration <= SHORT_CLICK_MAX_MS) {
+          if(pressed_duration <= CONFIG_SHORT_CLICK_MAX_MS) {
             if(!s_first_click_pending) {
               #if DEBUG_MODE
                 ESP_LOGW("Reset Button", "****************************");
@@ -189,7 +191,7 @@ void reboot_button_task(void *pvParameter)
               //-- Первый клик в окне: стартуем таймер ожидания второго
               s_first_click_pending = true;
               esp_timer_stop(s_single_click_timer);
-              esp_timer_start_once(s_single_click_timer, (uint64_t)DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
+              esp_timer_start_once(s_single_click_timer, (uint64_t)CONFIG_DOUBLE_CLICK_INTERVAL_MS * 1000ULL);
             } else {
               #if DEBUG_MODE
                 ESP_LOGW("Reset Button", "*********************************");
@@ -220,7 +222,7 @@ void reboot_button_task(void *pvParameter)
               #endif
             }
           } else {
-            //-- Долгое нажатие (но меньше REBOOT_HOLD_TIME_MS) — не клик,
+            //-- Долгое нажатие (но меньше CONFIG_REBOOT_HOLD_TIME_MS) — не клик,
             //-- игнорируем, чтобы не сбивать окно двойного клика.
             ESP_LOGD("Reset Button", "Long-ish press (%lu ms), ignored",
                      (unsigned long)pressed_duration);

@@ -31,6 +31,8 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 
+
+
 /*
 using namespace esp_matter;
 using namespace esp_matter::attribute;
@@ -218,7 +220,7 @@ void boot_switch_task(void *pvParameters)
     #endif
     while (true) {
         uint64_t now_ms = esp_timer_get_time() / 1000;
-        bool current_state = gpio_get_level((gpio_num_t)REBOOT_BUTTON_GPIO);  // true = отпущена
+        bool current_state = gpio_get_level((gpio_num_t)CONFIG_REBOOT_BUTTON_GPIO);  // true = отпущена
 
         //-- Фронт: нажатие (переход из отпущена в нажата)
         if (s_last_button_state == true && current_state == false) {
@@ -251,7 +253,7 @@ void boot_switch_task(void *pvParameters)
                 #if DEBUG_MODE
                   ESP_LOGI(TAG_MIKE_APP, "Boot Switch: release after LONG press");
                 #endif
-            } else if (press_duration <= SHORT_CLICK_MAX_MS) {
+            } else if (press_duration <= CONFIG_SHORT_CLICK_MAX_MS) {
                 //-- Короткий клик: проверяем, не был ли это второй клик
                 if (s_first_click_pending && (now_ms - s_first_click_time_ms) <= BOOT_SWITCH_DOUBLE_CLICK_MS) {
                     //-- Второй клик в окне -> ДВОЙНОЙ
@@ -392,12 +394,14 @@ esp_err_t create_boot_switch_endpoint(node_t *node)
 //  On/Off эндпоинты для управления экраном, лентой и ребутом
 // ===========================================================
 
+
 //-- Глобальные ID для On/Off эндпоинтов (чтобы app_driver_attribute_update мог их найти)
 #if CONFIG_BOOT_SWITCH_ENABLED
   uint16_t s_ep_screen_onoff = 0;
   uint16_t s_ep_led_onoff = 0;
   uint16_t s_ep_reboot_onoff = 0;
 #endif
+
 
 #if CONFIG_BOOT_SWITCH_ENABLED
 esp_err_t create_onoff_endpoints(node_t *node)

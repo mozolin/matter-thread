@@ -19,7 +19,7 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
-#include "app_main.h"
+#include "app_main_driver.h"
 #include "i2c_adv.h"
 
 #include "sensor_driver_bme280.h"
@@ -69,6 +69,7 @@ sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 
+/*
 #if CONFIG_SSD1306_ENABLED
   //-- SSD1306 device instance
   SSD1306_t ssd1306dev;
@@ -78,6 +79,7 @@ sensor_data_t sensors[SENSOR_TYPE_MAX];
   bool ssd1306_display_enabled = false;
   uint64_t ssd1306_last_on_time_ms = 0;
 #endif
+*/
 
 #if USE_DRIVER_LED_INDICATOR
   led_indicator_handle_t led_handle;

@@ -1,10 +1,118 @@
 menu "Lib Drivers Configuration"
 
-  config LIB_SSD1306_ENABLED
-    bool "Enable SSD1306 driver in lib/drivers"
+
+  #//-- SSD1306 LED Display
+  config SSD1306_ENABLED
+    bool "CONFIG_SSD1306_ENABLED"
     default n
-    #help
-    #  Enable this option to compile SSD1306-related code
-    #  in the shared lib/drivers component.
+    
+  #/**********************************************************
+  # *
+  # *  This driver initializes the I2C bus
+  # *  on port CONFIG_SSD1306_I2C_PORT;
+  # *  therefore, any sensors using the I2C interface
+  # *  must be connected to the same GPIO pins (SDA and SCL)
+  # *  if they use this port.
+  # *
+  # **********************************************************/
+  config SSD1306_SDA_GPIO
+    int "CONFIG_SSD1306_SDA_GPIO"
+    default 1
+  config SSD1306_SCL_GPIO
+    int "CONFIG_SSD1306_SCL_GPIO"
+    default 2
+  config SSD1306_RESET_GPIO
+    int "CONFIG_SSD1306_RESET_GPIO"
+    default -1
+  config SSD1306_I2C_ADDRESS
+    hex "CONFIG_SSD1306_I2C_ADDRESS"
+    default 0x3C
+  config SSD1306_I2C_PORT
+    int "CONFIG_SSD1306_I2C_PORT"
+    default 0
+    
+    
+  config SSD1306_APP_RUN_CB
+    bool "CONFIG_SSD1306_APP_RUN_CB"
+    default y
+
+    
+  config SSD1306_AUTO_OFF_TIMEOUT_MS
+    int "CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS"
+    default 300000  #// 5 минут
+
+
+  config I2C_FREQ_HZ
+    int "CONFIG_I2C_FREQ_HZ"
+    default 400000
+  
+  #//-- I2C Bus=0
+  config I2C_0_SDA_GPIO
+    int "CONFIG_I2C_0_SDA_GPIO"
+    default 1
+  config I2C_0_SCL_GPIO
+    int "CONFIG_I2C_0_SCL_GPIO"
+    default 2
+  config I2C_0_PORT_NUM
+    int "CONFIG_I2C_0_PORT_NUM"
+    default 0
+    range 0 1
+  
+  #//-- I2C Bus=1
+  config I2C_1_SDA_GPIO
+    int "CONFIG_I2C_1_SDA_GPIO"
+    default 3
+  config I2C_1_SCL_GPIO
+    int "CONFIG_I2C_1_SCL_GPIO"
+    default 5
+  config I2C_1_PORT_NUM
+    int "CONFIG_I2C_1_PORT_NUM"
+    default 1
+    range 0 1
+
+  #//-- Window opens for NNN seconds
+  config COMMISSIONING_WINDOW_OPEN
+    int "CONFIG_COMMISSIONING_WINDOW_OPEN"
+    default 300
+
+
+  #//-- Boot Switch (Generic Switch) для событий кнопки BOOT
+  config BOOT_SWITCH_ENABLED
+    bool "CONFIG_BOOT_SWITCH_ENABLED"
+    default y
+
+  #//-- Reboot button handlers
+  config REBOOT_BUTTON_ENABLED
+    bool "CONFIG_REBOOT_BUTTON_ENABLED"
+    default y
+
+  config COMMISSIONING_WINDOW_PRIORITY
+    int "CONFIG_COMMISSIONING_WINDOW_PRIORITY"
+    default 6
+
+
+  #//-- Single-click: toggle SSD1306
+  #//-- Double-click: toggle LED Indicator
+  config REBOOT_BUTTON_GPIO
+    int "CONFIG_REBOOT_BUTTON_GPIO"
+    default 9
+  #//-- Hold to reboot
+  config REBOOT_HOLD_TIME_MS
+    int "CONFIG_REBOOT_HOLD_TIME_MS"
+    default 3000
+  #//-- Hold to factory reset
+  config FACTORY_RESET_HOLD_TIME_MS
+    int "CONFIG_FACTORY_RESET_HOLD_TIME_MS"
+    default 10000
+  #//=== параметры детекции двойного нажатия кнопки Reboot ===
+  #//-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+  config DOUBLE_CLICK_INTERVAL_MS
+    int "CONFIG_DOUBLE_CLICK_INTERVAL_MS"
+    default 400
+  #//-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+  config SHORT_CLICK_MAX_MS
+    int "CONFIG_SHORT_CLICK_MAX_MS"
+    default 350
+
 
 endmenu

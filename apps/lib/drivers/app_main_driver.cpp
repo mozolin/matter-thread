@@ -1,5 +1,8 @@
 
 #include "app_main_driver.h"
+#include "driver_boot_switch.h"
+#include "driver_ssd1306_common.h"
+
 
 #include <esp_err.h>
 #include <esp_log.h>
@@ -188,7 +191,7 @@ void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
   }
 }
 
-esp_err_t app_identification_cb(identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
+esp_err_t app_identification_cb(esp_matter::identification::callback_type_t type, uint16_t endpoint_id, uint8_t effect_id, uint8_t effect_variant, void *priv_data)
 {
   #if DEBUG_MODE
     ESP_LOGI(TAG_MIKE_APP, "Identification callback: type: %u, effect: %u, variant: %u", type, effect_id, effect_variant);
@@ -211,7 +214,7 @@ esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endp
 }
 
 //--- Задача: раз в секунду мигать, пока открыто окно сопряжения ---
-static void commissioning_window_blink_task(void *arg)
+void commissioning_window_blink_task(void *arg)
 {
   uint32_t window_sec = (uint32_t)(uintptr_t)arg;
   uint32_t elapsed = 0;

@@ -8,11 +8,26 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_err.h"
 #include "esp_log.h"
 
 #include <type_traits>
 
 #define SSD1306_I2C_FREQ_HZ 400000
+
+
+
+#if CONFIG_SSD1306_ENABLED
+  //-- SSD1306 device instance
+  SSD1306_t ssd1306dev;
+  //-- Is SSD1306 initialized?
+  bool ssd1306_initialized = false;
+  //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  bool ssd1306_display_enabled = false;
+  uint64_t ssd1306_last_on_time_ms = 0;
+#endif
+
+
 
 #if CONFIG_SSD1306_ENABLED
   #include "ssd1306_i2cdev.h"
@@ -35,7 +50,7 @@
   	esp_err_t err = ESP_OK;
 
     memset(&dev, 0, sizeof(i2c_dev_t));
-    dev.port = CONFIG_SSD1306_I2C_PORT;
+    dev.port = (i2c_port_t)CONFIG_SSD1306_I2C_PORT;
     dev.addr = CONFIG_SSD1306_I2C_ADDRESS; // 0x3C
     dev.cfg.sda_io_num = (gpio_num_t)CONFIG_SSD1306_SDA_GPIO;
     dev.cfg.scl_io_num = (gpio_num_t)CONFIG_SSD1306_SCL_GPIO;
@@ -67,12 +82,12 @@
     #if CONFIG_I2C_INTERFACE
       #if DEBUG_MODE
         ESP_LOGW(TAG_MIKE_APP, "~~~ INTERFACE is i2c (via i2cdev)");
-        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",CONFIG_SSD1306_I2C_PORT);
+        ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_I2C_PORT=%d",(i2c_port_t)CONFIG_SSD1306_I2C_PORT);
         ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SDA_GPIO=%d",CONFIG_SSD1306_SDA_GPIO);
         ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_SCL_GPIO=%d",CONFIG_SSD1306_SCL_GPIO);
         ESP_LOGW(TAG_MIKE_APP, "~~~ CONFIG_RESET_GPIO=%d",CONFIG_SSD1306_RESET_GPIO);
       #endif
-      err = i2c_master_init(&ssd1306dev, CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO, CONFIG_SSD1306_RESET_GPIO);
+      err = i2c_master_init(&ssd1306dev, (i2c_port_t)CONFIG_SSD1306_I2C_PORT, CONFIG_SSD1306_SDA_GPIO, CONFIG_SSD1306_SCL_GPIO, CONFIG_SSD1306_RESET_GPIO);
       if(err != ESP_OK) {
         #if DEBUG_MODE
           ESP_LOGW(TAG_MIKE_APP, "~~~ i2c_master_init() failed!");
@@ -146,7 +161,7 @@
       #endif
     }
     
-    if(err != ERR_OK) {
+    if(err != ESP_OK) {
       /*
       get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
@@ -376,7 +391,7 @@
     //-- считаем оставшееся время
     uint32_t now_ms    = esp_log_timestamp();
     uint32_t elapsed   = now_ms - (uint32_t)ssd1306_last_on_time_ms;
-    int32_t  remaining = (int32_t)(SSD1306_AUTO_OFF_TIMEOUT_MS - elapsed);
+    int32_t  remaining = (int32_t)(CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS - elapsed);
     if(remaining < 0) {
       remaining = 0;
     }

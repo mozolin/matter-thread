@@ -1,7 +1,11 @@
 #pragma once
 
 #include <esp_err.h>
+#include <esp_log.h>
 #include <driver/gpio.h>
+
+#include "i2cdev.h"
+//#include "driver/i2c_types.h"
 
 
 #ifndef DO_NOT_USE_I2C
@@ -35,7 +39,7 @@ extern "C" {
   extern esp_err_t scd4x_init_desc_adv(sht4x_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio);
 #endif
 
-extern void scan_port(i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
+void scan_port(i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
 extern void check_i2c_ports(void);
 
 

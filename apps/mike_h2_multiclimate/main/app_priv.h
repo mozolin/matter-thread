@@ -24,7 +24,7 @@
  *                    *
  **********************/
 //-- SSD1306 LED Display
-#define CONFIG_SSD1306_ENABLED                 true
+//#define CONFIG_SSD1306_ENABLED                 true
 //-- Sensors configuration
 #define CONFIG_BME280_ENABLED                  true
 #define CONFIG_BME680_ENABLED                  true
@@ -34,9 +34,9 @@
 #define CONFIG_SHT4X_ENABLED                   true
 #define CONFIG_SCD4X_ENABLED                   false
 //-- Boot Switch (Generic Switch) для событий кнопки BOOT
-#define CONFIG_BOOT_SWITCH_ENABLED             true
+//#define CONFIG_BOOT_SWITCH_ENABLED             true
 //-- Reboot button handlers
-#define CONFIG_REBOOT_BUTTON_ENABLED           true
+//#define CONFIG_REBOOT_BUTTON_ENABLED           true
 
 
 /****************************************
@@ -45,6 +45,7 @@
  *                                      *
  ****************************************/
 #include "i2c_adv.h"
+/*
 #define CONFIG_I2C_FREQ_HZ                     400000
 //-- I2C Bus=0
 #define CONFIG_I2C_0_SDA_GPIO                  1
@@ -54,6 +55,7 @@
 #define CONFIG_I2C_1_SDA_GPIO                  3
 #define CONFIG_I2C_1_SCL_GPIO                  5
 #define CONFIG_I2C_1_PORT_NUM                  I2C_NUM_1
+*/
 
 
 /***********************
@@ -72,7 +74,7 @@
 //   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
 //   • Matter-события уходят в HA без задержек
 // ============================================================
-#define CONFIG_COMMISSIONING_WINDOW_PRIORITY   6
+//#define CONFIG_COMMISSIONING_WINDOW_PRIORITY   6
 #define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
 #define CONFIG_REBOOT_BUTTON_TASK_PRIORITY     4
 #define CONFIG_BOOT_SWITCH_TASK_PRIORITY       3
@@ -84,10 +86,11 @@
   #include <app/server/CommissioningWindowManager.h>
   #include <app/server/Server.h>
   //-- Window opens for NNN seconds
-  #define CONFIG_COMMISSIONING_WINDOW_OPEN     60//300
+  //#define CONFIG_COMMISSIONING_WINDOW_OPEN     60//300
   //<-- uses for CommissioningWindowOpen
   
   #include "driver_reboot_button.h"
+  /*
   //-- Single-click: toggle SSD1306
   //-- Double-click: toggle LED Indicator
   #define REBOOT_BUTTON_GPIO                   9
@@ -100,6 +103,7 @@
   #define DOUBLE_CLICK_INTERVAL_MS             400
   //-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
   #define SHORT_CLICK_MAX_MS                   350
+  */
 #endif
 
 
@@ -224,7 +228,7 @@
   #include "main_driver_ssd1306.h"
   #include "ssd1306_i2cdev.h"
 
-  #define CONFIG_SSD1306_APP_RUN_CB            true
+  //#define CONFIG_SSD1306_APP_RUN_CB            true
 
   /**********************************************************
    *
@@ -235,11 +239,13 @@
    *  if they use this port.
    *
    **********************************************************/
+  /*
   #define CONFIG_SSD1306_SDA_GPIO              CONFIG_I2C_0_SDA_GPIO
   #define CONFIG_SSD1306_SCL_GPIO              CONFIG_I2C_0_SCL_GPIO
   #define CONFIG_SSD1306_RESET_GPIO            -1
   #define CONFIG_SSD1306_I2C_ADDRESS           0x3C
   #define CONFIG_SSD1306_I2C_PORT              CONFIG_I2C_0_PORT_NUM
+  */
   
   extern bool ssd1306_initialized;
   extern SSD1306_t ssd1306dev;
@@ -247,7 +253,7 @@
   //=== флаг состояния дисплея и таймер авто-выключения ===
   extern bool ssd1306_display_enabled;       // true = экран включён
   extern uint64_t ssd1306_last_on_time_ms;   // момент последнего включения (ms)
-  #define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
+  //#define SSD1306_AUTO_OFF_TIMEOUT_MS          (5 * 60 * 1000)  // 5 минут
   // Рисует во второй строке экрана (y_pos = 1) оставшееся время в формате "MM:SS".
   extern void ssd1306_update_timeout_line(void);
 #endif
@@ -295,7 +301,7 @@ extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 extern uint16_t configured_sensors;
 extern sensor_data_t sensors[SENSOR_TYPE_MAX];
 
-typedef void *app_driver_handle_t;
+//typedef void *app_driver_handle_t;
 
 /** Sensor initialization
  *

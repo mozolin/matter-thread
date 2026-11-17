@@ -1,4 +1,4 @@
-//#include <app_priv.h>
+#include <cstring>
 #include "sdkconfig.h"
 #include "i2c_adv.h"
 
@@ -191,10 +191,10 @@ void check_i2c_ports()
 
   // Предполагая, что на вашей ESP32-H2 используются следующие контакты (измените по необходимости)
   // Порт 0
-  scan_port(CONFIG_I2C_0_PORT_NUM, (gpio_num_t)CONFIG_I2C_0_SDA_GPIO, (gpio_num_t)CONFIG_I2C_0_SCL_GPIO);
+  scan_port((i2c_port_t)CONFIG_I2C_0_PORT_NUM, (gpio_num_t)CONFIG_I2C_0_SDA_GPIO, (gpio_num_t)CONFIG_I2C_0_SCL_GPIO);
   // Порт 1 (если SOC_I2C_NUM == 2)
   if(SOC_I2C_NUM > 1) {
-    scan_port(CONFIG_I2C_1_PORT_NUM, (gpio_num_t)CONFIG_I2C_1_SDA_GPIO, (gpio_num_t)CONFIG_I2C_1_SCL_GPIO);
+    scan_port((i2c_port_t)CONFIG_I2C_1_PORT_NUM, (gpio_num_t)CONFIG_I2C_1_SDA_GPIO, (gpio_num_t)CONFIG_I2C_1_SCL_GPIO);
   }
 
   ESP_LOGW("", "");

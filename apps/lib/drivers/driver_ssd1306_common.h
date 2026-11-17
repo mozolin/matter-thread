@@ -26,5 +26,19 @@
 
   //-- Init LCD SSD1306
   extern void ssd1306_init_app_main(void);
+  
+  #ifdef CONFIG_SSD1306_APP_RUN_CB
+    extern void ssd1306_app_run_cb(void);
+  #endif
+  
+  
+  //-- SSD1306 device instance
+  extern SSD1306_t ssd1306dev;
+  //-- Is SSD1306 initialized?
+  extern bool ssd1306_initialized;
+  //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
+  extern bool ssd1306_display_enabled;
+  extern uint64_t ssd1306_last_on_time_ms;
+  
 
 #endif

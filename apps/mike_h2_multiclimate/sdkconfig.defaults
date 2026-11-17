@@ -105,3 +105,65 @@ CONFIG_USE_GAMMA_CORRECTION=y
 
 #-- Генерация OTA-образа
 CONFIG_CHIP_OTA_IMAGE_BUILD=y
+
+
+
+
+
+
+#//-- SSD1306 LED Display
+CONFIG_SSD1306_ENABLED=y
+
+CONFIG_SSD1306_SDA_GPIO=1
+CONFIG_SSD1306_SCL_GPIO=2
+CONFIG_SSD1306_RESET_GPIO=-1
+CONFIG_SSD1306_I2C_ADDRESS=0x3C
+CONFIG_SSD1306_I2C_PORT=0
+
+
+CONFIG_SSD1306_APP_RUN_CB=y
+
+CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS=300000  #// 5 минут
+
+#/****************************************
+# *                                      *
+# *   I2C BUSES (0 and 1 for ESP32-H2)   *
+# *                                      *
+# ****************************************/
+CONFIG_I2C_FREQ_HZ=400000
+#//-- I2C Bus=0
+CONFIG_I2C_0_SDA_GPIO=1
+CONFIG_I2C_0_SCL_GPIO=2
+CONFIG_I2C_0_PORT_NUM=0
+#//-- I2C Bus=1
+CONFIG_I2C_1_SDA_GPIO=3
+CONFIG_I2C_1_SCL_GPIO=5
+CONFIG_I2C_1_PORT_NUM=1
+
+
+#//-- Reboot button handlers
+#//-- Window opens for NNN seconds
+CONFIG_COMMISSIONING_WINDOW_OPEN=300
+
+
+//-- Boot Switch (Generic Switch) для событий кнопки BOOT
+CONFIG_BOOT_SWITCH_ENABLED=y
+//-- Reboot button handlers
+CONFIG_REBOOT_BUTTON_ENABLED=y
+
+CONFIG_COMMISSIONING_WINDOW_PRIORITY=6
+
+
+#//-- Single-click: toggle SSD1306
+#//-- Double-click: toggle LED Indicator
+CONFIG_REBOOT_BUTTON_GPIO=9
+#//-- Hold to reboot
+CONFIG_REBOOT_HOLD_TIME_MS=3000
+#//-- Hold to factory reset
+CONFIG_FACTORY_RESET_HOLD_TIME_MS=10000
+#//=== параметры детекции двойного нажатия кнопки Reboot ===
+#//-- интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+CONFIG_DOUBLE_CLICK_INTERVAL_MS=400
+#//-- максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+CONFIG_SHORT_CLICK_MAX_MS=350
+
