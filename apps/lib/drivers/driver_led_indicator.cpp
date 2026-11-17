@@ -1,5 +1,5 @@
 
-//#include <app_priv.h>
+#include <esp_log.h>
 #include "sdkconfig.h"
 #include "driver_led_indicator.h"
 

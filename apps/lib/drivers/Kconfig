@@ -1,6 +1,5 @@
-menu "Lib Drivers Configuration"
 
-
+menu "1. Lib Drivers: Debug options"
   #//-- Debug options
   config MOCK_SENSORS_BEHAVIOR
     bool "CONFIG_MOCK_SENSORS_BEHAVIOR"
@@ -26,13 +25,14 @@ menu "Lib Drivers Configuration"
   config DEVICE_NODE_LABEL
     string "CONFIG_DEVICE_NODE_LABEL"
     default "EndDevice_ESP32H2"
+endmenu
 
 
+menu "2. Lib Drivers: SSD1306 LED Display"
   #//-- SSD1306 LED Display
   config SSD1306_ENABLED
     bool "CONFIG_SSD1306_ENABLED"
     default n
-    
   #/**********************************************************
   # *
   # *  This driver initializes the I2C bus
@@ -57,22 +57,19 @@ menu "Lib Drivers Configuration"
   config SSD1306_I2C_PORT
     int "CONFIG_SSD1306_I2C_PORT"
     default 0
-    
-    
   config SSD1306_APP_RUN_CB
     bool "CONFIG_SSD1306_APP_RUN_CB"
     default y
-
-    
   config SSD1306_AUTO_OFF_TIMEOUT_MS
     int "CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS"
     default 300000  #// 5 минут
+endmenu
 
 
+menu "3. Lib Drivers: I2C"
   config I2C_FREQ_HZ
     int "CONFIG_I2C_FREQ_HZ"
     default 400000
-  
   #//-- I2C Bus=0
   config I2C_0_SDA_GPIO
     int "CONFIG_I2C_0_SDA_GPIO"
@@ -84,7 +81,6 @@ menu "Lib Drivers Configuration"
     int "CONFIG_I2C_0_PORT_NUM"
     default 0
     range 0 1
-  
   #//-- I2C Bus=1
   config I2C_1_SDA_GPIO
     int "CONFIG_I2C_1_SDA_GPIO"
@@ -96,23 +92,30 @@ menu "Lib Drivers Configuration"
     int "CONFIG_I2C_1_PORT_NUM"
     default 1
     range 0 1
+endmenu
 
+
+menu "4. Lib Drivers: Commissioning Window"
   #//-- Window opens for NNN seconds
   config COMMISSIONING_WINDOW_OPEN
     int "CONFIG_COMMISSIONING_WINDOW_OPEN"
     default 300
+endmenu
 
 
+menu "5. Lib Drivers: Boot Switch"
   #//-- Boot Switch (Generic Switch) для событий кнопки BOOT
   config BOOT_SWITCH_ENABLED
     bool "CONFIG_BOOT_SWITCH_ENABLED"
     default y
-
   #//-- Reboot button handlers
   config REBOOT_BUTTON_ENABLED
     bool "CONFIG_REBOOT_BUTTON_ENABLED"
     default y
+endmenu
 
+
+menu "6. Lib Drivers: Task Priorities"
   #/***********************
   # *                     *
   # *   TASK PRIORITIES   *
@@ -141,12 +144,17 @@ menu "Lib Drivers Configuration"
   config BOOT_SWITCH_TASK_PRIORITY
     int "CONFIG_BOOT_SWITCH_TASK_PRIORITY"
     default 3
+endmenu
 
+
+menu "7. Lib Drivers: Blinking"
   config LIVE_BLINK_TIME_MS
     int "CONFIG_LIVE_BLINK_TIME_MS"
     default 0
+endmenu
 
 
+menu "8. Lib Drivers: Reboot Button"
   #//-- Single-click: toggle SSD1306
   #//-- Double-click: toggle LED Indicator
   config REBOOT_BUTTON_GPIO
@@ -169,8 +177,10 @@ menu "Lib Drivers Configuration"
   config SHORT_CLICK_MAX_MS
     int "CONFIG_SHORT_CLICK_MAX_MS"
     default 350
+endmenu
 
 
+menu "9. Lib Drivers: Device Log"
   #//-- what part of tree to show (-1 means: SHOW ALL)
   config SHOW_DEVICE_LOG_ONE_CLUSTER
     int "CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER"
@@ -184,6 +194,4 @@ menu "Lib Drivers Configuration"
   config SHOW_DEVICE_LOG_COMMANDS
     bool "CONFIG_SHOW_DEVICE_LOG_COMMANDS"
     default y
-
-
 endmenu

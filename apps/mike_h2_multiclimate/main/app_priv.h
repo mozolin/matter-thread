@@ -168,11 +168,13 @@
 #endif
 
 #if CONFIG_SHOW_DEVICE_LOG
+	/*
 	//-- what part of tree to show (-1 means: SHOW ALL)
   #define CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER   1
   #define CONFIG_SHOW_DEVICE_LOG_CLUSTERS      true
   #define CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES    true
   #define CONFIG_SHOW_DEVICE_LOG_COMMANDS      true
+  */
 #endif
 
 
@@ -186,13 +188,11 @@
     #include "sensor_driver_mq135.h"
   #endif
   
-  /*
   extern mq135_handle_t s_mq135_handle;
   extern cluster_t *s_air_quality_cluster;
   extern cluster_t *s_co2_cluster;
   extern cluster_t *s_co_cluster;
   extern cluster_t *s_tvoc_cluster;
-  */
 
   //-- AirQuality:
   //-- 0 = Unknown / Неизвестно

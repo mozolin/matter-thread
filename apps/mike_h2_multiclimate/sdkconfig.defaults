@@ -108,37 +108,37 @@ CONFIG_CHIP_OTA_IMAGE_BUILD=y
 
 
 
+#-----------------------
+#-----------------------
+#-----------------------
 
 
 
+# 1. Lib Drivers: Debug options
 //-- Debug options
 CONFIG_MOCK_SENSORS_BEHAVIOR=y
 CONFIG_MOCK_DISPLAY_BEHAVIOR=n
 CONFIG_DEBUG_MODE=y
-CONFIG_ESP_EMULATOR_MODE=n
-CONFIG_SHOW_DEVICE_LOG=n
-CONFIG_CHECK_I2C_PORTS=n
+CONFIG_ESP_EMULATOR_MODE=y
+CONFIG_SHOW_DEVICE_LOG=y
+CONFIG_CHECK_I2C_PORTS=y
 CONFIG_TAG_MIKE_APP="MIKE MULTICLIMATE H2"
 CONFIG_DEVICE_NODE_LABEL="MultiClimate_ESP32H2"
 
 
-
-
-
+# 2. Lib Drivers: SSD1306 LED Display
 #//-- SSD1306 LED Display
 CONFIG_SSD1306_ENABLED=y
-
 CONFIG_SSD1306_SDA_GPIO=1
 CONFIG_SSD1306_SCL_GPIO=2
 CONFIG_SSD1306_RESET_GPIO=-1
 CONFIG_SSD1306_I2C_ADDRESS=0x3C
 CONFIG_SSD1306_I2C_PORT=0
-
-
 CONFIG_SSD1306_APP_RUN_CB=y
-
 CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS=300000  #// 5 минут
 
+
+# 3. Lib Drivers: I2C
 #/****************************************
 # *                                      *
 # *   I2C BUSES (0 and 1 for ESP32-H2)   *
@@ -155,16 +155,20 @@ CONFIG_I2C_1_SCL_GPIO=5
 CONFIG_I2C_1_PORT_NUM=1
 
 
+# 4. Lib Drivers: Commissioning Window
 #//-- Reboot button handlers
 #//-- Window opens for NNN seconds
 CONFIG_COMMISSIONING_WINDOW_OPEN=300
 
 
+# 5. Lib Drivers: Boot Switch
 //-- Boot Switch (Generic Switch) для событий кнопки BOOT
 CONFIG_BOOT_SWITCH_ENABLED=y
 //-- Reboot button handlers
 CONFIG_REBOOT_BUTTON_ENABLED=y
 
+
+# 6. Lib Drivers: Task Priorities
 #/***********************
 # *                     *
 # *   TASK PRIORITIES   *
@@ -187,9 +191,11 @@ CONFIG_REBOOT_BUTTON_TASK_PRIORITY=4
 CONFIG_BOOT_SWITCH_TASK_PRIORITY=3
 
 
+# 7. Lib Drivers: Blinking
 CONFIG_LIVE_BLINK_TIME_MS=0
 
 
+# 8. Lib Drivers: Reboot Button
 #//-- Single-click: toggle SSD1306
 #//-- Double-click: toggle LED Indicator
 CONFIG_REBOOT_BUTTON_GPIO=9
@@ -204,8 +210,9 @@ CONFIG_DOUBLE_CLICK_INTERVAL_MS=400
 CONFIG_SHORT_CLICK_MAX_MS=350
 
 
+# 9. Lib Drivers: Device Log
 #//-- what part of tree to show (-1 means: SHOW ALL)
-CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER=1
+CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER=-1
 CONFIG_SHOW_DEVICE_LOG_CLUSTERS=y
 CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES=y
 CONFIG_SHOW_DEVICE_LOG_COMMANDS=y
