@@ -1,5 +1,5 @@
 
-#include "app_main.h"
+#include "app_main_driver.h"
 
 #include <esp_err.h>
 #include <esp_log.h>
@@ -13,7 +13,8 @@
 #include <esp_matter_ota.h>
 
 #include <common_macros.h>
-#include <app_priv.h>
+//#include <app_priv.h>
+#include "sdkconfig.h"
 #include <app_reset.h>
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>

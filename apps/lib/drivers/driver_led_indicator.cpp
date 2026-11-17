@@ -1,5 +1,6 @@
 
-#include <app_priv.h>
+//#include <app_priv.h>
+#include "sdkconfig.h"
 #include "driver_led_indicator.h"
 
 #if USE_DRIVER_LED_INDICATOR

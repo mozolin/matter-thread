@@ -1,0 +1,10 @@
+menu "Lib Drivers Configuration"
+
+  config LIB_SSD1306_ENABLED
+    bool "Enable SSD1306 driver in lib/drivers"
+    default n
+    #help
+    #  Enable this option to compile SSD1306-related code
+    #  in the shared lib/drivers component.
+
+endmenu

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "esp_matter_core.h"
-//#include <app_priv.h>
 
 /********************
  *                  *

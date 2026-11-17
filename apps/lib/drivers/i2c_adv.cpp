@@ -1,4 +1,5 @@
-#include "app_priv.h"
+//#include <app_priv.h>
+#include "sdkconfig.h"
 #include "i2c_adv.h"
 
 #include "soc/soc_caps.h"

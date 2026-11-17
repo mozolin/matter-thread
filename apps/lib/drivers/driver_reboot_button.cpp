@@ -1,6 +1,7 @@
 
 #include <esp_matter.h>
-#include <app_priv.h>
+//#include <app_priv.h>
+#include "sdkconfig.h"
 #include "driver_reboot_button.h"
 #include "driver/gpio.h"
 

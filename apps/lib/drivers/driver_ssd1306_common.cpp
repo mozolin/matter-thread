@@ -1,6 +1,7 @@
 
 #include "driver_ssd1306_common.h"
-#include <app_priv.h>
+//#include <app_priv.h>
+#include "sdkconfig.h"
 
 #include <stdio.h>
 #include <stdlib.h>

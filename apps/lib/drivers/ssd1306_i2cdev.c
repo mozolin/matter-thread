@@ -8,7 +8,9 @@
  * - Все операции записи переведены на i2c_dev_write_reg.
  * - Добавлена инициализация i2cdev через i2c_dev_create_mutex.
  */
+
 //#include <app_priv.h>
+#include "sdkconfig.h"
 
 #include <string.h>
 #include "freertos/FreeRTOS.h"
