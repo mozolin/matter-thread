@@ -58,7 +58,7 @@ using namespace chip::app::Clusters;
 
 #endif
 
-#if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
+#if CONFIG_BOOT_SWITCH_ENABLED && CONFIG_USE_DRIVER_LED_INDICATOR
   // ==================================
   // Значение OnOff для LED эндпоинта:
   // ON (true) или OFF (false)

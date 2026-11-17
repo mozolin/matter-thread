@@ -197,6 +197,20 @@ menu "9. Lib Drivers: Device Log"
 endmenu
 
 
+menu "10. Lib Drivers: LED Indicator"
+  #//-- whether or not to use "driver_led_indicator"
+  config USE_DRIVER_LED_INDICATOR
+    bool "CONFIG_USE_DRIVER_LED_INDICATOR"
+    default y
+  # 1. Simple version with random intervals
+  # 2. Realistic version with UART patterns
+  # 3. Version with different activity modes
+  config DRIVER_LED_MODE
+    int "CONFIG_DRIVER_LED_MODE"
+    default 1
+endmenu
+
+
 menu "SSD1306 Configuration"
 
 	choice SSD1306_LIB_INTERFACE

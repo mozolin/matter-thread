@@ -11,8 +11,6 @@
 #include <esp_matter_attribute.h>
 #include <esp_matter_ota.h>
 
-//#include <common_macros.h>
-//#include <app_priv.h>
 #include "sdkconfig.h"
 #include <app_reset.h>
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD

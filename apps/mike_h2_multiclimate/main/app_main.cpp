@@ -41,8 +41,6 @@
   cluster_t *s_co2_cluster = NULL;
   cluster_t *s_co_cluster = NULL;
   cluster_t *s_tvoc_cluster = NULL;
-  // Хэндл для задачи, которая будет обновлять данные
-  //TaskHandle_t s_update_task_handle = NULL;
 #endif
 #if CONFIG_SHT4X_ENABLED
   #include "sensor_driver_sht4x.h"
@@ -61,29 +59,11 @@ using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
-//--> uses for CommissioningWindowOpen
-//constexpr auto k_timeout_seconds = CONFIG_COMMISSIONING_WINDOW_OPEN;
-//<-- uses for CommissioningWindowOpen
 uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 sensor_data_t sensors[SENSOR_TYPE_MAX];
 
 
-/*
-#if CONFIG_SSD1306_ENABLED
-  //-- SSD1306 device instance
-  SSD1306_t ssd1306dev;
-  //-- Is SSD1306 initialized?
-  bool ssd1306_initialized = false;
-  //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
-  bool ssd1306_display_enabled = false;
-  uint64_t ssd1306_last_on_time_ms = 0;
-#endif
-*/
-
-#if USE_DRIVER_LED_INDICATOR
-  led_indicator_handle_t led_handle;
-#endif
 
 #if CONFIG_SHOW_DEVICE_LOG
   #include "plugin_device_structure.h"
@@ -93,7 +73,6 @@ static esp_err_t create_sensor_endpoint(sensor_type_t sensor_cfg, node_t* node)
 {
     esp_err_t err = ESP_OK;
 
-    //if (!node || !sensor_cfg) {
     if(!node) {
       return ESP_ERR_INVALID_ARG;
     }
@@ -582,7 +561,7 @@ extern "C" void app_main()
 
   
   // 3. LED indicator
-  #if USE_DRIVER_LED_INDICATOR
+  #if CONFIG_USE_DRIVER_LED_INDICATOR
     led_indicator_init_main();
   #endif
 
@@ -644,15 +623,13 @@ extern "C" void app_main()
   create_sensor_endpoint(SENSOR_TYPE_SCD4X, node);
 
   
-  // =========================================
-  //  Boot Switch endpoint и On/Off эндпоинты
-  // =========================================
+  // 8. Boot Switch endpoint и On/Off эндпоинты
   #if CONFIG_BOOT_SWITCH_ENABLED
     create_boot_switch_endpoint(node);
     create_onoff_endpoints(node);
   #endif
   
-  // 8. OpenThread config
+  // 9. OpenThread config
   #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     esp_openthread_platform_config_t config = {
       .radio_config = ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG(),
@@ -663,18 +640,18 @@ extern "C" void app_main()
   #endif
 
   
-  // 9. Matter start
+  // 10. Matter start
   err = esp_matter::start(app_event_cb);
   ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
 
 
-  // 10. Open commissioning windows after factory reset and reboot
+  // 11. Open commissioning windows after factory reset and reboot
   #if CONFIG_REBOOT_BUTTON_ENABLED
     open_commissioning_window_after_factory_reset();
   #endif
 
   
-  // 11. Get FabricId & NodeId
+  // 12. Get FabricId & NodeId
   #if CONFIG_DEBUG_MODE
     if(node) {
       ESP_LOGW("", "");
@@ -689,32 +666,32 @@ extern "C" void app_main()
   #endif
 
 
-  // 12. Basic attributes (лучше — по событию)
+  // 13. Basic attributes (лучше — по событию)
   vTaskDelay(pdMS_TO_TICKS(3000));
   set_basic_attributes_esp_matter();
 
 
-  // 13. Запуск задачи опроса кнопки BOOT
+  // 14. Запуск задачи опроса кнопки BOOT
   #if CONFIG_BOOT_SWITCH_ENABLED
     start_boot_switch_polling_task();
   #endif
 
   
-  // 14. Выставляем OnOff статус
+  // 15. Выставляем OnOff статус
   // ====================================================
   // Явно выставляем OnOff = ON (true) для LED эндпоинта,
   // чтобы HA сразу видел разблокированное состояние.
   // ====================================================
-  #if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
+  #if CONFIG_BOOT_SWITCH_ENABLED && CONFIG_USE_DRIVER_LED_INDICATOR
     set_led_onoff_attribute(true);
   #endif
   
 
-  // 15. Polling task
+  // 16. Polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
   
-  // 16. Log
+  // 17. Log
   #if CONFIG_SHOW_DEVICE_LOG
     if(node) {
       vTaskDelay(pdMS_TO_TICKS(3000));
@@ -722,7 +699,7 @@ extern "C" void app_main()
     }
   #endif
 
-  // 17. Check I2C ports
+  // 18. Check I2C ports
   #if CONFIG_CHECK_I2C_PORTS
     check_i2c_ports();
   #endif

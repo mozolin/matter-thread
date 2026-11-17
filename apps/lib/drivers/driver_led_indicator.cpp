@@ -3,7 +3,11 @@
 #include "sdkconfig.h"
 #include "driver_led_indicator.h"
 
-#if USE_DRIVER_LED_INDICATOR
+#include "driver_led_esp32h2.h"
+
+#if CONFIG_USE_DRIVER_LED_INDICATOR
+  led_indicator_handle_t led_handle;
+  
   bool isLEDInverseBlinking = IS_LED_INVERSE_BLINKING;
   
   //=== флаг блокировки индикатора ===
@@ -39,7 +43,7 @@
     //-- Переключение блокировки/разблокировки функции get_led_indicator_blink_idx
     void toggle_led_indicator_lock(void)
     {
-      #if USE_DRIVER_LED_INDICATOR
+      #if CONFIG_USE_DRIVER_LED_INDICATOR
         extern bool led_indicator_locked;   //-- определён в driver_led_indicator.cpp
         led_indicator_locked = !led_indicator_locked;
     
@@ -349,7 +353,7 @@
      *  1. Simple version with random intervals   *
      *                                            *
      **********************************************/
-    #if LED_MODE == 1
+    #if CONFIG_DRIVER_LED_MODE == 1
       //-- Pseudo-random number generator (simple)
       uint32_t simple_random(void) {
         static uint32_t seed = 0;
@@ -434,14 +438,14 @@
           vTaskDelay(10 / portTICK_PERIOD_MS);
         }
       }
-    #endif //-- LED_MODE == 1
+    #endif //-- CONFIG_DRIVER_LED_MODE == 1
   
     /**********************************************
      *                                            *
      *  2. Realistic version with UART patterns   *
      *                                            *
      **********************************************/
-    #if LED_MODE == 2
+    #if CONFIG_DRIVER_LED_MODE == 2
       void simulate_uart_activity(void *aContext)
       {
         #if USE_LED_RX_GPIO
@@ -542,7 +546,7 @@
           vTaskDelay(50 / portTICK_PERIOD_MS);
         }
       }
-    #endif //-- LED_MODE == 2
+    #endif //-- CONFIG_DRIVER_LED_MODE == 2
   
   
     /************************************************
@@ -550,7 +554,7 @@
      *   3. Version with different activity modes   *
      *                                              *
      ************************************************/
-    #if LED_MODE == 3
+    #if CONFIG_DRIVER_LED_MODE == 3
       /*
       typedef enum {
         MODE_IDLE,    //-- Rare single flashes
@@ -691,15 +695,15 @@
           vTaskDelay(100 / portTICK_PERIOD_MS);
         }
       }
-    #endif //-- LED_MODE == 3
+    #endif //-- CONFIG_DRIVER_LED_MODE == 3
   
   #endif //-- USE_ORDINARY_LED
 
-#endif //-- USE_DRIVER_LED_INDICATOR
+#endif //-- CONFIG_USE_DRIVER_LED_INDICATOR
 
 
 // LED indicator
-#if USE_DRIVER_LED_INDICATOR
+#if CONFIG_USE_DRIVER_LED_INDICATOR
   void led_indicator_init_main()
   {
     led_handle = configure_indicator();
@@ -724,7 +728,7 @@
       #if CONFIG_DEBUG_MODE
         ESP_LOGE("", "");
         ESP_LOGE("", "==============================");
-        ESP_LOGE("", " USE_DRIVER_LED_INDICATOR = Y");
+        ESP_LOGE("", " CONFIG_USE_DRIVER_LED_INDICATOR = Y");
         #if USE_RGB_LED
           ESP_LOGE("", " USE_RGB_LED (%d) = Y", LED_BLINK_GPIO);
         #endif

@@ -13,7 +13,7 @@ esp_err_t bme680_init_app()
     #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       memset(&sensor, 0, sizeof(bme680_t));
     
-      err = bme680_init_desc_adv(&sensor, BME680_I2C_ADDR_1, CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
+      err = bme680_init_desc_adv(&sensor, BME680_I2C_ADDR_1, (i2c_port_t)CONFIG_BME680_I2C_PORT, (gpio_num_t)CONFIG_BME680_SDA_GPIO, (gpio_num_t)CONFIG_BME680_SCL_GPIO);
       if(err != ESP_OK) {
         #if CONFIG_DEBUG_MODE
           ESP_LOGE(CONFIG_TAG_MIKE_APP, "bme680_init failed: %s", esp_err_to_name(err));

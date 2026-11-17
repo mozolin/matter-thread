@@ -2,13 +2,13 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <led_config.h>
+#include "driver_led_esp32h2.h"
 #include "led_indicator.h"
 #include "led_indicator_gpio.h"
 #include "led_indicator_strips.h"
 #include "led_types.h"
 
-#if USE_DRIVER_LED_INDICATOR
+#if CONFIG_USE_DRIVER_LED_INDICATOR
   /*********************
    *                   *
    *   LED INDICATOR   *
@@ -144,7 +144,7 @@
      *  1. Simple version with random intervals   *
      *                                            *
      **********************************************/
-    #if LED_MODE == 1
+    #if CONFIG_DRIVER_LED_MODE == 1
       //-- Structure for LED state
       typedef struct {
         gpio_num_t gpio;
@@ -159,7 +159,7 @@
       //-- Random blinking task
       extern void random_blink_task(void *pvParameters);
   
-    #endif //-- LED_MODE == 1
+    #endif //-- CONFIG_DRIVER_LED_MODE == 1
   
   
     /**********************************************
@@ -167,11 +167,11 @@
      *  2. Realistic version with UART patterns   *
      *                                            *
      **********************************************/
-    #if LED_MODE == 2
+    #if CONFIG_DRIVER_LED_MODE == 2
   
       extern void simulate_uart_activity(void *aContext);
   
-    #endif //-- LED_MODE == 1
+    #endif //-- CONFIG_DRIVER_LED_MODE == 1
   
   
     /************************************************
@@ -179,7 +179,7 @@
      *   3. Version with different activity modes   *
      *                                              *
      ************************************************/
-    #if LED_MODE == 3
+    #if CONFIG_DRIVER_LED_MODE == 3
       typedef enum {
         MODE_IDLE,    //-- Rare single flashes
         MODE_ACTIVE,  //-- Frequent packages
@@ -193,11 +193,11 @@
   
       extern void uart_simulation_task(void *pvParameters);
   
-    #endif //-- LED_MODE == 3
+    #endif //-- CONFIG_DRIVER_LED_MODE == 3
   
   #endif //-- USE_ORDINARY_LED
 
   // LED indicator Init
   extern void led_indicator_init_main(void);
 
-#endif //-- USE_DRIVER_LED_INDICATOR
+#endif //-- CONFIG_USE_DRIVER_LED_INDICATOR

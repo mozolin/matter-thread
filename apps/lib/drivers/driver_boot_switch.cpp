@@ -10,8 +10,6 @@
 #include <esp_matter_ota.h>
 
 #include <common_macros.h>
-//#include <app_priv.h>
-#include "sdkconfig.h"
 #include <app_reset.h>
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>
@@ -21,24 +19,15 @@
 #include <app/server/Server.h>
 
 
-#include <app_priv.h>
 #include "driver_boot_switch.h"
 
 #if CONFIG_BOOT_SWITCH_ENABLED
 
 #include <esp_matter.h>
-//#include <app_priv.h>
 #include "driver/gpio.h"
 #include "esp_timer.h"
 
 
-
-/*
-using namespace esp_matter;
-using namespace esp_matter::attribute;
-using namespace esp_matter::endpoint;
-using namespace chip::app::Clusters;
-*/
 
 // ============================================================
 //  Глобальные переменные для boot_switch
@@ -433,7 +422,7 @@ esp_err_t create_onoff_endpoints(node_t *node)
     #endif
 
     //-- 2. On/Off для LED ленты (блокировка/разблокировка)
-    #if USE_DRIVER_LED_INDICATOR
+    #if CONFIG_USE_DRIVER_LED_INDICATOR
     on_off_light::config_t led_config;
     // ============================================================
     // Начальное состояние ON — аналогично тому, что делает
@@ -489,7 +478,7 @@ esp_err_t create_onoff_endpoints(node_t *node)
 }
 #endif
 
-#if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
+#if CONFIG_BOOT_SWITCH_ENABLED && CONFIG_USE_DRIVER_LED_INDICATOR
 // ==================================
 // Значение OnOff для LED эндпоинта:
 // ON (true) или OFF (false)

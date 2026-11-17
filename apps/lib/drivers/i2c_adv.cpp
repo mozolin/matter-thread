@@ -12,6 +12,7 @@
 
 #define SENSOR_I2C_FREQ_HZ 1000000 // Up to 3.4MHz, but esp-idf only supports 1MHz
 
+/*
 #if CONFIG_BME280_ENABLED
   esp_err_t bmp280_init_desc_adv(bmp280_t *dev, uint8_t addr, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
   {
@@ -116,7 +117,7 @@
     return i2c_dev_create_mutex(dev);
   }
 #endif
-
+*/
 
 esp_err_t i2cdev_check_present(i2c_port_t port, gpio_num_t sda, gpio_num_t scl, uint8_t addr)
 {

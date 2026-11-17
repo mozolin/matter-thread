@@ -1,7 +1,10 @@
 
 #include "driver_ssd1306_common.h"
-//#include <app_priv.h>
-#include "sdkconfig.h"
+#include "driver_led_indicator.h"
+
+#include "main_driver_ssd1306.h"
+
+#include "ssd1306_i2cdev.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -437,7 +440,7 @@
       #if CONFIG_DEBUG_MODE
         ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Error initialize SSD1306!");
       #endif
-      #if USE_DRIVER_LED_INDICATOR
+      #if CONFIG_USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_RED, 60, 0);
       #endif
     } else {
@@ -445,7 +448,7 @@
       #if CONFIG_DEBUG_MODE
         ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ SSD1306 Initialized!");
       #endif
-      #if USE_DRIVER_LED_INDICATOR
+      #if CONFIG_USE_DRIVER_LED_INDICATOR
         get_led_indicator_blink_idx(BLINK_ONCE_GREEN, 60, 0);
       #endif
     }

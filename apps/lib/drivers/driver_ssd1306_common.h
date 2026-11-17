@@ -1,8 +1,5 @@
 #pragma once
 
-//#include <app_priv.h>
-#include "sdkconfig.h"
-
 #if CONFIG_SSD1306_ENABLED
   #include "ssd1306_i2cdev.h"
 

@@ -9,9 +9,6 @@
  * - Добавлена инициализация i2cdev через i2c_dev_create_mutex.
  */
 
-//#include <app_priv.h>
-#include "sdkconfig.h"
-
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -22,14 +19,11 @@
 #define SSD1306_I2C_FREQ_HZ 400000
 
 #if CONFIG_SSD1306_ENABLED
-  #include "i2cdev.h" // ДОБАВЛЕНО: Заголовок компонента i2cdev
+  #include "i2cdev.h" // Заголовок компонента i2cdev
   #include "ssd1306_font8x8_basic.h"
   #include "ssd1306_i2cdev.h"
 
-// УДАЛЕНО: Определения I2C_NUM, I2C_MASTER_FREQ_HZ, I2C_TICKS_TO_WAIT
-// Они больше не нужны, так как i2cdev управляет параметрами шины.
-
-// ДОБАВЛЕНО: Статический дескриптор устройства i2cdev для SSD1306
+// Статический дескриптор устройства i2cdev для SSD1306
 static i2c_dev_t ssd1306_i2c_dev;
 
 /**
@@ -47,7 +41,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
       ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Инициализация i2cdev для SSD1306");
     #endif
 
-    // ДОБАВЛЕНО: Настройка дескриптора i2cdev
+    // Настройка дескриптора i2cdev
     memset(&ssd1306_i2c_dev, 0, sizeof(i2c_dev_t));
     ssd1306_i2c_dev.port = port;
     ssd1306_i2c_dev.addr = SSD1306_I2C_ADDRESS; // 0x3C
@@ -62,7 +56,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, i2c_port_t port, int16_t sda, int16_t
     #endif
     //ssd1306_i2c_dev.cfg.master.clk_speed = 400000; // 400 кГц
 
-    // ДОБАВЛЕНО: Создание мьютекса и регистрация устройства в i2cdev
+    // Создание мьютекса и регистрация устройства в i2cdev
     err = i2c_dev_create_mutex(&ssd1306_i2c_dev);
     if(err != ESP_OK) {
       #if CONFIG_DEBUG_MODE

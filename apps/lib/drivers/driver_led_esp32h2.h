@@ -1,14 +1,14 @@
 #pragma once
 
 //-- whether or not to use "driver_led_indicator"
-#define USE_DRIVER_LED_INDICATOR true
+//#define CONFIG_USE_DRIVER_LED_INDICATOR true
 
 /*
 1. Simple version with random intervals
 2. Realistic version with UART patterns
 3. Version with different activity modes
 */
-#define LED_MODE                 1
+//#define LED_MODE                 1
 
 #define IS_LED_INVERSE_BLINKING  false
 

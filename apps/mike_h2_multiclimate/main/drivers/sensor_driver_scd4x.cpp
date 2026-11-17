@@ -22,11 +22,11 @@ esp_err_t scd4x_init_app(void)
 
   #if CONFIG_DEBUG_MODE
     ESP_LOGI(CONFIG_TAG_MIKE_APP, "Инициализация SCD4X: порт=%d, SDA=%d, SCL=%d",
-           CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
+           (i2c_port_t)CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
   #endif
 
   #if !CONFIG_MOCK_SENSORS_BEHAVIOR
-    err = scd4x_init_desc(&scd4x_dev, CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
+    err = scd4x_init_desc(&scd4x_dev, (i2c_port_t)CONFIG_SCD4X_I2C_PORT, (gpio_num_t)CONFIG_SCD4X_SDA_GPIO, (gpio_num_t)CONFIG_SCD4X_SCL_GPIO);
     if(err != ESP_OK) {
       #if CONFIG_DEBUG_MODE
         ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка инициализации дескриптора SCD4X: %s", esp_err_to_name(err));

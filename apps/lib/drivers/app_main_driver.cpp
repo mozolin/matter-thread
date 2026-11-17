@@ -2,6 +2,7 @@
 #include "app_main_driver.h"
 #include "driver_boot_switch.h"
 #include "driver_ssd1306_common.h"
+#include "driver_led_indicator.h"
 
 
 #include <esp_err.h>
@@ -16,8 +17,6 @@
 #include <esp_matter_ota.h>
 
 #include <common_macros.h>
-//#include <app_priv.h>
-#include "sdkconfig.h"
 #include <app_reset.h>
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>
@@ -59,7 +58,7 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
         #endif
 
         //-- LED лента (блокировка)
-        #if USE_DRIVER_LED_INDICATOR
+        #if CONFIG_USE_DRIVER_LED_INDICATOR
         if (endpoint_id == s_ep_led_onoff) {
             bool turn_on = val->val.b;
             //-- turn_on = true -> разблокировать (led_indicator_locked = false)
@@ -241,7 +240,7 @@ void commissioning_window_blink_task(void *arg)
       break;
     }
 
-    #if USE_DRIVER_LED_INDICATOR
+    #if CONFIG_USE_DRIVER_LED_INDICATOR
       get_led_indicator_blink_idx(BLINK_ONCE_ORANGE, 60, 0);
     #endif
 

@@ -22,15 +22,15 @@ esp_err_t sht4x_init_app(void)
 
     #if CONFIG_DEBUG_MODE
       ESP_LOGI(CONFIG_TAG_MIKE_APP, "Инициализация SHT4X: порт=%d, SDA=%d, SCL=%d",
-             CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
+             (i2c_port_t)CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
     #endif
     
     #if !CONFIG_MOCK_SENSORS_BEHAVIOR
       // Инициализация дескриптора устройства SHT4X
       // Библиотека sht4x сама создаёт I2C мастер и добавляет устройство
       memset(&sht4x_dev, 0, sizeof(sht4x_t));
-      //err = sht4x_init_desc(&sht4x_dev, CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
-      err = sht4x_init_desc_adv(&sht4x_dev, CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
+      //err = sht4x_init_desc(&sht4x_dev, (i2c_port_t)CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
+      err = sht4x_init_desc_adv(&sht4x_dev, (i2c_port_t)CONFIG_SHT4X_I2C_PORT, (gpio_num_t)CONFIG_SHT4X_SDA_GPIO, (gpio_num_t)CONFIG_SHT4X_SCL_GPIO);
       if(err != ESP_OK) {
         #if CONFIG_DEBUG_MODE
           ESP_LOGE(CONFIG_TAG_MIKE_APP, "Ошибка инициализации дескриптора SHT4X: %s", esp_err_to_name(err));

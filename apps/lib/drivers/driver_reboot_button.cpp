@@ -1,10 +1,9 @@
 
 #include <esp_matter.h>
-//#include <app_priv.h>
-#include "sdkconfig.h"
 #include "driver_reboot_button.h"
 #include "driver_ssd1306_common.h"
 #include "driver_boot_switch.h"
+#include "driver_led_indicator.h"
 #include "driver/gpio.h"
 
 using namespace esp_matter;
@@ -203,7 +202,7 @@ void reboot_button_task(void *pvParameter)
               //-- Второй клик в окне: отменяем одиночное действие и делаем двойное
               s_first_click_pending = false;
               esp_timer_stop(s_single_click_timer);
-              #if USE_DRIVER_LED_INDICATOR
+              #if CONFIG_USE_DRIVER_LED_INDICATOR
                 toggle_led_indicator_lock();
                 // ============================================================
                 // После изменения led_indicator_locked синхронизируем
