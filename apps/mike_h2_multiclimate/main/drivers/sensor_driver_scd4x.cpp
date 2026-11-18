@@ -6,6 +6,24 @@ i2c_dev_t scd4x_dev;
 // Флаг инициализации
 bool scd4x_initialized = false;
 
+esp_err_t scd4x_init_desc_adv(i2c_dev_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
+{
+  dev->port = port;
+  dev->addr = SHT4X_I2C_ADDRESS;
+  dev->cfg.sda_io_num = sda_gpio;
+  dev->cfg.scl_io_num = scl_gpio;
+  // internal Pull-ups
+  dev->cfg.sda_pullup_en = true;
+  dev->cfg.scl_pullup_en = true;
+  #ifdef CONFIG_I2C_FREQ_HZ
+    dev->cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
+  #else
+    dev->cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
+  #endif
+
+  return i2c_dev_create_mutex(dev);
+}
+
 /**
  * @brief Инициализация I2C и датчика SCD4X
  */

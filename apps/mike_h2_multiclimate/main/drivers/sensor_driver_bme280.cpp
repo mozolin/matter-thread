@@ -4,6 +4,34 @@
 bmp280_t dev;
 bool bme280p;
 
+
+esp_err_t bmp280_init_desc_adv(bmp280_t *dev, uint8_t addr, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
+{
+  if(addr != BMP280_I2C_ADDRESS_0 && addr != BMP280_I2C_ADDRESS_1)
+  {
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGE("BME280", "Invalid I2C address");
+    #endif
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  dev->i2c_dev.port = port;
+  dev->i2c_dev.addr = addr;
+  dev->i2c_dev.cfg.sda_io_num = sda_gpio;
+  dev->i2c_dev.cfg.scl_io_num = scl_gpio;
+  // internal Pull-ups
+  dev->i2c_dev.cfg.sda_pullup_en = true;
+  dev->i2c_dev.cfg.scl_pullup_en = true;
+  #ifdef CONFIG_I2C_FREQ_HZ
+    dev->i2c_dev.cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
+  #else
+    dev->i2c_dev.cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
+  #endif
+
+  return i2c_dev_create_mutex(&dev->i2c_dev);
+}
+
+
 esp_err_t bme280_init_app()
 {
     esp_err_t err = ESP_OK;

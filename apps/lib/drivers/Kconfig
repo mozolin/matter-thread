@@ -1,9 +1,9 @@
 
 menu "1. Lib Drivers: Debug options"
   #//-- Debug options
-  config MOCK_SENSORS_BEHAVIOR
-    bool "CONFIG_MOCK_SENSORS_BEHAVIOR"
-    default n
+  #config MOCK_SENSORS_BEHAVIOR
+  #  bool "CONFIG_MOCK_SENSORS_BEHAVIOR"
+  #  default n
   config MOCK_DISPLAY_BEHAVIOR
     bool "CONFIG_MOCK_DISPLAY_BEHAVIOR"
     default n
@@ -211,7 +211,7 @@ menu "10. Lib Drivers: LED Indicator"
 endmenu
 
 
-menu "SSD1306 Configuration"
+menu "11. Lib Drivers (internal): SSD1306 Configuration"
 
 	choice SSD1306_LIB_INTERFACE
 		prompt "Interface"

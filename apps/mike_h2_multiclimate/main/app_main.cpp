@@ -605,7 +605,7 @@ extern "C" void app_main()
 
   // 7. Matter node + endpoints
   node::config_t node_config;
-  node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
+  node_t *node = node::create(&node_config, app_attribute_update_main_cb, app_identification_cb);
   ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create Matter node"));
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

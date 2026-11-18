@@ -7,6 +7,9 @@
 #include <button_gpio.h>
 
 
+#define CONFIG_MOCK_SENSORS_BEHAVIOR           false
+
+
 /**********************
  *                    *
  *   USE OF SENSORS   *
@@ -44,6 +47,7 @@
   #include "driver_led_indicator.h"
 #endif
 
+//-- Boot Switch
 #if CONFIG_BOOT_SWITCH_ENABLED
   #include "driver_boot_switch.h"
 #endif
@@ -71,7 +75,7 @@
 #define CONFIG_MQ135_ADC_UNIT                  ADC_UNIT_1
 #define CONFIG_MQ135_ADC_CHANNEL               ADC_CHANNEL_3
 #define CONFIG_MQ135_3V3_CIRCUIT               true
-#define CONFIG_MQ135_CALIBRATE                 true
+#define CONFIG_MQ135_CALIBRATE                 false
 //-- SHT4X sensor (i2c bus=1,i2c_addr=0x44)
 //#define CONFIG_SHT4X_SDA_GPIO                  CONFIG_I2C_0_SDA_GPIO
 //#define CONFIG_SHT4X_SCL_GPIO                  CONFIG_I2C_0_SCL_GPIO
@@ -86,7 +90,6 @@
 
 
 
-//#define CONFIG_LIVE_BLINK_TIME_MS              0
 #if CONFIG_ESP_EMULATOR_MODE
   #define CONFIG_SENSOR_POLL_PERIOD_MS         15000
 #else

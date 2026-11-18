@@ -88,7 +88,6 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
               err = mq135_driver_init(&s_mq135_handle, adc_unit, adc_channel, NULL);
             #endif
 
-            /*
             #if CONFIG_MQ135_CALIBRATE
               //================================//
               //   ОПЦИОНАЛЬНО: КАЛИБРОВКА R0   //
@@ -111,7 +110,6 @@ esp_err_t app_driver_sensor_init(sensor_type_t sensor_cfg)
                 ESP_LOGE(CONFIG_TAG_MIKE_APP, "Калибровка R0 не удалась: %s", esp_err_to_name(err));
               }
             #endif
-            */
             break;
         }
         #endif
@@ -1030,99 +1028,20 @@ void app_driver_log_sensor_statistics(void)
 }
 #endif
 
-#if CONFIG_BME280_ENABLED
-  esp_err_t bmp280_init_desc_adv(bmp280_t *dev, uint8_t addr, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
-  {
-    if(addr != BMP280_I2C_ADDRESS_0 && addr != BMP280_I2C_ADDRESS_1)
-    {
-      #if CONFIG_DEBUG_MODE
-        ESP_LOGE("BME280", "Invalid I2C address");
-      #endif
-      return ESP_ERR_INVALID_ARG;
-    }
+esp_err_t app_attribute_update_main_cb(esp_matter::attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
+{
+	esp_err_t err = ESP_OK;
 
-    dev->i2c_dev.port = port;
-    dev->i2c_dev.addr = addr;
-    dev->i2c_dev.cfg.sda_io_num = sda_gpio;
-    dev->i2c_dev.cfg.scl_io_num = scl_gpio;
-    // internal Pull-ups
-    dev->i2c_dev.cfg.sda_pullup_en = true;
-    dev->i2c_dev.cfg.scl_pullup_en = true;
-    #ifdef CONFIG_I2C_FREQ_HZ
-      dev->i2c_dev.cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
-    #else
-      dev->i2c_dev.cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
-    #endif
+	err = app_attribute_update_cb(type, endpoint_id, cluster_id, attribute_id, val, priv_data);
 
-    return i2c_dev_create_mutex(&dev->i2c_dev);
-  }
-#endif
+	return err;
+}
 
-#if CONFIG_BME680_ENABLED
-  esp_err_t bme680_init_desc_adv(bme680_t *dev, uint8_t addr, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
-  {
-    if(addr != BME680_I2C_ADDR_0 &&  addr != BME680_I2C_ADDR_1)
-    {
-      #if CONFIG_DEBUG_MODE
-        ESP_LOGE("BME680", "Invalid I2C address");
-      #endif
-      return ESP_ERR_INVALID_ARG;
-    }
-
-    dev->i2c_dev.port = port;
-    dev->i2c_dev.addr = addr;
-    dev->i2c_dev.cfg.sda_io_num = sda_gpio;
-    dev->i2c_dev.cfg.scl_io_num = scl_gpio;
-    // internal Pull-ups
-    dev->i2c_dev.cfg.sda_pullup_en = true;
-    dev->i2c_dev.cfg.scl_pullup_en = true;
-    #ifdef CONFIG_I2C_FREQ_HZ
-      dev->i2c_dev.cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
-    #else
-      dev->i2c_dev.cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
-    #endif
-
-    return i2c_dev_create_mutex(&dev->i2c_dev);
-  }
-#endif
-
-
-#if CONFIG_SHT4X_ENABLED
-  esp_err_t sht4x_init_desc_adv(sht4x_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
-  {
-    dev->i2c_dev.port = port;
-    dev->i2c_dev.addr = SHT4X_I2C_ADDRESS;
-    dev->i2c_dev.cfg.sda_io_num = sda_gpio;
-    dev->i2c_dev.cfg.scl_io_num = scl_gpio;
-    // internal Pull-ups
-    dev->i2c_dev.cfg.sda_pullup_en = true;
-    dev->i2c_dev.cfg.scl_pullup_en = true;
-    #ifdef CONFIG_I2C_FREQ_HZ
-      dev->i2c_dev.cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
-    #else
-      dev->i2c_dev.cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
-    #endif
-
-    return i2c_dev_create_mutex(&dev->i2c_dev);
-  }
-#endif
-
-#if CONFIG_SCD4X_ENABLED
-  esp_err_t scd4x_init_desc_adv(i2c_dev_t *dev, i2c_port_t port, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
-  {
-    dev->port = port;
-    dev->addr = SHT4X_I2C_ADDRESS;
-    dev->cfg.sda_io_num = sda_gpio;
-    dev->cfg.scl_io_num = scl_gpio;
-    // internal Pull-ups
-    dev->cfg.sda_pullup_en = true;
-    dev->cfg.scl_pullup_en = true;
-    #ifdef CONFIG_I2C_FREQ_HZ
-      dev->cfg.master.clk_speed = CONFIG_I2C_FREQ_HZ;
-    #else
-      dev->cfg.master.clk_speed = SENSOR_I2C_FREQ_HZ;
-    #endif
-
-    return i2c_dev_create_mutex(dev);
-  }
-#endif
+esp_err_t app_driver_attribute_update_main(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val)
+{
+  esp_err_t err = ESP_OK;
+  
+  err = app_driver_attribute_update(driver_handle, endpoint_id, cluster_id, attribute_id, val);
+  
+  return err;
+}
