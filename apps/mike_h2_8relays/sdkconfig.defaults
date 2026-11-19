@@ -2,11 +2,32 @@ CONFIG_IDF_TARGET="esp32h2"
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 
 # Device Identification Options
-CONFIG_DEVICE_VENDOR_ID=0xFFF1
-CONFIG_DEVICE_PRODUCT_ID=0x8002
+CONFIG_DEVICE_VENDOR_ID=0xFFF2
+CONFIG_DEVICE_PRODUCT_ID=0x8000
 CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=1
 CONFIG_DEVICE_SOFTWARE_VERSION_NUMBER=1
 CONFIG_DEVICE_TYPE=0
+
+
+#--> recommended for ESP32-H2 optimization:
+CONFIG_MBEDTLS_HARDWARE_AES=n
+CONFIG_ESP_MATTER_MAX_DYNAMIC_ENDPOINT_COUNT=13
+CONFIG_ESP_MATTER_MAX_DEVICE_TYPE_COUNT=8
+CONFIG_FREERTOS_PLACE_FUNCTIONS_INTO_FLASH=y
+CONFIG_RINGBUF_PLACE_FUNCTIONS_INTO_FLASH=y
+CONFIG_HEAP_PLACE_FUNCTION_INTO_FLASH=y
+CONFIG_ESP_SYSTEM_EVENT_QUEUE_SIZE=16
+CONFIG_MAX_EVENT_QUEUE_SIZE=20
+#--> if a failure occurs during the pairing process, increase the value from 6144 to 10240 (default = 8192)
+CONFIG_CHIP_TASK_STACK_SIZE=8192
+#--> from 2048 to 2304 (default = 2304)
+CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE=2048
+#--> from 3072 to 5120 (default = 3584)
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=3072
+#--> from 2048 to 4096 (default = 2048)
+CONFIG_ESP_MINIMAL_SHARED_STACK_SIZE=2048
+#--> from 3584 to 2048 (default = 3584)
+CONFIG_ESP_TIMER_TASK_STACK_SIZE=2048
 
 
 #enable BT
@@ -27,9 +48,6 @@ CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y
 
 # disable softap by default
 CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n
-
-# Enable OTA Requestor
-CONFIG_ENABLE_OTA_REQUESTOR=y
 
 # Enable HKDF in mbedtls
 CONFIG_MBEDTLS_HKDF_C=y
@@ -72,5 +90,130 @@ CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED=y
 # CHIP Thread Options
 CONFIG_ENABLE_MATTER_OVER_THREAD=y
 
+# Настройки watchdog
+CONFIG_ESP_TASK_WDT=y
+CONFIG_ESP_TASK_WDT_PANIC=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=5
+CONFIG_FREERTOS_HZ=1000
+
+# LED Indicator
+CONFIG_USE_GAMMA_CORRECTION=y
+
 #-- Генерация OTA-образа
 CONFIG_CHIP_OTA_IMAGE_BUILD=y
+
+
+
+#-----------------------
+#-----------------------
+#-----------------------
+
+
+
+# 1. Lib Drivers: Debug options
+CONFIG_MOCK_DISPLAY_BEHAVIOR=n
+CONFIG_DEBUG_MODE=n
+CONFIG_ESP_EMULATOR_MODE=n
+CONFIG_SHOW_DEVICE_LOG=n
+CONFIG_CHECK_I2C_PORTS=n
+CONFIG_TAG_MIKE_APP="MIKE 8RELAYS H2"
+CONFIG_DEVICE_NODE_LABEL="8Relays_ESP32H2"
+
+
+# 2. Lib Drivers: SSD1306 LED Display
+CONFIG_SSD1306_ENABLED=y
+CONFIG_SSD1306_SDA_GPIO=14
+CONFIG_SSD1306_SCL_GPIO=13
+CONFIG_SSD1306_RESET_GPIO=-1
+CONFIG_SSD1306_I2C_ADDRESS=0x3C
+CONFIG_SSD1306_I2C_PORT=0
+CONFIG_SSD1306_APP_RUN_CB=y
+CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS=300000  # 5 minutes
+
+
+# 3. Lib Drivers: I2C
+########################################
+#                                      #
+#   I2C BUSES (0 and 1 for ESP32-H2)   #
+#                                      #
+########################################
+# Use I2C in this app
+CONFIG_I2C_USE_IN_APP=y
+CONFIG_I2C_FREQ_HZ=400000
+# I2C Bus=0
+CONFIG_I2C_0_SDA_GPIO=1
+CONFIG_I2C_0_SCL_GPIO=2
+CONFIG_I2C_0_PORT_NUM=0
+# I2C Bus=1
+CONFIG_I2C_1_SDA_GPIO=3
+CONFIG_I2C_1_SCL_GPIO=5
+CONFIG_I2C_1_PORT_NUM=1
+
+
+# 4. Lib Drivers: Commissioning Window
+# Window opens for NNN seconds
+CONFIG_COMMISSIONING_WINDOW_OPEN=300
+
+
+# 5. Lib Drivers: Boot Switch
+# Boot Switch (Generic Switch) for BOOT button events
+CONFIG_BOOT_SWITCH_ENABLED=y
+
+
+# 6. Lib Drivers: Task Priorities
+#######################
+#                     #
+#   TASK PRIORITIES   #
+#                     #
+#######################
+# ============================================================
+# Задача опроса Boot Switch
+# Приоритет 3 (ниже reboot_button=4 и sensor_poll=5),
+# потому что:
+#   • кнопка — событие для человека, задержка 20–50 мс не заметна
+#   • reboot_button (4) уже опрашивает тот же GPIO — boot_switch
+#     не должен его вытеснять
+#   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
+#   • Matter-события уходят в HA без задержек
+# ============================================================
+CONFIG_COMMISSIONING_WINDOW_PRIORITY=6
+CONFIG_REBOOT_BUTTON_TASK_PRIORITY=4
+CONFIG_BOOT_SWITCH_TASK_PRIORITY=3
+
+
+# 7. Lib Drivers: Blinking
+CONFIG_LIVE_BLINK_TIME_MS=0
+
+
+# 8. Lib Drivers: Reboot Button
+# Reboot button handlers
+CONFIG_REBOOT_BUTTON_ENABLED=y
+# Single-click: toggle SSD1306
+# Double-click: toggle LED Indicator
+CONFIG_REBOOT_BUTTON_GPIO=9
+# Hold to reboot
+CONFIG_REBOOT_HOLD_TIME_MS=3000
+# Hold to factory reset
+CONFIG_FACTORY_RESET_HOLD_TIME_MS=10000
+# параметры детекции двойного нажатия кнопки Reboot
+# интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+CONFIG_DOUBLE_CLICK_INTERVAL_MS=400
+# максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+CONFIG_SHORT_CLICK_MAX_MS=350
+
+
+# 9. Lib Drivers: Device Log
+# what part of tree to show (-1 means: SHOW ALL)
+CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER=-1
+CONFIG_SHOW_DEVICE_LOG_CLUSTERS=y
+CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES=n
+CONFIG_SHOW_DEVICE_LOG_COMMANDS=n
+
+
+# 10. Lib Drivers: LED Indicator
+# whether or not to use "driver_led_indicator"
+CONFIG_USE_DRIVER_LED_INDICATOR=y
+# 1. Simple version with random intervals
+# 2. Realistic version with UART patterns
+# 3. Version with different activity modes
+CONFIG_DRIVER_LED_MODE=1

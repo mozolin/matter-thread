@@ -227,6 +227,6 @@ void sensor_polling_task(void *pvParameters);
     extern void ssd1306_app_run_cb(void);
   #endif
 #endif
-
+                                  1
 esp_err_t app_attribute_update_main_cb(esp_matter::attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data);
 esp_err_t app_driver_attribute_update_main(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);

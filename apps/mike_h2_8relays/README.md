@@ -6,7 +6,7 @@ This example demonstrates how to control 8 relays on 8 GPIOs of an ESP32-H2 devi
 For this purpose, we use the Home Assistant add-on "Matter Server" and the "Matter" service.  
   
 Adapted for SuperMini ESP32-H2:  
-![](esp32h2.jpg)  
+![](images/esp32h2.jpg)  
 
 
 ## Project Configuration
@@ -60,10 +60,10 @@ app_priv.h:
 #define FACTORY_RESET_HOLD_TIME_MS 10000
 ~~~
 
-![](esp32h2_8relays.jpg)  
+![](images/esp32h2_8relays.jpg)  
   
 The back side of this board  
-![](esp32h2_8relays_back.jpg)  
+![](images/esp32h2_8relays_back.jpg)  
   
 According to this circuit, the GPIO table will be as follows:  
 ~~~
@@ -231,9 +231,9 @@ chip-tool onoff read on-off 1234 1
 0x4000 -> 010000(***16***) 0 000000000 - ESP32H2 (chip-tool)  
 0x3000 -> 001100(***12***) 0 000000000 - ESP32H2 (dataset)  
   
-![](esp32h2_8relays_wires_01.jpg)  
+![](images/esp32h2_8relays_wires_01.jpg)  
   
-![](esp32h2_8relays_wires_02.jpg)  
+![](images/esp32h2_8relays_wires_02.jpg)  
   
-![](ssd1306.jpg)  
+![](images/ssd1306.jpg)  
   

@@ -7,14 +7,20 @@ endif(NOT DEFINED ENV{ESP_MATTER_PATH})
 set(ESP_MATTER_PATH $ENV{ESP_MATTER_PATH})
 set(MATTER_SDK_PATH ${ESP_MATTER_PATH}/connectedhomeip/connectedhomeip)
 
+set(EXTRA_COMPONENT_DIRS
+  "${MATTER_SDK_PATH}/config/esp32/components"
+  "${ESP_MATTER_PATH}/components"
+  "${ESP_MATTER_PATH}/examples/common"
+  "${CMAKE_CURRENT_LIST_DIR}/../lib"
+  "${CMAKE_CURRENT_LIST_DIR}/../lib/components"
+  "${CMAKE_CURRENT_LIST_DIR}/../lib/drivers"
+  "${CMAKE_CURRENT_LIST_DIR}/../lib/plugins"
+  ${extra_components_dirs_append}
+) 
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 include(${ESP_MATTER_PATH}/examples/common/cmake_common/components_include.cmake)
 
-set(EXTRA_COMPONENT_DIRS
-    "${MATTER_SDK_PATH}/config/esp32/components"
-    "${ESP_MATTER_PATH}/components"
-    "${ESP_MATTER_PATH}/examples/common"
-    ${extra_components_dirs_append})
 
 
 #-- BasicInformationCluster (ClusterId 40, 0x0028), Endpoint 0
@@ -22,7 +28,7 @@ set(EXTRA_COMPONENT_DIRS
 set(DEVICE_VENDOR_NAME "Mike_Home")
 #-- AttributeId 3: ProductName
 set(DEVICE_PRODUCT_NAME "Mike_0x8002_8Relays")
-#-- AttributeId 5: NodeLabel
+#-- AttributeId 5: NodeLabel (NOT SET! See: set_basic_attributes_esp_matter())
 set(DEVICE_NODE_LABEL "8Relays_ESP32H2")
 #-- AttributeId 6: Location
 set(DEVICE_LOCATION "Home")

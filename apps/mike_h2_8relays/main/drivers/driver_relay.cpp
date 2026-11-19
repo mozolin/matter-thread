@@ -11,6 +11,7 @@
 #include "nvs.h"
 
 
+
 //-- Turn off ALL relays except the specified one
 void turn_off_other_relays(uint8_t excluded_endpoint)
 {
@@ -31,7 +32,7 @@ void relay_init()
 {
   for(const auto &relay : relays) {
     bool state = nvs_load_state(relay.endpoint);
-    #if RELAY_INVERSE_LEVEL
+    #if CONFIG_RELAY_INVERSE_LEVEL
       gpio_set_level(relay.gpio_pin, state ? 0 : 1);
     #else
       gpio_set_level(relay.gpio_pin, state ? 1 : 0);
@@ -126,27 +127,28 @@ esp_err_t app_driver_sync_update(uint16_t endpoint_id, gpio_num_t gpio_pin, bool
     OnOffServer::Instance().setOnOffValue(endpoint_id, 0, state);
   }
 
-  get_plug_state(endpoint_id, state, true);
+  get_plug_state(endpoint_id, state);
   
   return err;
 }
 
-bool get_plug_state(uint8_t endpoint, bool state, bool logs)
+bool get_plug_state(uint8_t endpoint, bool state)
 {
   bool matter_state;
   auto status = OnOffServer::Instance().getOnOffValue(endpoint, &matter_state);
   if(status == chip::Protocols::InteractionModel::Status::Success) {
-    if(logs) {
-      ESP_LOGW(TAG_MIKE_APP, "~~~ Endpoint %d: %s|%s", endpoint, matter_state ? "ON" : "OFF", state ? "ON" : "OFF");
-    }
+    #if CONFIG_DEBUG_MODE
+      ESP_LOGW(CONFIG_TAG_MIKE_APP, "~~~ Endpoint %d: %s|%s", endpoint, matter_state ? "ON" : "OFF", state ? "ON" : "OFF");
+    #endif
     return matter_state;
   }
-  if(logs) {
-    ESP_LOGE(TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
-  }
+  #if CONFIG_DEBUG_MODE
+    ESP_LOGE(CONFIG_TAG_MIKE_APP, "~~~ Error reading endpoint %d (status %d)", endpoint, static_cast<int>(status));
+  #endif
   return false;
 }
 
+#if CONFIG_DEBUG_MODE
 void print_plugs_state()
 {
   bool state;
@@ -157,7 +159,7 @@ void print_plugs_state()
   ESP_LOGW("", "|   EP | GPIO |  State  |");
   ESP_LOGW("", "-------------------------");
   for(const auto &relay : relays) {
-    //state = get_plug_state(relay.endpoint, false);
+    //state = get_plug_state(relay.endpoint);
     //state = gpio_get_level(relay.gpio_pin);
     //state = nvs_load_state(relay.endpoint);
 
@@ -182,3 +184,4 @@ void print_plugs_state()
   ESP_LOGW("", "-------------------------");
   ESP_LOGW("", "");
 }
+#endif
