@@ -96,12 +96,125 @@ CONFIG_ESP_TASK_WDT_PANIC=y
 CONFIG_ESP_TASK_WDT_TIMEOUT_S=5
 CONFIG_FREERTOS_HZ=1000
 
-# SSD1306
-CONFIG_I2C_PORT_1=y
-
 # LED Indicator
 CONFIG_USE_GAMMA_CORRECTION=y
 
 
 #-- Генерация OTA-образа
 CONFIG_CHIP_OTA_IMAGE_BUILD=y
+
+
+
+#-----------------------
+#-----------------------
+#-----------------------
+
+
+
+# 1. Lib Drivers: Debug options
+CONFIG_MOCK_DISPLAY_BEHAVIOR=n
+CONFIG_DEBUG_MODE=n
+CONFIG_ESP_EMULATOR_MODE=n
+CONFIG_SHOW_DEVICE_LOG=n
+CONFIG_CHECK_I2C_PORTS=n
+CONFIG_TAG_MIKE_APP="MIKE MULTIMOTION H2"
+CONFIG_DEVICE_NODE_LABEL="MultiMotion_ESP32H2"
+
+
+# 2. Lib Drivers: SSD1306 LED Display
+CONFIG_SSD1306_ENABLED=n
+CONFIG_SSD1306_SDA_GPIO=1
+CONFIG_SSD1306_SCL_GPIO=2
+CONFIG_SSD1306_RESET_GPIO=-1
+CONFIG_SSD1306_I2C_ADDRESS=0x3C
+CONFIG_SSD1306_I2C_PORT=0
+CONFIG_SSD1306_APP_RUN_CB=y
+CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS=300000  # 5 минут
+
+
+# 3. Lib Drivers: I2C
+########################################
+#                                      #
+#   I2C BUSES (0 and 1 for ESP32-H2)   #
+#                                      #
+########################################
+# Use I2C in this app
+CONFIG_I2C_USE_IN_APP=n
+CONFIG_I2C_FREQ_HZ=400000
+# I2C Bus=0
+CONFIG_I2C_0_SDA_GPIO=1
+CONFIG_I2C_0_SCL_GPIO=2
+CONFIG_I2C_0_PORT_NUM=0
+# I2C Bus=1
+CONFIG_I2C_1_SDA_GPIO=3
+CONFIG_I2C_1_SCL_GPIO=5
+CONFIG_I2C_1_PORT_NUM=1
+
+
+# 4. Lib Drivers: Commissioning Window
+# Window opens for NNN seconds
+CONFIG_COMMISSIONING_WINDOW_OPEN=300
+
+
+# 5. Lib Drivers: Boot Switch
+# Boot Switch (Generic Switch) для событий кнопки BOOT
+CONFIG_BOOT_SWITCH_ENABLED=y
+
+
+# 6. Lib Drivers: Task Priorities
+#######################
+#                     #
+#   TASK PRIORITIES   #
+#                     #
+#######################
+# ============================================================
+# Задача опроса Boot Switch
+# Приоритет 3 (ниже reboot_button=4 и sensor_poll=5),
+# потому что:
+#   • кнопка — событие для человека, задержка 20–50 мс не заметна
+#   • reboot_button (4) уже опрашивает тот же GPIO — boot_switch
+#     не должен его вытеснять
+#   • sensor_poll (5) имеет более строгие тайминги (BME680/DS18B20)
+#   • Matter-события уходят в HA без задержек
+# ============================================================
+CONFIG_COMMISSIONING_WINDOW_PRIORITY=6
+CONFIG_REBOOT_BUTTON_TASK_PRIORITY=4
+CONFIG_BOOT_SWITCH_TASK_PRIORITY=3
+
+
+# 7. Lib Drivers: Blinking
+CONFIG_LIVE_BLINK_TIME_MS=0
+
+
+# 8. Lib Drivers: Reboot Button
+# Reboot button handlers
+CONFIG_REBOOT_BUTTON_ENABLED=y
+# Single-click: toggle SSD1306
+# Double-click: toggle LED Indicator
+CONFIG_REBOOT_BUTTON_GPIO=9
+# Hold to reboot
+CONFIG_REBOOT_HOLD_TIME_MS=3000
+# Hold to factory reset
+CONFIG_FACTORY_RESET_HOLD_TIME_MS=10000
+# параметры детекции двойного нажатия кнопки Reboot
+# интервал между первым и вторым нажатием для распознавания двойного клика (мс)
+CONFIG_DOUBLE_CLICK_INTERVAL_MS=400
+# максимальная длительность короткого нажатия (мс) — иначе это не "клик"
+CONFIG_SHORT_CLICK_MAX_MS=350
+
+
+# 9. Lib Drivers: Device Log
+# what part of tree to show (-1 means: SHOW ALL)
+CONFIG_SHOW_DEVICE_LOG_ONE_CLUSTER=-1
+CONFIG_SHOW_DEVICE_LOG_CLUSTERS=y
+CONFIG_SHOW_DEVICE_LOG_ATTRIBUTES=n
+CONFIG_SHOW_DEVICE_LOG_COMMANDS=n
+
+
+# 10. Lib Drivers: LED Indicator
+# whether or not to use "driver_led_indicator"
+CONFIG_USE_DRIVER_LED_INDICATOR=y
+# 1. Simple version with random intervals
+# 2. Realistic version with UART patterns
+# 3. Version with different activity modes
+CONFIG_DRIVER_LED_MODE=1

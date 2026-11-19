@@ -11,7 +11,7 @@
 #define TRIGGER_GPIO    3
 #define ECHO_GPIO       5
 
-#if DEBUG_MODE
+#if CONFIG_DEBUG_MODE
   static const char* TAG_ULTRASONIC = "ULTRASONIC_SENSOR";
 #endif
 
@@ -36,7 +36,7 @@ esp_err_t hcsr04_init_app(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t 
     gpio_reset_pin(t_pin);
     esp_err_t err = gpio_set_direction(t_pin, GPIO_MODE_OUTPUT);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           ESP_LOGE(TAG_ULTRASONIC, "Failed to set GPIO direction for HC-SR04 trigger");
         #endif
         return err;
@@ -47,7 +47,7 @@ esp_err_t hcsr04_init_app(hcsr04_dev_t *dev, gpio_num_t trigger_pin, gpio_num_t 
     gpio_reset_pin(e_pin);
     err = gpio_set_direction(e_pin, GPIO_MODE_INPUT);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           ESP_LOGE(TAG_ULTRASONIC, "Failed to set GPIO direction for HC-SR04 echo");
         #endif
         return err;
@@ -67,25 +67,25 @@ uint32_t hcsr04_read_app(hcsr04_dev_t *dev)
         switch (res)
         {
             case ESP_ERR_ULTRASONIC_PING: {
-                #if DEBUG_MODE
+                #if CONFIG_DEBUG_MODE
                   ESP_LOGE(TAG_ULTRASONIC, "Error %d: Cannot ping (device is in invalid state)", res);
                 #endif
                 break;
             }
             case ESP_ERR_ULTRASONIC_PING_TIMEOUT: {
-                #if DEBUG_MODE
+                #if CONFIG_DEBUG_MODE
                   ESP_LOGE(TAG_ULTRASONIC, "Error %d: Ping timeout (no device found)", res);
                 #endif
                 break;
             }
             case ESP_ERR_ULTRASONIC_ECHO_TIMEOUT: {
-                #if DEBUG_MODE
+                #if CONFIG_DEBUG_MODE
                   ESP_LOGE(TAG_ULTRASONIC, "Error %d: Echo timeout (i.e. distance too big)", res);
                 #endif
                 break;
             }
             default: {
-                #if DEBUG_MODE
+                #if CONFIG_DEBUG_MODE
                   ESP_LOGE(TAG_ULTRASONIC, "Error %d: %s", res, esp_err_to_name(res));
                 #endif
             }
@@ -93,7 +93,7 @@ uint32_t hcsr04_read_app(hcsr04_dev_t *dev)
     }
     else {
         distance *= 100;
-        #if DEBUG_MODE
+        #if CONFIG_DEBUG_MODE
           ESP_LOGW(TAG_ULTRASONIC, "Distance: %0.04f m", distance);
         #endif
     }

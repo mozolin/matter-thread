@@ -5,9 +5,18 @@
 #include "soc/gpio_num.h"
 #include "driver/gpio.h"
 #include <button_gpio.h>
+#include "drivers/sensor_common.h"
 
 
 #define CONFIG_MOCK_SENSORS_BEHAVIOR           false
+
+
+/***********************
+ *                     *
+ *   TASK PRIORITIES   *
+ *                     *
+ ***********************/
+#define CONFIG_SENSOR_POLL_TASK_PRIORITY       5
 
 
 /**********************
@@ -153,40 +162,6 @@
 #endif
 
 
-// Sensor types
-typedef enum {
-  SENSOR_TYPE_BME280  = 0,
-  SENSOR_TYPE_BME680  = 1,
-  SENSOR_TYPE_DS18B20 = 2,
-  SENSOR_TYPE_DHT11   = 3,
-  SENSOR_TYPE_MQ135   = 4,
-  SENSOR_TYPE_SHT4X   = 5,
-  SENSOR_TYPE_SCD4X   = 6,
-  SENSOR_TYPE_MAX,
-} sensor_type_t;
-
-// Sensor data structure
-typedef struct {
-  sensor_type_t config;
-  float last_temperature;
-  float last_humidity;
-  float last_pressure;
-  float last_gas_resistance;  // For BME680
-  float last_co2;             // For MQ135 & SCD4X
-  float last_co;              // For MQ135
-  float last_tvoc;            // For MQ135
-  uint64_t last_read_time;
-  uint8_t num_sensors;        // For DS18B20
-} sensor_data_t;
-
-// Endpoint-sensor mapping
-typedef struct {
-  uint16_t endpoint_id;
-  sensor_type_t sensor_type;
-  gpio_num_t primary_gpio;
-  gpio_num_t secondary_gpio;
-} sensor_endpoint_mapping_t;
-
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include "esp_openthread_types.h"
 #endif
@@ -195,7 +170,7 @@ extern sensor_endpoint_mapping_t sensor_mapping_list[SENSOR_TYPE_MAX];
 extern uint16_t configured_sensors;
 extern sensor_data_t sensors[SENSOR_TYPE_MAX];
 
-//typedef void *app_driver_handle_t;
+typedef void *app_driver_handle_t;
 
 /** Sensor initialization
  *
@@ -252,3 +227,6 @@ void sensor_polling_task(void *pvParameters);
     extern void ssd1306_app_run_cb(void);
   #endif
 #endif
+
+esp_err_t app_attribute_update_main_cb(esp_matter::attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data);
+esp_err_t app_driver_attribute_update_main(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);

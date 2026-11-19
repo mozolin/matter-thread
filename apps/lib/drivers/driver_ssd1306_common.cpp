@@ -2,7 +2,9 @@
 #include "driver_ssd1306_common.h"
 #include "driver_led_indicator.h"
 
-#include "main_driver_ssd1306.h"
+#if CONFIG_SSD1306_ENABLED
+  #include "main_driver_ssd1306.h"
+#endif
 
 #include "ssd1306_i2cdev.h"
 
@@ -21,6 +23,9 @@
 
 
 #if CONFIG_SSD1306_ENABLED
+  #include "ssd1306_i2cdev.h"
+  #include "ssd1306_font8x8_basic.h"
+
   //-- SSD1306 device instance
   SSD1306_t ssd1306dev;
   //-- Is SSD1306 initialized?
@@ -28,13 +33,6 @@
   //=== состояние дисплея (по умолчанию — ВЫКЛЮЧЕН) ===
   bool ssd1306_display_enabled = false;
   uint64_t ssd1306_last_on_time_ms = 0;
-#endif
-
-
-
-#if CONFIG_SSD1306_ENABLED
-  #include "ssd1306_i2cdev.h"
-  #include "ssd1306_font8x8_basic.h"
 
   const uint8_t degree_symbol[] = {
     0b00110000,
@@ -458,4 +456,4 @@
     ssd1306_contrast(&ssd1306dev, 0x00);    // программное выключение панели
   }
 
-#endif
+#endif // CONFIG_SSD1306_ENABLED

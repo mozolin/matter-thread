@@ -3,6 +3,7 @@
 #include <esp_err.h>
 #include <driver/gpio.h>
 #include "dht.h"
+#include "sensor_common.h"
 
 //#if CONFIG_DHT11_ENABLED
 

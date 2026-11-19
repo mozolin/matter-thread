@@ -41,7 +41,7 @@ typedef void *app_driver_handle_t;
  * @return ESP_OK on success.
  * @return error in case of failure.
  */
-esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
+extern esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id, esp_matter_attr_val_t *val);
 
 extern void app_event_cb(const ChipDeviceEvent *event, intptr_t arg);
 

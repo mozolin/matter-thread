@@ -137,6 +137,8 @@ CONFIG_SSD1306_AUTO_OFF_TIMEOUT_MS=300000  # 5 минут
 #   I2C BUSES (0 and 1 for ESP32-H2)   #
 #                                      #
 ########################################
+# Use I2C in this app
+CONFIG_I2C_USE_IN_APP=y
 CONFIG_I2C_FREQ_HZ=400000
 # I2C Bus=0
 CONFIG_I2C_0_SDA_GPIO=1
@@ -175,7 +177,6 @@ CONFIG_BOOT_SWITCH_ENABLED=y
 #   • Matter-события уходят в HA без задержек
 # ============================================================
 CONFIG_COMMISSIONING_WINDOW_PRIORITY=6
-CONFIG_SENSOR_POLL_TASK_PRIORITY=5
 CONFIG_REBOOT_BUTTON_TASK_PRIORITY=4
 CONFIG_BOOT_SWITCH_TASK_PRIORITY=3
 

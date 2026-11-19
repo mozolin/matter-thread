@@ -12,6 +12,7 @@
 #include <common_macros.h>
 #include <app_priv.h>
 #include <app_reset.h>
+#include "drivers/sensor_common.h"
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
   #include <platform/ESP32/OpenthreadLauncher.h>
 #endif

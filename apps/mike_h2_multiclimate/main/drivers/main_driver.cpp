@@ -3,7 +3,9 @@
 #include <esp_log.h>
 #include <esp_matter.h>
 #include <app_priv.h>
+#include "sensor_common.h"
 
+#include "app_main_driver.h"
 
 #include "sensor_driver_bme280.h"
 #include "sensor_driver_bme680.h"
@@ -405,7 +407,6 @@ void sensor_polling_task(void *pvParameters)
     
     uint32_t cycle_counter = 0;
     const uint32_t RESET_CHECK_INTERVAL = 100;
-    //const uint32_t STATS_LOG_INTERVAL = 5000;
     
     #if CONFIG_DEBUG_MODE
       ESP_LOGI(CONFIG_TAG_MIKE_APP, "Sensor polling task started with %d sensors", configured_sensors);
@@ -449,9 +450,7 @@ void sensor_polling_task(void *pvParameters)
         
         // Log statistics
         #if CONFIG_DEBUG_MODE || CONFIG_ESP_EMULATOR_MODE
-          //if (cycle_counter % STATS_LOG_INTERVAL == 0) {
-            app_driver_log_sensor_statistics();
-          //}
+          app_driver_log_sensor_statistics();
         #endif
         
         #if !CONFIG_ESP_EMULATOR_MODE

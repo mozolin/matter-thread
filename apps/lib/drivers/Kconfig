@@ -64,6 +64,10 @@ endmenu
 
 
 menu "3. Lib Drivers: I2C"
+  # Use I2C in this app
+  config I2C_USE_IN_APP
+    bool "CONFIG_I2C_USE_IN_APP"
+    default n
   config I2C_FREQ_HZ
     int "CONFIG_I2C_FREQ_HZ"
     default 400000
@@ -135,9 +139,6 @@ menu "6. Lib Drivers: Task Priorities"
   config COMMISSIONING_WINDOW_PRIORITY
     int "CONFIG_COMMISSIONING_WINDOW_PRIORITY"
     default 6
-  config SENSOR_POLL_TASK_PRIORITY
-    int "CONFIG_SENSOR_POLL_TASK_PRIORITY"
-    default 5
   config REBOOT_BUTTON_TASK_PRIORITY
     int "CONFIG_REBOOT_BUTTON_TASK_PRIORITY"
     default 4

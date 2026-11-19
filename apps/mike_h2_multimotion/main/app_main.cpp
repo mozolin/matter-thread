@@ -21,7 +21,12 @@
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 
-#include "app_main.h"
+#include "app_main_driver.h"
+#include "i2c_adv.h"
+
+#include "sensor_microwave.h"
+#include "sensor_pir.h"
+#include "sensor_ultrasonic.h"
 
 
 #if CONFIG_BOOT_SWITCH_ENABLED
@@ -33,18 +38,12 @@ using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 using namespace chip::app::Clusters;
 
-//--> uses for CommissioningWindowOpen
-//constexpr auto k_timeout_seconds = CONFIG_COMMISSIONING_WINDOW_OPEN;
-//<-- uses for CommissioningWindowOpen
 uint16_t configured_sensors = 0;
 sensor_endpoint_mapping_t sensor_mapping_list[CONFIG_NUM_SENSORS];
 sensor_data_t sensors[CONFIG_NUM_SENSORS];
 
-#if USE_DRIVER_LED_INDICATOR
-  led_indicator_handle_t led_handle;
-#endif
 
-#if SHOW_DEVICE_LOG
+#if CONFIG_SHOW_DEVICE_LOG
   #include "plugin_device_structure.h"
 #endif
 
@@ -54,23 +53,23 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
     esp_err_t err = ESP_OK;
 
     if (!node) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Matter node cannot be NULL");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Matter node cannot be NULL");
         #endif
         return ESP_ERR_INVALID_ARG;
     }
 
     if (!sensor_cfg) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Sensor config cannot be NULL");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Sensor config cannot be NULL");
         #endif
         return ESP_ERR_INVALID_ARG;
     }
 
     for (int i = 0; i < configured_sensors; i++) {
         if (sensor_mapping_list[i].sensor_type == sensor_cfg->type) {
-            #if DEBUG_MODE
-              ESP_LOGW(TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg->type);
+            #if CONFIG_DEBUG_MODE
+              ESP_LOGW(CONFIG_TAG_MIKE_APP, "Sensor type %d already configured", sensor_cfg->type);
             #endif
             return ESP_ERR_INVALID_STATE;
         }
@@ -108,8 +107,8 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
             endpoint = occupancy_sensor::create(node, &sensor_config, ENDPOINT_FLAG_NONE, sensor_cfg);
 
             if (!endpoint) {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "Failed to create endpoint for ultrasonic sensor");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGW(CONFIG_TAG_MIKE_APP, "Failed to create endpoint for ultrasonic sensor");
                 #endif
                 return ESP_FAIL;
             }
@@ -130,31 +129,31 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
                 esp_matter::cluster::pressure_measurement::create(endpoint, &pressure_config, MATTER_CLUSTER_FLAG_SERVER);
             
             if (!pressure_cluster) {
-                #if DEBUG_MODE
-                  ESP_LOGW(TAG_MIKE_APP, "Failed to create Pressure Measurement cluster");
+                #if CONFIG_DEBUG_MODE
+                  ESP_LOGW(CONFIG_TAG_MIKE_APP, "Failed to create Pressure Measurement cluster");
                 #endif
             }
             break;
         }
 
         default:
-            #if DEBUG_MODE
-              ESP_LOGE(TAG_MIKE_APP, "Unknown sensor type: %d", sensor_cfg->type);
+            #if CONFIG_DEBUG_MODE
+              ESP_LOGE(CONFIG_TAG_MIKE_APP, "Unknown sensor type: %d", sensor_cfg->type);
             #endif
             return ESP_ERR_INVALID_ARG;
     }
 
     if (!endpoint) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Matter endpoint creation failed for sensor type: %d", sensor_cfg->type);
         #endif
         return ESP_FAIL;
     }
 
     err = app_driver_sensor_init(sensor_cfg);
     if (err != ESP_OK) {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg->type);
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to initialize sensor type: %d", sensor_cfg->type);
         #endif
         return err;
     }
@@ -172,13 +171,13 @@ static esp_err_t create_sensor_endpoint(sensor_config_t* sensor_cfg, node_t* nod
         
         configured_sensors++;
         
-        #if DEBUG_MODE
-          ESP_LOGI(TAG_MIKE_APP, "Sensor %s created with endpoint_id %d", 
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGI(CONFIG_TAG_MIKE_APP, "Sensor %s created with endpoint_id %d", 
                 sensor_cfg->name, endpoint::get_id(endpoint));
         #endif
     } else {
-        #if DEBUG_MODE
-          ESP_LOGE(TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
+        #if CONFIG_DEBUG_MODE
+          ESP_LOGE(CONFIG_TAG_MIKE_APP, "Maximum sensors configuration limit exceeded!");
         #endif
         return ESP_FAIL;
     }
@@ -200,14 +199,14 @@ extern "C" void app_main()
   }
   err = nvs_flash_init();
   if(err != ESP_OK) {
-  	#if DEBUG_MODE
-  	  ESP_LOGE(TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
+  	#if CONFIG_DEBUG_MODE
+  	  ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to initialize NVS Flash: %d (%s)", err, esp_err_to_name(err));
   	#endif
   	return;
   }
 
   // 2. LED indicator
-  #if USE_DRIVER_LED_INDICATOR
+  #if CONFIG_USE_DRIVER_LED_INDICATOR
     led_indicator_init_main();
   #endif
 
@@ -226,7 +225,7 @@ extern "C" void app_main()
     #if CONFIG_OPENTHREAD_CLI
       esp_matter::console::otcli_register_commands();
     #endif
-    #if DEBUG_MODE
+    #if CONFIG_DEBUG_MODE
       ESP_LOGE("", "");
       ESP_LOGE("", "===========================================");
       ESP_LOGE("", " Free heap: %" PRIu32 ", Largest block: %d", esp_get_free_heap_size(), heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
@@ -235,8 +234,8 @@ extern "C" void app_main()
     #endif
     err = esp_matter::console::init();
     if(err != ESP_OK) {
-      #if DEBUG_MODE
-        ESP_LOGE(TAG_MIKE_APP, "Console init failed: %d", err);
+      #if CONFIG_DEBUG_MODE
+        ESP_LOGE(CONFIG_TAG_MIKE_APP, "Console init failed: %d", err);
       #endif
     }
   #endif
@@ -245,7 +244,7 @@ extern "C" void app_main()
   // 5. Matter node + endpoints
   node::config_t node_config;
   node_t *node = node::create(&node_config, app_attribute_update_cb, app_identification_cb);
-  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(TAG_MIKE_APP, "Failed to create Matter node"));
+  ABORT_APP_ON_FAILURE(node != nullptr, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to create Matter node"));
   
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!                                                              !!
@@ -283,10 +282,7 @@ extern "C" void app_main()
   };
   create_sensor_endpoint(&ultrasonic_sensor, node);
   
-  // 6. 
-  // =========================================
-  //  Boot Switch endpoint и On/Off эндпоинты
-  // =========================================
+  // 6. Boot Switch endpoint и On/Off эндпоинты
   #if CONFIG_BOOT_SWITCH_ENABLED
     create_boot_switch_endpoint(node);
     create_onoff_endpoints(node);
@@ -306,7 +302,7 @@ extern "C" void app_main()
 
   // 8. Matter start
   err = esp_matter::start(app_event_cb);
-  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
+  ABORT_APP_ON_FAILURE(err == ESP_OK, ESP_LOGE(CONFIG_TAG_MIKE_APP, "Failed to start Matter, err:%d", err));
 
   
   // 9. Open commissioning windows after factory reset and reboot
@@ -316,7 +312,7 @@ extern "C" void app_main()
 
   
   // 10. Get FabricId & NodeId
-  #if DEBUG_MODE
+  #if CONFIG_DEBUG_MODE
     if(node) {
       ESP_LOGW("", "");
       ESP_LOGW("", "=== FabricId & NodeId =====================");
@@ -335,12 +331,18 @@ extern "C" void app_main()
   set_basic_attributes_esp_matter();
 
 
+  // 14. Запуск задачи опроса кнопки BOOT
+  #if CONFIG_BOOT_SWITCH_ENABLED
+    start_boot_switch_polling_task();
+  #endif
+
+  
   // 12. Выставляем OnOff статус
   // ====================================================
   // Явно выставляем OnOff = ON (true) для LED эндпоинта,
   // чтобы HA сразу видел разблокированное состояние.
   // ====================================================
-  #if CONFIG_BOOT_SWITCH_ENABLED && USE_DRIVER_LED_INDICATOR
+  #if CONFIG_BOOT_SWITCH_ENABLED && CONFIG_USE_DRIVER_LED_INDICATOR
     set_led_onoff_attribute(true);
   #endif
 
@@ -348,8 +350,9 @@ extern "C" void app_main()
   // 13. Polling task
   xTaskCreate(sensor_polling_task, "sensor_poll", 4096, NULL, CONFIG_SENSOR_POLL_TASK_PRIORITY, NULL);
 
+  
   // 14. Log
-  #if SHOW_DEVICE_LOG
+  #if CONFIG_SHOW_DEVICE_LOG
     if(node) {
       vTaskDelay(pdMS_TO_TICKS(3000));
       log_device_structure(node);

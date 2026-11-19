@@ -10,7 +10,7 @@
 //#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
-
+#include "sensor_common.h"
 
 // Значения по умолчанию для калибровки (требуется уточнение для конкретного датчика и условий)
 #define MQ135_DEFAULT_R0           10000.0f  // 10 кОм

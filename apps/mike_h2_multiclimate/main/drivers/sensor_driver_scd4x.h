@@ -3,6 +3,7 @@
 #include <esp_err.h>
 #include <driver/gpio.h>
 #include "scd4x.h"
+#include "sensor_common.h"
 
 #ifdef __cplusplus
 extern "C" {

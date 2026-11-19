@@ -14,6 +14,7 @@
 //#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
+#include "sensor_common.h"
 
 /* ============================================================
  *  КОНСТАНТЫ ПО УМОЛЧАНИЮ (ДЛЯ 3.3V)
