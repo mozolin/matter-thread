@@ -15,7 +15,7 @@ Button actions:
 - Hold for 10 sec to factory reset
 
 ### ESP32-H2 SuperMini
-![](images/ESP32H2.jpg)  
+![](images/ESP32H2_small_gray.jpg)  
 
 ### Layout
 ![](images/layout.jpg)  
