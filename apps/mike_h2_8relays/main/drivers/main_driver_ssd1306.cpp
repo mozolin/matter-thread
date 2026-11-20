@@ -2,6 +2,7 @@
 #include "main_driver_ssd1306.h"
 #include "ssd1306_font8x8_basic.h"
 #include <app_priv.h>
+#include "driver_relay.h"
 
 #if CONFIG_SSD1306_ENABLED
 
@@ -15,7 +16,16 @@
     ssd1306_clear_screen(&ssd1306dev, false);
     ssd1306_contrast(&ssd1306dev, 0xff);
     //ssd1306_display_text(&ssd1306dev, 0, " MATTER--THREAD ", 16, false);
-    ssd1306_display_text(&ssd1306dev, 0, "    8 RELAYS    ", 16, false);
+    //ssd1306_display_text(&ssd1306dev, 0, "    8 RELAYS    ", 16, false);
+    
+    ssd1306_display_text(&ssd1306dev,    1, "ESP32-H2 THREAD", 16, false);
+    //ssd1306_display_text(&ssd1306dev,    1, "MATTER/THREAD   ", 16, false);
+    ssd1306_display_text_x2(&ssd1306dev, 2, " EIGHT  ", 8, false);
+    ssd1306_display_text_x2(&ssd1306dev, 4, " RELAYS ", 8, false);
+    ssd1306_display_text_x2(&ssd1306dev, 6, "(c)Mike ", 8, false);
+    
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    ssd1306_clear_screen(&ssd1306dev, false);
   }
 
   void ssd1306_show_plug_status(uint8_t plug_num, bool state)
@@ -115,6 +125,7 @@
     void ssd1306_app_run_cb()
     {
 	    ssd1306_show_title();
+	    relay_init();
     }
   #endif
 

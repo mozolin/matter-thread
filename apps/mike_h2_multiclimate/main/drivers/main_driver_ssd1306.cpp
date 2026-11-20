@@ -21,7 +21,7 @@
     //ssd1306_display_text(&ssd1306dev,    1, "MATTER/THREAD   ", 16, false);
     ssd1306_display_text_x2(&ssd1306dev, 2, "MULTI   ", 8, false);
     ssd1306_display_text_x2(&ssd1306dev, 4, "CLIMATE ", 8, false);
-    ssd1306_display_text_x2(&ssd1306dev, 6, "(c) MIKE", 8, false);
+    ssd1306_display_text_x2(&ssd1306dev, 6, "(c)Mike ", 8, false);
     //ssd1306_display_text_x2(&ssd1306dev, 4, " MATTER ", 8, false);
     //ssd1306_display_text_x2(&ssd1306dev, 6, " THREAD ", 8, false);
     /*
